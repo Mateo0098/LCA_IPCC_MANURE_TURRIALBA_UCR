@@ -1,0 +1,3 @@
+sampling_date,treatment,sample_type,sample_count,moisture_content_treatment_mean_pct,moisture_content_treatment_sd_pct,moisture_content_treatment_cv_pct,dry_matter_treatment_mean_pct,dry_matter_treatment_sd_pct,dry_matter_treatment_cv_pct,ash_content_treatment_mean_pct,ash_content_treatment_sd_pct,ash_content_treatment_cv_pct,volatile_solids_treatment_mean_pct,volatile_solids_treatment_sd_pct,volatile_solids_treatment_cv_pct
+2025-11-10,A,Fresh manure,2,85.769829,0.620520,0.723471,14.230171,0.620520,4.360591,14.123008,0.667661,4.727468,85.876992,0.667661,0.777462
+2025-11-10,B,Precomposted manure,2,77.593045,3.926927,5.060927,22.406955,3.926927,17.525483,29.041353,4.255965,14.654844,70.958647,4.255965,5.997810

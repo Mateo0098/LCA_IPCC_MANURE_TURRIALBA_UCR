@@ -1,0 +1,5 @@
+sampling_date,sample_group,sample_type,replicate_count,moisture_content_mean_pct,moisture_content_sd_pct,moisture_content_cv_pct,dry_matter_mean_pct,dry_matter_sd_pct,dry_matter_cv_pct,ash_content_mean_pct,ash_content_sd_pct,ash_content_cv_pct,volatile_solids_mean_pct,volatile_solids_sd_pct,volatile_solids_cv_pct
+2025-11-10,A1,Fresh manure,3,86.208603,0.109691,0.127239,13.791397,0.109691,0.795358,14.595115,0.783425,5.367722,85.404885,0.783425,0.917307
+2025-11-10,A2,Fresh manure,3,85.331055,0.339317,0.397648,14.668945,0.339317,2.313168,13.650900,1.679303,12.301777,86.349100,1.679303,1.944784
+2025-11-10,B1,Precomposted manure,3,80.369802,0.238677,0.296973,19.630198,0.238677,1.215865,26.031931,1.846614,7.093651,73.968069,1.846614,2.496502
+2025-11-10,B2,Precomposted manure,3,74.816288,0.297756,0.397983,25.183712,0.297756,1.182337,32.050775,0.304259,0.949305,67.949225,0.304259,0.447775

@@ -1,0 +1,7 @@
+escenario,etapa,factor_boniga,factor_agua,factor_masa_total,comentario
+A,1,0.93,0,1,default
+A,2,0.93,0,1,default
+A,3,0.07,0,1,factor_boniga define porcentaje de boniga fresca a A3
+A,4,0.07,1,1,default
+B,1,1,0,1,default
+B,2,1,1,1,default

@@ -1,0 +1,7 @@
+escenario,etapa,tratamiento,n_ex_pct,vs_t_pct,fecha_n_ex,fecha_vs_t,unidad_n_ex,unidad_vs_t,fuente_n_ex,fuente_vs_t
+A,1,ESTIERCOL FRESCO,0.371666667,85.876992,19/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
+A,2,SOL: PRECOMPOSTADO,2.425,70.958647,21/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
+A,3,ESTIERCOL FRESCO,0.371666667,85.876992,19/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
+A,4,LIQ: AGUA VERDE,0.00718577,,21/11/2025,,% N total,,CIA_samples_table_v6_treatment_summary.csv,
+B,1,ESTIERCOL FRESCO,0.371666667,85.876992,19/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
+B,2,LIQ: PURINES,0.011434,,28/11/2025,,% N total,,CIA_samples_table_v6_treatment_summary.csv,

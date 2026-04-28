@@ -1,0 +1,2 @@
+sampling_date,from_state,to_state,dry_matter_from_mean_pct,dry_matter_to_mean_pct,ash_from_mean_pct_dry_basis,ash_to_mean_pct_dry_basis,dry_matter_retention_ratio,mass_ratio_to_over_from,mass_loss_pct,assumption,basis
+11/10/2025,Fresh manure,Precomposted manure,14.230171,22.406955,14.123008,29.041353,0.486307,0.308843,69.11571,same_lot_A_to_B_and_ash_mass_conservation,wet_mass

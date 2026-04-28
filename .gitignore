@@ -1,0 +1,39 @@
+﻿# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.ai/
+
+# Python cache / build
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+
+# Local env / secrets
+.env
+.env.*
+
+# Generated outputs (reproducibles)
+graphics_results/
+processed/acv_impacto_por_etapa_escenario.csv
+processed/acv_impacto_total_por_escenario.csv
+processed/ACV_resumen_emisiones.csv
+processed/*_updated.csv

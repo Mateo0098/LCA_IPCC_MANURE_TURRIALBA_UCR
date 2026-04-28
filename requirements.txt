@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+openpyxl
+pypdf
+python-docx
+latex2mathml
+mathml2omml

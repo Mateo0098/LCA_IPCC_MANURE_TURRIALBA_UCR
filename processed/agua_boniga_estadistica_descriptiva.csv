@@ -1,0 +1,3 @@
+﻿variable,unidad,promedio,mediana,minimo,maximo,desviacion_estandar,n_datos,duracion_muestreo_dias,flujo_por_dia,flujo_por_semana,flujo_por_ano,archivo_fuente
+agua,L,684.9545,676.8,507.6,930.6,98.517864,36,3.5,195.701286,1369.909,71430.969286,C:\Users\Mateo Cerdas\Downloads\things_to save\things_to save\tfg acv\Escritos\Keep working on here\Academic_documents\Datos boñiga y agua proy_AS.xlsx
+boniga,kg,49.156279,42.17,22.14,130.25,23.558707,43,3.5,14.044651,98.312558,5126.297667,C:\Users\Mateo Cerdas\Downloads\things_to save\things_to save\tfg acv\Escritos\Keep working on here\Academic_documents\Datos boñiga y agua proy_AS.xlsx

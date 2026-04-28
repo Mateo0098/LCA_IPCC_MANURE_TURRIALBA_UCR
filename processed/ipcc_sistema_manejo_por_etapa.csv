@@ -1,0 +1,7 @@
+escenario,etapa,sistema_manejo,comentario
+A,1,dry_lot,Seleccion por defecto para A1
+A,2,composting_invessel,Aplica solo en rama IPCC de A2
+A,3,uncovered_anaerobic_lagoon,Seleccion por defecto para A3
+A,4,uncovered_anaerobic_lagoon,Seleccion por defecto para A4
+B,1,uncovered_anaerobic_lagoon,Seleccion por defecto para B1
+B,2,uncovered_anaerobic_lagoon,Seleccion por defecto para B2

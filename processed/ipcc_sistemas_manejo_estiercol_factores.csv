@@ -1,0 +1,9 @@
+sistema_manejo,mcf_pct,ef3,frac_gas_ms,frac_leach_ms,comentario
+dry_lot,1.5,0.02,0.3,0.035,Valores de referencia dry lot
+solid_storage,4,0.01,0.14,0,Solidos almacenados
+composting_invessel,0.5,0.006,0.45,0,Compostaje / precompostado in vessel
+uncovered_anaerobic_lagoon,80,0,0.35,0,Laguna anaerobia descubierta
+aerobic_treatment,0,0.01,0.27,0,Tratamiento aerobio
+liquid_slurry,25,0,0.48,0,Sistema liquido tipo slurry
+composting_intensive,1.5,0.005,0.5,0.06,windrow_intensive
+composting_pasive,2.5,0.005,0.45,0.04,windrow_pasive
