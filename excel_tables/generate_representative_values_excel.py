@@ -81,7 +81,7 @@ def add_rows(ws, rows: list[list[Any]], title_rows: set[int] | None = None, head
             continue
         for column_index in range(1, max_columns + 1):
             cell = ws.cell(row=row_index, column=column_index)
-            cell.alignment = Alignment(wrap_text=True, vertical="top")
+            cell.alignment = Alignment(wrap_text=True, horizontal="center", vertical="center")
             cell.border = row_border
             cell.font = Font(size=TABLE_FONT_SIZE)
             if row_index in title_rows:
@@ -119,7 +119,8 @@ def enable_multiline_cells(wb: Workbook) -> None:
             for cell in row:
                 alignment = copy(cell.alignment)
                 alignment.wrap_text = True
-                alignment.vertical = "top"
+                alignment.horizontal = "center"
+                alignment.vertical = "center"
                 cell.alignment = alignment
 
 
@@ -307,7 +308,7 @@ def build_workbook() -> Workbook:
     configure_letter_page(ws_notes)
     for row in ws_notes.iter_rows():
         for cell in row:
-            cell.alignment = Alignment(wrap_text=True, vertical="top")
+            cell.alignment = Alignment(wrap_text=True, horizontal="center", vertical="center")
 
     enable_multiline_cells(wb)
     return wb
