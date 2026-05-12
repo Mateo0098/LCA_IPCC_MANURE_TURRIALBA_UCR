@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import argparse
 import csv
+from copy import copy
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from openpyxl import Workbook
-from openpyxl.styles import Alignment, Font, PatternFill
+from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils import get_column_letter
 
 
@@ -62,17 +63,22 @@ def number(value: str, digits: int = 3) -> float | int | str:
 def add_rows(ws, rows: list[list[Any]], title_rows: set[int] | None = None, header_rows: set[int] | None = None) -> None:
     title_rows = title_rows or set()
     header_rows = header_rows or set()
-    header_fill = PatternFill("solid", fgColor="D9EAF7")
+    horizontal_line = Side(style="thin", color="000000")
+    row_border = Border(bottom=horizontal_line)
+    max_columns = max(len(row) for row in rows)
 
     for row_index, row in enumerate(rows, start=1):
         ws.append(row)
-        for cell in ws[row_index]:
+        if not any(value not in (None, "") for value in row):
+            continue
+        for column_index in range(1, max_columns + 1):
+            cell = ws.cell(row=row_index, column=column_index)
             cell.alignment = Alignment(wrap_text=True, vertical="top")
+            cell.border = row_border
             if row_index in title_rows:
                 cell.font = Font(bold=True, size=12)
             if row_index in header_rows:
                 cell.font = Font(bold=True)
-                cell.fill = header_fill
 
 
 def autofit(ws) -> None:
@@ -83,6 +89,21 @@ def autofit(ws) -> None:
             value = "" if cell.value is None else str(cell.value)
             max_length = max(max_length, len(value))
         ws.column_dimensions[column].width = min(max(max_length + 2, 12), 34)
+
+
+def enable_multiline_cells(wb: Workbook) -> None:
+    for ws in wb.worksheets:
+        for row in ws.iter_rows(
+            min_row=1,
+            max_row=ws.max_row,
+            min_col=1,
+            max_col=ws.max_column,
+        ):
+            for cell in row:
+                alignment = copy(cell.alignment)
+                alignment.wrap_text = True
+                alignment.vertical = "top"
+                cell.alignment = alignment
 
 
 def build_workbook() -> Workbook:
@@ -267,6 +288,7 @@ def build_workbook() -> Workbook:
         for cell in row:
             cell.alignment = Alignment(wrap_text=True, vertical="top")
 
+    enable_multiline_cells(wb)
     return wb
 
 
