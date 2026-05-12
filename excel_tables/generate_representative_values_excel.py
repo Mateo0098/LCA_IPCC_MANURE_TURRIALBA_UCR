@@ -9,12 +9,13 @@ from typing import Any
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, Side
-from openpyxl.utils import get_column_letter
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = ROOT_DIR / "processed"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "tablas_valores_representativos_para_docx_acentos_corregidos.xlsx"
+TABLE_FONT_SIZE = 8
+TITLE_FONT_SIZE = 9
 
 SAMPLE_TYPE_ES = {
     "Fresh manure": "Estiércol fresco",
@@ -24,6 +25,13 @@ SAMPLE_TYPE_ES = {
 TREATMENT_LABELS = {
     "A": "A - estiércol fresco",
     "B": "B - estiércol precompostado",
+}
+
+SAMPLE_LABELS = {
+    "A1": "Estiércol fresco 1",
+    "A2": "Estiércol fresco 2",
+    "B1": "Estiércol precompostado 1",
+    "B2": "Estiércol precompostado 2",
 }
 
 N_TREATMENT_ES = {
@@ -75,20 +83,29 @@ def add_rows(ws, rows: list[list[Any]], title_rows: set[int] | None = None, head
             cell = ws.cell(row=row_index, column=column_index)
             cell.alignment = Alignment(wrap_text=True, vertical="top")
             cell.border = row_border
+            cell.font = Font(size=TABLE_FONT_SIZE)
             if row_index in title_rows:
-                cell.font = Font(bold=True, size=12)
+                cell.font = Font(bold=True, size=TITLE_FONT_SIZE)
             if row_index in header_rows:
-                cell.font = Font(bold=True)
+                cell.font = Font(bold=True, size=TABLE_FONT_SIZE)
 
 
-def autofit(ws) -> None:
-    for column_cells in ws.columns:
-        max_length = 0
-        column = get_column_letter(column_cells[0].column)
-        for cell in column_cells:
-            value = "" if cell.value is None else str(cell.value)
-            max_length = max(max_length, len(value))
-        ws.column_dimensions[column].width = min(max(max_length + 2, 12), 34)
+def set_column_widths(ws, widths: list[float]) -> None:
+    for column_index, width in enumerate(widths, start=1):
+        column_letter = ws.cell(row=1, column=column_index).column_letter
+        ws.column_dimensions[column_letter].width = width
+
+
+def configure_letter_page(ws) -> None:
+    ws.page_setup.paperSize = 1
+    ws.page_setup.orientation = "portrait"
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_margins.left = 0.5
+    ws.page_margins.right = 0.5
+    ws.page_margins.top = 0.5
+    ws.page_margins.bottom = 0.5
 
 
 def enable_multiline_cells(wb: Workbook) -> None:
@@ -173,7 +190,7 @@ def build_workbook() -> Workbook:
         sample_type = SAMPLE_TYPE_ES[row["sample_type"]]
         table_2.append(
             [
-                f"{row['sample_group']} - {sample_type}",
+                SAMPLE_LABELS.get(row["sample_group"], f"{row['sample_group']} - {sample_type}"),
                 fmt_date(row["sampling_date"]),
                 number(row["replicate_count"], 0),
                 number(row["dry_matter_mean_pct"]),
@@ -206,7 +223,8 @@ def build_workbook() -> Workbook:
         title_rows={1, 7, 15},
         header_rows={2, 8, 16},
     )
-    autofit(ws_docx)
+    set_column_widths(ws_docx, [9, 9, 7, 6.5, 8, 7.5, 8, 7.5, 7, 6.5, 6, 6])
+    configure_letter_page(ws_docx)
 
     ws_solids = wb.create_sheet("Sólidos y masa seca")
     solids_rows = [["Contenido de masa seca y sólidos volátiles por muestra"]]
@@ -227,7 +245,7 @@ def build_workbook() -> Workbook:
     for row in solids_by_sample:
         solids_rows.append(
             [
-                row["sample_group"],
+                SAMPLE_LABELS.get(row["sample_group"], row["sample_group"]),
                 SAMPLE_TYPE_ES[row["sample_type"]],
                 fmt_date(row["sampling_date"]),
                 number(row["replicate_count"], 0),
@@ -240,7 +258,8 @@ def build_workbook() -> Workbook:
             ]
         )
     add_rows(ws_solids, solids_rows, title_rows={1}, header_rows={2})
-    autofit(ws_solids)
+    set_column_widths(ws_solids, [7, 9, 7, 6, 8, 7, 7, 8, 7, 7])
+    configure_letter_page(ws_solids)
 
     ws_n = wb.create_sheet("Nitrógeno total")
     n_rows = [["Nitrógeno total por muestra individual"]]
@@ -259,7 +278,8 @@ def build_workbook() -> Workbook:
     for row in nitrogen_summary:
         n_rows.append(nitrogen_summary_row(row))
     add_rows(ws_n, n_rows, title_rows={1, 13}, header_rows={2, 14})
-    autofit(ws_n)
+    set_column_widths(ws_n, [11, 10, 7, 7, 8, 7, 8, 7, 7])
+    configure_letter_page(ws_n)
 
     ws_notes = wb.create_sheet("Notas")
     add_rows(
@@ -272,7 +292,7 @@ def build_workbook() -> Workbook:
             ],
             [
                 "El contenido de masa seca representativo por muestra corresponde al promedio de las réplicas "
-                "agrupadas por código base de muestra (por ejemplo, A1, A2, B1, B2)."
+                "agrupadas por muestra de estiércol fresco o estiércol precompostado."
             ],
             ["Los sólidos volátiles se calcularon como 100 menos el porcentaje de cenizas, en base seca."],
             [
@@ -283,7 +303,8 @@ def build_workbook() -> Workbook:
         ],
         title_rows={1},
     )
-    ws_notes.column_dimensions["A"].width = 120
+    ws_notes.column_dimensions["A"].width = 85
+    configure_letter_page(ws_notes)
     for row in ws_notes.iter_rows():
         for cell in row:
             cell.alignment = Alignment(wrap_text=True, vertical="top")
