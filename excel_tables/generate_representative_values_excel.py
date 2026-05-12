@@ -16,6 +16,8 @@ PROCESSED_DIR = ROOT_DIR / "processed"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent / "tablas_valores_representativos_para_docx_acentos_corregidos.xlsx"
 TABLE_FONT_SIZE = 8
 TITLE_FONT_SIZE = 9
+SOLIDS_BALANCE_PRECISION = "±0.1 mg"
+NITROGEN_PRECISION = "±0.01"
 
 SAMPLE_TYPE_ES = {
     "Fresh manure": "Estiércol fresco",
@@ -66,6 +68,13 @@ def number(value: str, digits: int = 3) -> float | int | str:
         return ""
     parsed = round(float(value), digits)
     return int(parsed) if parsed.is_integer() else parsed
+
+
+def decimal(value: str, digits: int = 3) -> str:
+    value = value.strip()
+    if not value:
+        return ""
+    return f"{float(value):.{digits}f}"
 
 
 def add_rows(ws, rows: list[list[Any]], title_rows: set[int] | None = None, header_rows: set[int] | None = None) -> None:
@@ -145,10 +154,12 @@ def build_workbook() -> Workbook:
         "Desviación estándar de masa seca (%)",
         "Sólidos volátiles promedio (% base seca)",
         "Desviación estándar de sólidos volátiles (%)",
+        "Precisión instrumental de masa",
         "Fecha de análisis de nitrógeno",
         "Número de muestras de nitrógeno (n)",
         "Nitrógeno total promedio (% masa)",
         "Nitrógeno total promedio (mg/kg)",
+        "Precisión reportada de nitrógeno",
     ]
     nitrogen_lookup = {
         "A": nitrogen_by_treatment["ESTIERCOL FRESCO"],
@@ -164,14 +175,16 @@ def build_workbook() -> Workbook:
                 SAMPLE_TYPE_ES[row["sample_type"]],
                 fmt_date(row["sampling_date"]),
                 number(row["sample_count"], 0),
-                number(row["dry_matter_treatment_mean_pct"]),
-                number(row["dry_matter_treatment_sd_pct"]),
-                number(row["volatile_solids_treatment_mean_pct"]),
-                number(row["volatile_solids_treatment_sd_pct"]),
+                decimal(row["dry_matter_treatment_mean_pct"]),
+                decimal(row["dry_matter_treatment_sd_pct"]),
+                decimal(row["volatile_solids_treatment_mean_pct"]),
+                decimal(row["volatile_solids_treatment_sd_pct"]),
+                SOLIDS_BALANCE_PRECISION,
                 fmt_date(n_row["date"]),
                 number(n_row["n_samples"], 0),
-                number(n_row["mean_n_percentage"]),
-                number(n_row["mean_n_total_mg_kg"]),
+                decimal(n_row["mean_n_percentage"], 2),
+                decimal(n_row["mean_n_total_mg_kg"], 2),
+                NITROGEN_PRECISION,
             ]
         )
 
@@ -185,6 +198,7 @@ def build_workbook() -> Workbook:
         "Sólidos volátiles promedio (% base seca)",
         "Desviación estándar de sólidos volátiles (%)",
         "Coeficiente de variación de sólidos volátiles (%)",
+        "Precisión instrumental de masa",
     ]
     table_2 = [[], [], ["Tabla 2. Contenido de masa seca y sólidos volátiles por muestra"], table_2_header]
     for row in solids_by_sample:
@@ -194,12 +208,13 @@ def build_workbook() -> Workbook:
                 SAMPLE_LABELS.get(row["sample_group"], f"{row['sample_group']} - {sample_type}"),
                 fmt_date(row["sampling_date"]),
                 number(row["replicate_count"], 0),
-                number(row["dry_matter_mean_pct"]),
-                number(row["dry_matter_sd_pct"]),
-                number(row["dry_matter_cv_pct"]),
-                number(row["volatile_solids_mean_pct"]),
-                number(row["volatile_solids_sd_pct"]),
-                number(row["volatile_solids_cv_pct"]),
+                decimal(row["dry_matter_mean_pct"]),
+                decimal(row["dry_matter_sd_pct"]),
+                decimal(row["dry_matter_cv_pct"]),
+                decimal(row["volatile_solids_mean_pct"]),
+                decimal(row["volatile_solids_sd_pct"]),
+                decimal(row["volatile_solids_cv_pct"]),
+                SOLIDS_BALANCE_PRECISION,
             ]
         )
 
@@ -213,6 +228,7 @@ def build_workbook() -> Workbook:
         "Mediana de nitrógeno total (mg/kg)",
         "Valor mínimo de nitrógeno total (mg/kg)",
         "Valor máximo de nitrógeno total (mg/kg)",
+        "Precisión reportada de nitrógeno",
     ]
     table_3 = [[], [], ["Tabla 3. Nitrógeno total representativo por muestra o tratamiento"], table_3_header]
     for row in nitrogen_summary:
@@ -224,7 +240,7 @@ def build_workbook() -> Workbook:
         title_rows={1, 7, 15},
         header_rows={2, 8, 16},
     )
-    set_column_widths(ws_docx, [9, 9, 7, 6.5, 8, 7.5, 8, 7.5, 7, 6.5, 6, 6])
+    set_column_widths(ws_docx, [8, 8, 6, 5.5, 6.5, 6, 6.5, 6, 5.5, 6, 5.5, 5.5, 6, 5.5])
     configure_letter_page(ws_docx)
 
     ws_solids = wb.create_sheet("Sólidos y masa seca")
@@ -241,6 +257,7 @@ def build_workbook() -> Workbook:
             "Sólidos volátiles promedio (% base seca)",
             "Desviación estándar de sólidos volátiles (%)",
             "Coeficiente de variación de sólidos volátiles (%)",
+            "Precisión instrumental de masa",
         ]
     )
     for row in solids_by_sample:
@@ -250,36 +267,47 @@ def build_workbook() -> Workbook:
                 SAMPLE_TYPE_ES[row["sample_type"]],
                 fmt_date(row["sampling_date"]),
                 number(row["replicate_count"], 0),
-                number(row["dry_matter_mean_pct"]),
-                number(row["dry_matter_sd_pct"]),
-                number(row["dry_matter_cv_pct"]),
-                number(row["volatile_solids_mean_pct"]),
-                number(row["volatile_solids_sd_pct"]),
-                number(row["volatile_solids_cv_pct"]),
+                decimal(row["dry_matter_mean_pct"]),
+                decimal(row["dry_matter_sd_pct"]),
+                decimal(row["dry_matter_cv_pct"]),
+                decimal(row["volatile_solids_mean_pct"]),
+                decimal(row["volatile_solids_sd_pct"]),
+                decimal(row["volatile_solids_cv_pct"]),
+                SOLIDS_BALANCE_PRECISION,
             ]
         )
     add_rows(ws_solids, solids_rows, title_rows={1}, header_rows={2})
-    set_column_widths(ws_solids, [7, 9, 7, 6, 8, 7, 7, 8, 7, 7])
+    set_column_widths(ws_solids, [8, 8, 6.5, 5.5, 6.5, 6, 6, 6.5, 6, 6, 5.5])
     configure_letter_page(ws_solids)
 
     ws_n = wb.create_sheet("Nitrógeno total")
     n_rows = [["Nitrógeno total por muestra individual"]]
-    n_rows.append(["Muestra", "Tipo de análisis", "Fecha de análisis", "Nitrógeno total (% masa)", "Nitrógeno total (mg/kg)"])
+    n_rows.append(
+        [
+            "Muestra",
+            "Tipo de análisis",
+            "Fecha de análisis",
+            "Nitrógeno total (% masa)",
+            "Nitrógeno total (mg/kg)",
+            "Precisión reportada de nitrógeno",
+        ]
+    )
     for row in nitrogen_samples:
         n_rows.append(
             [
                 row["sample_id"],
                 row["analysis_type"],
                 fmt_date(row["date"]),
-                number(row["n_total_porcentaje"]),
-                number(row["n_total_mg_kg"]),
+                decimal(row["n_total_porcentaje"], 2),
+                decimal(row["n_total_mg_kg"], 2),
+                NITROGEN_PRECISION,
             ]
         )
     n_rows.extend([[], [], ["Nitrógeno total representativo por muestra o tratamiento"], table_3_header])
     for row in nitrogen_summary:
         n_rows.append(nitrogen_summary_row(row))
     add_rows(ws_n, n_rows, title_rows={1, 13}, header_rows={2, 14})
-    set_column_widths(ws_n, [11, 10, 7, 7, 8, 7, 8, 7, 7])
+    set_column_widths(ws_n, [10, 9, 6.5, 6.5, 7, 5.5, 6.5, 7, 6, 6])
     configure_letter_page(ws_n)
 
     ws_notes = wb.create_sheet("Notas")
@@ -296,6 +324,14 @@ def build_workbook() -> Workbook:
                 "agrupadas por muestra de estiércol fresco o estiércol precompostado."
             ],
             ["Los sólidos volátiles se calcularon como 100 menos el porcentaje de cenizas, en base seca."],
+            [
+                "Para masa seca y sólidos volátiles, la precisión instrumental corresponde a la balanza analítica "
+                f"utilizada: {SOLIDS_BALANCE_PRECISION}."
+            ],
+            [
+                "Para nitrógeno total, los resultados de laboratorio se reportan con dos decimales; por eso se indica "
+                f"una precisión reportada de {NITROGEN_PRECISION} en la unidad de la columna."
+            ],
             [
                 "El nitrógeno total representativo proviene de processed/CIA_samples_table_v6_treatment_summary.csv "
                 "y corresponde al promedio por tratamiento usado por el script."
@@ -319,12 +355,13 @@ def nitrogen_summary_row(row: dict[str, str]) -> list[Any]:
         N_TREATMENT_ES[row["treatment"]],
         fmt_date(row["date"]),
         number(row["n_samples"], 0),
-        number(row["mean_n_percentage"]),
-        number(row["mean_n_total_mg_kg"]),
-        number(row["n_total_pct_median"]),
-        number(row["n_total_mg_kg_median"]),
-        number(row["n_total_mg_kg_min"]),
-        number(row["n_total_mg_kg_max"]),
+        decimal(row["mean_n_percentage"], 2),
+        decimal(row["mean_n_total_mg_kg"], 2),
+        decimal(row["n_total_pct_median"], 2),
+        decimal(row["n_total_mg_kg_median"], 2),
+        decimal(row["n_total_mg_kg_min"], 2),
+        decimal(row["n_total_mg_kg_max"], 2),
+        NITROGEN_PRECISION,
     ]
 
 
