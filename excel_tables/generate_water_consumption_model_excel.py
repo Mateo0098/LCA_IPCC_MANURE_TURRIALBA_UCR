@@ -12,11 +12,12 @@ from openpyxl.styles import Alignment, Border, Font, Side
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = ROOT_DIR / "processed"
-DEFAULT_OUTPUT = Path(__file__).resolve().parent / "tabla_generacion_estiercol_modelo.xlsx"
+DEFAULT_OUTPUT = Path(__file__).resolve().parent / "tabla_consumo_agua_modelo_precision_2_decimales.xlsx"
 TABLE_FONT_SIZE = 8
 TITLE_FONT_SIZE = 9
-MEASUREMENT_DIGITS = 2
+MEASUREMENT_DIGITS = 1
 MODEL_MASS_DIGITS = 2
+WATER_MODEL_DIGITS = 1
 
 STAGE_LABELS = {
     ("A", "1"): "Precomposteo",
@@ -114,52 +115,52 @@ def enable_multiline_cells(wb: Workbook) -> None:
                 cell.alignment = alignment
 
 
-def build_base_generation_rows(stats: list[dict[str, str]]) -> list[list[Any]]:
-    manure = next(row for row in stats if row["variable"].strip().lower() == "boniga")
+def build_base_consumption_rows(stats: list[dict[str, str]]) -> list[list[Any]]:
+    water = next(row for row in stats if row["variable"].strip().lower() == "agua")
     return [
-        ["Tabla 1. Generación de estiércol fresco utilizada como entrada del modelo"],
+        ["Tabla 1. Consumo de agua utilizado como entrada del modelo"],
         [
             "Variable",
             "n",
             "Duración del muestreo (días)",
-            "Promedio por muestreo (kg)",
-            "Mediana (kg)",
-            "Mínimo (kg)",
-            "Máximo (kg)",
-            "Desviación estándar (kg)",
-            "Flujo diario (kg día⁻¹)",
-            "Flujo semanal (kg semana⁻¹)",
-            "Flujo anual usado en el modelo (kg año⁻¹)",
+            "Promedio por muestreo (L)",
+            "Mediana (L)",
+            "Mínimo (L)",
+            "Máximo (L)",
+            "Desviación estándar (L)",
+            "Flujo diario (L día⁻¹)",
+            "Flujo semanal (L semana⁻¹)",
+            "Flujo anual usado en el modelo (L año⁻¹)",
         ],
         [
-            "Boñiga fresca recolectada",
-            number(manure["n_datos"], 0),
-            decimal(manure["duracion_muestreo_dias"], 1),
-            decimal(manure["promedio"], MEASUREMENT_DIGITS),
-            decimal(manure["mediana"], MEASUREMENT_DIGITS),
-            decimal(manure["minimo"], MEASUREMENT_DIGITS),
-            decimal(manure["maximo"], MEASUREMENT_DIGITS),
-            decimal(manure["desviacion_estandar"], MEASUREMENT_DIGITS),
-            decimal(manure["flujo_por_dia"], MEASUREMENT_DIGITS),
-            decimal(manure["flujo_por_semana"], MEASUREMENT_DIGITS),
-            decimal(manure["flujo_por_ano"], MODEL_MASS_DIGITS),
+            "Agua de lavado",
+            number(water["n_datos"], 0),
+            decimal(water["duracion_muestreo_dias"], 1),
+            decimal(water["promedio"], MEASUREMENT_DIGITS),
+            decimal(water["mediana"], MEASUREMENT_DIGITS),
+            decimal(water["minimo"], MEASUREMENT_DIGITS),
+            decimal(water["maximo"], MEASUREMENT_DIGITS),
+            decimal(water["desviacion_estandar"], MEASUREMENT_DIGITS),
+            decimal(water["flujo_por_dia"], MEASUREMENT_DIGITS),
+            decimal(water["flujo_por_semana"], MEASUREMENT_DIGITS),
+            decimal(water["flujo_por_ano"], WATER_MODEL_DIGITS),
         ],
     ]
 
 
-def build_model_mass_rows(mass_rows: list[dict[str, str]]) -> list[list[Any]]:
+def build_model_water_rows(mass_rows: list[dict[str, str]]) -> list[list[Any]]:
     rows = [
         [],
         [],
-        ["Tabla 2. Masa anual de estiércol fresco asignada a cada escenario y etapa del modelo"],
+        ["Tabla 2. Consumo anual de agua asignado a cada escenario y etapa del modelo"],
         [
             "Escenario",
             "Etapa",
             "Proceso representado",
             "Factor de asignación de boñiga",
             "Factor de asignación de agua",
-            "Boñiga fresca usada por el modelo (kg año⁻¹)",
             "Agua incorporada (L año⁻¹)",
+            "Boñiga fresca usada por el modelo (kg año⁻¹)",
             "Masa total equivalente (kg año⁻¹)",
             "Origen del valor",
         ],
@@ -174,8 +175,8 @@ def build_model_mass_rows(mass_rows: list[dict[str, str]]) -> list[list[Any]]:
                 STAGE_LABELS.get((escenario, etapa), ""),
                 decimal(row["factor_boniga_override"], 2),
                 decimal(row["factor_agua_override"], 2),
+                decimal(row["agua_l"], WATER_MODEL_DIGITS),
                 decimal(row["boniga_kg"], MODEL_MASS_DIGITS),
-                decimal(row["agua_l"], MODEL_MASS_DIGITS),
                 decimal(row["masa_total_kg_eq"], MODEL_MASS_DIGITS),
                 "Factor de asignación del modelo",
             ]
@@ -191,68 +192,62 @@ def build_workbook() -> Workbook:
     ws_article = wb.active
     ws_article.title = "Tabla para articulo"
 
-    article_rows = build_base_generation_rows(stats) + build_model_mass_rows(mass_rows)
+    article_rows = build_base_consumption_rows(stats) + build_model_water_rows(mass_rows)
     add_rows(ws_article, article_rows, title_rows={1, 6}, header_rows={2, 7})
     set_column_widths(ws_article, [13, 5, 8, 9, 8, 8, 8, 8, 9, 10, 11])
     configure_letter_page(ws_article)
 
     ws_base = wb.create_sheet("Datos base")
-    base_rows = [["Estadística descriptiva de agua y boñiga usada por el modelo"]]
+    base_rows = [["Estadística descriptiva del consumo de agua usado por el modelo"]]
     base_rows.append(
         [
             "Variable",
-            "Unidad",
-            "Promedio por muestreo (L o kg)",
-            "Mediana (L o kg)",
-            "Mínimo (L o kg)",
-            "Máximo (L o kg)",
-            "Desviación estándar (L o kg)",
             "n",
             "Duración del muestreo (días)",
-            "Flujo diario (L día⁻¹ o kg día⁻¹)",
-            "Flujo semanal (L semana⁻¹ o kg semana⁻¹)",
-            "Flujo anual (L año⁻¹ o kg año⁻¹)",
+            "Promedio por muestreo (L)",
+            "Mediana (L)",
+            "Mínimo (L)",
+            "Máximo (L)",
+            "Desviación estándar (L)",
+            "Flujo diario (L día⁻¹)",
+            "Flujo semanal (L semana⁻¹)",
+            "Flujo anual (L año⁻¹)",
             "Archivo fuente",
         ]
     )
-    for row in stats:
-        label = "Agua de lavado" if row["variable"] == "agua" else "Boñiga fresca recolectada"
-        base_rows.append(
-            [
-                label,
-                row["unidad"],
-                decimal(row["promedio"], MEASUREMENT_DIGITS),
-                decimal(row["mediana"], MEASUREMENT_DIGITS),
-                decimal(row["minimo"], MEASUREMENT_DIGITS),
-                decimal(row["maximo"], MEASUREMENT_DIGITS),
-                decimal(row["desviacion_estandar"], MEASUREMENT_DIGITS),
-                number(row["n_datos"], 0),
-                decimal(row["duracion_muestreo_dias"], 1),
-                decimal(row["flujo_por_dia"], MEASUREMENT_DIGITS),
-                decimal(row["flujo_por_semana"], MEASUREMENT_DIGITS),
-                decimal(row["flujo_por_ano"], MODEL_MASS_DIGITS),
-                row["archivo_fuente"],
-            ]
-        )
+    water = next(row for row in stats if row["variable"].strip().lower() == "agua")
+    base_rows.append(
+        [
+            "Agua de lavado",
+            number(water["n_datos"], 0),
+            decimal(water["duracion_muestreo_dias"], 1),
+            decimal(water["promedio"], MEASUREMENT_DIGITS),
+            decimal(water["mediana"], MEASUREMENT_DIGITS),
+            decimal(water["minimo"], MEASUREMENT_DIGITS),
+            decimal(water["maximo"], MEASUREMENT_DIGITS),
+            decimal(water["desviacion_estandar"], MEASUREMENT_DIGITS),
+            decimal(water["flujo_por_dia"], MEASUREMENT_DIGITS),
+            decimal(water["flujo_por_semana"], MEASUREMENT_DIGITS),
+            decimal(water["flujo_por_ano"], WATER_MODEL_DIGITS),
+            water["archivo_fuente"],
+        ]
+    )
     add_rows(ws_base, base_rows, title_rows={1}, header_rows={2})
-    set_column_widths(ws_base, [13, 7, 8, 8, 8, 8, 8, 5, 7, 8, 9, 9, 28])
+    set_column_widths(ws_base, [13, 5, 8, 9, 8, 8, 8, 8, 9, 10, 11, 28])
     configure_letter_page(ws_base)
 
-    ws_model = wb.create_sheet("Masa por etapa")
-    model_rows = [["Masa anual usada por escenario y etapa"]]
+    ws_model = wb.create_sheet("Agua por etapa")
+    model_rows = [["Consumo anual de agua usado por escenario y etapa"]]
     model_rows.append(
         [
             "Escenario",
             "Etapa",
             "Proceso representado",
             "Fórmula",
-            "Boñiga (kg año⁻¹)",
             "Agua (L año⁻¹)",
-            "Factor restante A2",
-            "Masa total equivalente (kg año⁻¹)",
-            "Factor boñiga",
             "Factor agua",
-            "Factor masa total",
+            "Boñiga (kg año⁻¹)",
+            "Masa total equivalente (kg año⁻¹)",
         ]
     )
     for row in mass_rows:
@@ -264,17 +259,14 @@ def build_workbook() -> Workbook:
                 number(etapa, 0),
                 STAGE_LABELS.get((escenario, etapa), ""),
                 row["formula"],
-                decimal(row["boniga_kg"], MODEL_MASS_DIGITS),
-                decimal(row["agua_l"], MODEL_MASS_DIGITS),
-                decimal(row["factor_restante_a2"], 6),
-                decimal(row["masa_total_kg_eq"], MODEL_MASS_DIGITS),
-                decimal(row["factor_boniga_override"], 2),
+                decimal(row["agua_l"], WATER_MODEL_DIGITS),
                 decimal(row["factor_agua_override"], 2),
-                decimal(row["factor_masa_total_override"], 2),
+                decimal(row["boniga_kg"], MODEL_MASS_DIGITS),
+                decimal(row["masa_total_kg_eq"], MODEL_MASS_DIGITS),
             ]
         )
     add_rows(ws_model, model_rows, title_rows={1}, header_rows={2})
-    set_column_widths(ws_model, [13, 5, 15, 18, 9, 9, 8, 10, 7, 7, 7])
+    set_column_widths(ws_model, [13, 5, 15, 18, 9, 7, 9, 10])
     configure_letter_page(ws_model)
 
     ws_notes = wb.create_sheet("Notas")
@@ -283,7 +275,7 @@ def build_workbook() -> Workbook:
         [
             ["Notas de cálculo"],
             [
-                "La generación anual de boñiga fresca corresponde a la fila 'boniga' de "
+                "El consumo anual de agua corresponde a la fila 'agua' de "
                 "processed/agua_boniga_estadistica_descriptiva.csv."
             ],
             [
@@ -291,20 +283,15 @@ def build_workbook() -> Workbook:
                 "el flujo anual corresponde al flujo diario multiplicado por 365 días."
             ],
             [
-                "La masa por escenario y etapa proviene de processed/masa_total_escenario_etapa.csv, "
-                "que aplica los factores de asignación definidos en processed/masa_total_factor_overrides.csv."
+                "La asignación por escenario y etapa proviene de processed/masa_total_escenario_etapa.csv, "
+                "que aplica los factores definidos en processed/masa_total_factor_overrides.csv."
             ],
             [
-                "En el Escenario A, 93 % de la boñiga fresca se asignó a precomposteo/lombricompostaje "
-                "y 7 % a la línea de aguas verdes; en el Escenario B se asignó 100 % a purines."
+                "En el modelo, el agua se incorporó en las etapas A4 y B2, con factor de asignación de agua igual a 1."
             ],
             [
-                "La columna de masa total equivalente mantiene la convención del modelo: 1 L de agua = 1 kg "
-                "para sumar agua y boñiga cuando ambas fracciones se manejan juntas."
-            ],
-            [
-                "Los valores de generación de boñiga y las masas derivadas se reportaron con dos decimales, "
-                "porque las mediciones originales de masa se registraron en kg con dos decimales."
+                "Los valores medidos de agua se reportaron con un decimal, porque las mediciones originales "
+                "se registraron en L con un decimal; las masas equivalentes derivadas se mantuvieron con dos decimales."
             ],
         ],
         title_rows={1},
@@ -318,7 +305,7 @@ def build_workbook() -> Workbook:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Genera una tabla Excel de generación de estiércol usada por el modelo."
+        description="Genera una tabla Excel de consumo de agua usado por el modelo."
     )
     parser.add_argument(
         "-o",
