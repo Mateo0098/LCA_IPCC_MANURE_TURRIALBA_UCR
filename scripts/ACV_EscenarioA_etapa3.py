@@ -21,6 +21,8 @@ from acv_factores_manejo_estiercol import obtener_factores_manejo_ipcc
 
 PARAMS_ETAPA = obtener_parametros_etapa("A", 3)
 FACTORES_MMS = obtener_factores_manejo_ipcc("A", 3)
+n_ex_pct = PARAMS_ETAPA["n_ex_pct"]  # % N total reportado en laboratorio
+n_ex_fraction = n_ex_pct / 100.0     # fraccion masica kg N / kg muestra
 
 # ============================================================
 # DEFINICIÓN DE VARIABLES – LISTO PARA JUPYTER NOTEBOOK
@@ -43,7 +45,7 @@ AWMS = 1.0        # adimensional
 # Función: n2o_direct_mm
 # ------------------------------------------------------------
 N = 1          # número de cabezas
-Nex = PARAMS_ETAPA["n_ex_pct"]  # % N total (tabla central)
+Nex = n_ex_fraction  # fraccion masica de N (kg N / kg muestra)
 AWMS = 1        # adimensional
 N_cdg = 0.0       # kg N año-1
 EF3 = FACTORES_MMS["EF3"]  # kg N2O-N kg-1 N
@@ -54,7 +56,7 @@ EF3 = FACTORES_MMS["EF3"]  # kg N2O-N kg-1 N
 # Función: n_volatilization_mms
 # ------------------------------------------------------------
 N = 1          # número de cabezas
-Nex = PARAMS_ETAPA["n_ex_pct"]  # % N total (tabla central)
+Nex = n_ex_fraction  # fraccion masica de N (kg N / kg muestra)
 AWMS = 1        # adimensional
 N_cdg = 0.0          # kg N año-1
 frac_gas_ms = FACTORES_MMS["frac_gas_ms"]
@@ -65,7 +67,7 @@ frac_gas_ms = FACTORES_MMS["frac_gas_ms"]
 # ------------------------------------------------------------
 
 N = 1          # número de cabezas
-Nex = PARAMS_ETAPA["n_ex_pct"]  # % N total (tabla central)
+Nex = n_ex_fraction  # fraccion masica de N (kg N / kg muestra)
 AWMS = 1        # adimensional
 N_cdg = 0.0     # kg N año-1
 frac_leach_ms = FACTORES_MMS["frac_leach_ms"]

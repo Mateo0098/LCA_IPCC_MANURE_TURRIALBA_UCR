@@ -104,7 +104,9 @@ def _build_ipcc_row() -> dict[str, float | int]:
     awms = 1.0
 
     n = 1
-    nex = params["n_ex_pct"]
+    n_ex_pct = params["n_ex_pct"]  # % N total reportado en laboratorio
+    n_ex_fraction = n_ex_pct / 100.0  # fraccion masica kg N / kg muestra
+    nex = n_ex_fraction
     n_cdg = 0.0
     ef3 = float(factores_mms["EF3"])
     frac_gas_ms = float(factores_mms["frac_gas_ms"])

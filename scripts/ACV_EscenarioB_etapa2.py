@@ -20,6 +20,8 @@ from acv_factores_manejo_estiercol import obtener_factores_manejo_ipcc
 
 PARAMS_ETAPA = obtener_parametros_etapa("B", 2)
 FACTORES_MMS = obtener_factores_manejo_ipcc("B", 2)
+n_ex_pct = PARAMS_ETAPA["n_ex_pct"]  # % N total reportado en laboratorio
+n_ex_fraction = n_ex_pct / 100.0     # fraccion masica kg N / kg muestra
 
 # ============================================================
 # DEFINICIÓN DE VARIABLES – LISTO PARA JUPYTER NOTEBOOK
@@ -28,7 +30,7 @@ FACTORES_MMS = obtener_factores_manejo_ipcc("B", 2)
 
 # Variables comunes (para ec. 14, 16, 18, 22, 24)
 N = 1              # número de cabezas
-Nex = PARAMS_ETAPA["n_ex_pct"]  # % N total (tabla central)
+Nex = n_ex_fraction  # fraccion masica de N (kg N / kg muestra)
 AWMS = 1            # adimensional
 N_cdg = 0.0         # kg N año-1
 EF3 = FACTORES_MMS["EF3"]  # kg N2O-N kg-1 N
@@ -41,7 +43,7 @@ EF5 = 0.011         # kg N2O-N kg-1 N lixiviado
 # ECUACIÓN (14) – Emisiones directas de N2O-N por entradas de N
 # Función: n2o_n_inputs
 # ------------------------------------------------------------
-F_ON = PARAMS_ETAPA["n_ex_pct"]  # % N total (tabla central)
+F_ON = n_ex_fraction  # fraccion masica de N (kg N / kg muestra)
 EF1 = 0.006    # kg N2O-N kg-1 N
 
 
@@ -51,7 +53,7 @@ EF1 = 0.006    # kg N2O-N kg-1 N
 # ------------------------------------------------------------
 F_AM = 0.0    # kg N año-1
 F_SEW = 0.0   # kg N año-1
-F_COMP = PARAMS_ETAPA["n_ex_pct"]   # % N total (tabla central)
+F_COMP = n_ex_fraction   # fraccion masica de N (kg N / kg muestra)
 F_OOA = 0.0   # kg N año-1
 
 
@@ -59,7 +61,7 @@ F_OOA = 0.0   # kg N año-1
 # ECUACIÓN (16) – N2O-N por deposición atmosférica
 # Función: n2o_atd_n
 # ------------------------------------------------------------
-F_ON = PARAMS_ETAPA["n_ex_pct"]        # % N total (tabla central)
+F_ON = n_ex_fraction        # fraccion masica de N (kg N / kg muestra)
 F_PRP = 0.0       # kg N año-1
 frac_gasm = 0.21   # adimensional
 EF4 = 0.014        # kg N2O-N (kg NH3-N + NOx-N)-1
@@ -74,7 +76,7 @@ EF4 = 0.014        # kg N2O-N (kg NH3-N + NOx-N)-1
 # ECUACIÓN (18) – N2O-N por lixiviación y escorrentía
 # Función: n2o_l_n
 # ------------------------------------------------------------
-F_ON = PARAMS_ETAPA["n_ex_pct"]            # % N total (tabla central)
+F_ON = n_ex_fraction            # fraccion masica de N (kg N / kg muestra)
 F_PRP = 0.0           # kg N año-1
 frac_leach_h = 0.24   # adimensional
 EF5 = 0.011            # kg N2O-N kg-1 N lixiviado
@@ -100,7 +102,7 @@ EF5 = 0.011            # kg N2O-N kg-1 N lixiviado
 # Función: n_mms_available
 # ------------------------------------------------------------
 N = 1              # número de cabezas
-Nex = PARAMS_ETAPA["n_ex_pct"]             # % N total (tabla central)
+Nex = n_ex_fraction             # fraccion masica de N (kg N / kg muestra)
 AWMS = 1            # adimensional
 N_cdg = 0.0            # kg N año-1
 frac_loss_m = EF3+frac_leach_ms+ frac_gas_ms +3*EF3 # adimensional    ##############################################################################################
