@@ -203,3 +203,5 @@ Si `processed/` ya esta validado:
 - Mantener `n_ex_pct` como porcentaje reportado y `n_ex_fraction` como entrada
   corregida a ecuaciones de nitrogeno.
 
+Los archivos con sufijo antes_correccion_nitrogeno corresponden a una versión previa en la que el N total (%) no había sido convertido a fracción másica. No deben utilizarse para la redacción de resultados.
+

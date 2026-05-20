@@ -1,0 +1,21 @@
+# Graficos finales para tesis
+
+Todos los graficos fueron generados exclusivamente a partir de las tablas finales validadas en `outputs/tablas_tesis/` indicadas en cada registro. No se usaron archivos con sufijo `antes_correccion_nitrogeno` ni tablas intermedias.
+
+| Archivo | Tabla fuente | Que muestra | Seccion recomendada | Apendice relacionado |
+|---|---|---|---|---|
+| `fig_01_caracterizacion_humedad_materia_seca.png` / `fig_01_caracterizacion_humedad_materia_seca.svg` | `tabla_02_caracterizacion_muestras.csv` | Compara humedad y materia seca promedio por tipo de muestra. | Resultados: caracterizacion fisicoquimica de muestras | Apendice de caracterizacion de muestras |
+| `fig_02_caracterizacion_solidos_volatiles_cenizas.png` / `fig_02_caracterizacion_solidos_volatiles_cenizas.svg` | `tabla_02_caracterizacion_muestras.csv` | Compara solidos volatiles y cenizas por tipo de muestra. | Resultados: caracterizacion fisicoquimica de muestras | Apendice de caracterizacion de muestras |
+| `fig_03_caracterizacion_nitrogeno_total.png` / `fig_03_caracterizacion_nitrogeno_total.svg` | `tabla_02_caracterizacion_muestras.csv` | Presenta nitrogeno total promedio por tipo de muestra. | Resultados: caracterizacion fisicoquimica de muestras | Apendice de caracterizacion de muestras |
+| `fig_04_flujos_masa_equivalente_total.png` / `fig_04_flujos_masa_equivalente_total.svg` | `tabla_03_flujos_icv.csv` | Masa equivalente total para cada etapa y escenario. | Resultados: inventario de ciclo de vida | Apendice de flujos del inventario |
+| `fig_05_flujos_distribucion_componentes.png` / `fig_05_flujos_distribucion_componentes.svg` | `tabla_03_flujos_icv.csv` | Distribucion de componentes del inventario por etapa, separada por unidad. | Resultados: inventario de ciclo de vida | Apendice de flujos del inventario |
+| `fig_06_emisiones_ch4.png` / `fig_06_emisiones_ch4.svg` | `tabla_06_emisiones_por_etapa.csv` | Emisiones anuales de CH4 por etapa y escenario. | Resultados: emisiones por etapa | Apendice de emisiones |
+| `fig_07_emisiones_n2o.png` / `fig_07_emisiones_n2o.svg` | `tabla_06_emisiones_por_etapa.csv` | Emisiones anuales de N2O por etapa y escenario. | Resultados: emisiones por etapa | Apendice de emisiones |
+| `fig_08_emisiones_nh3.png` / `fig_08_emisiones_nh3.svg` | `tabla_06_emisiones_por_etapa.csv` | Emisiones anuales de NH3 por etapa y escenario. | Resultados: emisiones por etapa | Apendice de emisiones |
+| `fig_09_emisiones_no3.png` / `fig_09_emisiones_no3.svg` | `tabla_06_emisiones_por_etapa.csv` | Emisiones anuales de NO3 por etapa y escenario. | Resultados: emisiones por etapa | Apendice de emisiones |
+| `fig_10_emisiones_co2.png` / `fig_10_emisiones_co2.svg` | `tabla_06_emisiones_por_etapa.csv` | Emisiones anuales de CO2 por etapa y escenario. | Resultados: emisiones por etapa | Apendice de emisiones |
+| `fig_11_impactos_calentamiento_global_etapa.png` / `fig_11_impactos_calentamiento_global_etapa.svg` | `tabla_07_impactos_por_etapa.csv` | Impacto de calentamiento global agregado por etapa y escenario. | Resultados: impactos ambientales por etapa | Apendice de impactos ambientales |
+| `fig_12_impactos_eutrofizacion_etapa.png` / `fig_12_impactos_eutrofizacion_etapa.svg` | `tabla_07_impactos_por_etapa.csv` | Impacto de eutrofizacion agregado por etapa y escenario. | Resultados: impactos ambientales por etapa | Apendice de impactos ambientales |
+| `fig_13_comparacion_total_calentamiento_global.png` / `fig_13_comparacion_total_calentamiento_global.svg` | `tabla_08_impactos_totales_por_escenario.csv` | Comparacion del impacto total de calentamiento global entre A y B. | Resultados: comparacion de escenarios | Apendice de comparacion de escenarios |
+| `fig_14_comparacion_total_eutrofizacion.png` / `fig_14_comparacion_total_eutrofizacion.svg` | `tabla_08_impactos_totales_por_escenario.csv` | Comparacion del impacto total de eutrofizacion entre A y B. | Resultados: comparacion de escenarios | Apendice de comparacion de escenarios |
+| `fig_15_comparacion_diferencia_porcentual.png` / `fig_15_comparacion_diferencia_porcentual.svg` | `tabla_09_comparacion_escenarios.csv` | Diferencia porcentual del escenario B respecto al A por categoria de impacto. | Resultados: comparacion de escenarios | Apendice de comparacion de escenarios |
