@@ -11,12 +11,26 @@ OUTPUTS = PROJECT_ROOT / "outputs" / "tablas_tesis"
 
 
 STAGE_NAMES = {
-    ("A", 1): "Manejo inicial de estiercol fresco",
-    ("A", 2): "Precompostaje de fraccion solida",
-    ("A", 3): "Manejo posterior de fraccion solida",
-    ("A", 4): "Aplicacion o manejo de aguas verdes en suelo",
-    ("B", 1): "Manejo de estiercol fresco sin precompostaje",
-    ("B", 2): "Manejo o aplicacion de purines",
+    ("A", 1): "Etapa 1: Precomposteo",
+    ("A", 2): "Etapa 2: Lombricompostaje",
+    ("A", 3): "Etapa 3: Almacenamiento de aguas verdes",
+    ("A", 4): "Etapa 4: Aplicación de aguas verdes en campos de pastoreo",
+    ("B", 1): "Etapa 1: Almacenamiento de purines",
+    ("B", 2): "Etapa 2: Aplicación en campo",
+}
+
+STAGE_SHORT_NAMES = {
+    ("A", 1): "Precomposteo",
+    ("A", 2): "Lombricompostaje",
+    ("A", 3): "Almacenamiento de aguas verdes",
+    ("A", 4): "Aplicación de aguas verdes en campos de pastoreo",
+    ("B", 1): "Almacenamiento de purines",
+    ("B", 2): "Aplicación en campo",
+}
+
+SCENARIO_NAMES = {
+    "A": "Lombricompostaje y aplicación de aguas verdes",
+    "B": "Aplicación directa de purines en campo",
 }
 
 EMISSION_META = {
@@ -47,11 +61,54 @@ def _stage_name(escenario: object, etapa: object) -> str:
     return STAGE_NAMES.get(key, "")
 
 
+def _stage_short_name(escenario: object, etapa: object) -> str:
+    try:
+        key = (str(escenario).strip().upper(), int(etapa))
+    except (TypeError, ValueError):
+        return ""
+    return STAGE_SHORT_NAMES.get(key, "")
+
+
 def _write(df: pd.DataFrame, name: str) -> Path:
     OUTPUTS.mkdir(parents=True, exist_ok=True)
     path = OUTPUTS / name
     df.to_csv(path, index=False, encoding="utf-8-sig")
     return path
+
+
+def tabla_01_etapas_escenarios() -> Path:
+    mass = _read_csv("masa_total_escenario_etapa.csv")
+    params = _read_csv("acv_parametros_escenario_etapa.csv")
+    selection = _read_csv("ipcc_sistema_manejo_por_etapa.csv")
+    models = _read_csv("modelo_etapa_overrides.csv")
+
+    df = mass.merge(params[["escenario", "etapa", "tratamiento"]], on=["escenario", "etapa"], how="left")
+    df = df.merge(selection[["escenario", "etapa", "sistema_manejo"]], on=["escenario", "etapa"], how="left")
+    df = df.merge(models, on=["escenario", "etapa"], how="left")
+
+    rows = []
+    for _, row in df.iterrows():
+        escenario = str(row["escenario"]).strip().upper()
+        etapa = int(row["etapa"])
+        rows.append(
+            {
+                "escenario": escenario,
+                "nombre_escenario": SCENARIO_NAMES.get(escenario, ""),
+                "etapa": etapa,
+                "codigo_etapa": f"{escenario}{etapa}",
+                "nombre_corto_etapa": _stage_short_name(escenario, etapa),
+                "nombre_etapa": _stage_name(escenario, etapa),
+                "tipo_muestra_o_flujo": row.get("tratamiento", ""),
+                "sistema_ipcc": row.get("sistema_manejo", ""),
+                "modelo_calculo": row.get("modelo", ""),
+                "masa_total_kg_eq": row.get("masa_total_kg_eq", ""),
+                "unidad_masa_total": "kg eq/ano",
+                "fuente_masa": row.get("fuente_agua_boniga", ""),
+                "fuente_parametros": "processed/acv_parametros_escenario_etapa.csv",
+                "observaciones": "Nomenclatura metodológica oficial según frontera del sistema.",
+            }
+        )
+    return _write(pd.DataFrame(rows), "tabla_01_etapas_escenarios.csv")
 
 
 def tabla_02_caracterizacion_muestras() -> Path:
@@ -102,7 +159,7 @@ def tabla_03_flujos_icv() -> Path:
     mass = _read_csv("masa_total_escenario_etapa.csv")
     rows = []
     flow_defs = [
-        ("boniga_kg", "Estiercol fresco o fraccion solida", "kg/ano", "fuente_agua_boniga"),
+        ("boniga_kg", "Estiercol sólido o purín", "kg/ano", "fuente_agua_boniga"),
         ("agua_l", "Aguas verdes", "L/ano", "fuente_agua_boniga"),
         ("masa_total_kg_eq", "Masa equivalente total", "kg eq/ano", "fuente_agua_boniga"),
         ("factor_restante_a2", "Factor restante fresco a precompostado", "kg/kg", "fuente_factor_a2"),
@@ -363,7 +420,7 @@ def diccionario_variables() -> Path:
     rows = [
         ("escenario", "Identificador del escenario de manejo", "A o B", "Tablas de escenarios y resultados"),
         ("etapa", "Numero de etapa dentro del escenario", "adimensional", "Scripts ACV_Escenario*.py"),
-        ("nombre_etapa", "Nombre descriptivo propuesto para la etapa", "texto", "outputs/tablas_tesis/tabla_01_etapas_escenarios.csv"),
+        ("nombre_etapa", "Nombre metodologico oficial de la etapa", "texto", "outputs/tablas_tesis/tabla_01_etapas_escenarios.csv"),
         ("tipo_muestra", "Tratamiento o material representado", "texto", "processed/acv_parametros_escenario_etapa.csv"),
         ("n_ex_pct", "Nitrogeno total reportado en laboratorio", "% N total", "processed/acv_parametros_escenario_etapa.csv"),
         ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg muestra", "Calculado como n_ex_pct/100"),
@@ -379,8 +436,116 @@ def diccionario_variables() -> Path:
     return _write(df, "diccionario_variables.csv")
 
 
+def resumen_resultados_para_redaccion() -> Path:
+    flujos = pd.read_csv(OUTPUTS / "tabla_03_flujos_icv.csv")
+    emisiones = pd.read_csv(OUTPUTS / "tabla_06_emisiones_por_etapa.csv")
+    impactos = pd.read_csv(OUTPUTS / "tabla_07_impactos_por_etapa.csv")
+    totales = pd.read_csv(OUTPUTS / "tabla_08_impactos_totales_por_escenario.csv")
+    comparacion = pd.read_csv(OUTPUTS / "tabla_09_comparacion_escenarios.csv")
+
+    masa = flujos[flujos["flujo"] == "Masa equivalente total"].copy()
+    emisiones_tot = emisiones.groupby(["escenario", "sustancia"], as_index=False)["valor"].sum()
+    impactos_etapa = (
+        impactos.groupby(["escenario", "etapa", "nombre_etapa", "categoria_impacto"], as_index=False)[
+            "resultado_equivalente"
+        ]
+        .sum()
+        .pivot(index=["escenario", "etapa", "nombre_etapa"], columns="categoria_impacto", values="resultado_equivalente")
+        .reset_index()
+    )
+
+    def markdown_table(df: pd.DataFrame) -> str:
+        headers = [str(col) for col in df.columns]
+        rows = ["| " + " | ".join(headers) + " |", "| " + " | ".join(["---"] * len(headers)) + " |"]
+        for _, record in df.iterrows():
+            rows.append("| " + " | ".join(str(record[col]) for col in df.columns) + " |")
+        return "\n".join(rows)
+
+    lines = [
+        "# Resumen de resultados para redaccion",
+        "",
+        "Este documento usa unicamente las tablas finales actuales de `outputs/tablas_tesis/`.",
+        "",
+        "No se usaron archivos con sufijo `antes_correccion_nitrogeno`.",
+        "",
+        "## Nomenclatura oficial de etapas",
+        "",
+        "| Escenario | Etapa | Codigo | Nombre oficial |",
+        "|---|---:|---|---|",
+    ]
+    for (escenario, etapa), nombre in STAGE_NAMES.items():
+        lines.append(f"| {escenario} | {etapa} | {escenario}{etapa} | {nombre} |")
+
+    lines.extend(
+        [
+            "",
+            "## 6.2 Flujos del inventario de ciclo de vida",
+            "",
+            "| Escenario | Etapa | Codigo | Nombre de etapa | Masa equivalente total (kg eq/ano) |",
+            "|---|---:|---|---|---:|",
+        ]
+    )
+    for _, row in masa.sort_values(["escenario", "etapa"]).iterrows():
+        code = f"{row['escenario']}{int(row['etapa'])}"
+        lines.append(
+            f"| {row['escenario']} | {int(row['etapa'])} | {code} | {row['nombre_etapa']} | {row['valor']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "B2, correspondiente a la Etapa 2: Aplicación en campo, presenta la mayor masa equivalente total. "
+            "En el escenario A, A4 corresponde a la Etapa 4: Aplicación de aguas verdes en campos de pastoreo y domina la masa equivalente.",
+            "",
+            "## 6.4 Emisiones estimadas por etapa y escenario",
+            "",
+            "| Escenario | Sustancia | Emision total anual |",
+            "|---|---|---:|",
+        ]
+    )
+    for _, row in emisiones_tot.sort_values(["escenario", "sustancia"]).iterrows():
+        lines.append(f"| {row['escenario']} | {row['sustancia']} | {row['valor']} |")
+    lines.extend(
+        [
+            "",
+            "B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente de CH4, NH3 y NO3. "
+            "A1, correspondiente a la Etapa 1: Precomposteo, es la mayor fuente de N2O. "
+            "A2, correspondiente a la Etapa 2: Lombricompostaje, reporta CO2 por uso de factor medido.",
+            "",
+            "## 6.5 Impactos ambientales por etapa",
+            "",
+            "| Escenario | Etapa | Codigo | Nombre de etapa | Calentamiento global | Eutrofizacion |",
+            "|---|---:|---|---|---:|---:|",
+        ]
+    )
+    for _, row in impactos_etapa.sort_values(["escenario", "etapa"]).iterrows():
+        code = f"{row['escenario']}{int(row['etapa'])}"
+        lines.append(
+            f"| {row['escenario']} | {int(row['etapa'])} | {code} | {row['nombre_etapa']} | "
+            f"{row.get('Calentamiento global', 0)} | {row.get('Eutrofizacion', 0)} |"
+        )
+    lines.extend(
+        [
+            "",
+            "B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominante en calentamiento global y eutrofizacion.",
+            "",
+            "## 6.6 Impactos totales por escenario",
+            "",
+            markdown_table(totales),
+            "",
+            "## 6.7 Comparacion entre escenarios",
+            "",
+            markdown_table(comparacion),
+            "",
+        ]
+    )
+    path = OUTPUTS / "resumen_resultados_para_redaccion.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
 def main() -> None:
     writers = [
+        tabla_01_etapas_escenarios,
         tabla_02_caracterizacion_muestras,
         tabla_03_flujos_icv,
         tabla_04_parametros_modelo_acv,
@@ -390,6 +555,7 @@ def main() -> None:
         tabla_08_impactos_totales_por_escenario,
         tabla_09_comparacion_escenarios,
         diccionario_variables,
+        resumen_resultados_para_redaccion,
     ]
     for writer in writers:
         path = writer()

@@ -49,11 +49,83 @@ def style_for(value: object, index: int = 0) -> dict[str, str]:
 
 def clean_label(value: object, width: int = 24) -> str:
     text = str(value)
-    return fill(text, width=width, break_long_words=False)
+    wrapped_lines = []
+    for line in text.splitlines() or [""]:
+        line = line.strip()
+        if not line:
+            wrapped_lines.append("")
+        else:
+            wrapped_lines.append(fill(line, width=width, break_long_words=False))
+    return "\n".join(wrapped_lines)
+
+
+def stage_axis_label(row: pd.Series) -> str:
+    code = f"{row['escenario']}{int(row['etapa'])}"
+    name = str(row["nombre_etapa"])
+    expected_prefix = f"Etapa {int(row['etapa'])}: "
+    if name.startswith(expected_prefix):
+        name = name[len(expected_prefix):]
+    name = name.replace("Aplicación de aguas verdes en campos de pastoreo", "Aplicación de aguas verdes\nen campos de pastoreo")
+    name = name.replace("Almacenamiento de purines", "Almacenamiento\nde purines")
+    return f"{code}:\n{name}"
+
+
+def formatted_labels(values, width: int) -> list[str]:
+    return [clean_label(value, width=width) for value in values]
+
+
+def label_line_count(label: str) -> int:
+    return max(1, len(str(label).splitlines()))
+
+
+def figure_size_for_labels(
+    labels: list[str],
+    base_width: float,
+    base_height: float,
+    per_label_width: float = 1.45,
+) -> tuple[float, float]:
+    max_lines = max((label_line_count(label) for label in labels), default=1)
+    width = max(base_width, per_label_width * max(len(labels), 1))
+    height = base_height + max(0, max_lines - 2) * 0.28
+    return width, height
+
+
+def apply_x_tick_labels(ax: plt.Axes, labels: list[str], rotation: float = 0) -> None:
+    max_lines = max((label_line_count(label) for label in labels), default=1)
+    fontsize = 8 if max_lines <= 3 else 7
+    ax.set_xticklabels(labels, rotation=rotation, ha="center", fontsize=fontsize)
+    ax.tick_params(axis="x", pad=6)
+
+
+def tick_labels_overlap(fig: plt.Figure, ax: plt.Axes) -> bool:
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    labels = [label for label in ax.get_xticklabels() if label.get_visible() and label.get_text()]
+    boxes = [label.get_window_extent(renderer=renderer).expanded(1.03, 1.0) for label in labels]
+    return any(left.overlaps(right) for left, right in zip(boxes, boxes[1:]))
+
+
+def resolve_x_tick_overlaps(fig: plt.Figure) -> None:
+    for _ in range(3):
+        fig.canvas.draw()
+        overlapping_axes = [ax for ax in fig.axes if tick_labels_overlap(fig, ax)]
+        if not overlapping_axes:
+            return
+        width, height = fig.get_size_inches()
+        fig.set_size_inches(width * 1.12, height + 0.25, forward=True)
+        for ax in overlapping_axes:
+            for label in ax.get_xticklabels():
+                label.set_rotation(25)
+                label.set_ha("right")
+                label.set_fontsize(7)
+    fig.canvas.draw()
 
 
 def finish_figure(fig: plt.Figure, filename: str) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    resolve_x_tick_overlaps(fig)
+    fig.tight_layout()
     for ext in ("png", "svg"):
         fig.savefig(OUT_DIR / f"{filename}.{ext}", bbox_inches="tight", dpi=300)
     plt.close(fig)
@@ -75,7 +147,8 @@ def grouped_bar(
         .fillna(0)
         .sort_index()
     )
-    fig, ax = plt.subplots(figsize=(max(7, 1.25 * len(pivot)), 4.8))
+    x_labels = formatted_labels(pivot.index, x_width)
+    fig, ax = plt.subplots(figsize=figure_size_for_labels(x_labels, base_width=7, base_height=4.9))
     x = np.arange(len(pivot.index))
     groups = list(pivot.columns)
     width = min(0.8 / max(len(groups), 1), 0.36)
@@ -98,11 +171,10 @@ def grouped_bar(
     ax.set_title(title)
     ax.set_ylabel(ylabel)
     ax.set_xticks(x)
-    ax.set_xticklabels([clean_label(v, x_width) for v in pivot.index], rotation=0)
+    apply_x_tick_labels(ax, x_labels)
     ax.legend(frameon=False)
     ax.grid(axis="y", color="#d9d9d9", linewidth=0.7)
     ax.set_axisbelow(True)
-    fig.tight_layout()
     finish_figure(fig, filename)
 
 
@@ -118,7 +190,8 @@ def simple_bar(
     figsize: tuple[float, float] | None = None,
     bottom_margin: float | None = None,
 ) -> None:
-    fig_size = figsize or (max(6.5, 1.4 * len(df)), 4.6)
+    x_labels = formatted_labels(df[x_col], x_width)
+    fig_size = figsize or figure_size_for_labels(x_labels, base_width=6.5, base_height=4.7)
     fig, ax = plt.subplots(figsize=fig_size)
     x = np.arange(len(df))
     if color_col:
@@ -135,10 +208,9 @@ def simple_bar(
     ax.set_title(title)
     ax.set_ylabel(ylabel)
     ax.set_xticks(x)
-    ax.set_xticklabels([clean_label(v, x_width) for v in df[x_col]], rotation=0)
+    apply_x_tick_labels(ax, x_labels)
     ax.grid(axis="y", color="#d9d9d9", linewidth=0.7)
     ax.set_axisbelow(True)
-    fig.tight_layout()
     if bottom_margin is not None:
         fig.subplots_adjust(bottom=bottom_margin)
     finish_figure(fig, filename)
@@ -200,16 +272,16 @@ def plot_sample_characterization(readme: list[dict[str, str]]) -> None:
 def plot_inventory_flows(readme: list[dict[str, str]]) -> None:
     df = read_table("flujos")
     mass = df[df["flujo"] == "Masa equivalente total"].copy()
-    mass["etiqueta_etapa"] = mass["escenario"] + ": " + mass["nombre_etapa"]
+    mass["etiqueta_etapa"] = mass.apply(stage_axis_label, axis=1)
     simple_bar(
         mass.sort_values(["escenario", "etapa"]),
         x_col="etiqueta_etapa",
         value_col="valor",
-        title="Inventario: masa equivalente total por escenario y etapa",
+        title="Inventario: masa equivalente total por escenario y proceso",
         ylabel="Masa equivalente total (kg eq/ano)",
         filename="fig_04_flujos_masa_equivalente_total",
         color_col="escenario",
-        x_width=16,
+        x_width=30,
         figsize=(11.5, 6.2),
         bottom_margin=0.34,
     )
@@ -227,12 +299,17 @@ def plot_inventory_flows(readme: list[dict[str, str]]) -> None:
         ~df["flujo"].isin(["Masa equivalente total", "Factor restante fresco a precompostado"])
     ].copy()
     units = list(components["unidad"].dropna().unique())
+    stage_labels = formatted_labels(
+        components.drop_duplicates(["escenario", "etapa"]).sort_values(["escenario", "etapa"]).apply(stage_axis_label, axis=1),
+        30,
+    )
+    fig_width, _ = figure_size_for_labels(stage_labels, base_width=11.5, base_height=4.2, per_label_width=1.55)
     fig, axes = plt.subplots(
-        len(units), 1, figsize=(9, 3.8 * len(units)), sharex=False, squeeze=False
+        len(units), 1, figsize=(fig_width, 4.4 * len(units)), sharex=False, squeeze=False
     )
     for ax, unit in zip(axes.ravel(), units):
         subset = components[components["unidad"] == unit].copy()
-        subset["etiqueta_etapa"] = subset["escenario"] + ": " + subset["nombre_etapa"]
+        subset["etiqueta_etapa"] = subset.apply(stage_axis_label, axis=1)
         pivot = (
             subset.pivot_table(
                 index="etiqueta_etapa", columns="flujo", values="valor", aggfunc="sum"
@@ -259,12 +336,11 @@ def plot_inventory_flows(readme: list[dict[str, str]]) -> None:
         ax.set_title(f"Componentes del inventario ({unit})")
         ax.set_ylabel(unit)
         ax.set_xticks(x)
-        ax.set_xticklabels([clean_label(v, 24) for v in pivot.index], rotation=0)
+        apply_x_tick_labels(ax, formatted_labels(pivot.index, 30))
         ax.grid(axis="y", color="#d9d9d9", linewidth=0.7)
         ax.set_axisbelow(True)
         ax.legend(frameon=False)
-    fig.suptitle("Inventario: distribucion de flujos por etapa", y=1.01)
-    fig.tight_layout()
+    fig.suptitle("Inventario: distribucion de flujos por proceso", y=1.01)
     finish_figure(fig, "fig_05_flujos_distribucion_componentes")
     readme.append(
         {
@@ -292,21 +368,22 @@ def plot_emissions(readme: list[dict[str, str]]) -> None:
         if subset.empty:
             continue
         grouped = (
-            subset.groupby(["nombre_etapa", "escenario", "unidad"], as_index=False)["valor"]
+            subset.groupby(["escenario", "etapa", "nombre_etapa", "unidad"], as_index=False)["valor"]
             .sum()
-            .sort_values(["nombre_etapa", "escenario"])
+            .sort_values(["escenario", "etapa"])
         )
+        grouped["etiqueta_etapa"] = grouped.apply(stage_axis_label, axis=1)
         unit = grouped["unidad"].iloc[0]
         filename = f"fig_{i:02d}_emisiones_{substance.lower()}"
         grouped_bar(
             grouped,
-            x_col="nombre_etapa",
+            x_col="etiqueta_etapa",
             group_col="escenario",
             value_col="valor",
-            title=f"Emisiones de {names[substance]} por etapa y escenario",
+            title=f"Emisiones de {names[substance]} por proceso y escenario",
             ylabel=unit,
             filename=filename,
-            x_width=24,
+            x_width=30,
             group_label_prefix="Escenario",
         )
         readme.append(
@@ -329,22 +406,23 @@ def plot_impacts_by_stage(readme: list[dict[str, str]]) -> None:
     for category, filename in specs:
         subset = df[df["categoria_impacto"] == category].copy()
         grouped = (
-            subset.groupby(["nombre_etapa", "escenario", "unidad_equivalente"], as_index=False)[
+            subset.groupby(["escenario", "etapa", "nombre_etapa", "unidad_equivalente"], as_index=False)[
                 "resultado_equivalente"
             ]
             .sum()
-            .sort_values(["nombre_etapa", "escenario"])
+            .sort_values(["escenario", "etapa"])
         )
+        grouped["etiqueta_etapa"] = grouped.apply(stage_axis_label, axis=1)
         unit = grouped["unidad_equivalente"].iloc[0]
         grouped_bar(
             grouped,
-            x_col="nombre_etapa",
+            x_col="etiqueta_etapa",
             group_col="escenario",
             value_col="resultado_equivalente",
-            title=f"{category} por etapa y escenario",
+            title=f"{category} por proceso y escenario",
             ylabel=unit,
             filename=filename,
-            x_width=24,
+            x_width=30,
             group_label_prefix="Escenario",
         )
         readme.append(

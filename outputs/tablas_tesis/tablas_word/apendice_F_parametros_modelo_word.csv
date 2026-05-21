@@ -1,0 +1,7 @@
+﻿Escenario,Etapa,Nombre de etapa,Modelo de cálculo,Sistema de manejo asignado,n_ex_pct (%),n_ex_fraction (kg N/kg muestra),MCF (%),EF3
+A,1,Etapa 1: Precomposteo,ipcc,dry_lot,0.3717,0.0037,1.5,0.02
+A,2,Etapa 2: Lombricompostaje,medido,composting_invessel,2.425,0.0242,0.5,0.006
+A,3,Etapa 3: Almacenamiento de aguas verdes,ipcc,uncovered_anaerobic_lagoon,0.3717,0.0037,80.0,0.0
+A,4,Etapa 4: Aplicación de aguas verdes en campos de pastoreo,ipcc,uncovered_anaerobic_lagoon,0.0072,0.0001,80.0,0.0
+B,1,Etapa 1: Almacenamiento de purines,ipcc,uncovered_anaerobic_lagoon,0.3717,0.0037,80.0,0.0
+B,2,Etapa 2: Aplicación en campo,ipcc,uncovered_anaerobic_lagoon,0.0114,0.0001,80.0,0.0

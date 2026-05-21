@@ -1,7 +1,7 @@
 ﻿variable,definicion,unidad,fuente_o_calculo
 escenario,Identificador del escenario de manejo,A o B,Tablas de escenarios y resultados
 etapa,Numero de etapa dentro del escenario,adimensional,Scripts ACV_Escenario*.py
-nombre_etapa,Nombre descriptivo propuesto para la etapa,texto,outputs/tablas_tesis/tabla_01_etapas_escenarios.csv
+nombre_etapa,Nombre metodologico oficial de la etapa,texto,outputs/tablas_tesis/tabla_01_etapas_escenarios.csv
 tipo_muestra,Tratamiento o material representado,texto,processed/acv_parametros_escenario_etapa.csv
 n_ex_pct,Nitrogeno total reportado en laboratorio,% N total,processed/acv_parametros_escenario_etapa.csv
 n_ex_fraction,Nitrogeno total como fraccion masica,kg N/kg muestra,Calculado como n_ex_pct/100

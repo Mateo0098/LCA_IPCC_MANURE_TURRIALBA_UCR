@@ -1,0 +1,6 @@
+﻿Sustancia,Categoría de impacto,Factor de caracterización,Unidad
+CH4,Calentamiento global,21.0,kg CO2-eq/kg sustancia
+N2O,Calentamiento global,310.0,kg CO2-eq/kg sustancia
+NH3,Eutrofización,0.35,kg PO4-eq/kg sustancia
+NO3,Eutrofización,0.095,kg PO4-eq/kg sustancia
+CO2,Calentamiento global,1.0,kg CO2-eq/kg sustancia
