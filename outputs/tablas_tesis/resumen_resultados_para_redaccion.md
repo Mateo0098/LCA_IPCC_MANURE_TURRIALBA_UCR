@@ -2,7 +2,7 @@
 
 Este documento usa unicamente las tablas finales actuales de `outputs/tablas_tesis/`.
 
-No se usaron archivos con sufijo `antes_correccion_nitrogeno`.
+El nitrogeno total reportado en porcentaje se expresa en el modelo como `n_ex_fraction = n_ex_pct / 100`.
 
 ## Nomenclatura oficial de etapas
 
@@ -70,5 +70,5 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominan
 
 | categoria_impacto | escenario_A | escenario_B | unidad | diferencia_absoluta_B_menos_A | diferencia_porcentual_B_vs_A | escenario_con_mayor_impacto | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Calentamiento global | 478.7789018574642 | 1787.1927489605807 | kg CO2-eq/ano | 1308.4138471031165 | 273.2814336694896 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion posterior a correccion de n_ex_pct a n_ex_fraction |
-| Eutrofizacion | 3.639744447840529 | 4.425350819041921 | kg PO4-eq/ano | 0.7856063712013923 | 21.584107963060287 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion posterior a correccion de n_ex_pct a n_ex_fraction |
+| Calentamiento global | 478.7789018574642 | 1787.1927489605807 | kg CO2-eq/ano | 1308.4138471031165 | 273.2814336694896 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
+| Eutrofizacion | 3.639744447840529 | 4.425350819041921 | kg PO4-eq/ano | 0.7856063712013923 | 21.584107963060287 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |

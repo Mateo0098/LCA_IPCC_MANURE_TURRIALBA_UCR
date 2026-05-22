@@ -500,7 +500,7 @@ def write_readme(rows: list[dict[str, str]]) -> None:
     lines = [
         "# Graficos finales para tesis",
         "",
-        "Todos los graficos fueron generados exclusivamente a partir de las tablas finales validadas en `outputs/tablas_tesis/` indicadas en cada registro. No se usaron archivos con sufijo `antes_correccion_nitrogeno` ni tablas intermedias.",
+        "Todos los graficos fueron generados exclusivamente a partir de las tablas finales validadas en `outputs/tablas_tesis/` indicadas en cada registro.",
         "",
         "| Archivo | Tabla fuente | Que muestra | Seccion recomendada | Apendice relacionado |",
         "|---|---|---|---|---|",

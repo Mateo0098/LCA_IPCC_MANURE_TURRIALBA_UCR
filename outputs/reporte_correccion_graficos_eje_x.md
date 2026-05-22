@@ -1,4 +1,4 @@
-# Reporte de corrección de etiquetas del eje X en gráficos
+﻿# Reporte de correcciÃ³n de etiquetas del eje X en grÃ¡ficos
 
 ## Script modificado
 
@@ -8,19 +8,19 @@ Nota: en este repositorio el generador de figuras se llama `generate_thesis_grap
 
 ## Estrategia aplicada
 
-- Se ajustó la función reutilizable `stage_axis_label()` para que las etiquetas visibles de gráficos usen código y nombre corto del proceso.
-- Se eliminó la palabra `Etapa` solo de las etiquetas y títulos visibles en los gráficos.
-- Las etiquetas conservan los códigos A1, A2, A3, A4, B1 y B2.
-- Las etiquetas largas se mantienen con saltos de línea y ajuste automático de tamaño/rotación para evitar traslape.
+- Se ajustÃ³ la funciÃ³n reutilizable `stage_axis_label()` para que las etiquetas visibles de grÃ¡ficos usen cÃ³digo y nombre corto del proceso.
+- Se eliminÃ³ la palabra `Etapa` solo de las etiquetas y tÃ­tulos visibles en los grÃ¡ficos.
+- Las etiquetas conservan los cÃ³digos A1, A2, A3, A4, B1 y B2.
+- Las etiquetas largas se mantienen con saltos de lÃ­nea y ajuste automÃ¡tico de tamaÃ±o/rotaciÃ³n para evitar traslape.
 
-Ejemplos de etiquetas gráficas aplicadas:
+Ejemplos de etiquetas grÃ¡ficas aplicadas:
 
 - `A1: Precomposteo`
 - `A2: Lombricompostaje`
 - `A3: Almacenamiento de aguas verdes`
-- `A4: Aplicación de aguas verdes en campos de pastoreo`
+- `A4: AplicaciÃ³n de aguas verdes en campos de pastoreo`
 - `B1: Almacenamiento de purines`
-- `B2: Aplicación en campo`
+- `B2: AplicaciÃ³n en campo`
 
 ## Figuras regeneradas
 
@@ -42,18 +42,19 @@ Se regeneraron todas las figuras finales en PNG y SVG:
 - `fig_14_comparacion_total_eutrofizacion`
 - `fig_15_comparacion_diferencia_porcentual`
 
-También se regeneró `outputs/graficos_tesis/README_GRAFICOS.md`.
+TambiÃ©n se regenerÃ³ `outputs/graficos_tesis/README_GRAFICOS.md`.
 
-## Validación
+## ValidaciÃ³n
 
-- La búsqueda en los SVG generados confirmó que la palabra `Etapa` no aparece en el texto visible de los gráficos.
-- También se verificó la ausencia de `etapa` en minúscula dentro del texto SVG visible.
-- Los códigos A1, A2, A3, A4, B1 y B2 se conservaron en los SVG generados.
-- No se modificaron tablas fuente ni valores numéricos; las huellas SHA-256 de las tablas usadas para generar gráficos coinciden antes y después.
-- No se usaron archivos con sufijo `antes_correccion_nitrogeno`.
+- La bÃºsqueda en los SVG generados confirmÃ³ que la palabra `Etapa` no aparece en el texto visible de los grÃ¡ficos.
+- TambiÃ©n se verificÃ³ la ausencia de `etapa` en minÃºscula dentro del texto SVG visible.
+- Los cÃ³digos A1, A2, A3, A4, B1 y B2 se conservaron en los SVG generados.
+- No se modificaron tablas fuente ni valores numÃ©ricos; las huellas SHA-256 de las tablas usadas para generar grÃ¡ficos coinciden antes y despuÃ©s.
+- Se usaron las tablas finales vigentes del repositorio.
 
 ## Tratamiento especial
 
-- Las figuras con etiquetas largas de proceso usan saltos de línea.
-- Las figuras agrupadas aplican rotación moderada solo si la validación automática detecta traslape.
-- La eliminación de `Etapa` se aplicó únicamente a la presentación gráfica; no se modificaron tablas finales ni documento Word.
+- Las figuras con etiquetas largas de proceso usan saltos de lÃ­nea.
+- Las figuras agrupadas aplican rotaciÃ³n moderada solo si la validaciÃ³n automÃ¡tica detecta traslape.
+- La eliminaciÃ³n de `Etapa` se aplicÃ³ Ãºnicamente a la presentaciÃ³n grÃ¡fica; no se modificaron tablas finales ni documento Word.
+

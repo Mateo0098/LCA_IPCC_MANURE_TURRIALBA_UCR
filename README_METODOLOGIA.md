@@ -62,14 +62,16 @@ Las conversiones principales son:
 - Solidos volatiles en base humeda: `(vs_t_pct / 100) * fraccion_masa_seca`.
 - Flujos anuales: `(promedio / duracion_muestreo_dias) * 365`.
 
-La correccion metodologica aplicada al nitrogeno esta documentada en:
-
-- `outputs/tablas_tesis/tabla_auditoria_nitrogeno.csv`
-- `outputs/tablas_tesis/tabla_comparacion_correccion_nitrogeno.csv`
-
 ## Normalizacion a unidad funcional
 
-El codigo escala las emisiones por `masa_total_kg_eq`, calculada en:
+La unidad funcional del estudio es 1 kg de estiércol fresco, tal y como fue
+recolectado del módulo lechero. Esta unidad permite comparar los escenarios de
+manejo evaluados bajo una misma base funcional.
+
+Algunos resultados se presentan como flujos anuales estimados para describir la
+magnitud operacional del sistema durante el periodo evaluado. Esos valores no
+sustituyen la unidad funcional del ACV. El codigo calcula masas equivalentes
+anuales por etapa mediante `masa_total_kg_eq`, calculada en:
 
 - `scripts/compute_masa_etapas_escenarios.py`
 - `processed/masa_total_escenario_etapa.csv`
@@ -116,8 +118,8 @@ Las emisiones se consolidan en:
 - `processed/ACV_resumen_emisiones.csv`
 
 La tabla contiene emisiones por escenario y etapa para CO2, CH4, N2O, NH3 y
-NO3. Despues de la correccion de nitrogeno, las ecuaciones de N usan
-`n_ex_fraction` y no `n_ex_pct` directamente.
+NO3. Las ecuaciones de N usan `n_ex_fraction` como fraccion masica y no
+`n_ex_pct` directamente.
 
 La tabla final limpia para tesis es:
 
@@ -166,9 +168,7 @@ Archivos en `outputs/tablas_tesis/`:
 - `tabla_08_impactos_totales_por_escenario.csv`
 - `tabla_09_comparacion_escenarios.csv`
 - `diccionario_variables.csv`
-- `tabla_auditoria_nitrogeno.csv`
 - `tabla_auditoria_factores_hardcodeados.csv`
-- `tabla_comparacion_correccion_nitrogeno.csv`
 
 ## Orden recomendado de ejecucion
 
@@ -181,7 +181,6 @@ Si cambian datos crudos:
 .venv\Scripts\python.exe scripts\compute_masa_etapas_escenarios.py
 .venv\Scripts\python.exe scripts\generate_acv_parametros_escenario_etapa.py
 .venv\Scripts\python.exe ACV_orquestador.py
-.venv\Scripts\python.exe scripts\generate_nitrogen_correction_audit.py
 .venv\Scripts\python.exe scripts\generate_thesis_tables.py
 ```
 
@@ -189,7 +188,6 @@ Si `processed/` ya esta validado:
 
 ```powershell
 .venv\Scripts\python.exe ACV_orquestador.py
-.venv\Scripts\python.exe scripts\generate_nitrogen_correction_audit.py
 .venv\Scripts\python.exe scripts\generate_thesis_tables.py
 ```
 
@@ -197,11 +195,7 @@ Si `processed/` ya esta validado:
 
 - Completar fuentes bibliograficas para factores IPCC y factores de
   caracterizacion.
-- Definir por escrito la unidad funcional final de la tesis.
 - Validar los nombres descriptivos de etapas en
   `tabla_01_etapas_escenarios.csv`.
-- Mantener `n_ex_pct` como porcentaje reportado y `n_ex_fraction` como entrada
-  corregida a ecuaciones de nitrogeno.
-
-Los archivos con sufijo antes_correccion_nitrogeno corresponden a una versión previa en la que el N total (%) no había sido convertido a fracción másica. No deben utilizarse para la redacción de resultados.
-
+- Mantener `n_ex_pct` como porcentaje reportado y `n_ex_fraction` como fraccion
+  masica usada en ecuaciones de nitrogeno.

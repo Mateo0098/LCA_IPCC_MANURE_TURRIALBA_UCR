@@ -1,4 +1,4 @@
-# Reporte de corrección de nombres de etapas
+﻿# Reporte de correcciÃ³n de nombres de etapas
 
 ## Scripts modificados
 
@@ -36,15 +36,15 @@ Se regeneraron las figuras finales en PNG y SVG mediante `scripts/generate_thesi
 - `fig_11_impactos_calentamiento_global_etapa`
 - `fig_12_impactos_eutrofizacion_etapa`
 
-También se regeneró `outputs/graficos_tesis/README_GRAFICOS.md`.
+TambiÃ©n se regenerÃ³ `outputs/graficos_tesis/README_GRAFICOS.md`.
 
 ## Documento Word
 
-Se regeneró `outputs/resultados_tfg.docx` con la nomenclatura oficial de etapas en texto y tablas reducidas.
+Se regenerÃ³ `outputs/resultados_tfg.docx` con la nomenclatura oficial de etapas en texto y tablas reducidas.
 
-## Validación numérica
+## ValidaciÃ³n numÃ©rica
 
-No se modificaron valores numéricos. La comparación de huellas SHA-256 de columnas numéricas antes y después coincidió para:
+No se modificaron valores numÃ©ricos. La comparaciÃ³n de huellas SHA-256 de columnas numÃ©ricas antes y despuÃ©s coincidiÃ³ para:
 
 - `tabla_01_etapas_escenarios.csv`
 - `tabla_03_flujos_icv.csv`
@@ -56,18 +56,18 @@ No se modificaron valores numéricos. La comparación de huellas SHA-256 de colu
 
 ## Archivos no usados
 
-No se usaron archivos con sufijo `antes_correccion_nitrogeno`. Existen archivos archivados con ese sufijo dentro de una carpeta histórica, pero no son insumos de los scripts ejecutados.
+Se usaron las tablas finales vigentes del repositorio. Existen archivos archivados con ese sufijo dentro de una carpeta histÃ³rica, pero no son insumos de los scripts ejecutados.
 
-## Búsqueda final de nombres antiguos
+## BÃºsqueda final de nombres antiguos
 
-Se buscaron los términos:
+Se buscaron los tÃ©rminos:
 
 - `Manejo inicial`
 - `Manejo posterior`
-- `fracción sólida`
-- `Aplicación o manejo`
-- `Manejo de estiércol fresco sin precompostaje`
-- `Manejo o aplicación de purines`
+- `fracciÃ³n sÃ³lida`
+- `AplicaciÃ³n o manejo`
+- `Manejo de estiÃ©rcol fresco sin precompostaje`
+- `Manejo o aplicaciÃ³n de purines`
 
 Resultado: no se encontraron coincidencias en:
 
@@ -81,6 +81,7 @@ Resultado: no se encontraron coincidencias en:
 - A1: `Etapa 1: Precomposteo`
 - A2: `Etapa 2: Lombricompostaje`
 - A3: `Etapa 3: Almacenamiento de aguas verdes`
-- A4: `Etapa 4: Aplicación de aguas verdes en campos de pastoreo`
+- A4: `Etapa 4: AplicaciÃ³n de aguas verdes en campos de pastoreo`
 - B1: `Etapa 1: Almacenamiento de purines`
-- B2: `Etapa 2: Aplicación en campo`
+- B2: `Etapa 2: AplicaciÃ³n en campo`
+

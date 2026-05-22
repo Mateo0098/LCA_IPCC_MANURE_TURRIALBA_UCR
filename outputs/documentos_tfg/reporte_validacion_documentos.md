@@ -1,0 +1,90 @@
+# Reporte de validación de documentos
+
+## Verificaciones
+
+- `metodologia_desarrollada_tfg.docx` fue regenerado: Sí.
+- `resultados_desarrollados_tfg.docx` fue regenerado: Sí.
+- Las figuras principales fueron insertadas o están disponibles para inserción: Sí.
+- Se conservaron subíndices y superíndices en fórmulas químicas principales: Sí.
+- Se agregaron ecuaciones en sintaxis LaTeX válida para humedad, materia seca, cenizas, sólidos volátiles, nitrógeno total y conservación de cenizas: Sí.
+- Las ecuaciones fueron insertadas con formato matemático centrado: Sí.
+- La sección de datos de entrada del ICV incluye estiércol fresco, precompostado, aguas verdes y purines: Sí.
+- La sección de muestreo y análisis de laboratorio referencia explícitamente las tablas mencionadas: Sí.
+- La redacción principal evita lenguaje de documentación técnica interna: Sí.
+- Todas las figuras insertadas son mencionadas en la prosa: Sí.
+- Todas las tablas insertadas son mencionadas en la prosa: Sí.
+- Los encabezados de tablas están en negrita: Sí.
+- Las tablas usan solo bordes horizontales: Sí.
+- No se modificaron valores numéricos: Sí; la regeneración aplicó formato y redacción sin cambiar cálculos.
+- No se usaron archivos `antes_correccion_nitrogeno`: Sí.
+- No aparecen nombres antiguos de etapas: Sí.
+- No aparecen rutas internas del repositorio en la prosa principal: Sí
+- La metodología de nitrógeno en los documentos usa `n_ex_fraction = n_ex_pct / 100`: Sí.
+- El documento original de propuesta no fue modificado: Sí.
+
+## Validación de unidad funcional
+
+- La unidad funcional aparece claramente como 1 kg de estiércol fresco: Sí.
+- No aparecen formulaciones ambiguas sobre la unidad funcional: Sí.
+- Las unidades anuales se mantienen como unidades de reporte y no como unidad funcional: Sí.
+- Los resultados anuales se presentan como escala de inventario operacional, no como unidad funcional: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificó el documento maestro de propuesta: Sí.
+- Los Word fueron regenerados: Sí.
+
+## Validación de ecuaciones en sintaxis LaTeX
+
+- Método usado: texto LaTeX válido, seleccionable, en párrafos independientes y centrados.
+- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; masa de cenizas del estiércol fresco; masa seca equivalente del material precompostado; factor de masa seca remanente.
+- Las nueve ecuaciones LaTeX requeridas aparecen como texto seleccionable: Sí.
+- No se usaron imágenes de ecuaciones ni archivos `eq_*.png`: Sí.
+- No se usaron delimitadores visibles `\[`, `\]` ni `$$`: Sí.
+- Las ecuaciones están centradas y son seleccionables en Word: Sí.
+- No se modificaron valores numéricos ni resultados: Sí.
+
+## Validación de codificación de caracteres
+
+- Scripts modificados: `scripts/generate_methodology_docx.py` y `scripts/generate_results_docx.py`.
+- Documentos regenerados: `metodologia_desarrollada_tfg.docx` y `resultados_desarrollados_tfg.docx`.
+- Estrategia aplicada: lectura explícita UTF-8 de CSV y reparación controlada de mojibake solo cuando se detectan marcadores de codificación dañada.
+- No quedan marcadores de mojibake en los documentos y reportes generados (U+00C3, U+00C2, secuencias de comillas dañadas ni carácter de reemplazo): Sí.
+- Las tildes, eñes y términos académicos en español aparecen correctamente: Sí.
+- No se modificaron valores numéricos ni resultados: Sí.
+- No se modificó el documento maestro de propuesta: Sí.
+
+## Validación de nomenclatura de flujos A4 y B2
+
+- B2 ya no usa la etiqueta `Aguas verdes` para el componente líquido: Sí.
+- B2 usa `Agua de lavado incorporada al purín` para el componente líquido: Sí.
+- A4 mantiene `Aguas verdes` o una etiqueta equivalente para el componente líquido: No.
+- La masa equivalente total no fue modificada: No.
+- No se modificaron valores numéricos de A4 ni B2: No.
+- La explicación metodológica de masa equivalente total fue incorporada: Sí.
+- No se mencionan scripts, rutas, repositorio ni diagnóstico de Codex en la prosa principal: Sí.
+
+## Validación de escritura académica y limpieza de etiquetas técnicas
+
+- No aparecen etiquetas técnicas internas en la prosa ni en tablas de los Word: Sí.
+- Las etapas no aparecen con decimales: Sí.
+- Las tablas del Word usan encabezados académicos: Sí.
+- No hay columnas con rutas internas, scripts, archivos CSV, `processed`, `outputs` o referencias hardcodeadas: Sí.
+- Los apéndices internos fueron limpiados para lectura académica: Sí.
+- No se modificaron valores numéricos ni resultados: Sí.
+- No se modificó el documento maestro de propuesta: Sí.
+
+## Validación de tablas sin redundancia de etapas
+
+- Ninguna tabla contiene simultáneamente columnas redundantes como `Etapa` y `Nombre etapa`: Sí.
+- Ninguna tabla contiene la palabra `etapa` en más de un encabezado: Sí.
+- Se usa `Etapa del sistema` como columna única cuando corresponde: Sí.
+- Los valores aparecen con código y nombre oficial de etapa: Sí.
+- No aparecen números de etapa con decimales: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron resultados: Sí.
+- No se modificó el documento maestro de propuesta: Sí.
+
+## Archivos validados
+
+- `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
+- `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`
+- `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md`

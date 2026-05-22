@@ -164,13 +164,34 @@ def tabla_03_flujos_icv() -> Path:
         ("masa_total_kg_eq", "Masa equivalente total", "kg eq/ano", "fuente_agua_boniga"),
         ("factor_restante_a2", "Factor restante fresco a precompostado", "kg/kg", "fuente_factor_a2"),
     ]
+
+    def flow_label(escenario: str, etapa: int, column: str, default: str) -> str:
+        esc = str(escenario).strip().upper()
+        if esc == "A" and etapa == 1 and column == "boniga_kg":
+            return "Estiércol fresco"
+        if esc == "A" and etapa == 2 and column == "boniga_kg":
+            return "Fracción sólida precompostada"
+        if esc == "A" and etapa == 3 and column == "boniga_kg":
+            return "Fracción de boñiga asociada a aguas verdes"
+        if esc == "A" and etapa == 4 and column == "boniga_kg":
+            return "Fracción de boñiga asociada a aguas verdes"
+        if esc == "A" and etapa == 4 and column == "agua_l":
+            return "Agua de lavado incorporada a las aguas verdes"
+        if esc == "B" and etapa == 2 and column == "agua_l":
+            return "Agua de lavado incorporada al purín"
+        if esc == "B" and etapa == 2 and column == "boniga_kg":
+            return "Boñiga incorporada al purín"
+        return default
+
     for _, row in mass.iterrows():
+        escenario = str(row["escenario"]).strip().upper()
+        etapa = int(row["etapa"])
         for col, flow_name, unit, source_col in flow_defs:
             rows.append({
-                "escenario": row["escenario"],
-                "etapa": int(row["etapa"]),
-                "nombre_etapa": _stage_name(row["escenario"], row["etapa"]),
-                "flujo": flow_name,
+                "escenario": escenario,
+                "etapa": etapa,
+                "nombre_etapa": _stage_name(escenario, etapa),
+                "flujo": flow_label(escenario, etapa, col, flow_name),
                 "valor": row[col],
                 "unidad": unit,
                 "fuente": row.get(source_col, ""),
@@ -197,7 +218,7 @@ def tabla_04_parametros_modelo_acv() -> Path:
     rows = []
     param_defs = [
         ("n_ex_pct", "Nitrogeno total reportado", "% N total", "fuente_n_ex", "Valor de caracterizacion; no usar directamente en ecuaciones de N"),
-        ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg muestra", "fuente_n_ex", "Usado en ecuaciones de N despues de correccion"),
+        ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg muestra", "fuente_n_ex", "Usado como fraccion masica en ecuaciones de N"),
         ("vs_t_pct", "Solidos volatiles", "% base seca", "fuente_vs_t", "Parametro para CH4 en etapas solidas"),
         ("masa_total_kg_eq", "Masa equivalente total", "kg eq/ano", "", "Base de escalamiento por etapa"),
         ("mcf_pct", "MCF", "%", "", "Factor IPCC por sistema de manejo"),
@@ -325,7 +346,7 @@ def tabla_06_emisiones_por_etapa() -> Path:
                 "ecuacion_utilizada": equation,
                 "fuente_factor_emision": source,
                 "masa_total_kg_eq": row.get("masa_total_kg_eq", ""),
-                "observaciones": "n_ex_fraction corregido para ecuaciones de nitrogeno" if substance in {"N2O", "NH3", "NO3"} else "",
+                "observaciones": "n_ex_fraction usado como fraccion masica en ecuaciones de nitrogeno" if substance in {"N2O", "NH3", "NO3"} else "",
             })
     return _write(pd.DataFrame(rows), "tabla_06_emisiones_por_etapa.csv")
 
@@ -411,7 +432,7 @@ def tabla_09_comparacion_escenarios() -> Path:
             "diferencia_porcentual_B_vs_A": pct,
             "escenario_con_mayor_impacto": "A" if a > b else "B" if b > a else "Iguales",
             "fuente": "processed/acv_impacto_total_por_escenario.csv",
-            "observaciones": "Comparacion posterior a correccion de n_ex_pct a n_ex_fraction",
+            "observaciones": "Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno",
         })
     return _write(pd.DataFrame(rows), "tabla_09_comparacion_escenarios.csv")
 
@@ -466,7 +487,7 @@ def resumen_resultados_para_redaccion() -> Path:
         "",
         "Este documento usa unicamente las tablas finales actuales de `outputs/tablas_tesis/`.",
         "",
-        "No se usaron archivos con sufijo `antes_correccion_nitrogeno`.",
+        "El nitrogeno total reportado en porcentaje se expresa en el modelo como `n_ex_fraction = n_ex_pct / 100`.",
         "",
         "## Nomenclatura oficial de etapas",
         "",
