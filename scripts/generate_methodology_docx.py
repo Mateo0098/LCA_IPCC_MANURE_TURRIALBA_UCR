@@ -10,6 +10,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
+from academic_text_utils import clean_academic_label
 from reference_docx_utils import (
     assert_reference_docx_intact,
     get_reference_docx_path,
@@ -175,7 +176,7 @@ def clean_text(value) -> str:
     for old, new in CHEMICAL_REPLACEMENTS:
         text = text.replace(old, new)
     text = repair_mojibake(text)
-    return text
+    return clean_academic_label(text)
 
 
 def repair_mojibake(text: str) -> str:
@@ -364,23 +365,20 @@ def add_latex_equation(doc: Document, equation: str, definitions: list[str] | No
 
 def stage_summary() -> pd.DataFrame:
     etapas = apply_official_stage_names(read_csv("etapas"))
-    return etapas[
-        [
-            "nombre_escenario",
-            "codigo_etapa",
-            "nombre_corto_etapa",
-            "tipo_muestra_o_flujo",
-            "sistema_ipcc",
-            "modelo_calculo",
-        ]
+    out = etapas[
+        ["nombre_escenario", "escenario", "etapa", "tipo_muestra_o_flujo", "sistema_ipcc", "modelo_calculo"]
+    ].copy()
+    out["Etapa del sistema"] = out.apply(
+        lambda row: official_stage_label(row["escenario"], row["etapa"]), axis=1
+    )
+    return out[
+        ["nombre_escenario", "Etapa del sistema", "tipo_muestra_o_flujo", "sistema_ipcc", "modelo_calculo"]
     ].rename(
         columns={
             "nombre_escenario": "Escenario",
-            "codigo_etapa": "Código",
-            "nombre_corto_etapa": "Etapa",
             "tipo_muestra_o_flujo": "Material o flujo",
-            "sistema_ipcc": "Sistema IPCC",
-            "modelo_calculo": "Modelo",
+            "sistema_ipcc": "Sistema de manejo asignado",
+            "modelo_calculo": "Modelo de estimación",
         }
     )
 
@@ -401,8 +399,8 @@ def model_summary() -> pd.DataFrame:
             "nombre_etapa": "Nombre de etapa",
             "modelo_calculo": "Modelo",
             "Masa equivalente total": "Masa equivalente (kg eq/año)",
-            "Nitrogeno total reportado": "n_ex_pct (%)",
-            "Nitrogeno total como fraccion masica": "n_ex_fraction",
+            "Nitrogeno total reportado": "N total reportado (%)",
+            "Nitrogeno total como fraccion masica": "Fracción másica de N",
         }
     )
     return pivot

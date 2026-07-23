@@ -1,7 +1,7 @@
-﻿Escenario,Etapa,Nombre de etapa,Calentamiento global (kg CO2-eq/año),Eutrofización (kg PO4-eq/año)
-A,1,Etapa 1: Precomposteo,241.72,2.48
-A,2,Etapa 2: Lombricompostaje,86.31,0.0
-A,3,Etapa 3: Almacenamiento de aguas verdes,121.65,0.19
-A,4,Etapa 4: Aplicación de aguas verdes en campos de pastoreo,29.1,0.97
-B,1,Etapa 1: Almacenamiento de purines,1737.81,2.78
-B,2,Etapa 2: Aplicación en campo,49.38,1.65
+﻿Escenario,Calentamiento global,Eutrofización,Etapa del sistema
+A,241.72060664266405,2.4756760096956123,A1: Precomposteo
+A,86.31085230736173,0.0,A2: Lombricompostaje
+A,121.6469050946848,0.19462297388400168,A3: Almacenamiento de aguas verdes
+A,29.100537812753565,0.9694454642609143,A4: Aplicación de aguas verdes en campos de pastoreo
+B,1737.8129284227848,2.780328195940978,B1: Almacenamiento de purines
+B,49.37982053779582,1.6450226231009433,B2: Aplicación en campo

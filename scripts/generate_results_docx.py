@@ -12,6 +12,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
+from academic_text_utils import clean_academic_label
 from reference_docx_utils import (
     REGISTERED_REFERENCE_SHA256,
     assert_reference_docx_intact,
@@ -222,7 +223,7 @@ def clean_text(value) -> str:
     for old, new in CHEMICAL_REPLACEMENTS:
         text = text.replace(old, new)
     text = repair_mojibake(text)
-    return text
+    return clean_academic_label(text)
 
 
 def repair_mojibake(text: str) -> str:
@@ -453,8 +454,8 @@ def parameter_summary() -> pd.DataFrame:
             "nombre_etapa": "Nombre de etapa",
             "modelo_calculo": "Modelo",
             "Masa equivalente total": "Masa equivalente (kg eq/año)",
-            "Nitrogeno total reportado": "n_ex_pct (%)",
-            "Nitrogeno total como fraccion masica": "n_ex_fraction",
+            "Nitrogeno total reportado": "N total reportado (%)",
+            "Nitrogeno total como fraccion masica": "Fracción másica de N",
         }
     )
 
@@ -826,6 +827,11 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     texts = {path.name: extract_docx_text(path) for path in docs}
     xmls = {path.name: extract_docx_xml(path) for path in docs}
     combined = "\n".join(texts.values())
+    word_table_files = sorted((TABLE_DIR / "tablas_word").glob("*.csv"))
+    word_table_text = "\n".join(
+        path.read_text(encoding="utf-8-sig") for path in word_table_files
+    )
+    validation_combined = combined + "\n" + word_table_text
     methodology_text = texts.get(METHODOLOGY_DOCX.name, "")
     main_text = []
     for text in texts.values():
@@ -912,11 +918,11 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     b2_flow_labels = set(b2_flows["flujo"].astype(str))
     a4_flow_labels = set(a4_flows["flujo"].astype(str))
     b2_liquid_ok = "Aguas verdes" not in b2_flow_labels and "Agua de lavado incorporada al purín" in b2_flow_labels
-    a4_liquid_ok = bool({"Aguas verdes", "Componente líquido de aguas verdes"} & a4_flow_labels)
+    a4_liquid_ok = "Agua de lavado incorporada a las aguas verdes" in a4_flow_labels
     flow_values = {
         ("A", 4, "Masa equivalente total"): 71789.81012,
         ("B", 2, "Masa equivalente total"): 76557.26695,
-        ("A", 4, "Aguas verdes"): 71430.96929,
+        ("A", 4, "Agua de lavado incorporada a las aguas verdes"): 71430.96929,
         ("B", 2, "Agua de lavado incorporada al purín"): 71430.96929,
         ("B", 2, "Boñiga incorporada al purín"): 5126.297667,
     }
@@ -949,6 +955,14 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "composting_pasive",
         "modelo_calculo",
         "sistema_manejo_ipcc",
+        "tipo_factor",
+        "sistema_o_compuesto",
+        "resultado_total",
+        "escenario_A",
+        "escenario_B",
+        "diferencia_absoluta_B_menos_A",
+        "diferencia_porcentual_B_vs_A",
+        "escenario_con_mayor_impacto",
         "tipo_muestra",
         "n_ex_pct",
         "n_ex_fraction",
@@ -961,9 +975,38 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         ".csv",
     ]
     stage_decimal_terms = ["1,000", "2,000", "3,000", "4,000", "1.0000", "2.0000", "3.0000", "4.0000"]
-    academic_terms_found = [term for term in academic_forbidden_terms if term.lower() in combined.lower()]
-    stage_decimals_found = [term for term in stage_decimal_terms if term in combined]
-    academic_tables_ok = not academic_terms_found and not stage_decimals_found
+    academic_terms_found = [
+        term for term in academic_forbidden_terms
+        if term.lower() in validation_combined.lower()
+    ]
+    stage_decimals_found = [
+        term for term in stage_decimal_terms if term in validation_combined
+    ]
+    snake_case_found = sorted(
+        set(re.findall(r"\b[a-záéíóúñ]+_[A-Za-záéíóúñ_]+\b", validation_combined))
+    )
+    nonacademic_headers = {
+        "tipo_factor",
+        "sistema_o_compuesto",
+        "definicion",
+        "resultado_total",
+        "escenario_A",
+        "escenario_B",
+        "diferencia_absoluta_B_menos_A",
+        "diferencia_porcentual_B_vs_A",
+        "escenario_con_mayor_impacto",
+        "Sístema de manejo asignado",
+        "N total reportado (%) (%)",
+    }
+    nonacademic_headers_found = sorted(
+        header for header in nonacademic_headers if header in validation_combined
+    )
+    academic_tables_ok = (
+        not academic_terms_found
+        and not stage_decimals_found
+        and not snake_case_found
+        and not nonacademic_headers_found
+    )
     stage_header_needles = [
         "etapa",
         "nombre etapa",
@@ -986,6 +1029,41 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
             redundant_stage_headers.append(stage_related)
     stage_system_used = any("Etapa del sistema" in headers for headers in all_headers)
     official_stage_values_ok = all(label in combined for label in ["A1: Precomposteo", "A2: Lombricompostaje", "A3: Almacenamiento de aguas verdes", "A4: Aplicación de aguas verdes en campos de pastoreo", "B1: Almacenamiento de purines", "B2: Aplicación en campo"])
+
+    scenario_nomenclature_violations: list[str] = []
+    for path in docs:
+        document = Document(str(path))
+        for table_index, table in enumerate(document.tables, start=1):
+            for row_index, row in enumerate(table.rows[1:], start=2):
+                cells = [cell.text.strip() for cell in row.cells]
+                row_text = " | ".join(cells)
+                scenario = cells[0].strip().upper() if cells else ""
+                if scenario == "A" and re.search(r"\bpur[ií]n(?:es)?\b", row_text, re.IGNORECASE):
+                    scenario_nomenclature_violations.append(
+                        f"{path.name}, tabla {table_index}, fila {row_index}: purín en Escenario A"
+                    )
+                if scenario == "B" and "aguas verdes" in row_text.lower():
+                    scenario_nomenclature_violations.append(
+                        f"{path.name}, tabla {table_index}, fila {row_index}: aguas verdes en Escenario B"
+                    )
+    for path in word_table_files:
+        table = pd.read_csv(path, encoding="utf-8-sig")
+        scenario_column = next(
+            (column for column in table.columns if str(column).strip().lower() == "escenario"),
+            None,
+        )
+        if scenario_column:
+            for row_index, row in table.iterrows():
+                scenario = str(row[scenario_column]).strip().upper()
+                row_text = " | ".join(str(value) for value in row.values)
+                if scenario == "A" and re.search(r"\bpur[ií]n(?:es)?\b", row_text, re.IGNORECASE):
+                    scenario_nomenclature_violations.append(
+                        f"{path.name}, fila {row_index + 2}: purín en Escenario A"
+                    )
+                if scenario == "B" and "aguas verdes" in row_text.lower():
+                    scenario_nomenclature_violations.append(
+                        f"{path.name}, fila {row_index + 2}: aguas verdes en Escenario B"
+                    )
 
     lines = [
         "# Reporte de validación de documentos",
@@ -1042,7 +1120,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "",
         "## Validación de codificación de caracteres",
         "",
-        "- Scripts modificados: `scripts/generate_methodology_docx.py` y `scripts/generate_results_docx.py`.",
+        "- Scripts modificados: `scripts/generate_thesis_tables.py`, `scripts/generate_methodology_docx.py`, `scripts/generate_results_docx.py` y `scripts/academic_text_utils.py`.",
         "- Documentos regenerados: `metodologia_desarrollada_tfg.docx` y `resultados_desarrollados_tfg.docx`.",
         "- Estrategia aplicada: lectura explícita UTF-8 de CSV y reparación controlada de mojibake solo cuando se detectan marcadores de codificación dañada.",
         f"- No quedan marcadores de mojibake en los documentos y reportes generados (U+00C3, U+00C2, secuencias de comillas dañadas ni carácter de reemplazo): {'Sí' if not mojibake_found else 'No'}.",
@@ -1050,21 +1128,28 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- No se modificaron valores numéricos ni resultados: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "",
-        "## Validación de nomenclatura de flujos A4 y B2",
+        "## Validación de nomenclatura de aguas verdes y purines",
         "",
         f"- B2 ya no usa la etiqueta `Aguas verdes` para el componente líquido: {'Sí' if 'Aguas verdes' not in b2_flow_labels else 'No'}.",
         f"- B2 usa `Agua de lavado incorporada al purín` para el componente líquido: {'Sí' if b2_liquid_ok else 'No'}.",
         f"- A4 mantiene `Aguas verdes` o una etiqueta equivalente para el componente líquido: {'Sí' if a4_liquid_ok else 'No'}.",
+        f"- B1 y B2 no presentan flujos denominados `Aguas verdes`: {'Sí' if not scenario_nomenclature_violations else 'No'}.",
+        f"- Las filas del Escenario A no presentan flujos denominados `purín` o `purines`: {'Sí' if not scenario_nomenclature_violations else 'No'}.",
         f"- La masa equivalente total no fue modificada: {'Sí' if values_unchanged else 'No'}.",
         f"- No se modificaron valores numéricos de A4 ni B2: {'Sí' if values_unchanged else 'No'}.",
         f"- La explicación metodológica de masa equivalente total fue incorporada: {'Sí' if mass_equivalent_explanation_ok else 'No'}.",
         f"- No se mencionan scripts, rutas, repositorio ni diagnóstico de Codex en la prosa principal: {'Sí' if academic_language_ok and not internal_paths_found else 'No'}.",
         "",
-        "## Validación de escritura académica y limpieza de etiquetas técnicas",
+        "## Validación de escritura académica",
         "",
-        f"- No aparecen etiquetas técnicas internas en la prosa ni en tablas de los Word: {'Sí' if not academic_terms_found else 'No'}.",
+        f"- No aparece texto visible en formato `snake_case`: {'Sí' if not snake_case_found else 'No: ' + ', '.join(snake_case_found)}.",
+        f"- No aparecen encabezados internos o erratas de encabezado: {'Sí' if not nonacademic_headers_found else 'No: ' + ', '.join(nonacademic_headers_found)}.",
         f"- Las etapas no aparecen con decimales: {'Sí' if not stage_decimals_found else 'No'}.",
         f"- Las tablas del Word usan encabezados académicos: {'Sí' if academic_tables_ok else 'No'}.",
+        "",
+        "## Validación de limpieza de etiquetas técnicas",
+        "",
+        f"- No aparecen etiquetas técnicas internas en la prosa ni en tablas de los Word: {'Sí' if not academic_terms_found else 'No'}.",
         f"- No hay columnas con rutas internas, scripts, archivos CSV, `processed`, `outputs` o referencias hardcodeadas: {'Sí' if not academic_terms_found else 'No'}.",
         f"- Los apéndices internos fueron limpiados para lectura académica: {'Sí' if academic_tables_ok else 'No'}.",
         "- No se modificaron valores numéricos ni resultados: Sí.",
@@ -1077,6 +1162,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Se usa `Etapa del sistema` como columna única cuando corresponde: {'Sí' if stage_system_used else 'No'}.",
         f"- Los valores aparecen con código y nombre oficial de etapa: {'Sí' if official_stage_values_ok else 'No'}.",
         f"- No aparecen números de etapa con decimales: {'Sí' if not stage_decimals_found else 'No'}.",
+        f"- No hay uso de `purín` en filas del Escenario A ni de `aguas verdes` en filas del Escenario B: {'Sí' if not scenario_nomenclature_violations else 'No: ' + '; '.join(scenario_nomenclature_violations)}.",
+        f"- Las tablas académicas reducidas para Word fueron incluidas en la validación: {'Sí' if word_table_files else 'No'}.",
         "- No se modificaron valores numéricos: Sí.",
         "- No se modificaron resultados: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",

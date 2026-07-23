@@ -177,6 +177,13 @@ Archivos en `outputs/tablas_tesis/`:
 - `diccionario_variables.csv`
 - `tabla_auditoria_factores_hardcodeados.csv`
 
+Las figuras académicas se generan con
+`scripts/generate_thesis_graphics.py` en `outputs/graficos_tesis/`. Los
+documentos se generan con `scripts/generate_methodology_docx.py` y
+`scripts/generate_results_docx.py` en `outputs/documentos_tfg/`. Los Word usan
+el documento protegido de `MASTER_escrito/` únicamente como referencia de
+formato.
+
 ## Orden recomendado de ejecucion
 
 Si cambian datos crudos:

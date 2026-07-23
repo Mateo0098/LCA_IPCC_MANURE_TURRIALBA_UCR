@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from academic_text_utils import clean_academic_label
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 PROCESSED = PROJECT_ROOT / "processed"
@@ -174,9 +176,13 @@ def tabla_03_flujos_icv() -> Path:
         if esc == "A" and etapa == 3 and column == "boniga_kg":
             return "Fracción de boñiga asociada a aguas verdes"
         if esc == "A" and etapa == 4 and column == "boniga_kg":
-            return "Fracción de boñiga asociada a aguas verdes"
+            return "Fracción de boñiga incorporada a las aguas verdes"
         if esc == "A" and etapa == 4 and column == "agua_l":
             return "Agua de lavado incorporada a las aguas verdes"
+        if esc == "B" and etapa == 1 and column == "boniga_kg":
+            return "Purín almacenado"
+        if esc == "B" and etapa == 1 and column == "agua_l":
+            return "Agua de lavado incorporada al purín"
         if esc == "B" and etapa == 2 and column == "agua_l":
             return "Agua de lavado incorporada al purín"
         if esc == "B" and etapa == 2 and column == "boniga_kg":
@@ -564,6 +570,154 @@ def resumen_resultados_para_redaccion() -> Path:
     return path
 
 
+def tablas_academicas_para_word() -> Path:
+    word_dir = OUTPUTS / "tablas_word"
+    word_dir.mkdir(parents=True, exist_ok=True)
+
+    def write_word(df: pd.DataFrame, name: str) -> None:
+        cleaned = df.copy()
+        cleaned.columns = [clean_academic_label(column) for column in cleaned.columns]
+        for column in cleaned.columns:
+            if not pd.api.types.is_numeric_dtype(cleaned[column]):
+                cleaned[column] = cleaned[column].map(
+                    lambda value: clean_academic_label(value) if pd.notna(value) else ""
+                )
+        cleaned.to_csv(word_dir / name, index=False, encoding="utf-8-sig")
+
+    characterization = pd.read_csv(OUTPUTS / "tabla_02_caracterizacion_muestras.csv")
+    characterization = characterization.pivot_table(
+        index="tipo_muestra",
+        columns=["variable", "unidad"],
+        values="valor",
+        aggfunc="first",
+    ).reset_index()
+    characterization.columns = [
+        "Tipo de muestra"
+        if column == ("tipo_muestra", "")
+        else f"{column[0]} ({column[1]})"
+        for column in characterization.columns
+    ]
+    write_word(characterization, "apendice_D_caracterizacion_muestras_word.csv")
+
+    flows = pd.read_csv(OUTPUTS / "tabla_03_flujos_icv.csv")
+    flows = flows[flows["flujo"] == "Masa equivalente total"].copy()
+    flows["Etapa del sistema"] = flows.apply(
+        lambda row: f"{str(row['escenario']).upper()}{int(row['etapa'])}: "
+        f"{_stage_short_name(row['escenario'], row['etapa'])}",
+        axis=1,
+    )
+    write_word(
+        flows[["escenario", "Etapa del sistema", "valor"]].rename(
+            columns={"escenario": "Escenario", "valor": "Masa equivalente total (kg eq/año)"}
+        ),
+        "apendice_E_flujos_icv_word.csv",
+    )
+
+    parameters = pd.read_csv(OUTPUTS / "tabla_04_parametros_modelo_acv.csv")
+    selected_parameters = parameters[
+        parameters["parametro"].isin(
+            ["Nitrogeno total reportado", "Nitrogeno total como fraccion masica", "MCF", "EF3"]
+        )
+    ]
+    parameters_word = selected_parameters.pivot_table(
+        index=["escenario", "etapa", "modelo_calculo", "sistema_manejo_ipcc"],
+        columns="parametro",
+        values="valor",
+        aggfunc="first",
+    ).reset_index()
+    parameters_word["Etapa del sistema"] = parameters_word.apply(
+        lambda row: f"{str(row['escenario']).upper()}{int(row['etapa'])}: "
+        f"{_stage_short_name(row['escenario'], row['etapa'])}",
+        axis=1,
+    )
+    parameters_word = parameters_word.rename(
+        columns={
+            "escenario": "Escenario",
+            "modelo_calculo": "Modelo de estimación",
+            "sistema_manejo_ipcc": "Sistema de manejo asignado",
+            "Nitrogeno total reportado": "N total reportado (%)",
+            "Nitrogeno total como fraccion masica": "Fracción másica de N",
+        }
+    )
+    write_word(
+        parameters_word[
+            [
+                "Escenario",
+                "Etapa del sistema",
+                "Modelo de estimación",
+                "Sistema de manejo asignado",
+                "N total reportado (%)",
+                "Fracción másica de N",
+                "MCF",
+                "EF3",
+            ]
+        ],
+        "apendice_F_parametros_modelo_word.csv",
+    )
+
+    factors = pd.read_csv(OUTPUTS / "tabla_05_factores_emision_y_caracterizacion.csv")
+    write_word(
+        factors[["tipo_factor", "sistema_o_compuesto", "factor", "valor", "unidad"]].rename(
+            columns={
+                "tipo_factor": "Tipo de factor",
+                "sistema_o_compuesto": "Sistema o compuesto evaluado",
+                "factor": "Factor",
+                "valor": "Valor",
+                "unidad": "Unidad",
+            }
+        ),
+        "apendice_G_factores_caracterizacion_word.csv",
+    )
+
+    emissions = pd.read_csv(OUTPUTS / "tabla_06_emisiones_por_etapa.csv")
+    emissions_word = emissions.groupby(["escenario", "sustancia"], as_index=False)["valor"].sum()
+    emissions_word = emissions_word.pivot(
+        index="escenario", columns="sustancia", values="valor"
+    ).reset_index().rename_axis(None, axis=1)
+    write_word(emissions_word.rename(columns={"escenario": "Escenario"}), "apendice_H_emisiones_word.csv")
+
+    impacts = pd.read_csv(OUTPUTS / "tabla_07_impactos_por_etapa.csv")
+    impacts_word = impacts.groupby(
+        ["escenario", "etapa", "categoria_impacto"], as_index=False
+    )["resultado_equivalente"].sum()
+    impacts_word = impacts_word.pivot(
+        index=["escenario", "etapa"],
+        columns="categoria_impacto",
+        values="resultado_equivalente",
+    ).reset_index().rename_axis(None, axis=1)
+    impacts_word["Etapa del sistema"] = impacts_word.apply(
+        lambda row: f"{str(row['escenario']).upper()}{int(row['etapa'])}: "
+        f"{_stage_short_name(row['escenario'], row['etapa'])}",
+        axis=1,
+    )
+    write_word(
+        impacts_word.drop(columns=["etapa"]).rename(columns={"escenario": "Escenario"}),
+        "apendice_I_impactos_por_etapa_word.csv",
+    )
+
+    totals = pd.read_csv(OUTPUTS / "tabla_08_impactos_totales_por_escenario.csv")
+    totals_word = totals.pivot(
+        index="escenario", columns="categoria_impacto", values="resultado_total"
+    ).reset_index().rename_axis(None, axis=1)
+    write_word(totals_word.rename(columns={"escenario": "Escenario"}), "apendice_J_impactos_totales_word.csv")
+
+    comparison = pd.read_csv(OUTPUTS / "tabla_09_comparacion_escenarios.csv")
+    write_word(
+        comparison[
+            [
+                "categoria_impacto",
+                "escenario_A",
+                "escenario_B",
+                "diferencia_absoluta_B_menos_A",
+                "diferencia_porcentual_B_vs_A",
+                "escenario_con_mayor_impacto",
+            ]
+        ],
+        "apendice_K_comparacion_escenarios_word.csv",
+    )
+    return word_dir
+
+
 def main() -> None:
     writers = [
         tabla_01_etapas_escenarios,
@@ -577,6 +731,7 @@ def main() -> None:
         tabla_09_comparacion_escenarios,
         diccionario_variables,
         resumen_resultados_para_redaccion,
+        tablas_academicas_para_word,
     ]
     for writer in writers:
         path = writer()

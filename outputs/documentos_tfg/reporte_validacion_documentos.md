@@ -5,8 +5,8 @@
 - Ruta vigente del documento maestro: `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
 - Hash SHA-256 registrado: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 - Los scripts generadores ya no apuntan a `docs/referencia/`: Sí.
-- El documento maestro protegido no fue modificado durante esta actualización: Sí.
-- Los documentos generados siguen saliendo en `outputs/documentos_tfg/`: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- Los documentos generados se guardan en `outputs/documentos_tfg/`: Sí.
 
 ## Verificaciones
 
@@ -52,7 +52,7 @@
 
 ## Validación de codificación de caracteres
 
-- Scripts modificados: `scripts/generate_methodology_docx.py` y `scripts/generate_results_docx.py`.
+- Scripts modificados: `scripts/generate_thesis_tables.py`, `scripts/generate_methodology_docx.py`, `scripts/generate_results_docx.py` y `scripts/academic_text_utils.py`.
 - Documentos regenerados: `metodologia_desarrollada_tfg.docx` y `resultados_desarrollados_tfg.docx`.
 - Estrategia aplicada: lectura explícita UTF-8 de CSV y reparación controlada de mojibake solo cuando se detectan marcadores de codificación dañada.
 - No quedan marcadores de mojibake en los documentos y reportes generados (U+00C3, U+00C2, secuencias de comillas dañadas ni carácter de reemplazo): Sí.
@@ -60,21 +60,28 @@
 - No se modificaron valores numéricos ni resultados: Sí.
 - No se modificó el documento maestro de propuesta: Sí.
 
-## Validación de nomenclatura de flujos A4 y B2
+## Validación de nomenclatura de aguas verdes y purines
 
 - B2 ya no usa la etiqueta `Aguas verdes` para el componente líquido: Sí.
 - B2 usa `Agua de lavado incorporada al purín` para el componente líquido: Sí.
-- A4 mantiene `Aguas verdes` o una etiqueta equivalente para el componente líquido: No.
-- La masa equivalente total no fue modificada: No.
-- No se modificaron valores numéricos de A4 ni B2: No.
+- A4 mantiene `Aguas verdes` o una etiqueta equivalente para el componente líquido: Sí.
+- B1 y B2 no presentan flujos denominados `Aguas verdes`: Sí.
+- Las filas del Escenario A no presentan flujos denominados `purín` o `purines`: Sí.
+- La masa equivalente total no fue modificada: Sí.
+- No se modificaron valores numéricos de A4 ni B2: Sí.
 - La explicación metodológica de masa equivalente total fue incorporada: Sí.
 - No se mencionan scripts, rutas, repositorio ni diagnóstico de Codex en la prosa principal: Sí.
 
-## Validación de escritura académica y limpieza de etiquetas técnicas
+## Validación de escritura académica
 
-- No aparecen etiquetas técnicas internas en la prosa ni en tablas de los Word: Sí.
+- No aparece texto visible en formato `snake_case`: Sí.
+- No aparecen encabezados internos o erratas de encabezado: Sí.
 - Las etapas no aparecen con decimales: Sí.
 - Las tablas del Word usan encabezados académicos: Sí.
+
+## Validación de limpieza de etiquetas técnicas
+
+- No aparecen etiquetas técnicas internas en la prosa ni en tablas de los Word: Sí.
 - No hay columnas con rutas internas, scripts, archivos CSV, `processed`, `outputs` o referencias hardcodeadas: Sí.
 - Los apéndices internos fueron limpiados para lectura académica: Sí.
 - No se modificaron valores numéricos ni resultados: Sí.
@@ -87,6 +94,8 @@
 - Se usa `Etapa del sistema` como columna única cuando corresponde: Sí.
 - Los valores aparecen con código y nombre oficial de etapa: Sí.
 - No aparecen números de etapa con decimales: Sí.
+- No hay uso de `purín` en filas del Escenario A ni de `aguas verdes` en filas del Escenario B: Sí.
+- Las tablas académicas reducidas para Word fueron incluidas en la validación: Sí.
 - No se modificaron valores numéricos: Sí.
 - No se modificaron resultados: Sí.
 - No se modificó el documento maestro de propuesta: Sí.

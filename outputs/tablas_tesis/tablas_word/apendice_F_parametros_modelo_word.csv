@@ -1,7 +1,7 @@
-﻿Escenario,Etapa,Nombre de etapa,Modelo de cálculo,Sistema de manejo asignado,n_ex_pct (%),n_ex_fraction (kg N/kg muestra),MCF (%),EF3
-A,1,Etapa 1: Precomposteo,ipcc,dry_lot,0.3717,0.0037,1.5,0.02
-A,2,Etapa 2: Lombricompostaje,medido,composting_invessel,2.425,0.0242,0.5,0.006
-A,3,Etapa 3: Almacenamiento de aguas verdes,ipcc,uncovered_anaerobic_lagoon,0.3717,0.0037,80.0,0.0
-A,4,Etapa 4: Aplicación de aguas verdes en campos de pastoreo,ipcc,uncovered_anaerobic_lagoon,0.0072,0.0001,80.0,0.0
-B,1,Etapa 1: Almacenamiento de purines,ipcc,uncovered_anaerobic_lagoon,0.3717,0.0037,80.0,0.0
-B,2,Etapa 2: Aplicación en campo,ipcc,uncovered_anaerobic_lagoon,0.0114,0.0001,80.0,0.0
+﻿Escenario,Etapa del sistema,Modelo de estimación,Sistema de manejo asignado,N total reportado (%),Fracción másica de N,MCF,EF3
+A,A1: Precomposteo,ipcc,Sistema de manejo en corral seco,0.371666667,0.00371666667,1.5,0.02
+A,A2: Lombricompostaje,medido,Compostaje en sistema cerrado,2.425,0.0242499999999999,0.5,0.006
+A,A3: Almacenamiento de aguas verdes,ipcc,Laguna anaerobia descubierta,0.371666667,0.00371666667,80.0,0.0
+A,A4: Aplicación de aguas verdes en campos de pastoreo,ipcc,Laguna anaerobia descubierta,0.00718577,7.185770000000001e-05,80.0,0.0
+B,B1: Almacenamiento de purines,ipcc,Laguna anaerobia descubierta,0.371666667,0.00371666667,80.0,0.0
+B,B2: Aplicación en campo,ipcc,Laguna anaerobia descubierta,0.011434,0.0001143399999999,80.0,0.0

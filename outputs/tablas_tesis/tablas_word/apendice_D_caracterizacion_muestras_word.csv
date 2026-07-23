@@ -1,3 +1,3 @@
-﻿Tipo de muestra,Humedad (% masa húmeda),Materia seca (% masa húmeda),Cenizas (% base seca),Sólidos volátiles (% base seca),N total (%),N total (mg N/kg)
-Estiércol fresco,85.77,14.23,14.12,85.88,0.372,3716.67
-Estiércol precompostado,77.59,22.41,29.04,70.96,2.425,24250.0
+﻿Tipo de muestra,Cenizas (% base seca),Humedad (% masa húmeda),Materia seca (% masa húmeda),Nitrógeno total (% N total),Nitrógeno total (mg N/kg muestra),Sólidos volátiles (% base seca)
+Fresh manure,14.123008,85.769829,14.230171,0.371666667,3716.666667,85.876992
+Precomposted manure,29.041353,77.593045,22.406955,2.425,24250.0,70.958647

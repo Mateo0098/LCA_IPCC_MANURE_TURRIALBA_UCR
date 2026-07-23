@@ -14,7 +14,9 @@ Nunca deben sobrescribir ni modificar archivos dentro de `MASTER_escrito/`.
 ## ES - Flujo operativo (resumen)
 1. Preparar/actualizar tablas en `processed/` (solo si cambian muestreos o configuracion manual).
 2. Ejecutar el modelo con `ACV_orquestador.py`.
-3. Revisar resultados en `processed/` y `graphics_results/`.
+3. Revisar resultados procesados en `processed/`, tablas académicas en
+   `outputs/tablas_tesis/`, figuras en `outputs/graficos_tesis/` y documentos
+   en `outputs/documentos_tfg/`.
 
 ## ES - Crear entorno virtual e instalar librerias
 Desde la raiz del proyecto:
@@ -105,7 +107,19 @@ Si `processed/` ya esta actualizado y validado:
 - `processed/ACV_resumen_emisiones.csv`
 - `processed/acv_impacto_por_etapa_escenario.csv`
 - `processed/acv_impacto_total_por_escenario.csv`
-- `graphics_results/*.png` y `graphics_results/*.pdf`
+- `outputs/tablas_tesis/`: tablas finales y tablas académicas para Word.
+- `outputs/graficos_tesis/`: figuras académicas en PNG y SVG.
+- `outputs/documentos_tfg/`: metodología, resultados y reportes de validación.
+
+## ES - Generadores académicos
+
+- `scripts/generate_thesis_tables.py`: tablas finales y versiones para Word.
+- `scripts/generate_thesis_graphics.py`: figuras académicas.
+- `scripts/generate_methodology_docx.py`: documento de metodología.
+- `scripts/generate_results_docx.py`: documento de resultados y validación.
+
+Las carpetas de salida anteriores no deben usarse como fuente de los documentos
+académicos cuando exista una salida vigente en `outputs/`.
 
 ---
 
@@ -115,7 +129,9 @@ This project computes stage/scenario ACV emissions and impacts from `processed/`
 ## EN - Operating flow (summary)
 1. Prepare/update `processed/` tables (only if sampling inputs or manual config changed).
 2. Run the model through `ACV_orquestador.py`.
-3. Review outputs in `processed/` and `graphics_results/`.
+3. Review processed results in `processed/` and the current academic outputs
+   under `outputs/tablas_tesis/`, `outputs/graficos_tesis/`, and
+   `outputs/documentos_tfg/`.
 
 ## EN - Create virtual environment and install dependencies
 From the project root:
@@ -206,4 +222,6 @@ If `processed/` is already up to date and validated:
 - `processed/ACV_resumen_emisiones.csv`
 - `processed/acv_impacto_por_etapa_escenario.csv`
 - `processed/acv_impacto_total_por_escenario.csv`
-- `graphics_results/*.png` and `graphics_results/*.pdf`
+- `outputs/tablas_tesis/`: final tables and academic Word tables.
+- `outputs/graficos_tesis/`: academic PNG and SVG figures.
+- `outputs/documentos_tfg/`: methodology, results, and validation reports.
