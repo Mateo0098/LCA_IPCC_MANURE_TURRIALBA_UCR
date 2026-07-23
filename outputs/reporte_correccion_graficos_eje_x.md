@@ -20,7 +20,7 @@ Ejemplos de etiquetas gráficas aplicadas:
 - `A3: Almacenamiento de aguas verdes`
 - `A4: Aplicación de aguas verdes en campos de pastoreo`
 - `B1: Almacenamiento de purines`
-- `B2: Aplicación en campo`
+- `B2: Aplicación de purines en campo de pastoreo`
 
 ## Figuras regeneradas
 

@@ -13,7 +13,7 @@ El nitrogeno total reportado en porcentaje se expresa en el modelo como `n_ex_fr
 | A | 3 | A3 | Etapa 3: Almacenamiento de aguas verdes |
 | A | 4 | A4 | Etapa 4: Aplicación de aguas verdes en campos de pastoreo |
 | B | 1 | B1 | Etapa 1: Almacenamiento de purines |
-| B | 2 | B2 | Etapa 2: Aplicación en campo |
+| B | 2 | B2 | Etapa 2: Aplicación de purines en campo de pastoreo |
 
 ## 6.2 Flujos del inventario de ciclo de vida
 
@@ -24,9 +24,9 @@ El nitrogeno total reportado en porcentaje se expresa en el modelo como `n_ex_fr
 | A | 3 | A3 | Etapa 3: Almacenamiento de aguas verdes | 358.840837 |
 | A | 4 | A4 | Etapa 4: Aplicación de aguas verdes en campos de pastoreo | 71789.81012 |
 | B | 1 | B1 | Etapa 1: Almacenamiento de purines | 5126.297667 |
-| B | 2 | B2 | Etapa 2: Aplicación en campo | 76557.26695 |
+| B | 2 | B2 | Etapa 2: Aplicación de purines en campo de pastoreo | 76557.26695 |
 
-B2, correspondiente a la Etapa 2: Aplicación en campo, presenta la mayor masa equivalente total. En el escenario A, A4 corresponde a la Etapa 4: Aplicación de aguas verdes en campos de pastoreo y domina la masa equivalente.
+B2, correspondiente a la Etapa 2: Aplicación de purines en campo de pastoreo, presenta la mayor masa equivalente total. En el escenario A, A4 corresponde a la Etapa 4: Aplicación de aguas verdes en campos de pastoreo y domina la masa equivalente.
 
 ## 6.4 Emisiones estimadas por etapa y escenario
 
@@ -53,7 +53,7 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente 
 | A | 3 | A3 | Etapa 3: Almacenamiento de aguas verdes | 121.6469050946848 | 0.19462297388400168 |
 | A | 4 | A4 | Etapa 4: Aplicación de aguas verdes en campos de pastoreo | 29.100537812753565 | 0.9694454642609143 |
 | B | 1 | B1 | Etapa 1: Almacenamiento de purines | 1737.8129284227848 | 2.780328195940978 |
-| B | 2 | B2 | Etapa 2: Aplicación en campo | 49.37982053779582 | 1.6450226231009433 |
+| B | 2 | B2 | Etapa 2: Aplicación de purines en campo de pastoreo | 49.37982053779582 | 1.6450226231009433 |
 
 B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominante en calentamiento global y eutrofizacion.
 

@@ -45,14 +45,18 @@ OFFICIAL_STAGE_NAMES = {
         "Etapa 4: Aplicación de aguas verdes en campos de pastoreo",
     ),
     ("B", 1): ("B1", "Almacenamiento de purines", "Etapa 1: Almacenamiento de purines"),
-    ("B", 2): ("B2", "Aplicación en campo", "Etapa 2: Aplicación en campo"),
+    ("B", 2): (
+        "B2",
+        "Aplicación de purines en campo de pastoreo",
+        "Etapa 2: Aplicación de purines en campo de pastoreo",
+    ),
 }
 
 OLD_STAGE_TERMS = {
     "Manejo inicial de estiércol fresco": "Precomposteo",
     "Manejo posterior de fracción sólida": "Lombricompostaje",
     "Manejo de estiércol fresco sin precompostaje": "Almacenamiento de purines",
-    "Manejo o aplicación de purines": "Aplicación en campo",
+    "Manejo o aplicación de purines": "Aplicación de purines en campo de pastoreo",
     "Aplicación o manejo de aguas verdes en suelo": "Aplicación de aguas verdes en campos de pastoreo",
 }
 
@@ -516,7 +520,7 @@ def build_document() -> None:
     doc.add_heading("4. Escenarios evaluados", level=2)
     add_paragraphs(doc, [
         "El Escenario A representa una alternativa de manejo en la que la fracción sólida del estiércol pasa por precomposteo y lombricompostaje, mientras que las aguas verdes se almacenan y posteriormente se aplican en campos de pastoreo. Sus etapas son A1: Precomposteo, A2: Lombricompostaje, A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo.",
-        "El Escenario B representa una alternativa en la que los purines se almacenan y se aplican directamente en campo. Sus etapas son B1: Almacenamiento de purines y B2: Aplicación en campo.",
+        "El Escenario B representa una alternativa en la que los purines se almacenan y se aplican directamente en campo de pastoreo. Sus etapas son B1: Almacenamiento de purines y B2: Aplicación de purines en campo de pastoreo.",
     ])
 
     doc.add_heading("5. Fronteras del sistema", level=2)
@@ -532,7 +536,7 @@ def build_document() -> None:
 
     doc.add_heading("7. Etapas del Escenario B", level=2)
     add_paragraphs(doc, [
-        "B1: Almacenamiento de purines corresponde al almacenamiento de la mezcla líquida de estiércol, orina, agua de lavado y residuos arrastrados antes de su aplicación. B2: Aplicación en campo corresponde a la aplicación directa de purines sobre el terreno.",
+        "B1: Almacenamiento de purines corresponde al almacenamiento de la mezcla líquida de estiércol, orina, agua de lavado y residuos arrastrados antes de su aplicación. B2: Aplicación de purines en campo de pastoreo corresponde a la aplicación directa de purines sobre el terreno.",
         "Ambas etapas utilizan los parámetros de masa equivalente, nitrógeno total y factores de emisión necesarios para estimar emisiones nitrogenadas y emisiones de gases de efecto invernadero.",
     ])
 

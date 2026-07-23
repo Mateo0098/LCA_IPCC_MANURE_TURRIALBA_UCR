@@ -94,7 +94,7 @@ La etapa A3 reporta también 358,840837 kg eq/año. Por tanto, la diferencia ent
 
 ## Descomposición de B2
 
-Etapa: B2, Aplicación en campo.
+Etapa: B2, Aplicación de purines en campo de pastoreo.
 
 Valores de `processed/masa_total_escenario_etapa.csv`:
 

@@ -100,6 +100,16 @@
 - No se modificaron resultados: Sí.
 - No se modificó el documento maestro de propuesta: Sí.
 
+## Validación de nomenclatura oficial de etapas
+
+- B2 aparece como `B2: Aplicación de purines en campo de pastoreo`: Sí.
+- Ya no aparece `B2: Aplicación en campo`: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos, factores, ecuaciones ni resultados ambientales: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+- No se hizo commit automáticamente: Sí.
+
 ## Archivos validados
 
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`

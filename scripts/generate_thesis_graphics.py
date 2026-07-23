@@ -66,6 +66,7 @@ def stage_axis_label(row: pd.Series) -> str:
     if name.startswith(expected_prefix):
         name = name[len(expected_prefix):]
     name = name.replace("Aplicación de aguas verdes en campos de pastoreo", "Aplicación de aguas verdes\nen campos de pastoreo")
+    name = name.replace("Aplicación de purines en campo de pastoreo", "Aplicación de purines\nen campo de pastoreo")
     name = name.replace("Almacenamiento de purines", "Almacenamiento\nde purines")
     return f"{code}:\n{name}"
 

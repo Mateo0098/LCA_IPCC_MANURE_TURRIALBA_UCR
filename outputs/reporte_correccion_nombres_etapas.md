@@ -83,5 +83,5 @@ Resultado: no se encontraron coincidencias en:
 - A3: `Etapa 3: Almacenamiento de aguas verdes`
 - A4: `Etapa 4: Aplicación de aguas verdes en campos de pastoreo`
 - B1: `Etapa 1: Almacenamiento de purines`
-- B2: `Etapa 2: Aplicación en campo`
+- B2: `Etapa 2: Aplicación de purines en campo de pastoreo`
 

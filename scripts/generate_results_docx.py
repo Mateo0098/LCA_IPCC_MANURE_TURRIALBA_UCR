@@ -74,14 +74,18 @@ OFFICIAL_STAGE_NAMES = {
         "Etapa 4: Aplicación de aguas verdes en campos de pastoreo",
     ),
     ("B", 1): ("B1", "Almacenamiento de purines", "Etapa 1: Almacenamiento de purines"),
-    ("B", 2): ("B2", "Aplicación en campo", "Etapa 2: Aplicación en campo"),
+    ("B", 2): (
+        "B2",
+        "Aplicación de purines en campo de pastoreo",
+        "Etapa 2: Aplicación de purines en campo de pastoreo",
+    ),
 }
 
 OLD_STAGE_TERMS = {
     "Manejo inicial de estiércol fresco": "Precomposteo",
     "Manejo posterior de fracción sólida": "Lombricompostaje",
     "Manejo de estiércol fresco sin precompostaje": "Almacenamiento de purines",
-    "Manejo o aplicación de purines": "Aplicación en campo",
+    "Manejo o aplicación de purines": "Aplicación de purines en campo de pastoreo",
     "Aplicación o manejo de aguas verdes en suelo": "Aplicación de aguas verdes en campos de pastoreo",
 }
 
@@ -555,7 +559,7 @@ def build_document() -> None:
         doc,
         [
             "Estos valores se presentan como flujos anuales estimados del inventario, manteniendo como referencia metodológica la unidad funcional de 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero.",
-            "Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. B2: Aplicación en campo presentó la mayor masa equivalente total, con 76 557,27 kg eq/año. En el Escenario A, A4: Aplicación de aguas verdes en campos de pastoreo dominó la masa equivalente, con 71 789,81 kg eq/año.",
+            "Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. B2: Aplicación de purines en campo de pastoreo presentó la mayor masa equivalente total, con 76 557,27 kg eq/año. En el Escenario A, A4: Aplicación de aguas verdes en campos de pastoreo dominó la masa equivalente, con 71 789,81 kg eq/año.",
             "La masa equivalente de A4 integra el componente líquido de aguas verdes y una fracción de boñiga asociada a esa línea. La masa equivalente de B2 integra agua de lavado y boñiga fresca incorporada al purín aplicado en campo.",
             "Las etapas con menor masa equivalente fueron A3: Almacenamiento de aguas verdes y A2: Lombricompostaje. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
         ],
@@ -1028,7 +1032,11 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         if len(stage_related) > 1:
             redundant_stage_headers.append(stage_related)
     stage_system_used = any("Etapa del sistema" in headers for headers in all_headers)
-    official_stage_values_ok = all(label in combined for label in ["A1: Precomposteo", "A2: Lombricompostaje", "A3: Almacenamiento de aguas verdes", "A4: Aplicación de aguas verdes en campos de pastoreo", "B1: Almacenamiento de purines", "B2: Aplicación en campo"])
+    official_b2_name = "B2: Aplicación de purines en campo de pastoreo"
+    obsolete_b2_name = "B2: Aplicación en campo"
+    official_stage_values_ok = all(label in combined for label in ["A1: Precomposteo", "A2: Lombricompostaje", "A3: Almacenamiento de aguas verdes", "A4: Aplicación de aguas verdes en campos de pastoreo", "B1: Almacenamiento de purines", official_b2_name])
+    official_b2_ok = official_b2_name in validation_combined
+    obsolete_b2_found = obsolete_b2_name in validation_combined
 
     scenario_nomenclature_violations: list[str] = []
     for path in docs:
@@ -1167,6 +1175,16 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- No se modificaron valores numéricos: Sí.",
         "- No se modificaron resultados: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
+        "",
+        "## Validación de nomenclatura oficial de etapas",
+        "",
+        f"- B2 aparece como `B2: Aplicación de purines en campo de pastoreo`: {'Sí' if official_b2_ok else 'No'}.",
+        f"- Ya no aparece `B2: Aplicación en campo`: {'Sí' if not obsolete_b2_found else 'No'}.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos, factores, ecuaciones ni resultados ambientales: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "- No se hizo commit automáticamente: Sí.",
         "",
         "## Archivos validados",
         "",

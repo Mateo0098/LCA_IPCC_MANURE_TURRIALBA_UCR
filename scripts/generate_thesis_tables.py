@@ -18,7 +18,7 @@ STAGE_NAMES = {
     ("A", 3): "Etapa 3: Almacenamiento de aguas verdes",
     ("A", 4): "Etapa 4: Aplicación de aguas verdes en campos de pastoreo",
     ("B", 1): "Etapa 1: Almacenamiento de purines",
-    ("B", 2): "Etapa 2: Aplicación en campo",
+    ("B", 2): "Etapa 2: Aplicación de purines en campo de pastoreo",
 }
 
 STAGE_SHORT_NAMES = {
@@ -27,7 +27,7 @@ STAGE_SHORT_NAMES = {
     ("A", 3): "Almacenamiento de aguas verdes",
     ("A", 4): "Aplicación de aguas verdes en campos de pastoreo",
     ("B", 1): "Almacenamiento de purines",
-    ("B", 2): "Aplicación en campo",
+    ("B", 2): "Aplicación de purines en campo de pastoreo",
 }
 
 SCENARIO_NAMES = {
@@ -520,7 +520,7 @@ def resumen_resultados_para_redaccion() -> Path:
     lines.extend(
         [
             "",
-            "B2, correspondiente a la Etapa 2: Aplicación en campo, presenta la mayor masa equivalente total. "
+            "B2, correspondiente a la Etapa 2: Aplicación de purines en campo de pastoreo, presenta la mayor masa equivalente total. "
             "En el escenario A, A4 corresponde a la Etapa 4: Aplicación de aguas verdes en campos de pastoreo y domina la masa equivalente.",
             "",
             "## 6.4 Emisiones estimadas por etapa y escenario",

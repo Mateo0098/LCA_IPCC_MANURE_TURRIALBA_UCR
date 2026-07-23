@@ -102,7 +102,7 @@ Usar siempre:
 
 \- B1: Almacenamiento de purines
 
-\- B2: Aplicación en campo
+\- B2: Aplicación de purines en campo de pastoreo
 
 
 

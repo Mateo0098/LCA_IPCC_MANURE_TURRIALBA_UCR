@@ -4,6 +4,7 @@ import re
 
 
 ACADEMIC_LABELS = {
+    "B2: Aplicación en campo": "B2: Aplicación de purines en campo de pastoreo",
     "dry_lot": "Sistema de manejo en corral seco",
     "uncovered_anaerobic_lagoon": "Laguna anaerobia descubierta",
     "composting_invessel": "Compostaje en sistema cerrado",

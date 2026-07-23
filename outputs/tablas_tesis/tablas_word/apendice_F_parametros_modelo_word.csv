@@ -4,4 +4,4 @@ A,A2: Lombricompostaje,medido,Compostaje en sistema cerrado,2.425,0.024249999999
 A,A3: Almacenamiento de aguas verdes,ipcc,Laguna anaerobia descubierta,0.371666667,0.00371666667,80.0,0.0
 A,A4: Aplicación de aguas verdes en campos de pastoreo,ipcc,Laguna anaerobia descubierta,0.00718577,7.185770000000001e-05,80.0,0.0
 B,B1: Almacenamiento de purines,ipcc,Laguna anaerobia descubierta,0.371666667,0.00371666667,80.0,0.0
-B,B2: Aplicación en campo,ipcc,Laguna anaerobia descubierta,0.011434,0.0001143399999999,80.0,0.0
+B,B2: Aplicación de purines en campo de pastoreo,ipcc,Laguna anaerobia descubierta,0.011434,0.0001143399999999,80.0,0.0
