@@ -1,6 +1,5 @@
 ﻿from __future__ import annotations
 
-import hashlib
 import re
 import zipfile
 from pathlib import Path
@@ -13,9 +12,16 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
+from reference_docx_utils import (
+    REGISTERED_REFERENCE_SHA256,
+    assert_reference_docx_intact,
+    get_reference_docx_path,
+    sha256_file,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCE_DOCX = ROOT / "docs" / "referencia" / "TFG_ACV_Estiercol_MASTER.docx"
+REFERENCE_DOCX = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 TABLE_DIR = ROOT / "outputs" / "tablas_tesis"
 FIG_DIR = ROOT / "outputs" / "graficos_tesis"
 OUT_DIR = ROOT / "outputs" / "documentos_tfg"
@@ -179,20 +185,15 @@ CHEMICAL_REPLACEMENTS = [
 
 
 def validate_inputs() -> None:
-    if not REFERENCE_DOCX.exists():
-        raise FileNotFoundError("Debe copiar el documento de referencia a docs/referencia/TFG_ACV_Estiercol_MASTER.docx")
+    validated_reference = get_reference_docx_path(ROOT)
+    if validated_reference != REFERENCE_DOCX:
+        raise RuntimeError(
+            "La ruta validada del documento maestro no coincide con la ruta configurada."
+        )
     required = [*TABLES.values(), *(FIG_DIR / name for name, _ in MAIN_FIGURES)]
     missing = [path.relative_to(ROOT).as_posix() for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError("Faltan insumos requeridos:\n" + "\n".join(f"- {item}" for item in missing))
-
-def sha256(path: Path) -> str:
-    hasher = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(65536), b""):
-            hasher.update(chunk)
-    return hasher.hexdigest()
-
 
 def read_csv(key: str) -> pd.DataFrame:
     try:
@@ -763,6 +764,8 @@ Figuras complementarias en apéndices:
 - El nitrógeno total reportado en porcentaje se expresa como `n_ex_fraction = n_ex_pct / 100` para las ecuaciones de nitrógeno.
 - La unidad funcional del estudio es 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
+- El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
+- Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
 - No se modificó el documento maestro de referencia. Hash antes: `{master_hash_before}`. Hash después: `{master_hash_after}`.
 
 ## 6. Mejoras de formato académico aplicadas
@@ -987,6 +990,14 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     lines = [
         "# Reporte de validación de documentos",
         "",
+        "## Validación de documento maestro protegido",
+        "",
+        "- Ruta vigente del documento maestro: `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.",
+        f"- Hash SHA-256 registrado: `{REGISTERED_REFERENCE_SHA256}`.",
+        "- Los scripts generadores ya no apuntan a `docs/referencia/`: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "- Los documentos generados se guardan en `outputs/documentos_tfg/`: Sí.",
+        "",
         "## Verificaciones",
         "",
         f"- `metodologia_desarrollada_tfg.docx` fue regenerado: {'Sí' if METHODOLOGY_DOCX.exists() and METHODOLOGY_DOCX.stat().st_size > 10000 else 'No'}.",
@@ -1081,9 +1092,9 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
 
 def main() -> None:
     validate_inputs()
-    master_hash_before = sha256(REFERENCE_DOCX)
+    master_hash_before = sha256_file(REFERENCE_DOCX)
     build_document()
-    master_hash_after = sha256(REFERENCE_DOCX)
+    master_hash_after = assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
     write_readme(master_hash_before, master_hash_after)
     write_validation(master_hash_before, master_hash_after)
     print(f"Documento generado: {OUT_DOCX.relative_to(ROOT)}")

@@ -8,6 +8,13 @@ campo, construye parametros por escenario y etapa, estima emisiones con
 ecuaciones IPCC o factores medidos, calcula impactos ambientales y exporta
 tablas finales para tesis en `outputs/tablas_tesis/`.
 
+## Documento maestro protegido
+
+El documento maestro usado exclusivamente como referencia de formato es
+`MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`. No debe modificarse ni
+sobrescribirse. Los generadores documentales verifican su hash antes y después
+de la generación y guardan sus salidas en `outputs/documentos_tfg/`.
+
 ## Datos de entrada
 
 Los datos crudos principales estan en `Academic_documents/`:

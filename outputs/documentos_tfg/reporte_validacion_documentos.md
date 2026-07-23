@@ -1,5 +1,13 @@
 # Reporte de validación de documentos
 
+## Validación de documento maestro protegido
+
+- Ruta vigente del documento maestro: `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
+- Hash SHA-256 registrado: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
+- Los scripts generadores ya no apuntan a `docs/referencia/`: Sí.
+- El documento maestro protegido no fue modificado durante esta actualización: Sí.
+- Los documentos generados siguen saliendo en `outputs/documentos_tfg/`: Sí.
+
 ## Verificaciones
 
 - `metodologia_desarrollada_tfg.docx` fue regenerado: Sí.

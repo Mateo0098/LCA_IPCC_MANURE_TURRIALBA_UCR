@@ -1,5 +1,10 @@
 # Reporte de limpieza de menciones históricas sobre nitrógeno
 
+> Nota de actualización: este reporte conserva referencias históricas. La
+> ubicación vigente del documento maestro protegido es
+> `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`; las ubicaciones anteriores ya
+> no deben utilizarse como referencia principal.
+
 ## 1. Auditoría y clasificación
 
 Se revisaron `outputs/`, `outputs/tablas_tesis/`, `outputs/documentos_tfg/`, `README_METODOLOGIA.md`, `outputs/tablas_tesis/resumen_resultados_para_redaccion.md`, `outputs/graficos_tesis/README_GRAFICOS.md` y `scripts/`.

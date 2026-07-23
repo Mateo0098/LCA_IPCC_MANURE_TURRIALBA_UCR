@@ -12,6 +12,14 @@
 - `scripts/generate_methodology_docx.py`
 - `scripts/generate_results_docx.py`
 
+## Documento maestro protegido
+
+- Ruta vigente: `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
+- Hash SHA-256 registrado: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
+- Se usa únicamente como referencia de formato.
+- Los generadores no escriben dentro de `MASTER_escrito/`.
+- Los documentos generados se guardan en `outputs/documentos_tfg/`.
+
 ## 3. Tablas utilizadas
 
 - `tabla_02_caracterizacion_muestras.csv`
@@ -51,7 +59,7 @@ Figuras complementarias en apéndices:
 - El nitrógeno total reportado en porcentaje se expresa como `n_ex_fraction = n_ex_pct / 100` para las ecuaciones de nitrógeno.
 - La unidad funcional del estudio es 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
-- No se modificó el documento maestro de referencia. Hash antes: `14dc71dcda4fe8a5bf7e986fb5229101f73f1d132190e04a010da1ec84543b4c`. Hash después: `14dc71dcda4fe8a5bf7e986fb5229101f73f1d132190e04a010da1ec84543b4c`.
+- El documento maestro protegido no fue modificado. Hash SHA-256 vigente: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 
 ## 6. Mejoras de formato académico aplicadas
 

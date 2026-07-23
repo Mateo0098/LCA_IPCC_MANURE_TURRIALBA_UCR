@@ -30,6 +30,12 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 \- Corregir los scripts generadores, no solo los archivos finales.
 
+\- El documento maestro protegido está en `MASTER\_escrito/TFG\_ACV\_Estiercol\_MASTER.docx`.
+
+\- No modificar, sobrescribir ni usar como archivo de salida ningún archivo dentro de `MASTER\_escrito/`.
+
+\- Los generadores pueden usar el documento maestro únicamente como referencia de formato y deben verificar su hash antes y después de generar documentos.
+
 
 
 \## Escritura académica
@@ -201,6 +207,18 @@ El texto final debe mostrar correctamente tildes, eñes y símbolos científicos
 
 
 \## Documentos principales
+
+
+
+El documento maestro protegido y de referencia de formato es:
+
+
+
+\- MASTER\_escrito/TFG\_ACV\_Estiercol\_MASTER.docx
+
+
+
+Los documentos generados deben guardarse en `outputs/documentos\_tfg/`, nunca en `MASTER\_escrito/`.
 
 
 

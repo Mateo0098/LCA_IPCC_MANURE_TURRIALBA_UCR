@@ -10,9 +10,15 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
+from reference_docx_utils import (
+    assert_reference_docx_intact,
+    get_reference_docx_path,
+    sha256_file,
+)
+
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCE_DOCX = ROOT / "docs" / "referencia" / "TFG_ACV_Estiercol_MASTER.docx"
+REFERENCE_DOCX = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 TABLE_DIR = ROOT / "outputs" / "tablas_tesis"
 FIG_DIR = ROOT / "outputs" / "graficos_tesis"
 OUT_DIR = ROOT / "outputs" / "documentos_tfg"
@@ -137,8 +143,11 @@ CHEMICAL_REPLACEMENTS = [
 
 
 def validate_inputs() -> None:
-    if not REFERENCE_DOCX.exists():
-        raise FileNotFoundError("Debe copiar el documento de referencia a docs/referencia/TFG_ACV_Estiercol_MASTER.docx")
+    validated_reference = get_reference_docx_path(ROOT)
+    if validated_reference != REFERENCE_DOCX:
+        raise RuntimeError(
+            "La ruta validada del documento maestro no coincide con la ruta configurada."
+        )
     missing = [path.relative_to(ROOT).as_posix() for path in TABLES.values() if not path.exists()]
     if missing:
         raise FileNotFoundError("Faltan insumos requeridos:\n" + "\n".join(f"- {item}" for item in missing))
@@ -654,7 +663,9 @@ def build_document() -> None:
 
 def main() -> None:
     validate_inputs()
+    master_hash_before = sha256_file(REFERENCE_DOCX)
     build_document()
+    assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
     print(f"Documento generado: {OUT_DOCX.relative_to(ROOT)}")
 
 

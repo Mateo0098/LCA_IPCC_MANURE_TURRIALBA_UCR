@@ -3,6 +3,14 @@
 ## ES - Objetivo
 Este proyecto calcula emisiones e impactos ACV por etapa/escenario, a partir de tablas en `processed/`, y genera salidas tabulares y graficas.
 
+## ES - Documento maestro protegido
+
+El documento maestro de referencia de formato es
+`MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`. Los generadores deben usarlo
+solo para consultar el formato, verificar su hash antes y después de la
+generación y guardar los documentos producidos en `outputs/documentos_tfg/`.
+Nunca deben sobrescribir ni modificar archivos dentro de `MASTER_escrito/`.
+
 ## ES - Flujo operativo (resumen)
 1. Preparar/actualizar tablas en `processed/` (solo si cambian muestreos o configuracion manual).
 2. Ejecutar el modelo con `ACV_orquestador.py`.
