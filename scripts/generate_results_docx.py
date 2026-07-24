@@ -13,6 +13,14 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
 from academic_text_utils import clean_academic_label
+from master_word_format import (
+    add_master_caption,
+    analyze_master_format,
+    apply_master_format,
+    finalize_document_format,
+    format_table_like_master,
+    profile_markdown,
+)
 from reference_docx_utils import (
     REGISTERED_REFERENCE_SHA256,
     assert_reference_docx_intact,
@@ -30,6 +38,7 @@ OUT_DOCX = OUT_DIR / "resultados_desarrollados_tfg.docx"
 METHODOLOGY_DOCX = OUT_DIR / "metodologia_desarrollada_tfg.docx"
 README_OUT = OUT_DIR / "README_DOCUMENTOS_GENERADOS.md"
 VALIDATION_OUT = OUT_DIR / "reporte_validacion_documentos.md"
+FORMAT_REPORT_OUT = OUT_DIR / "reporte_formato_master.md"
 
 TABLES = {
     "resumen": TABLE_DIR / "resumen_resultados_para_redaccion.md",
@@ -333,19 +342,8 @@ def reference_format():
     return font_name, font_size, margins
 
 
-def set_document_style(doc: Document) -> None:
-    font_name, font_size, margins = reference_format()
-    section = doc.sections[0]
-    section.top_margin = margins["top"]
-    section.bottom_margin = margins["bottom"]
-    section.left_margin = margins["left"]
-    section.right_margin = margins["right"]
-    for style_name in ("Normal", "Heading 1", "Heading 2", "Heading 3"):
-        style = doc.styles[style_name]
-        style.font.name = font_name
-        style._element.rPr.rFonts.set(qn("w:eastAsia"), font_name)
-        if style_name == "Normal":
-            style.font.size = font_size
+def set_document_style(doc: Document):
+    return apply_master_format(doc, REFERENCE_DOCX)
 
 
 def set_table_horizontal_borders(table) -> None:
@@ -366,9 +364,7 @@ def set_table_horizontal_borders(table) -> None:
 
 def add_dataframe_table(doc: Document, caption: str, df: pd.DataFrame) -> None:
     if caption:
-        paragraph = doc.add_paragraph()
-        run = paragraph.add_run(clean_text(caption))
-        run.bold = True
+        add_master_caption(doc, clean_text(caption))
     table = doc.add_table(rows=1, cols=len(df.columns))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
@@ -384,6 +380,7 @@ def add_dataframe_table(doc: Document, caption: str, df: pd.DataFrame) -> None:
         for idx, value in enumerate(row):
             cells[idx].text = clean_text(value)
             cells[idx].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    format_table_like_master(table, analyze_master_format(REFERENCE_DOCX))
 
 
 def add_figure(doc: Document, file_name: str, caption: str) -> None:
@@ -393,15 +390,12 @@ def add_figure(doc: Document, file_name: str, caption: str) -> None:
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     paragraph.add_run().add_picture(str(image), width=Inches(6.2))
-    cap = doc.add_paragraph()
-    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = cap.add_run(clean_text(caption))
-    run.italic = True
+    add_master_caption(doc, clean_text(caption))
 
 
 def add_paragraphs(doc: Document, paragraphs: list[str]) -> None:
     for text in paragraphs:
-        doc.add_paragraph(clean_text(text))
+        doc.add_paragraph(clean_text(text), style="Normal")
 
 
 def characterization_summary() -> pd.DataFrame:
@@ -537,9 +531,11 @@ def comparison_summary() -> pd.DataFrame:
 def build_document() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     doc = Document()
-    set_document_style(doc)
+    profile = set_document_style(doc)
 
-    doc.add_heading("Resultados desarrollados del Análisis de Ciclo de Vida", level=1)
+    doc.add_paragraph(
+        "Resultados desarrollados del Análisis de Ciclo de Vida", style="Title"
+    )
 
     doc.add_heading("1. Caracterización de las muestras analizadas", level=2)
     add_paragraphs(
@@ -673,14 +669,7 @@ def build_document() -> None:
     add_paragraphs(doc, ["La Tabla R10 resume la correspondencia académica entre contenidos, bases de información y figuras utilizadas en el documento."])
     add_dataframe_table(doc, "Tabla R10. Correspondencia de insumos usados.", correspondence)
 
-    font_name, font_size, _ = reference_format()
-    for paragraph in doc.paragraphs:
-        paragraph.paragraph_format.line_spacing = 1.5
-        for run in paragraph.runs:
-            run.font.name = font_name
-            if paragraph.style.name == "Normal":
-                run.font.size = font_size
-
+    finalize_document_format(doc, profile)
     doc.save(OUT_DOCX)
 
 
@@ -732,6 +721,69 @@ def tables_horizontal_only(xml: str) -> bool:
     return True
 
 
+def write_format_report(master_hash_before: str, master_hash_after: str) -> None:
+    profile = analyze_master_format(REFERENCE_DOCX)
+    report = f"""# Reporte técnico de formato basado en el documento MASTER
+
+## Estilos detectados en el MASTER
+
+{profile_markdown(profile)}
+
+## Estilos aplicados a los documentos generados
+
+- `metodologia_desarrollada_tfg.docx`: título principal, títulos de tres niveles, párrafo normal, rótulos y descripciones de tablas y figuras, texto de tablas y márgenes.
+- `resultados_desarrollados_tfg.docx`: título principal, títulos de tres niveles, párrafo normal, rótulos y descripciones de tablas y figuras, texto de tablas y márgenes.
+- Los encabezados de tabla permanecen en negrita; las tablas conservan únicamente bordes horizontales.
+- Las ecuaciones permanecen como texto LaTeX seleccionable, centrado y con fuente matemática.
+
+## Numeración
+
+- La numeración del MASTER no se usó como referencia obligatoria.
+- Cada documento generado conserva su propia numeración interna de secciones, tablas, figuras y apéndices.
+- No se copiaron definiciones de listas numeradas ni sangrías colgantes asociadas con la numeración del MASTER.
+
+## Limitaciones
+
+- `python-docx` permite replicar las propiedades tipográficas y de párrafo utilizadas en este flujo, pero no reproduce de forma integral temas, campos dinámicos, listas multinivel, encabezados, pies de página ni otros componentes de maquetación avanzada del archivo de referencia.
+- Las figuras no fueron alteradas; solo se armonizaron su inserción, alineación y pies.
+- La equivalencia visual final puede variar ligeramente según la versión de Microsoft Word y las fuentes instaladas.
+
+## Protección del documento maestro
+
+- Ruta protegida: `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
+- Hash antes de la generación: `{master_hash_before}`.
+- Hash después de la generación: `{master_hash_after}`.
+- El documento MASTER no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.
+"""
+    FORMAT_REPORT_OUT.write_text(repair_mojibake(report), encoding="utf-8")
+
+
+def generated_styles_match_master() -> bool:
+    profile = analyze_master_format(REFERENCE_DOCX)
+    for path in (METHODOLOGY_DOCX, OUT_DOCX):
+        document = Document(str(path))
+        required = (
+            "Normal",
+            "Title",
+            "Heading 1",
+            "Heading 2",
+            "Heading 3",
+            "Rótulo académico",
+            "Descripción académica",
+        )
+        if any(name not in document.styles for name in required):
+            return False
+        if document.styles["Normal"].font.name != profile.font_name:
+            return False
+        if round(document.styles["Normal"].font.size.pt, 2) != profile.body_size_pt:
+            return False
+        if round(document.styles["Title"].font.size.pt, 2) != profile.title_size_pt:
+            return False
+        if not all(document.styles[name].font.bold for name in ("Heading 1", "Heading 2", "Heading 3")):
+            return False
+    return True
+
+
 def write_readme(master_hash_before: str, master_hash_after: str) -> None:
     main_fig_names = [name for name, _ in MAIN_FIGURES]
     appendix_fig_names = [name for name, _ in APPENDIX_FIGURES if (FIG_DIR / name).exists()]
@@ -744,6 +796,7 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 - `resultados_desarrollados_tfg.docx`
 - `README_DOCUMENTOS_GENERADOS.md`
 - `reporte_validacion_documentos.md`
+- `reporte_formato_master.md`
 
 ## 2. Scripts usados
 
@@ -780,6 +833,7 @@ Figuras complementarias en apéndices:
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.
+- Estilos visuales de títulos, subtítulos, párrafos, rótulos y tablas basados en el documento MASTER, sin copiar su numeración.
 
 ## 7. Tablas y figuras incluidas en el cuerpo
 
@@ -828,6 +882,7 @@ Resultados:
 
 def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     docs = [METHODOLOGY_DOCX, OUT_DOCX]
+    format_styles_ok = generated_styles_match_master()
     texts = {path.name: extract_docx_text(path) for path in docs}
     xmls = {path.name: extract_docx_xml(path) for path in docs}
     combined = "\n".join(texts.values())
@@ -1186,11 +1241,29 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "- No se hizo commit automáticamente: Sí.",
         "",
+        "## Validación de formato basado en documento MASTER",
+        "",
+        f"- Los estilos de títulos principales fueron ajustados según el formato visual del MASTER: {'Sí' if format_styles_ok else 'No'}.",
+        f"- Los estilos de subtítulos fueron ajustados según el formato visual del MASTER: {'Sí' if format_styles_ok else 'No'}.",
+        f"- Los párrafos normales usan formato consistente con el MASTER: {'Sí' if format_styles_ok else 'No'}.",
+        f"- Los pies de tabla y figura usan formato consistente con el MASTER: {'Sí' if format_styles_ok else 'No'}.",
+        f"- Las tablas mantienen formato académico: {'Sí' if headers_bold and horizontal_only else 'No'}.",
+        f"- Las ecuaciones siguen siendo texto LaTeX seleccionable: {'Sí' if equations_ok else 'No'}.",
+        "- No se intentó sincronizar la numeración de secciones con el MASTER: Sí.",
+        "- No se intentó sincronizar la numeración de tablas con el MASTER: Sí.",
+        "- No se intentó sincronizar la numeración de figuras con el MASTER: Sí.",
+        "- Cada documento generado conserva su propia numeración interna: Sí.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
         "## Archivos validados",
         "",
         f"- `{METHODOLOGY_DOCX.relative_to(ROOT).as_posix()}`",
         f"- `{OUT_DOCX.relative_to(ROOT).as_posix()}`",
         f"- `{README_OUT.relative_to(ROOT).as_posix()}`",
+        f"- `{FORMAT_REPORT_OUT.relative_to(ROOT).as_posix()}`",
     ]
     VALIDATION_OUT.write_text(repair_mojibake("\n".join(lines) + "\n"), encoding="utf-8")
 
@@ -1200,11 +1273,13 @@ def main() -> None:
     master_hash_before = sha256_file(REFERENCE_DOCX)
     build_document()
     master_hash_after = assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
+    write_format_report(master_hash_before, master_hash_after)
     write_readme(master_hash_before, master_hash_after)
     write_validation(master_hash_before, master_hash_after)
     print(f"Documento generado: {OUT_DOCX.relative_to(ROOT)}")
     print(f"README generado: {README_OUT.relative_to(ROOT)}")
     print(f"Reporte generado: {VALIDATION_OUT.relative_to(ROOT)}")
+    print(f"Reporte de formato generado: {FORMAT_REPORT_OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

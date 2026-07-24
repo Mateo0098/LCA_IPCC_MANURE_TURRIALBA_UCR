@@ -6,6 +6,7 @@
 - `resultados_desarrollados_tfg.docx`
 - `README_DOCUMENTOS_GENERADOS.md`
 - `reporte_validacion_documentos.md`
+- `reporte_formato_master.md`
 
 ## 2. Scripts usados
 
@@ -62,6 +63,7 @@ Figuras complementarias en apéndices:
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.
+- Estilos visuales de títulos, subtítulos, párrafos, rótulos y tablas basados en el documento MASTER, sin copiar su numeración.
 
 ## 7. Tablas y figuras incluidas en el cuerpo
 

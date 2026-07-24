@@ -11,6 +11,13 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
 from academic_text_utils import clean_academic_label
+from master_word_format import (
+    add_master_caption,
+    analyze_master_format,
+    apply_master_format,
+    finalize_document_format,
+    format_table_like_master,
+)
 from reference_docx_utils import (
     assert_reference_docx_intact,
     get_reference_docx_path,
@@ -285,19 +292,8 @@ def reference_format():
     return font_name, font_size, margins
 
 
-def set_document_style(doc: Document) -> None:
-    font_name, font_size, margins = reference_format()
-    section = doc.sections[0]
-    section.top_margin = margins["top"]
-    section.bottom_margin = margins["bottom"]
-    section.left_margin = margins["left"]
-    section.right_margin = margins["right"]
-
-    for style_name in ("Normal", "Heading 1", "Heading 2", "Heading 3"):
-        style = doc.styles[style_name]
-        style.font.name = font_name
-        style.font.size = font_size if style_name == "Normal" else None
-        style._element.rPr.rFonts.set(qn("w:eastAsia"), font_name)
+def set_document_style(doc: Document):
+    return apply_master_format(doc, REFERENCE_DOCX)
 
 
 def set_table_horizontal_borders(table) -> None:
@@ -318,9 +314,7 @@ def set_table_horizontal_borders(table) -> None:
 
 def add_dataframe_table(doc: Document, caption: str, df: pd.DataFrame) -> None:
     if caption:
-        paragraph = doc.add_paragraph()
-        run = paragraph.add_run(clean_text(caption))
-        run.bold = True
+        add_master_caption(doc, clean_text(caption))
     table = doc.add_table(rows=1, cols=len(df.columns))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.autofit = True
@@ -336,6 +330,7 @@ def add_dataframe_table(doc: Document, caption: str, df: pd.DataFrame) -> None:
         for idx, value in enumerate(row):
             cells[idx].text = clean_text(value)
             cells[idx].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    format_table_like_master(table, analyze_master_format(REFERENCE_DOCX))
 
 
 def add_figure(doc: Document, image: Path, caption: str) -> None:
@@ -345,15 +340,12 @@ def add_figure(doc: Document, image: Path, caption: str) -> None:
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = paragraph.add_run()
     run.add_picture(str(image), width=Inches(6.2))
-    cap = doc.add_paragraph()
-    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    cap_run = cap.add_run(clean_text(caption))
-    cap_run.italic = True
+    add_master_caption(doc, clean_text(caption))
 
 
 def add_paragraphs(doc: Document, paragraphs: list[str]) -> None:
     for text in paragraphs:
-        doc.add_paragraph(clean_text(text))
+        doc.add_paragraph(clean_text(text), style="Normal")
 
 
 def add_latex_equation(doc: Document, equation: str, definitions: list[str] | None = None) -> None:
@@ -364,7 +356,7 @@ def add_latex_equation(doc: Document, equation: str, definitions: list[str] | No
     run.font.size = Pt(12)
     if definitions:
         for item in definitions:
-            doc.add_paragraph(clean_text(item), style=None)
+            doc.add_paragraph(clean_text(item), style="Normal")
 
 
 def stage_summary() -> pd.DataFrame:
@@ -494,9 +486,11 @@ def characterization_factors() -> pd.DataFrame:
 def build_document() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     doc = Document()
-    set_document_style(doc)
+    profile = set_document_style(doc)
 
-    doc.add_heading("Metodología desarrollada del Análisis de Ciclo de Vida", level=1)
+    doc.add_paragraph(
+        "Metodología desarrollada del Análisis de Ciclo de Vida", style="Title"
+    )
 
     doc.add_heading("1. Enfoque metodológico general del ACV", level=2)
     add_paragraphs(doc, [
@@ -651,15 +645,7 @@ def build_document() -> None:
     dictionary = strip_internal_columns(read_csv("diccionario"))
     add_dataframe_table(doc, "Tabla M3. Diccionario de variables metodológicas.", format_df(dictionary))
 
-    font_name, font_size, _ = reference_format()
-    for paragraph in doc.paragraphs:
-        paragraph.paragraph_format.line_spacing = 1.5
-        for run in paragraph.runs:
-            if run.font.name != "Cambria Math":
-                run.font.name = font_name
-            if paragraph.style.name == "Normal" and run.font.size is None:
-                run.font.size = font_size
-
+    finalize_document_format(doc, profile)
     doc.save(OUT_DOCX)
 
 

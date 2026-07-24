@@ -110,8 +110,26 @@
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 - No se hizo commit automáticamente: Sí.
 
+## Validación de formato basado en documento MASTER
+
+- Los estilos de títulos principales fueron ajustados según el formato visual del MASTER: Sí.
+- Los estilos de subtítulos fueron ajustados según el formato visual del MASTER: Sí.
+- Los párrafos normales usan formato consistente con el MASTER: Sí.
+- Los pies de tabla y figura usan formato consistente con el MASTER: Sí.
+- Las tablas mantienen formato académico: Sí.
+- Las ecuaciones siguen siendo texto LaTeX seleccionable: Sí.
+- No se intentó sincronizar la numeración de secciones con el MASTER: Sí.
+- No se intentó sincronizar la numeración de tablas con el MASTER: Sí.
+- No se intentó sincronizar la numeración de figuras con el MASTER: Sí.
+- Cada documento generado conserva su propia numeración interna: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- El documento maestro no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
 ## Archivos validados
 
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
 - `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`
 - `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md`
+- `outputs/documentos_tfg/reporte_formato_master.md`
