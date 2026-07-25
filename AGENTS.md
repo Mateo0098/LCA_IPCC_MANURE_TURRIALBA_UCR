@@ -262,3 +262,31 @@ Después de regenerar documentos, verificar:
 
 \- No se modificó el documento maestro de propuesta.
 
+
+## Reglas de formato para documentos Word generados
+
+Estas reglas son obligatorias para `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx` y `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`:
+
+1. Seguir el estilo visual de `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
+2. Usar el MASTER únicamente como referencia de formato. Nunca modificarlo, sobrescribirlo ni usarlo como archivo de salida.
+3. Mantener numeración interna independiente en cada documento generado. No sincronizar secciones, tablas, figuras ni apéndices con el MASTER.
+4. Usar color negro en títulos, subtítulos, captions y encabezados; no dejar texto azul.
+5. Colocar los títulos de tablas encima de las tablas.
+6. Colocar los títulos de figuras encima de las figuras.
+7. Generar figuras sin título interno dentro de la imagen. El único título visible debe ser el caption de Word.
+8. Asignar un solo título formal visible a cada tabla; no duplicar captions.
+9. Asignar un solo título formal visible a cada figura; no duplicar captions.
+10. Escribir todo el texto visible en español académico. Se permiten siglas aceptadas como IPCC, ACV, ICV, EICV, CIA, LASA y UCR.
+11. Escribir las unidades anuales con tilde: `L/año`, `kg/año`, `kg eq/año`, `kg CO₂-eq/año` y `kg PO₄-eq/año`. No usar `L/ano`, `kg/ano` ni `kg eq/ano`.
+12. Excluir de las tablas lenguaje computacional o interno como `snake_case`, `dry_lot`, `n_ex_pct`, `n_ex_fraction`, `masa_total_kg_eq`, `processed`, `outputs`, `scripts`, `.csv` y rutas internas.
+13. Evitar columnas redundantes de etapa. Usar una sola columna llamada `Etapa del sistema`.
+14. Usar siempre `B2: Aplicación de purines en campo de pastoreo`.
+15. No asociar `purín` ni `purines` con flujos de A1, A2, A3 o A4.
+16. No usar `Aguas verdes` en B1 o B2 cuando el flujo corresponda a purín.
+17. Mencionar cada apéndice interno al menos una vez en la prosa principal del documento correspondiente. La mención debe describir su contenido o incluir su título.
+18. Mantener las ecuaciones como texto LaTeX seleccionable y centrado, sin imágenes y sin delimitadores visibles `\[` `\]` ni `$$`.
+19. Aplicar estas reglas desde los scripts generadores. No corregir manualmente los Word finales cuando la corrección pueda implementarse en el generador.
+20. Confirmar estas reglas en `outputs/documentos_tfg/reporte_validacion_documentos.md` cada vez que se regeneren los documentos.
+
+La especificación detallada y los ejemplos están en `docs/REGLAS_FORMATO_WORD.md`.
+
