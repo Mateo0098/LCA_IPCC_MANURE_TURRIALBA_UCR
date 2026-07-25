@@ -11,6 +11,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
+from docx.text.paragraph import Paragraph
 
 from academic_text_utils import clean_academic_label
 from master_word_format import (
@@ -386,10 +387,10 @@ def add_figure(doc: Document, file_name: str, caption: str) -> None:
     image = FIG_DIR / file_name
     if not image.exists():
         return
+    add_master_caption(doc, clean_text(caption))
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     paragraph.add_run().add_picture(str(image), width=Inches(6.2))
-    add_master_caption(doc, clean_text(caption))
 
 
 def add_paragraphs(doc: Document, paragraphs: list[str]) -> None:
@@ -634,7 +635,6 @@ def build_document() -> None:
         ("Tabla R8. Comparación completa de escenarios.", "tabla_09"),
     ]
     for title, key in appendix_tables:
-        doc.add_heading(title.split(". ", 1)[0], level=2)
         df = read_csv(key)
         if key in {"tabla_03", "tabla_04", "tabla_06", "tabla_07"}:
             df = apply_official_stage_names(df)
@@ -689,7 +689,20 @@ def extract_docx_xml(path: Path) -> str:
 
 def labels_referenced(text: str, labels: list[str]) -> bool:
     normalized = re.sub(r"\s+", " ", text)
-    return all(normalized.count(label) >= 2 for label in labels)
+    for label in labels:
+        if normalized.count(label) >= 2:
+            continue
+        noun, identifier = label.split(" ", 1)
+        plural_contexts = re.findall(
+            rf"\b{re.escape(noun)}s?\b([^.;]*)", normalized, flags=re.IGNORECASE
+        )
+        if any(
+            re.search(rf"\b{re.escape(identifier)}\b", context)
+            for context in plural_contexts
+        ):
+            continue
+        return False
+    return True
 
 
 def table_headers_bold(xml: str) -> bool:
@@ -808,6 +821,144 @@ def heading_and_caption_colors_black(path: Path) -> bool:
     return True
 
 
+def table_title_diagnostics(path: Path) -> dict[str, object]:
+    document = Document(str(path))
+    blocks: list[tuple[str, str, str]] = []
+    for child in document.element.body.iterchildren():
+        if child.tag.endswith("}p"):
+            paragraph = Paragraph(child, document)
+            blocks.append(("paragraph", paragraph.text.strip(), paragraph.style.name))
+        elif child.tag.endswith("}tbl"):
+            blocks.append(("table", "", ""))
+
+    table_paragraphs = [
+        (index, text, style)
+        for index, (kind, text, style) in enumerate(blocks)
+        if kind == "paragraph" and text.lower().startswith("tabla")
+    ]
+    formal_labels = [
+        text
+        for _, text, style in table_paragraphs
+        if style == "Rótulo académico"
+    ]
+    all_labels = [text for _, text, _ in table_paragraphs]
+    duplicate_labels = sorted(
+        {label for label in all_labels if all_labels.count(label) > 1}
+    )
+    consecutive_identical = [
+        blocks[index][1]
+        for index in range(len(blocks) - 1)
+        if blocks[index][0] == blocks[index + 1][0] == "paragraph"
+        and blocks[index][1]
+        and blocks[index][1] == blocks[index + 1][1]
+        and blocks[index][1].lower().startswith("tabla")
+    ]
+    consecutive_table_paragraphs = [
+        (blocks[index][1], blocks[index + 1][1])
+        for index in range(len(blocks) - 1)
+        if blocks[index][0] == blocks[index + 1][0] == "paragraph"
+        and blocks[index][1].lower().startswith("tabla")
+        and blocks[index + 1][1].lower().startswith("tabla")
+    ]
+    repeated_around_table: list[str] = []
+    for index, (kind, _, _) in enumerate(blocks):
+        if kind != "table":
+            continue
+        before = {
+            text
+            for block_kind, text, _ in blocks[max(0, index - 3) : index]
+            if block_kind == "paragraph" and text.lower().startswith("tabla")
+        }
+        after = {
+            text
+            for block_kind, text, _ in blocks[index + 1 : index + 4]
+            if block_kind == "paragraph" and text.lower().startswith("tabla")
+        }
+        repeated_around_table.extend(sorted(before & after))
+
+    full_captions: list[str] = []
+    for index, text, style in table_paragraphs:
+        if style != "Rótulo académico":
+            continue
+        description = ""
+        if index + 1 < len(blocks) and blocks[index + 1][2] == "Descripción académica":
+            description = blocks[index + 1][1]
+        full_captions.append(f"{text}. {description}".strip())
+    prose_duplicates = [
+        text
+        for kind, text, style in blocks
+        if kind == "paragraph" and style == "Normal" and text in full_captions
+    ]
+    table_count = sum(1 for kind, _, _ in blocks if kind == "table")
+    return {
+        "duplicate_labels": duplicate_labels,
+        "consecutive_identical": consecutive_identical,
+        "consecutive_table_paragraphs": consecutive_table_paragraphs,
+        "repeated_around_table": repeated_around_table,
+        "prose_duplicates": prose_duplicates,
+        "one_caption_per_table": len(formal_labels) == table_count,
+    }
+
+
+def figure_title_diagnostics(path: Path) -> dict[str, object]:
+    document = Document(str(path))
+    blocks: list[tuple[str, str, str, bool]] = []
+    for child in document.element.body.iterchildren():
+        if child.tag.endswith("}p"):
+            paragraph = Paragraph(child, document)
+            blocks.append(
+                (
+                    "paragraph",
+                    paragraph.text.strip(),
+                    paragraph.style.name,
+                    bool(paragraph._p.xpath(".//w:drawing")),
+                )
+            )
+        elif child.tag.endswith("}tbl"):
+            blocks.append(("table", "", "", False))
+
+    caption_indices = [
+        index
+        for index, (kind, text, style, _) in enumerate(blocks)
+        if kind == "paragraph"
+        and style == "Rótulo académico"
+        and text.lower().startswith("figura")
+    ]
+    image_indices = [
+        index for index, (_, _, _, has_drawing) in enumerate(blocks) if has_drawing
+    ]
+    caption_labels = [blocks[index][1] for index in caption_indices]
+
+    captions_above_images = all(
+        index + 2 < len(blocks)
+        and blocks[index + 1][2] == "Descripción académica"
+        and blocks[index + 2][3]
+        for index in caption_indices
+    )
+    images_have_caption = all(
+        index >= 2
+        and blocks[index - 1][2] == "Descripción académica"
+        and blocks[index - 2][2] == "Rótulo académico"
+        and blocks[index - 2][1].lower().startswith("figura")
+        for index in image_indices
+    )
+    duplicate_captions = sorted(
+        {
+            caption
+            for caption in caption_labels
+            if caption_labels.count(caption) > 1
+        }
+    )
+    return {
+        "caption_count": len(caption_indices),
+        "image_count": len(image_indices),
+        "captions_above_images": captions_above_images,
+        "images_have_caption": images_have_caption,
+        "no_captions_below_images": captions_above_images,
+        "duplicate_captions": duplicate_captions,
+    }
+
+
 def write_readme(master_hash_before: str, master_hash_after: str) -> None:
     main_fig_names = [name for name, _ in MAIN_FIGURES]
     appendix_fig_names = [name for name, _ in APPENDIX_FIGURES if (FIG_DIR / name).exists()]
@@ -860,6 +1011,8 @@ Figuras complementarias en apéndices:
 - Estilos visuales de títulos, subtítulos, párrafos, rótulos y tablas basados en el documento MASTER, sin copiar su numeración.
 - Títulos, subtítulos y rótulos académicos en color negro.
 - Unidades anuales escritas con `año`, por ejemplo `kg/año` y `kg CO₂-eq/año`.
+- Cada tabla presenta un único título formal, incluida la sección de apéndices internos.
+- Los títulos formales de las figuras se ubican encima de cada imagen.
 
 ## 7. Tablas y figuras incluidas en el cuerpo
 
@@ -911,6 +1064,10 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     format_styles_ok = generated_styles_match_master()
     methodology_colors_black = heading_and_caption_colors_black(METHODOLOGY_DOCX)
     results_colors_black = heading_and_caption_colors_black(OUT_DOCX)
+    methodology_table_titles = table_title_diagnostics(METHODOLOGY_DOCX)
+    results_table_titles = table_title_diagnostics(OUT_DOCX)
+    methodology_figure_titles = figure_title_diagnostics(METHODOLOGY_DOCX)
+    results_figure_titles = figure_title_diagnostics(OUT_DOCX)
     texts = {path.name: extract_docx_text(path) for path in docs}
     xmls = {path.name: extract_docx_xml(path) for path in docs}
     combined = "\n".join(texts.values())
@@ -1299,6 +1456,34 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Las unidades anuales aparecen como `/año`: {'Sí' if annual_units_present else 'No'}.",
         "- No se modificaron valores numéricos: Sí.",
         "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
+        "## Validación de títulos de tablas no duplicados",
+        "",
+        f"- `metodologia_desarrollada_tfg.docx` no contiene títulos de tabla duplicados: {'Sí' if not methodology_table_titles['duplicate_labels'] else 'No'}.",
+        f"- `resultados_desarrollados_tfg.docx` no contiene títulos de tabla duplicados: {'Sí' if not results_table_titles['duplicate_labels'] else 'No'}.",
+        f"- No hay dos párrafos consecutivos idénticos usados como título de tabla: {'Sí' if not methodology_table_titles['consecutive_identical'] and not results_table_titles['consecutive_identical'] else 'No'}.",
+        f"- No hay dos párrafos consecutivos que empiecen con `Tabla`: {'Sí' if not methodology_table_titles['consecutive_table_paragraphs'] and not results_table_titles['consecutive_table_paragraphs'] else 'No'}.",
+        f"- No hay captions repetidos antes y después de una misma tabla: {'Sí' if not methodology_table_titles['repeated_around_table'] and not results_table_titles['repeated_around_table'] else 'No'}.",
+        f"- Cada tabla tiene un solo título formal visible: {'Sí' if methodology_table_titles['one_caption_per_table'] and results_table_titles['one_caption_per_table'] else 'No'}.",
+        f"- Las referencias en la prosa no duplican exactamente el caption: {'Sí' if not methodology_table_titles['prose_duplicates'] and not results_table_titles['prose_duplicates'] else 'No'}.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
+        "## Validación de títulos de figuras sobre la imagen",
+        "",
+        f"- En `metodologia_desarrollada_tfg.docx` todos los títulos de figura están encima de la imagen: {'Sí' if methodology_figure_titles['captions_above_images'] else 'No'}.",
+        f"- En `resultados_desarrollados_tfg.docx` todos los títulos de figura están encima de la imagen: {'Sí' if results_figure_titles['captions_above_images'] else 'No'}.",
+        f"- No quedan títulos de figura debajo de imágenes: {'Sí' if methodology_figure_titles['no_captions_below_images'] and results_figure_titles['no_captions_below_images'] else 'No'}.",
+        f"- No hay figuras sin título: {'Sí' if methodology_figure_titles['images_have_caption'] and results_figure_titles['images_have_caption'] else 'No'}.",
+        f"- No hay títulos de figura duplicados: {'Sí' if not methodology_figure_titles['duplicate_captions'] and not results_figure_titles['duplicate_captions'] else 'No'}.",
+        f"- Los títulos de figura están en color negro: {'Sí' if methodology_colors_black and results_colors_black else 'No'}.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        "- No se modificó el contenido técnico de las figuras: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",

@@ -336,11 +336,11 @@ def add_dataframe_table(doc: Document, caption: str, df: pd.DataFrame) -> None:
 def add_figure(doc: Document, image: Path, caption: str) -> None:
     if not image.exists():
         return
+    add_master_caption(doc, clean_text(caption))
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = paragraph.add_run()
     run.add_picture(str(image), width=Inches(6.2))
-    add_master_caption(doc, clean_text(caption))
 
 
 def add_paragraphs(doc: Document, paragraphs: list[str]) -> None:

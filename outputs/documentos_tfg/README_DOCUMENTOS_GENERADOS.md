@@ -66,6 +66,8 @@ Figuras complementarias en apéndices:
 - Estilos visuales de títulos, subtítulos, párrafos, rótulos y tablas basados en el documento MASTER, sin copiar su numeración.
 - Títulos, subtítulos y rótulos académicos en color negro.
 - Unidades anuales escritas con `año`, por ejemplo `kg/año` y `kg CO₂-eq/año`.
+- Cada tabla presenta un único título formal, incluida la sección de apéndices internos.
+- Los títulos formales de las figuras se ubican encima de cada imagen.
 
 ## 7. Tablas y figuras incluidas en el cuerpo
 

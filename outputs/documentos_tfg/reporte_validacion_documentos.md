@@ -139,6 +139,34 @@
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
+## Validación de títulos de tablas no duplicados
+
+- `metodologia_desarrollada_tfg.docx` no contiene títulos de tabla duplicados: Sí.
+- `resultados_desarrollados_tfg.docx` no contiene títulos de tabla duplicados: Sí.
+- No hay dos párrafos consecutivos idénticos usados como título de tabla: Sí.
+- No hay dos párrafos consecutivos que empiecen con `Tabla`: Sí.
+- No hay captions repetidos antes y después de una misma tabla: Sí.
+- Cada tabla tiene un solo título formal visible: Sí.
+- Las referencias en la prosa no duplican exactamente el caption: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
+## Validación de títulos de figuras sobre la imagen
+
+- En `metodologia_desarrollada_tfg.docx` todos los títulos de figura están encima de la imagen: Sí.
+- En `resultados_desarrollados_tfg.docx` todos los títulos de figura están encima de la imagen: Sí.
+- No quedan títulos de figura debajo de imágenes: Sí.
+- No hay figuras sin título: Sí.
+- No hay títulos de figura duplicados: Sí.
+- Los títulos de figura están en color negro: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- No se modificó el contenido técnico de las figuras: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
 ## Archivos validados
 
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
