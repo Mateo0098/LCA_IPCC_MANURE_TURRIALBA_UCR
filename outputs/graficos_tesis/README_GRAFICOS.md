@@ -1,6 +1,7 @@
 # Graficos finales para tesis
 
 Todos los graficos fueron generados exclusivamente a partir de las tablas finales validadas en `outputs/tablas_tesis/` indicadas en cada registro.
+Las imagenes no incluyen titulos internos; el titulo formal se incorpora como caption en los documentos Word.
 
 | Archivo | Tabla fuente | Que muestra | Seccion recomendada | Apendice relacionado |
 |---|---|---|---|---|

@@ -5,11 +5,17 @@ import re
 
 ACADEMIC_LABELS = {
     "B2: Aplicación en campo": "B2: Aplicación de purines en campo de pastoreo",
+    "uncovered anaerobic lagoon": "Laguna anaerobia descubierta",
     "dry_lot": "Sistema de manejo en corral seco",
+    "dry lot": "Sistema de manejo en corral seco",
     "uncovered_anaerobic_lagoon": "Laguna anaerobia descubierta",
+    "in-vessel composting": "Compostaje en sistema cerrado",
     "composting_invessel": "Compostaje en sistema cerrado",
+    "solid storage": "Almacenamiento sólido",
     "solid_storage": "Almacenamiento sólido",
+    "liquid slurry": "Sistema líquido tipo purín",
     "liquid_slurry": "Sistema líquido tipo purín",
+    "aerobic treatment": "Tratamiento aeróbico",
     "aerobic_treatment": "Tratamiento aeróbico",
     "composting_intensive": "Compostaje intensivo",
     "composting_pasive": "Compostaje pasivo",
@@ -29,6 +35,48 @@ ACADEMIC_LABELS = {
     "escenario_con_mayor_impacto": "Escenario con mayor impacto",
     "fuente_dato": "Fuente metodológica",
     "Factor hardcodeado auditado": "Factor metodológico pendiente de referencia",
+    "impact category": "Categoría de impacto",
+    "stage name": "Etapa del sistema",
+    "factor type": "Tipo de factor",
+    "total result": "Resultado total",
+    "absolute difference": "Diferencia absoluta",
+    "percentage difference": "Diferencia porcentual",
+    "highest impact scenario": "Escenario con mayor impacto",
+    "global warming": "Calentamiento global",
+    "eutrophication": "Eutrofización",
+    "fresh manure": "Estiércol fresco",
+    "precomposted manure": "Estiércol precompostado",
+    "green waters": "Aguas verdes",
+    "green water": "Aguas verdes",
+    "wash water": "Agua de lavado",
+    "pasture field application": "Aplicación en campo de pastoreo",
+    "field application": "Aplicación en campo",
+    "slurries": "Purines",
+    "slurry": "Purín",
+    "dry matter": "Materia seca",
+    "volatile solids": "Sólidos volátiles",
+    "organic carbon": "Carbono orgánico",
+    "emissions": "Emisiones estimadas",
+    "emission": "Emisión estimada",
+    "measured": "Factor medido",
+    "calculated": "Calculado",
+    "substance": "Sustancia",
+    "compound": "Compuesto",
+    "scenario": "Escenario",
+    "category": "Categoría",
+    "source": "Fuente",
+    "units": "Unidades",
+    "unit": "Unidad",
+    "value": "Valor",
+    "stage": "Etapa del sistema",
+    "annual": "Anual",
+    "average": "Promedio",
+    "fraction": "Fracción",
+    "moisture": "Humedad",
+    "nitrogen": "Nitrógeno",
+    "manure": "Estiércol",
+    "dung": "Boñiga",
+    "ash": "Cenizas",
 }
 
 
@@ -56,7 +104,12 @@ def clean_academic_label(value: object) -> str:
     for internal, academic in sorted(
         ACADEMIC_LABELS.items(), key=lambda item: len(item[0]), reverse=True
     ):
-        text = text.replace(internal, academic)
+        text = re.sub(
+            rf"(?<![\w]){re.escape(internal)}(?![\w])",
+            lambda _match, replacement=academic: replacement,
+            text,
+            flags=re.IGNORECASE,
+        )
     if "_" in text:
         text = re.sub(r"_+", " ", text)
         text = re.sub(r"\s+", " ", text).strip()

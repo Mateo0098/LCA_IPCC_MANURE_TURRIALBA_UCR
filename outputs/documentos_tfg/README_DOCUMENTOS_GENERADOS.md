@@ -7,6 +7,7 @@
 - `README_DOCUMENTOS_GENERADOS.md`
 - `reporte_validacion_documentos.md`
 - `reporte_formato_master.md`
+- `reporte_relacion_apendices.md`
 
 ## 2. Scripts usados
 
@@ -68,6 +69,7 @@ Figuras complementarias en apéndices:
 - Unidades anuales escritas con `año`, por ejemplo `kg/año` y `kg CO₂-eq/año`.
 - Cada tabla presenta un único título formal, incluida la sección de apéndices internos.
 - Los títulos formales de las figuras se ubican encima de cada imagen.
+- Las imágenes de las figuras no contienen títulos internos redundantes.
 
 ## 7. Tablas y figuras incluidas en el cuerpo
 

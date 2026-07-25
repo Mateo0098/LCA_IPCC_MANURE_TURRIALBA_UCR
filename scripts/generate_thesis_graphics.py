@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from academic_text_utils import clean_academic_label
+
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 TABLE_DIR = BASE_DIR / "outputs" / "tablas_tesis"
@@ -48,7 +50,7 @@ def style_for(value: object, index: int = 0) -> dict[str, str]:
 
 
 def clean_label(value: object, width: int = 24) -> str:
-    text = str(value)
+    text = clean_academic_label(value)
     wrapped_lines = []
     for line in text.splitlines() or [""]:
         line = line.strip()
@@ -137,7 +139,6 @@ def grouped_bar(
     x_col: str,
     group_col: str,
     value_col: str,
-    title: str,
     ylabel: str,
     filename: str,
     x_width: int = 24,
@@ -157,7 +158,9 @@ def grouped_bar(
 
     for i, (offset, group) in enumerate(zip(offsets, groups)):
         style = style_for(group, i)
-        legend_label = f"{group_label_prefix} {group}" if group_label_prefix else str(group)
+        legend_label = clean_academic_label(
+            f"{group_label_prefix} {group}" if group_label_prefix else group
+        )
         ax.bar(
             x + offset,
             pivot[group].values,
@@ -169,8 +172,7 @@ def grouped_bar(
             hatch=style["hatch"],
         )
 
-    ax.set_title(title)
-    ax.set_ylabel(ylabel)
+    ax.set_ylabel(clean_academic_label(ylabel))
     ax.set_xticks(x)
     apply_x_tick_labels(ax, x_labels)
     ax.legend(frameon=False)
@@ -183,7 +185,6 @@ def simple_bar(
     df: pd.DataFrame,
     x_col: str,
     value_col: str,
-    title: str,
     ylabel: str,
     filename: str,
     color_col: str | None = None,
@@ -206,8 +207,7 @@ def simple_bar(
     for bar, hatch in zip(bars, hatches):
         bar.set_hatch(hatch)
 
-    ax.set_title(title)
-    ax.set_ylabel(ylabel)
+    ax.set_ylabel(clean_academic_label(ylabel))
     ax.set_xticks(x)
     apply_x_tick_labels(ax, x_labels)
     ax.grid(axis="y", color="#d9d9d9", linewidth=0.7)
@@ -224,7 +224,6 @@ def plot_sample_characterization(readme: list[dict[str, str]]) -> None:
         (
             ["Humedad", "Materia seca"],
             "% masa humeda",
-            "Caracterizacion de muestras: humedad y materia seca",
             "Porcentaje de masa humeda (%)",
             "fig_01_caracterizacion_humedad_materia_seca",
             "Compara humedad y materia seca promedio por tipo de muestra.",
@@ -232,7 +231,6 @@ def plot_sample_characterization(readme: list[dict[str, str]]) -> None:
         (
             ["Solidos volatiles", "Cenizas"],
             "% base seca",
-            "Caracterizacion de muestras: solidos volatiles y cenizas",
             "Porcentaje en base seca (%)",
             "fig_02_caracterizacion_solidos_volatiles_cenizas",
             "Compara solidos volatiles y cenizas por tipo de muestra.",
@@ -240,21 +238,19 @@ def plot_sample_characterization(readme: list[dict[str, str]]) -> None:
         (
             ["Nitrogeno total"],
             "% N total",
-            "Caracterizacion de muestras: nitrogeno total",
             "Nitrogeno total (%)",
             "fig_03_caracterizacion_nitrogeno_total",
             "Presenta nitrogeno total promedio por tipo de muestra.",
         ),
     ]
 
-    for variables, unit, title, ylabel, filename, description in specs:
+    for variables, unit, ylabel, filename, description in specs:
         subset = df[df["variable"].isin(variables) & (df["unidad"] == unit)].copy()
         grouped_bar(
             subset,
             x_col="tipo_muestra",
             group_col="variable",
             value_col="valor",
-            title=title,
             ylabel=ylabel,
             filename=filename,
             x_width=18,
@@ -278,8 +274,7 @@ def plot_inventory_flows(readme: list[dict[str, str]]) -> None:
         mass.sort_values(["escenario", "etapa"]),
         x_col="etiqueta_etapa",
         value_col="valor",
-        title="Inventario: masa equivalente total por escenario y proceso",
-        ylabel="Masa equivalente total (kg eq/ano)",
+        ylabel="Masa equivalente total (kg eq/año)",
         filename="fig_04_flujos_masa_equivalente_total",
         color_col="escenario",
         x_width=30,
@@ -334,14 +329,12 @@ def plot_inventory_flows(readme: list[dict[str, str]]) -> None:
                 hatch=hatches[i % len(hatches)],
             )
             bottom += pivot[col].values
-        ax.set_title(f"Componentes del inventario ({unit})")
-        ax.set_ylabel(unit)
+        ax.set_ylabel(clean_academic_label(unit))
         ax.set_xticks(x)
         apply_x_tick_labels(ax, formatted_labels(pivot.index, 30))
         ax.grid(axis="y", color="#d9d9d9", linewidth=0.7)
         ax.set_axisbelow(True)
         ax.legend(frameon=False)
-    fig.suptitle("Inventario: distribucion de flujos por proceso", y=1.01)
     finish_figure(fig, "fig_05_flujos_distribucion_componentes")
     readme.append(
         {
@@ -357,13 +350,6 @@ def plot_inventory_flows(readme: list[dict[str, str]]) -> None:
 def plot_emissions(readme: list[dict[str, str]]) -> None:
     df = read_table("emisiones")
     order = ["CH4", "N2O", "NH3", "NO3", "CO2"]
-    names = {
-        "CH4": "metano",
-        "N2O": "oxido nitroso",
-        "NH3": "amoniaco",
-        "NO3": "nitrato",
-        "CO2": "dioxido de carbono",
-    }
     for i, substance in enumerate(order, start=6):
         subset = df[df["sustancia"] == substance].copy()
         if subset.empty:
@@ -381,7 +367,6 @@ def plot_emissions(readme: list[dict[str, str]]) -> None:
             x_col="etiqueta_etapa",
             group_col="escenario",
             value_col="valor",
-            title=f"Emisiones de {names[substance]} por proceso y escenario",
             ylabel=unit,
             filename=filename,
             x_width=30,
@@ -420,7 +405,6 @@ def plot_impacts_by_stage(readme: list[dict[str, str]]) -> None:
             x_col="etiqueta_etapa",
             group_col="escenario",
             value_col="resultado_equivalente",
-            title=f"{category} por proceso y escenario",
             ylabel=unit,
             filename=filename,
             x_width=30,
@@ -460,7 +444,6 @@ def plot_scenario_comparison(readme: list[dict[str, str]]) -> None:
             subset.sort_values("escenario"),
             x_col="escenario_label",
             value_col="resultado_total",
-            title=f"Impacto total de {category.lower()}: escenarios A y B",
             ylabel=unit,
             filename=filename,
             color_col="escenario",
@@ -481,7 +464,6 @@ def plot_scenario_comparison(readme: list[dict[str, str]]) -> None:
         pct,
         x_col="categoria_impacto",
         value_col="diferencia_porcentual_B_vs_A",
-        title="Diferencia porcentual del escenario B respecto al A",
         ylabel="Diferencia B respecto a A (%)",
         filename="fig_15_comparacion_diferencia_porcentual",
         x_width=18,
@@ -502,6 +484,7 @@ def write_readme(rows: list[dict[str, str]]) -> None:
         "# Graficos finales para tesis",
         "",
         "Todos los graficos fueron generados exclusivamente a partir de las tablas finales validadas en `outputs/tablas_tesis/` indicadas en cada registro.",
+        "Las imagenes no incluyen titulos internos; el titulo formal se incorpora como caption en los documentos Word.",
         "",
         "| Archivo | Tabla fuente | Que muestra | Seccion recomendada | Apendice relacionado |",
         "|---|---|---|---|---|",

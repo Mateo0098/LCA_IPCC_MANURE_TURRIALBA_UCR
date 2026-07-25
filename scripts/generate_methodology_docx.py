@@ -556,6 +556,7 @@ def build_document() -> None:
     add_paragraphs(doc, [
         "Los datos obtenidos fueron organizados de acuerdo con el escenario de manejo, la etapa del sistema, el tipo de material y la variable medida. Esta organización permitió mantener la trazabilidad entre las mediciones de laboratorio, los flujos del inventario y las ecuaciones de estimación de emisiones.",
         "Posteriormente, las variables de laboratorio fueron transformadas en fracciones o masas equivalentes según la unidad requerida por cada ecuación. Los parámetros principales empleados en este proceso se presentan en la Tabla 3.",
+        "La información completa de los parámetros utilizados en el modelo se presenta en el Apéndice interno A, Parámetros completos del modelo ACV.",
     ])
     add_dataframe_table(doc, "Tabla 3. Parámetros principales del modelo de estimación de emisiones.", format_df(parameter_long_summary(), decimals=4))
 
@@ -573,6 +574,7 @@ def build_document() -> None:
     add_paragraphs(doc, [
         "El nitrógeno total reportado en porcentaje fue convertido a fracción másica antes de emplearse en las ecuaciones de estimación de emisiones. Esta conversión permitió expresar el contenido de nitrógeno en kg N/kg de muestra.",
         "La masa de nitrógeno asociada a cada flujo se estimó multiplicando la masa del flujo por la fracción másica de nitrógeno correspondiente.",
+        "La definición académica de las variables empleadas en esta sección y en las demás ecuaciones se reúne en el Apéndice interno C, Diccionario de variables metodológicas.",
     ])
     add_latex_equation(doc, r"n_{\mathrm{ex,fraction}} = \frac{n_{\mathrm{ex,pct}}}{100}", ["Donde: n_ex,pct = nitrógeno total reportado en porcentaje, %; n_ex,fraction = fracción másica de nitrógeno, kg N/kg muestra."])
     add_latex_equation(doc, r"N_{\mathrm{total}} = m_{\mathrm{flujo}} \times n_{\mathrm{ex,fraction}}", ["Donde: N_total = masa de nitrógeno en el flujo, kg N; m_flujo = masa del flujo correspondiente, kg."])
@@ -603,6 +605,7 @@ def build_document() -> None:
     add_paragraphs(doc, [
         "Las ecuaciones IPCC se aplicaron por etapa según el sistema de manejo asignado. Las vías consideradas incluyeron emisiones de CH4 por manejo de estiércol, N2O directo, pérdidas por volatilización y lixiviación, N2O indirecto y emisiones asociadas con suelos gestionados.",
         "La etapa A2: Lombricompostaje se trató como caso especial cuando la estimación se basó en factores medidos. En los demás casos, las emisiones se estimaron con los factores de manejo y parámetros descritos en la Tabla 3.",
+        "Los factores de emisión y caracterización empleados en estas estimaciones se detallan en el Apéndice interno B, Factores de emisión y caracterización.",
     ])
 
     doc.add_heading("18. Estimación de emisiones", level=2)

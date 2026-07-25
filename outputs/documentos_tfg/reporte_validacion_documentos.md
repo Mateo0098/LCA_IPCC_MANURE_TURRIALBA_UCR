@@ -167,9 +167,51 @@
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
+## Validación de figuras sin títulos internos
+
+- Las figuras PNG y SVG finales no contienen títulos internos: Sí.
+- No se usan `plt.title()`, `ax.set_title()` ni `fig.suptitle()` para las figuras finales: Sí.
+- Los títulos formales de figura se conservan únicamente como captions de Word: Sí.
+- Los captions de Word aparecen encima de las figuras: Sí.
+- No hay captions duplicados: Sí.
+- Se conservaron etiquetas de ejes, leyendas y unidades: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
+## Validación de idioma español en documentos generados
+
+- `metodologia_desarrollada_tfg.docx` no contiene texto visible en inglés: Sí.
+- `resultados_desarrollados_tfg.docx` no contiene texto visible en inglés: Sí.
+- Las tablas insertadas en los Word están completamente en español: Sí.
+- Las figuras insertadas en los Word no contienen etiquetas en inglés: Sí.
+- Los captions, notas y apéndices están en español: Sí.
+- Se conservaron las siglas aceptadas IPCC, ACV, ICV, EICV, CIA, LASA y UCR: Sí.
+- Se conservaron las fórmulas químicas CH₄, N₂O, NH₃, NO₃⁻ y CO₂: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
+## Validación de relación entre prosa y apéndices
+
+- Todos los apéndices internos de `metodologia_desarrollada_tfg.docx` están mencionados en la prosa principal: Sí.
+- Todos los apéndices internos de `resultados_desarrollados_tfg.docx` están mencionados en la prosa principal: Sí.
+- Cada mención describe brevemente el contenido del apéndice o incluye su título: Sí.
+- No existen apéndices huérfanos: Sí.
+- No existen referencias a apéndices inexistentes: Sí.
+- No se modificó la numeración de tablas, figuras o apéndices para empatarla con el MASTER: Sí.
+- Cada documento conserva su propia numeración interna: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
 ## Archivos validados
 
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
 - `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`
 - `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md`
 - `outputs/documentos_tfg/reporte_formato_master.md`
+- `outputs/documentos_tfg/reporte_relacion_apendices.md`

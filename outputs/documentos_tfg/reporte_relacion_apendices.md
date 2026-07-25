@@ -1,0 +1,26 @@
+# Reporte de relación entre prosa y apéndices
+
+| Documento | Apéndice | Título del apéndice | Sección donde se menciona | Texto breve de la mención | Estado |
+|---|---|---|---|---|---|
+| metodologia_desarrollada_tfg.docx | A | Parámetros completos del modelo ACV | 10. Organización y procesamiento de datos | La información completa de los parámetros utilizados en el modelo se presenta en el Apéndice interno A, Parámetros completos del modelo ACV. | Validado |
+| metodologia_desarrollada_tfg.docx | B | Factores de emisión y caracterización | 17. Aplicación de ecuaciones IPCC | Los factores de emisión y caracterización empleados en estas estimaciones se detallan en el Apéndice interno B, Factores de emisión y caracterización. | Validado |
+| metodologia_desarrollada_tfg.docx | C | Diccionario de variables metodológicas | 13. Procesamiento de nitrógeno total | La definición académica de las variables empleadas en esta sección y en las demás ecuaciones se reúne en el Apéndice interno C, Diccionario de variables metodológicas. | Validado |
+| resultados_desarrollados_tfg.docx | R1 | Caracterización completa de muestras | 1. Caracterización de las muestras analizadas | La Tabla R1 del bloque de apéndices internos, Caracterización completa de muestras, presenta la desagregación de los resultados fisicoquímicos utilizados en esta sección. | Validado |
+| resultados_desarrollados_tfg.docx | R2 | Flujos completos del inventario | 2. Flujos del inventario de ciclo de vida | La Tabla R2 del bloque de apéndices internos, Flujos completos del inventario, contiene la desagregación de los flujos empleados para construir el ICV. | Validado |
+| resultados_desarrollados_tfg.docx | R3 | Parámetros completos del modelo ACV | 3. Parámetros utilizados en el modelo ACV | La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados. | Validado |
+| resultados_desarrollados_tfg.docx | R4 | Factores completos de emisión y caracterización | 3. Parámetros utilizados en el modelo ACV | La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados. | Validado |
+| resultados_desarrollados_tfg.docx | R5 | Emisiones completas por etapa | 4. Emisiones estimadas por etapa y escenario | La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios. | Validado |
+| resultados_desarrollados_tfg.docx | R6 | Impactos completos por etapa | 5. Impactos ambientales por etapa | La Tabla R6 del bloque de apéndices internos, Impactos completos por etapa, presenta los resultados desagregados por categoría de impacto. | Validado |
+| resultados_desarrollados_tfg.docx | R7 | Impactos totales completos por escenario | 6. Impactos totales por escenario | La Tabla R7 del bloque de apéndices internos, Impactos totales completos por escenario, presenta el detalle de la agregación utilizada en esta comparación. | Validado |
+| resultados_desarrollados_tfg.docx | R8 | Comparación completa de escenarios | 7. Comparación entre escenarios | La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente. | Validado |
+| resultados_desarrollados_tfg.docx | R9 | Figuras complementarias | 4. Emisiones estimadas por etapa y escenario | La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios. | Validado |
+| resultados_desarrollados_tfg.docx | R10 | Correspondencia entre tablas, figuras y archivos fuente | 7. Comparación entre escenarios | La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente. | Validado |
+
+## Confirmaciones
+
+- Todos los apéndices de metodología están relacionados con la prosa principal: Sí.
+- Todos los apéndices de resultados están relacionados con la prosa principal: Sí.
+- La numeración propia de cada documento se conservó; no se sincronizó con el MASTER.
+- No se modificaron tablas, figuras, ecuaciones, valores numéricos, cálculos ni resultados.
+- El documento maestro protegido no fue modificado: Sí.
+- Hash SHA-256 del documento maestro: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.

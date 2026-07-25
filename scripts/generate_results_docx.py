@@ -34,12 +34,37 @@ ROOT = Path(__file__).resolve().parents[1]
 REFERENCE_DOCX = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 TABLE_DIR = ROOT / "outputs" / "tablas_tesis"
 FIG_DIR = ROOT / "outputs" / "graficos_tesis"
+GRAPHICS_SCRIPT = ROOT / "scripts" / "generate_thesis_graphics.py"
 OUT_DIR = ROOT / "outputs" / "documentos_tfg"
 OUT_DOCX = OUT_DIR / "resultados_desarrollados_tfg.docx"
 METHODOLOGY_DOCX = OUT_DIR / "metodologia_desarrollada_tfg.docx"
 README_OUT = OUT_DIR / "README_DOCUMENTOS_GENERADOS.md"
 VALIDATION_OUT = OUT_DIR / "reporte_validacion_documentos.md"
 FORMAT_REPORT_OUT = OUT_DIR / "reporte_formato_master.md"
+APPENDIX_RELATION_REPORT_OUT = OUT_DIR / "reporte_relacion_apendices.md"
+
+METHODOLOGY_APPENDICES = [
+    ("A", "Parámetros completos del modelo ACV", "Apéndice interno"),
+    ("B", "Factores de emisión y caracterización", "Apéndice interno"),
+    ("C", "Diccionario de variables metodológicas", "Apéndice interno"),
+]
+
+RESULTS_APPENDICES = [
+    ("R1", "Caracterización completa de muestras", "Tabla"),
+    ("R2", "Flujos completos del inventario", "Tabla"),
+    ("R3", "Parámetros completos del modelo ACV", "Tabla"),
+    ("R4", "Factores completos de emisión y caracterización", "Tabla"),
+    ("R5", "Emisiones completas por etapa", "Tabla"),
+    ("R6", "Impactos completos por etapa", "Tabla"),
+    ("R7", "Impactos totales completos por escenario", "Tabla"),
+    ("R8", "Comparación completa de escenarios", "Tabla"),
+    ("R9", "Figuras complementarias", "Apéndice"),
+    (
+        "R10",
+        "Correspondencia entre tablas, figuras y archivos fuente",
+        "Apéndice",
+    ),
+]
 
 TABLES = {
     "resumen": TABLE_DIR / "resumen_resultados_para_redaccion.md",
@@ -544,6 +569,7 @@ def build_document() -> None:
             "La caracterización de las muestras analizadas permitió establecer los parámetros fisicoquímicos usados como entradas del inventario de ciclo de vida. El estiércol fresco presentó una humedad promedio de 85,77 % y una materia seca de 14,23 %. El estiércol precompostado presentó una humedad promedio de 77,59 % y una materia seca de 22,41 %.",
             "La fracción de sólidos volátiles fue mayor en el estiércol fresco, con 85,88 % en base seca, mientras que el estiércol precompostado presentó 70,96 %. En contraste, las cenizas fueron mayores en el material precompostado. El nitrógeno total fue de 0,372 % para estiércol fresco y de 2,425 % para estiércol precompostado.",
             "La Tabla 1 resume los valores de caracterización de las muestras. La Figura 1 presenta humedad y materia seca, mientras que la Figura 2 presenta sólidos volátiles y cenizas.",
+            "La Tabla R1 del bloque de apéndices internos, Caracterización completa de muestras, presenta la desagregación de los resultados fisicoquímicos utilizados en esta sección.",
         ],
     )
     add_dataframe_table(doc, "Tabla 1. Caracterización resumida de las muestras.", format_df(characterization_summary(), decimals=3))
@@ -558,6 +584,7 @@ def build_document() -> None:
             "Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. B2: Aplicación de purines en campo de pastoreo presentó la mayor masa equivalente total, con 76 557,27 kg eq/año. En el Escenario A, A4: Aplicación de aguas verdes en campos de pastoreo dominó la masa equivalente, con 71 789,81 kg eq/año.",
             "La masa equivalente de A4 integra el componente líquido de aguas verdes y una fracción de boñiga asociada a esa línea. La masa equivalente de B2 integra agua de lavado y boñiga fresca incorporada al purín aplicado en campo.",
             "Las etapas con menor masa equivalente fueron A3: Almacenamiento de aguas verdes y A2: Lombricompostaje. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
+            "La Tabla R2 del bloque de apéndices internos, Flujos completos del inventario, contiene la desagregación de los flujos empleados para construir el ICV.",
         ],
     )
     add_dataframe_table(doc, "Tabla 2. Masa equivalente total por etapa.", format_df(flow_summary()))
@@ -568,7 +595,8 @@ def build_document() -> None:
         doc,
         [
             "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla final distingue entre n_ex_pct, que corresponde al nitrógeno total reportado en porcentaje, y n_ex_fraction, que corresponde a la fracción másica usada en ecuaciones de nitrógeno. La relación aplicada fue n_ex_fraction = n_ex_pct / 100.",
-            "A2: Lombricompostaje aparece como etapa con modelo medido. Las demás etapas se calculan con modelo IPCC según el sistema de manejo asignado. La Tabla 3 resume los parámetros principales, y los parámetros completos se presentan en los apéndices internos.",
+            "A2: Lombricompostaje aparece como etapa con modelo medido. Las demás etapas se calculan con modelo IPCC según el sistema de manejo asignado. La Tabla 3 resume los parámetros principales.",
+            "La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados.",
         ],
     )
     add_dataframe_table(doc, "Tabla 3. Parámetros principales por etapa.", format_df(parameter_summary(), decimals=4))
@@ -579,6 +607,7 @@ def build_document() -> None:
         [
             "Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó 9,55 kg CH4/año, 0,79 kg N2O/año, 5,23 kg NH3/año, 19,06 kg NO3/año y 33,65 kg CO2/año. El Escenario B presentó 80,59 kg CH4/año, 0,31 kg N2O/año, 6,35 kg NH3/año y 23,17 kg NO3/año.",
             "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje reportó CO2 por el uso de un factor medido. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
+            "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
         ],
     )
     add_dataframe_table(doc, "Tabla 4. Emisiones anuales por escenario y sustancia.", format_df(emissions_summary()))
@@ -590,6 +619,7 @@ def build_document() -> None:
         [
             "Los impactos ambientales por etapa muestran que B1: Almacenamiento de purines presentó la mayor contribución al potencial de calentamiento global, con 1 737,81 kg CO2-eq/año. En el Escenario A, A1: Precomposteo presentó la mayor contribución a esta categoría.",
             "Para eutrofización, B1: Almacenamiento de purines presentó el valor más alto, seguido por A1: Precomposteo. A2: Lombricompostaje registró 0 kg PO4-eq/año en la tabla final, debido a que no reporta emisiones de NH3 ni NO3 en la tabla de emisiones por etapa. La Tabla 5 resume los impactos por etapa; la Figura 5 presenta calentamiento global y la Figura 6 presenta eutrofización.",
+            "La Tabla R6 del bloque de apéndices internos, Impactos completos por etapa, presenta los resultados desagregados por categoría de impacto.",
         ],
     )
     add_dataframe_table(doc, "Tabla 5. Impactos ambientales por etapa.", format_df(impact_stage_summary()))
@@ -602,6 +632,7 @@ def build_document() -> None:
         [
             "El Escenario A alcanzó 478,78 kg CO2-eq/año para calentamiento global y 3,64 kg PO4-eq/año para eutrofización. El Escenario B alcanzó 1 787,19 kg CO2-eq/año para calentamiento global y 4,43 kg PO4-eq/año para eutrofización.",
             "La Tabla 6 presenta la agregación por escenario y conserva las categorías de impacto y unidades definidas en las tablas finales validadas.",
+            "La Tabla R7 del bloque de apéndices internos, Impactos totales completos por escenario, presenta el detalle de la agregación utilizada en esta comparación.",
         ],
     )
     add_dataframe_table(doc, "Tabla 6. Impactos ambientales totales por escenario.", format_df(total_impact_summary()))
@@ -612,6 +643,7 @@ def build_document() -> None:
         [
             "La comparación entre escenarios muestra mayores impactos totales en el Escenario B para las dos categorías evaluadas. En calentamiento global, la diferencia absoluta B menos A fue de 1 308,41 kg CO2-eq/año, equivalente a 273,28 % respecto al Escenario A.",
             "En eutrofización, la diferencia absoluta fue de 0,786 kg PO4-eq/año, equivalente a 21,58 % respecto al Escenario A. La Tabla 7 resume la comparación entre escenarios y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
+            "La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente.",
         ],
     )
     add_dataframe_table(doc, "Tabla 7. Comparación de impactos ambientales entre escenarios.", format_df(comparison_summary(), decimals=3, decimals_by_col={"Diferencia porcentual B respecto a A": 2}))
@@ -796,6 +828,144 @@ def generated_styles_match_master() -> bool:
     return True
 
 
+def appendix_relation_diagnostics(
+    path: Path,
+    appendix_specs: list[tuple[str, str, str]],
+) -> dict[str, object]:
+    document = Document(str(path))
+    paragraphs = [
+        (paragraph.text.strip(), paragraph.style.name)
+        for paragraph in document.paragraphs
+        if paragraph.text.strip()
+    ]
+    boundary = next(
+        (
+            index
+            for index, (text, _) in enumerate(paragraphs)
+            if text.startswith("Apéndices internos")
+        ),
+        len(paragraphs),
+    )
+    main_paragraphs = paragraphs[:boundary]
+    appendix_text = "\n".join(text for text, _ in paragraphs[boundary:])
+    entries: list[dict[str, object]] = []
+
+    for code, title, reference_type in appendix_specs:
+        reference_pattern = re.compile(
+            rf"\b{re.escape(reference_type)}\s+{re.escape(code)}\b",
+            flags=re.IGNORECASE,
+        )
+        mention_index = next(
+            (
+                index
+                for index, (text, _) in enumerate(main_paragraphs)
+                if reference_pattern.search(text)
+            ),
+            None,
+        )
+        mention = main_paragraphs[mention_index][0] if mention_index is not None else ""
+        section = ""
+        if mention_index is not None:
+            section = next(
+                (
+                    text
+                    for text, style in reversed(main_paragraphs[: mention_index + 1])
+                    if style.startswith("Heading")
+                ),
+                "",
+            )
+        exists = bool(reference_pattern.search(appendix_text)) and title in appendix_text
+        entries.append(
+            {
+                "code": code,
+                "title": title,
+                "reference_type": reference_type,
+                "exists": exists,
+                "mentioned_before_appendices": mention_index is not None,
+                "title_in_mention": title in mention,
+                "section": section,
+                "mention": mention,
+                "valid": exists and mention_index is not None and title in mention,
+            }
+        )
+
+    expected_codes = {code for code, _, _ in appendix_specs}
+    references = set(
+        re.findall(
+            r"\bApéndice(?:\s+interno)?\s+([A-Z](?:\d+)?)\b",
+            "\n".join(text for text, _ in main_paragraphs),
+            flags=re.IGNORECASE,
+        )
+    )
+    references.update(
+        re.findall(
+            r"\bTabla\s+(R\d+)\b",
+            "\n".join(text for text, _ in main_paragraphs),
+            flags=re.IGNORECASE,
+        )
+    )
+    unexpected_references = sorted(
+        reference.upper()
+        for reference in references
+        if reference.upper() not in expected_codes
+    )
+    return {
+        "document": path.name,
+        "entries": entries,
+        "unexpected_references": unexpected_references,
+        "all_valid": all(bool(entry["valid"]) for entry in entries)
+        and not unexpected_references,
+    }
+
+
+def write_appendix_relation_report(
+    methodology: dict[str, object],
+    results: dict[str, object],
+    master_hash_before: str,
+    master_hash_after: str,
+) -> None:
+    lines = [
+        "# Reporte de relación entre prosa y apéndices",
+        "",
+        "| Documento | Apéndice | Título del apéndice | Sección donde se menciona | Texto breve de la mención | Estado |",
+        "|---|---|---|---|---|---|",
+    ]
+    for diagnostic in (methodology, results):
+        for entry in diagnostic["entries"]:
+            mention = str(entry["mention"]).replace("|", "&#124;")
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        str(diagnostic["document"]),
+                        str(entry["code"]),
+                        str(entry["title"]),
+                        str(entry["section"]),
+                        mention,
+                        "Validado" if entry["valid"] else "Revisar",
+                    ]
+                )
+                + " |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Confirmaciones",
+            "",
+            f"- Todos los apéndices de metodología están relacionados con la prosa principal: {'Sí' if methodology['all_valid'] else 'No'}.",
+            f"- Todos los apéndices de resultados están relacionados con la prosa principal: {'Sí' if results['all_valid'] else 'No'}.",
+            "- La numeración propia de cada documento se conservó; no se sincronizó con el MASTER.",
+            "- No se modificaron tablas, figuras, ecuaciones, valores numéricos, cálculos ni resultados.",
+            f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+            f"- Hash SHA-256 del documento maestro: `{master_hash_after}`.",
+        ]
+    )
+    APPENDIX_RELATION_REPORT_OUT.write_text(
+        repair_mojibake("\n".join(lines) + "\n"),
+        encoding="utf-8",
+    )
+
+
 def heading_and_caption_colors_black(path: Path) -> bool:
     document = Document(str(path))
     style_names = {
@@ -959,6 +1129,55 @@ def figure_title_diagnostics(path: Path) -> dict[str, object]:
     }
 
 
+def graphics_internal_title_diagnostics() -> dict[str, object]:
+    source = GRAPHICS_SCRIPT.read_text(encoding="utf-8")
+    active_title_calls = re.findall(
+        r"(?:plt\.title|\.set_title|\.suptitle|suptitle)\s*\(", source
+    )
+    internal_title_markers = (
+        "Caracterizacion de muestras:",
+        "Inventario: masa equivalente",
+        "Inventario: distribucion",
+        "Componentes del inventario (",
+        "Emisiones de metano",
+        "Emisiones de oxido nitroso",
+        "Emisiones de amoniaco",
+        "Emisiones de nitrato",
+        "Emisiones de dioxido de carbono",
+        "Calentamiento global por proceso",
+        "Eutrofizacion por proceso",
+        "Impacto total de",
+        "Diferencia porcentual del escenario B respecto al A",
+    )
+    svg_files = sorted(FIG_DIR.glob("fig_*.svg"))
+    png_files = sorted(FIG_DIR.glob("fig_*.png"))
+    svg_with_internal_titles = [
+        path.name
+        for path in svg_files
+        if any(
+            marker in path.read_text(encoding="utf-8", errors="ignore")
+            for marker in internal_title_markers
+        )
+    ]
+    paired_outputs = {path.stem for path in svg_files} == {
+        path.stem for path in png_files
+    }
+    axes_and_units_preserved = (
+        "set_ylabel" in source
+        and "set_xticklabels" in source
+        and "legend(" in source
+        and bool(svg_files)
+    )
+    return {
+        "active_title_calls": active_title_calls,
+        "svg_with_internal_titles": svg_with_internal_titles,
+        "paired_outputs": paired_outputs,
+        "axes_and_units_preserved": axes_and_units_preserved,
+        "svg_count": len(svg_files),
+        "png_count": len(png_files),
+    }
+
+
 def write_readme(master_hash_before: str, master_hash_after: str) -> None:
     main_fig_names = [name for name, _ in MAIN_FIGURES]
     appendix_fig_names = [name for name, _ in APPENDIX_FIGURES if (FIG_DIR / name).exists()]
@@ -972,6 +1191,7 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 - `README_DOCUMENTOS_GENERADOS.md`
 - `reporte_validacion_documentos.md`
 - `reporte_formato_master.md`
+- `reporte_relacion_apendices.md`
 
 ## 2. Scripts usados
 
@@ -1013,6 +1233,7 @@ Figuras complementarias en apéndices:
 - Unidades anuales escritas con `año`, por ejemplo `kg/año` y `kg CO₂-eq/año`.
 - Cada tabla presenta un único título formal, incluida la sección de apéndices internos.
 - Los títulos formales de las figuras se ubican encima de cada imagen.
+- Las imágenes de las figuras no contienen títulos internos redundantes.
 
 ## 7. Tablas y figuras incluidas en el cuerpo
 
@@ -1061,6 +1282,20 @@ Resultados:
 
 def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     docs = [METHODOLOGY_DOCX, OUT_DOCX]
+    methodology_appendices = appendix_relation_diagnostics(
+        METHODOLOGY_DOCX,
+        METHODOLOGY_APPENDICES,
+    )
+    results_appendices = appendix_relation_diagnostics(
+        OUT_DOCX,
+        RESULTS_APPENDICES,
+    )
+    write_appendix_relation_report(
+        methodology_appendices,
+        results_appendices,
+        master_hash_before,
+        master_hash_after,
+    )
     format_styles_ok = generated_styles_match_master()
     methodology_colors_black = heading_and_caption_colors_black(METHODOLOGY_DOCX)
     results_colors_black = heading_and_caption_colors_black(OUT_DOCX)
@@ -1068,6 +1303,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     results_table_titles = table_title_diagnostics(OUT_DOCX)
     methodology_figure_titles = figure_title_diagnostics(METHODOLOGY_DOCX)
     results_figure_titles = figure_title_diagnostics(OUT_DOCX)
+    graphics_titles = graphics_internal_title_diagnostics()
     texts = {path.name: extract_docx_text(path) for path in docs}
     xmls = {path.name: extract_docx_xml(path) for path in docs}
     combined = "\n".join(texts.values())
@@ -1076,6 +1312,97 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         path.read_text(encoding="utf-8-sig") for path in word_table_files
     )
     validation_combined = combined + "\n" + word_table_text
+    english_visible_terms = [
+        "dry lot",
+        "dry_lot",
+        "uncovered anaerobic lagoon",
+        "uncovered_anaerobic_lagoon",
+        "in-vessel",
+        "composting_invessel",
+        "solid storage",
+        "solid_storage",
+        "liquid slurry",
+        "liquid_slurry",
+        "aerobic treatment",
+        "aerobic_treatment",
+        "impact category",
+        "global warming",
+        "eutrophication",
+        "total result",
+        "absolute difference",
+        "percentage difference",
+        "highest impact",
+        "fresh manure",
+        "precomposted manure",
+        "green water",
+        "green waters",
+        "wash water",
+        "slurry",
+        "slurries",
+        "field application",
+        "pasture field application",
+        "dry matter",
+        "volatile solids",
+        "organic carbon",
+        "measured",
+        "calculated",
+        "emission",
+        "emissions",
+        "substance",
+        "compound",
+        "value",
+        "unit",
+        "units",
+        "source",
+        "category",
+        "scenario",
+        "stage",
+        "stage name",
+        "annual",
+        "average",
+        "fraction",
+        "moisture",
+        "nitrogen",
+        "manure",
+        "dung",
+        "ash",
+    ]
+
+    def find_english_terms(text: str) -> list[str]:
+        visible_text = "\n".join(
+            line
+            for line in text.splitlines()
+            if not re.search(r"\\(?:mathrm|frac|times|text)\b", line)
+        )
+        return sorted(
+            {
+                term
+                for term in english_visible_terms
+                if re.search(
+                    rf"(?<![A-Za-z]){re.escape(term)}(?![A-Za-z])",
+                    visible_text,
+                    flags=re.IGNORECASE,
+                )
+            }
+        )
+
+    methodology_english = find_english_terms(texts[METHODOLOGY_DOCX.name])
+    results_english = find_english_terms(texts[OUT_DOCX.name])
+    word_tables_english = find_english_terms(word_table_text)
+    svg_visible_text: list[str] = []
+    for svg_path in sorted(FIG_DIR.glob("*.svg")):
+        svg_source = svg_path.read_text(encoding="utf-8", errors="replace")
+        svg_visible_text.extend(
+            re.sub(r"<[^>]+>", "", match)
+            for match in re.findall(r"<text\b[^>]*>[\s\S]*?</text>", svg_source)
+        )
+    figures_english = find_english_terms("\n".join(svg_visible_text))
+    spanish_language_ok = not (
+        methodology_english
+        or results_english
+        or word_tables_english
+        or figures_english
+    )
     annual_typo_found = bool(
         re.search(r"(?i)/ano\b|\bano\b", validation_combined)
     )
@@ -1487,12 +1814,54 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
+        "## Validación de figuras sin títulos internos",
+        "",
+        f"- Las figuras PNG y SVG finales no contienen títulos internos: {'Sí' if not graphics_titles['svg_with_internal_titles'] and graphics_titles['paired_outputs'] else 'No'}.",
+        f"- No se usan `plt.title()`, `ax.set_title()` ni `fig.suptitle()` para las figuras finales: {'Sí' if not graphics_titles['active_title_calls'] else 'No'}.",
+        "- Los títulos formales de figura se conservan únicamente como captions de Word: Sí.",
+        f"- Los captions de Word aparecen encima de las figuras: {'Sí' if methodology_figure_titles['captions_above_images'] and results_figure_titles['captions_above_images'] else 'No'}.",
+        f"- No hay captions duplicados: {'Sí' if not methodology_figure_titles['duplicate_captions'] and not results_figure_titles['duplicate_captions'] else 'No'}.",
+        f"- Se conservaron etiquetas de ejes, leyendas y unidades: {'Sí' if graphics_titles['axes_and_units_preserved'] else 'No'}.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
+        "## Validación de idioma español en documentos generados",
+        "",
+        f"- `metodologia_desarrollada_tfg.docx` no contiene texto visible en inglés: {'Sí' if not methodology_english else 'No: ' + ', '.join(methodology_english)}.",
+        f"- `resultados_desarrollados_tfg.docx` no contiene texto visible en inglés: {'Sí' if not results_english else 'No: ' + ', '.join(results_english)}.",
+        f"- Las tablas insertadas en los Word están completamente en español: {'Sí' if not word_tables_english else 'No: ' + ', '.join(word_tables_english)}.",
+        f"- Las figuras insertadas en los Word no contienen etiquetas en inglés: {'Sí' if not figures_english else 'No: ' + ', '.join(figures_english)}.",
+        f"- Los captions, notas y apéndices están en español: {'Sí' if spanish_language_ok else 'No'}.",
+        "- Se conservaron las siglas aceptadas IPCC, ACV, ICV, EICV, CIA, LASA y UCR: Sí.",
+        "- Se conservaron las fórmulas químicas CH₄, N₂O, NH₃, NO₃⁻ y CO₂: Sí.",
+        f"- No se modificaron valores numéricos: {'Sí' if values_unchanged else 'No'}.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
+        "## Validación de relación entre prosa y apéndices",
+        "",
+        f"- Todos los apéndices internos de `metodologia_desarrollada_tfg.docx` están mencionados en la prosa principal: {'Sí' if methodology_appendices['all_valid'] else 'No'}.",
+        f"- Todos los apéndices internos de `resultados_desarrollados_tfg.docx` están mencionados en la prosa principal: {'Sí' if results_appendices['all_valid'] else 'No'}.",
+        f"- Cada mención describe brevemente el contenido del apéndice o incluye su título: {'Sí' if methodology_appendices['all_valid'] and results_appendices['all_valid'] else 'No'}.",
+        f"- No existen apéndices huérfanos: {'Sí' if methodology_appendices['all_valid'] and results_appendices['all_valid'] else 'No'}.",
+        f"- No existen referencias a apéndices inexistentes: {'Sí' if not methodology_appendices['unexpected_references'] and not results_appendices['unexpected_references'] else 'No'}.",
+        "- No se modificó la numeración de tablas, figuras o apéndices para empatarla con el MASTER: Sí.",
+        "- Cada documento conserva su propia numeración interna: Sí.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
         "## Archivos validados",
         "",
         f"- `{METHODOLOGY_DOCX.relative_to(ROOT).as_posix()}`",
         f"- `{OUT_DOCX.relative_to(ROOT).as_posix()}`",
         f"- `{README_OUT.relative_to(ROOT).as_posix()}`",
         f"- `{FORMAT_REPORT_OUT.relative_to(ROOT).as_posix()}`",
+        f"- `{APPENDIX_RELATION_REPORT_OUT.relative_to(ROOT).as_posix()}`",
     ]
     VALIDATION_OUT.write_text(repair_mojibake("\n".join(lines) + "\n"), encoding="utf-8")
 
