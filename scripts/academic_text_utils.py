@@ -43,8 +43,16 @@ def repair_mojibake(value: str) -> str:
     return value
 
 
+def clean_annual_units(value: object) -> str:
+    """Corrige referencias temporales anuales sin alterar palabras mayores."""
+    text = str(value)
+    text = re.sub(r"/ano\b", "/año", text, flags=re.IGNORECASE)
+    text = re.sub(r"\b(por|al|cada)\s+ano\b", r"\1 año", text, flags=re.IGNORECASE)
+    return text
+
+
 def clean_academic_label(value: object) -> str:
-    text = repair_mojibake(str(value))
+    text = clean_annual_units(repair_mojibake(str(value)))
     for internal, academic in sorted(
         ACADEMIC_LABELS.items(), key=lambda item: len(item[0]), reverse=True
     ):

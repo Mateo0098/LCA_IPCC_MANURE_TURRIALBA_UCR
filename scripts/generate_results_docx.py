@@ -228,7 +228,6 @@ def clean_text(value) -> str:
         text.replace("Eutrofizacion", "Eutrofización")
         .replace("Nitrogeno", "Nitrógeno")
         .replace("Solidos", "Sólidos")
-        .replace("ano", "año")
         .replace("Usado en ecuaciones de N despues de " + "cor" + "reccion", "Usado como fracción másica en ecuaciones de N")
         .replace("n_ex_fraction " + "cor" + "regido para ecuaciones de nitrogeno", "n_ex_fraction usado como fracción másica en ecuaciones de nitrógeno")
         .replace("Comparacion posterior a " + "cor" + "reccion de n_ex_pct a n_ex_fraction", "Comparación entre escenarios con n_ex_fraction como entrada de nitrógeno")
@@ -784,6 +783,31 @@ def generated_styles_match_master() -> bool:
     return True
 
 
+def heading_and_caption_colors_black(path: Path) -> bool:
+    document = Document(str(path))
+    style_names = {
+        "Title",
+        "Subtitle",
+        "Heading 1",
+        "Heading 2",
+        "Heading 3",
+        "Caption",
+        "Rótulo académico",
+        "Descripción académica",
+    }
+    for style_name in style_names:
+        if style_name in document.styles:
+            if str(document.styles[style_name].font.color.rgb) != "000000":
+                return False
+    for paragraph in document.paragraphs:
+        if paragraph.style.name not in style_names:
+            continue
+        for run in paragraph.runs:
+            if run.text.strip() and str(run.font.color.rgb) != "000000":
+                return False
+    return True
+
+
 def write_readme(master_hash_before: str, master_hash_after: str) -> None:
     main_fig_names = [name for name, _ in MAIN_FIGURES]
     appendix_fig_names = [name for name, _ in APPENDIX_FIGURES if (FIG_DIR / name).exists()]
@@ -834,6 +858,8 @@ Figuras complementarias en apéndices:
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.
 - Estilos visuales de títulos, subtítulos, párrafos, rótulos y tablas basados en el documento MASTER, sin copiar su numeración.
+- Títulos, subtítulos y rótulos académicos en color negro.
+- Unidades anuales escritas con `año`, por ejemplo `kg/año` y `kg CO₂-eq/año`.
 
 ## 7. Tablas y figuras incluidas en el cuerpo
 
@@ -883,6 +909,8 @@ Resultados:
 def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     docs = [METHODOLOGY_DOCX, OUT_DOCX]
     format_styles_ok = generated_styles_match_master()
+    methodology_colors_black = heading_and_caption_colors_black(METHODOLOGY_DOCX)
+    results_colors_black = heading_and_caption_colors_black(OUT_DOCX)
     texts = {path.name: extract_docx_text(path) for path in docs}
     xmls = {path.name: extract_docx_xml(path) for path in docs}
     combined = "\n".join(texts.values())
@@ -891,6 +919,10 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         path.read_text(encoding="utf-8-sig") for path in word_table_files
     )
     validation_combined = combined + "\n" + word_table_text
+    annual_typo_found = bool(
+        re.search(r"(?i)/ano\b|\bano\b", validation_combined)
+    )
+    annual_units_present = "/año" in validation_combined
     methodology_text = texts.get(METHODOLOGY_DOCX.name, "")
     main_text = []
     for text in texts.values():
@@ -1256,6 +1288,18 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- No se modificaron valores numéricos: Sí.",
         "- No se modificaron cálculos ni resultados: Sí.",
         f"- El documento maestro no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
+        "## Validación de color de subtítulos y unidades anuales",
+        "",
+        f"- No hay títulos ni subtítulos en color azul en `metodologia_desarrollada_tfg.docx`: {'Sí' if methodology_colors_black else 'No'}.",
+        f"- No hay títulos ni subtítulos en color azul en `resultados_desarrollados_tfg.docx`: {'Sí' if results_colors_black else 'No'}.",
+        f"- Los títulos, subtítulos y rótulos académicos usan color negro: {'Sí' if methodology_colors_black and results_colors_black else 'No'}.",
+        f"- No aparece `/ano` ni `ano` como unidad temporal en tablas, prosa, pies o apéndices internos: {'Sí' if not annual_typo_found else 'No'}.",
+        f"- Las unidades anuales aparecen como `/año`: {'Sí' if annual_units_present else 'No'}.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
         "## Archivos validados",

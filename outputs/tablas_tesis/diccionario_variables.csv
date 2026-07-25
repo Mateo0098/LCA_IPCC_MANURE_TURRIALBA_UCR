@@ -5,10 +5,10 @@ nombre_etapa,Nombre metodologico oficial de la etapa,texto,outputs/tablas_tesis/
 tipo_muestra,Tratamiento o material representado,texto,processed/acv_parametros_escenario_etapa.csv
 n_ex_pct,Nitrogeno total reportado en laboratorio,% N total,processed/acv_parametros_escenario_etapa.csv
 n_ex_fraction,Nitrogeno total como fraccion masica,kg N/kg muestra,Calculado como n_ex_pct/100
-masa_total_kg_eq,Masa equivalente usada para escalar emisiones,kg eq/ano,processed/masa_total_escenario_etapa.csv
+masa_total_kg_eq,Masa equivalente usada para escalar emisiones,kg eq/año,processed/masa_total_escenario_etapa.csv
 valor,Valor numerico de la variable reportada,depende de unidad,Tablas finales
 unidad,Unidad explicita del valor reportado,texto,Tablas finales
 fuente_dato,Archivo o fuente de origen del valor,texto,Tablas finales
 observaciones,Notas metodologicas o advertencias de uso,texto,Tablas finales
 factor_caracterizacion,Factor para convertir emisiones a equivalentes,kg equivalente/kg sustancia,processed/acv_factores_equivalencia.csv
-resultado_equivalente,Resultado de impacto ambiental por sustancia,kg CO2-eq/ano o kg PO4-eq/ano,tabla_07_impactos_por_etapa.csv
+resultado_equivalente,Resultado de impacto ambiental por sustancia,kg CO2-eq/año o kg PO4-eq/año,tabla_07_impactos_por_etapa.csv

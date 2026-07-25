@@ -12,7 +12,20 @@ from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Pt
+from docx.shared import Pt, RGBColor
+
+
+BLACK = RGBColor(0, 0, 0)
+BLACK_TEXT_STYLES = {
+    "Title",
+    "Subtitle",
+    "Heading 1",
+    "Heading 2",
+    "Heading 3",
+    "Caption",
+    "Rótulo académico",
+    "Descripción académica",
+}
 
 
 @dataclass(frozen=True)
@@ -144,6 +157,7 @@ def analyze_master_format(reference_docx: Path) -> MasterFormatProfile:
 def _set_style_font(style, profile: MasterFormatProfile, size_pt: float) -> None:
     style.font.name = profile.font_name
     style.font.size = Pt(size_pt)
+    style.font.color.rgb = BLACK
     style._element.get_or_add_rPr().rFonts.set(qn("w:ascii"), profile.font_name)
     style._element.get_or_add_rPr().rFonts.set(qn("w:hAnsi"), profile.font_name)
     style._element.get_or_add_rPr().rFonts.set(qn("w:eastAsia"), profile.font_name)
@@ -182,6 +196,9 @@ def apply_master_format(document: Document, reference_docx: Path) -> MasterForma
     title.paragraph_format.space_after = Pt(6)
     title.paragraph_format.left_indent = Pt(0)
     title.paragraph_format.first_line_indent = Pt(0)
+
+    for style_name in ("Subtitle", "Caption"):
+        document.styles[style_name].font.color.rgb = BLACK
 
     for style_name in ("Heading 1", "Heading 2", "Heading 3"):
         style = document.styles[style_name]
@@ -282,6 +299,8 @@ def finalize_document_format(
         for run in paragraph.runs:
             if run.font.name != "Cambria Math":
                 run.font.name = profile.font_name
+            if paragraph.style.name in BLACK_TEXT_STYLES:
+                run.font.color.rgb = BLACK
             if paragraph.style.name == "Normal" and run.font.size is None:
                 run.font.size = Pt(profile.body_size_pt)
 

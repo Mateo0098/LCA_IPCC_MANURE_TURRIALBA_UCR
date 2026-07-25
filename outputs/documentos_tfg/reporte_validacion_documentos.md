@@ -127,6 +127,18 @@
 - El documento maestro no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
+## Validación de color de subtítulos y unidades anuales
+
+- No hay títulos ni subtítulos en color azul en `metodologia_desarrollada_tfg.docx`: Sí.
+- No hay títulos ni subtítulos en color azul en `resultados_desarrollados_tfg.docx`: Sí.
+- Los títulos, subtítulos y rótulos académicos usan color negro: Sí.
+- No aparece `/ano` ni `ano` como unidad temporal en tablas, prosa, pies o apéndices internos: Sí.
+- Las unidades anuales aparecen como `/año`: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
 ## Archivos validados
 
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`

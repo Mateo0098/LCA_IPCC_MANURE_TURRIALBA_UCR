@@ -17,7 +17,7 @@ El nitrogeno total reportado en porcentaje se expresa en el modelo como `n_ex_fr
 
 ## 6.2 Flujos del inventario de ciclo de vida
 
-| Escenario | Etapa | Codigo | Nombre de etapa | Masa equivalente total (kg eq/ano) |
+| Escenario | Etapa | Codigo | Nombre de etapa | Masa equivalente total (kg eq/año) |
 |---|---:|---|---|---:|
 | A | 1 | A1 | Etapa 1: Precomposteo | 4767.45683 |
 | A | 2 | A2 | Etapa 2: Lombricompostaje | 1472.39567 |
@@ -61,14 +61,14 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominan
 
 | escenario | categoria_impacto | resultado_total | unidad | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- |
-| A | Calentamiento global | 478.7789018574642 | kg CO2-eq/ano | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| A | Eutrofizacion | 3.639744447840529 | kg PO4-eq/ano | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| B | Calentamiento global | 1787.1927489605807 | kg CO2-eq/ano | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| B | Eutrofizacion | 4.425350819041921 | kg PO4-eq/ano | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Calentamiento global | 478.7789018574642 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Eutrofizacion | 3.639744447840529 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| B | Calentamiento global | 1787.1927489605807 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| B | Eutrofizacion | 4.425350819041921 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 
 ## 6.7 Comparacion entre escenarios
 
 | categoria_impacto | escenario_A | escenario_B | unidad | diferencia_absoluta_B_menos_A | diferencia_porcentual_B_vs_A | escenario_con_mayor_impacto | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Calentamiento global | 478.7789018574642 | 1787.1927489605807 | kg CO2-eq/ano | 1308.4138471031165 | 273.2814336694896 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
-| Eutrofizacion | 3.639744447840529 | 4.425350819041921 | kg PO4-eq/ano | 0.7856063712013923 | 21.584107963060287 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
+| Calentamiento global | 478.7789018574642 | 1787.1927489605807 | kg CO2-eq/año | 1308.4138471031165 | 273.2814336694896 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
+| Eutrofizacion | 3.639744447840529 | 4.425350819041921 | kg PO4-eq/año | 0.7856063712013923 | 21.584107963060287 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |

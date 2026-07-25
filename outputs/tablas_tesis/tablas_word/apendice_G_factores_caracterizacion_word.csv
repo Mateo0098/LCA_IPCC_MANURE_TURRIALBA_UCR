@@ -42,7 +42,7 @@ Factor de caracterizacion,CO₂,Potencial de calentamiento global,1.0,kg CO₂-e
 Factor metodológico pendiente de referencia,,B0 T,0.24,m3 CH₄/kg SV
 Factor metodológico pendiente de referencia,,AWMS,1.0,adimensional
 Factor metodológico pendiente de referencia,,N,1.0,unidad o cabeza equivalente
-Factor metodológico pendiente de referencia,,N cdg,0.0,kg N/ano
+Factor metodológico pendiente de referencia,,N cdg,0.0,kg N/año
 Factor metodológico pendiente de referencia,,EF1,0.006,kg N₂O-N/kg N
 Factor metodológico pendiente de referencia,,EF4,0.014,kg N₂O-N/(kg NH₃-N + NOx-N volatilizado)
 Factor metodológico pendiente de referencia,,EF5,0.011,kg N₂O-N/kg N lixiviado

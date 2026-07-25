@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from academic_text_utils import clean_academic_label
+from academic_text_utils import clean_academic_label, clean_annual_units
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -74,7 +74,12 @@ def _stage_short_name(escenario: object, etapa: object) -> str:
 def _write(df: pd.DataFrame, name: str) -> Path:
     OUTPUTS.mkdir(parents=True, exist_ok=True)
     path = OUTPUTS / name
-    df.to_csv(path, index=False, encoding="utf-8-sig")
+    cleaned = df.copy()
+    for column in cleaned.select_dtypes(include=["object"]).columns:
+        cleaned[column] = cleaned[column].map(
+            lambda value: clean_annual_units(value) if pd.notna(value) else value
+        )
+    cleaned.to_csv(path, index=False, encoding="utf-8-sig")
     return path
 
 
@@ -566,7 +571,7 @@ def resumen_resultados_para_redaccion() -> Path:
         ]
     )
     path = OUTPUTS / "resumen_resultados_para_redaccion.md"
-    path.write_text("\n".join(lines), encoding="utf-8")
+    path.write_text(clean_annual_units("\n".join(lines)), encoding="utf-8")
     return path
 
 
