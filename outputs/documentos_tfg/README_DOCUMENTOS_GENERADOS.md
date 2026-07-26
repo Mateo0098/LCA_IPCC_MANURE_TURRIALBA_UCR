@@ -8,6 +8,7 @@
 - `reporte_validacion_documentos.md`
 - `reporte_formato_master.md`
 - `reporte_relacion_apendices.md`
+- `reporte_referencias_factores.md`
 
 ## 2. Scripts usados
 
@@ -99,7 +100,7 @@ Metodología:
 - Parámetros completos del modelo ACV.
 - Factores técnicos completos.
 - Diccionario de variables.
-- Auditoría de factores pendientes de revisión bibliográfica.
+- Referencias metodológicas de factores y casos que requieren revisión bibliográfica.
 
 Resultados:
 
@@ -107,8 +108,8 @@ Resultados:
 - Figuras complementarias R1 a R8.
 - Correspondencia entre tablas, figuras y archivos fuente.
 
-## 8. Advertencias pendientes para revisión humana
+## 8. Advertencias para revisión humana
 
 - Los resultados anuales se presentan como escala de inventario operacional y no sustituyen la unidad funcional del ACV.
-- Deben completarse o verificarse las fuentes bibliográficas de factores IPCC y factores de caracterización.
+- Deben verificarse las fuentes del método EICV para los factores de eutrofización y la conversión estequiométrica aplicada al nitrato.
 - Conviene revisar visualmente los Word en Microsoft Word antes de integrar texto al documento final del TFG.

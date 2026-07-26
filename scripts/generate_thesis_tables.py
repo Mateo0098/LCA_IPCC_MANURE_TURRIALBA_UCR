@@ -36,18 +36,95 @@ SCENARIO_NAMES = {
 }
 
 EMISSION_META = {
-    "CO2_medido": ("CO2", "Dioxido de carbono medido", "kg CO2/ano", "factor medido", "processed/factores_emision_medidos.csv"),
+    "CO2_medido": ("CO2", "Dioxido de carbono medido", "kg CO2/ano", "factor medido", "Jjagwe et al. (2019)"),
     "CH4_ec1": ("CH4", "Metano", "kg CH4/ano", "Ecuacion 1 IPCC o factor medido en A2", "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/factores_emision_medidos.csv"),
-    "N2O_ec14": ("N2O", "N2O directo por entradas de N en suelos", "kg N2O/ano", "Ecuacion 14", "EF1 hardcodeado en scripts; pendiente fuente IPCC"),
+    "N2O_ec14": ("N2O", "N2O directo por entradas de N en suelos", "kg N2O/ano", "Ecuacion 14", "IPCC, ecuación 14"),
     "N2O_ec2": ("N2O", "N2O directo por gestion de estiercol", "kg N2O/ano", "Ecuacion 2 IPCC o factor medido en A2", "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/factores_emision_medidos.csv"),
-    "N2O_ec5": ("N2O", "N2O indirecto por volatilizacion", "kg N2O/ano", "Ecuacion 5", "EF4 hardcodeado en scripts; pendiente fuente IPCC"),
-    "N2O_ec6": ("N2O", "N2O indirecto por lixiviacion", "kg N2O/ano", "Ecuacion 6", "EF5 hardcodeado en scripts; pendiente fuente IPCC"),
-    "N2O_ec16": ("N2O", "N2O indirecto por deposicion atmosferica en suelos", "kg N2O/ano", "Ecuacion 16", "EF4 y frac_gasm hardcodeados en scripts; pendiente fuente IPCC"),
-    "N2O_ec18": ("N2O", "N2O indirecto por lixiviacion en suelos", "kg N2O/ano", "Ecuacion 18", "EF5 y frac_leach_h hardcodeados en scripts; pendiente fuente IPCC"),
+    "N2O_ec5": ("N2O", "N2O indirecto por volatilizacion", "kg N2O/ano", "Ecuacion 5", "IPCC, ecuación 5"),
+    "N2O_ec6": ("N2O", "N2O indirecto por lixiviacion", "kg N2O/ano", "Ecuacion 6", "IPCC, ecuación 6"),
+    "N2O_ec16": ("N2O", "N2O indirecto por deposicion atmosferica en suelos", "kg N2O/ano", "Ecuacion 16", "IPCC, ecuación 16"),
+    "N2O_ec18": ("N2O", "N2O indirecto por lixiviacion en suelos", "kg N2O/ano", "Ecuacion 18", "IPCC, ecuación 18"),
     "NH3_ec12": ("NH3", "Amoniaco desde manejo de estiercol", "kg NH3/ano", "Ecuacion 12", "Derivado de N volatilizado/lixiviado; factores IPCC y conversion estequiometrica"),
     "NH3_ec20": ("NH3", "Amoniaco desde suelos gestionados", "kg NH3/ano", "Ecuacion 20", "Derivado de N en suelos; factores IPCC y conversion estequiometrica"),
     "NO3_ec13": ("NO3", "Nitrato desde manejo de estiercol", "kg NO3/ano", "Ecuacion 13", "Derivado de N volatilizado/lixiviado; conversion estequiometrica en codigo"),
     "NO3_ec21": ("NO3", "Nitrato desde suelos gestionados", "kg NO3/ano", "Ecuacion 21", "Derivado de N en suelos; conversion estequiometrica en codigo"),
+}
+
+JJAGWE_REFERENCE = "Jjagwe et al. (2019)"
+
+AUDITED_FACTOR_REFERENCES = {
+    "B0_T": ("IPCC, ecuación de estimación de CH₄", "IPCC", "Resuelto"),
+    "AWMS": (
+        "Supuesto del modelo con estructura IPCC",
+        "Supuesto del modelo",
+        "Resuelto",
+    ),
+    "N": (
+        "Supuesto de unidad equivalente del modelo",
+        "Supuesto del modelo",
+        "Resuelto",
+    ),
+    "N_cdg": (
+        "Supuesto de ausencia de codigestión",
+        "Supuesto del modelo",
+        "Resuelto",
+    ),
+    "EF1": ("IPCC, ecuación 14", "IPCC", "Resuelto"),
+    "EF4": ("IPCC, ecuaciones 5 y 16", "IPCC", "Resuelto"),
+    "EF5": ("IPCC, ecuaciones 6 y 18", "IPCC", "Resuelto"),
+    "frac_gasm": ("IPCC, ecuación 16", "IPCC", "Resuelto"),
+    "frac_leach_h": ("IPCC, ecuación 18", "IPCC", "Resuelto"),
+    "R_N2_N2O": ("IPCC, ecuación 24", "IPCC", "Resuelto"),
+    "FACTOR_N_A_N2O": (
+        "Conversión estequiométrica de N₂O-N a N₂O (44/28)",
+        "Conversión estequiométrica",
+        "Resuelto",
+    ),
+    "FACTOR_N_A_NH3": (
+        "Conversión estequiométrica de N a NH₃ (17/14)",
+        "Conversión estequiométrica",
+        "Resuelto",
+    ),
+    "FACTOR_N_A_NO3": (
+        "Requiere revisión bibliográfica y estequiométrica",
+        "Revisión manual",
+        "Requiere revisión bibliográfica",
+    ),
+    "CH_4_eq": (
+        "IPCC, potencial de calentamiento global",
+        "IPCC",
+        "Resuelto",
+    ),
+    "N_2_O_eq": (
+        "IPCC, potencial de calentamiento global",
+        "IPCC",
+        "Resuelto",
+    ),
+    "NH_3_eq": (
+        "Requiere revisión bibliográfica del método EICV",
+        "Revisión manual",
+        "Requiere revisión bibliográfica",
+    ),
+    "NO_3_eq": (
+        "Requiere revisión bibliográfica del método EICV",
+        "Revisión manual",
+        "Requiere revisión bibliográfica",
+    ),
+    "co2_kg_por_kg_residuo_seco": (
+        JJAGWE_REFERENCE,
+        "Jjagwe et al. (2019)",
+        "Resuelto",
+    ),
+    "ch4_kg_por_kg_residuo_seco": (
+        JJAGWE_REFERENCE,
+        "Jjagwe et al. (2019)",
+        "Resuelto",
+    ),
+    "n2o_kg_por_kg_residuo_seco": (
+        JJAGWE_REFERENCE,
+        "Jjagwe et al. (2019)",
+        "Resuelto",
+    ),
 }
 
 
@@ -272,7 +349,10 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "valor": row[col],
                 "unidad": unit,
                 "fuente_dato": "processed/ipcc_sistemas_manejo_estiercol_factores.csv",
-                "fuente_bibliografica_pendiente": "Si",
+                "referencia_metodologica": "IPCC",
+                "clasificacion_referencia": "IPCC",
+                "estado_referencia": "Resuelto",
+                "requiere_revision_bibliografica": "No",
                 "observaciones": row.get("comentario", ""),
             })
 
@@ -290,7 +370,10 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "valor": row[col],
                 "unidad": unit,
                 "fuente_dato": "processed/factores_emision_medidos.csv",
-                "fuente_bibliografica_pendiente": "Si",
+                "referencia_metodologica": JJAGWE_REFERENCE,
+                "clasificacion_referencia": "Jjagwe et al. (2019)",
+                "estado_referencia": "Resuelto",
+                "requiere_revision_bibliografica": "No",
                 "observaciones": row.get("nota", ""),
             })
 
@@ -304,7 +387,10 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "valor": row["equivalente_co2"],
                 "unidad": "kg CO2-eq/kg sustancia",
                 "fuente_dato": "processed/acv_factores_equivalencia.csv",
-                "fuente_bibliografica_pendiente": "Si",
+                "referencia_metodologica": "IPCC, potencial de calentamiento global",
+                "clasificacion_referencia": "IPCC",
+                "estado_referencia": "Resuelto",
+                "requiere_revision_bibliografica": "No",
                 "observaciones": "Usado para calcular impacto_calentamiento_global_kg_co2eq",
             })
         if pd.notna(row.get("equivalente_po4")):
@@ -315,7 +401,10 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "valor": row["equivalente_po4"],
                 "unidad": "kg PO4-eq/kg sustancia",
                 "fuente_dato": "processed/acv_factores_equivalencia.csv",
-                "fuente_bibliografica_pendiente": "Si",
+                "referencia_metodologica": "Requiere revisión bibliográfica del método EICV",
+                "clasificacion_referencia": "Revisión manual",
+                "estado_referencia": "Requiere revisión bibliográfica",
+                "requiere_revision_bibliografica": "Sí",
                 "observaciones": "Usado para calcular impacto_eutrofizacion_kg_po4eq",
             })
 
@@ -323,14 +412,27 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
     if hardcoded.exists():
         audit = pd.read_csv(hardcoded)
         for _, row in audit.iterrows():
+            reference, classification, status = AUDITED_FACTOR_REFERENCES.get(
+                str(row["factor"]),
+                (
+                    "Requiere revisión bibliográfica",
+                    "Revisión manual",
+                    "Requiere revisión bibliográfica",
+                ),
+            )
             rows.append({
-                "tipo_factor": "Factor hardcodeado auditado",
+                "tipo_factor": "Parámetro complementario",
                 "sistema_o_compuesto": "",
                 "factor": row["factor"],
                 "valor": row["valor"],
                 "unidad": row["unidad"],
                 "fuente_dato": row["script"],
-                "fuente_bibliografica_pendiente": row["fuente_pendiente"],
+                "referencia_metodologica": reference,
+                "clasificacion_referencia": classification,
+                "estado_referencia": status,
+                "requiere_revision_bibliografica": (
+                    "Sí" if status == "Requiere revisión bibliográfica" else "No"
+                ),
                 "observaciones": row["observaciones"],
             })
 
@@ -662,13 +764,23 @@ def tablas_academicas_para_word() -> Path:
 
     factors = pd.read_csv(OUTPUTS / "tabla_05_factores_emision_y_caracterizacion.csv")
     write_word(
-        factors[["tipo_factor", "sistema_o_compuesto", "factor", "valor", "unidad"]].rename(
+        factors[
+            [
+                "tipo_factor",
+                "sistema_o_compuesto",
+                "factor",
+                "valor",
+                "unidad",
+                "referencia_metodologica",
+            ]
+        ].rename(
             columns={
                 "tipo_factor": "Tipo de factor",
                 "sistema_o_compuesto": "Sistema o compuesto evaluado",
                 "factor": "Factor",
                 "valor": "Valor",
                 "unidad": "Unidad",
+                "referencia_metodologica": "Referencia metodológica",
             }
         ),
         "apendice_G_factores_caracterizacion_word.csv",

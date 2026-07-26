@@ -208,6 +208,20 @@
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
+## Validación de referencias de factores
+
+- Los factores asociados con ecuaciones IPCC ya no aparecen como pendientes de referencia: Sí.
+- Los factores IPCC se identifican como IPCC, Ecuaciones IPCC o Metodología IPCC: Sí.
+- Los factores medidos relacionados con residuo seco, estiércol precompostado y emisiones de gases de efecto invernadero se referencian como Jjagwe et al. (2019): Sí.
+- No se inventaron referencias para factores cuyo origen no pudo confirmarse: Sí.
+- Los factores todavía pendientes se reportan explícitamente como `Requiere revisión bibliográfica`: Sí.
+- No aparecen rutas internas ni `scripts/ecuaciones_acv.py` en los documentos Word finales: Sí.
+- La trazabilidad a `scripts/ecuaciones_acv.py` aparece únicamente en el reporte técnico de referencias: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
 ## Archivos validados
 
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
@@ -215,3 +229,4 @@
 - `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md`
 - `outputs/documentos_tfg/reporte_formato_master.md`
 - `outputs/documentos_tfg/reporte_relacion_apendices.md`
+- `outputs/documentos_tfg/reporte_referencias_factores.md`

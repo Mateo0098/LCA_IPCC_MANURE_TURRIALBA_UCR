@@ -1,4 +1,4 @@
-﻿Escenario,Etapa del sistema,Modelo de estimación,Sistema de manejo asignado,N Total reportado (%),Fracción másica de N,MCF,EF3
+﻿Escenario,Etapa del sistema,Modelo de estimación,Sistema de manejo asignado,N total reportado (%),Fracción másica de N,MCF,EF3
 A,A1: Precomposteo,ipcc,Sistema de manejo en corral seco,0.371666667,0.00371666667,1.5,0.02
 A,A2: Lombricompostaje,medido,Compostaje en sistema cerrado,2.425,0.0242499999999999,0.5,0.006
 A,A3: Almacenamiento de aguas verdes,ipcc,Laguna anaerobia descubierta,0.371666667,0.00371666667,80.0,0.0

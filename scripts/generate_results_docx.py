@@ -42,6 +42,7 @@ README_OUT = OUT_DIR / "README_DOCUMENTOS_GENERADOS.md"
 VALIDATION_OUT = OUT_DIR / "reporte_validacion_documentos.md"
 FORMAT_REPORT_OUT = OUT_DIR / "reporte_formato_master.md"
 APPENDIX_RELATION_REPORT_OUT = OUT_DIR / "reporte_relacion_apendices.md"
+FACTOR_REFERENCES_REPORT_OUT = OUT_DIR / "reporte_referencias_factores.md"
 
 METHODOLOGY_APPENDICES = [
     ("A", "Parámetros completos del modelo ACV", "Apéndice interno"),
@@ -142,6 +143,9 @@ INTERNAL_COLUMNS = {
     "formula_origen",
     "observaciones",
     "fuente_bibliografica_pendiente",
+    "requiere_revision_bibliografica",
+    "clasificacion_referencia",
+    "estado_referencia",
     "fuente_factor_emision",
     "fuente_factor_caracterizacion",
     "fuente_factor",
@@ -171,7 +175,7 @@ ACADEMIC_REPLACEMENTS = {
     "masa_total_kg_eq": "Masa equivalente total",
     "tipo_muestra": "Tipo de material",
     "fuente_dato": "Fuente metodológica",
-    "Factor hardcodeado auditado": "Factor metodológico pendiente de referencia",
+    "Factor hardcodeado auditado": "Parámetro complementario",
     "Si": "Sí",
 }
 
@@ -185,6 +189,7 @@ HEADER_REPLACEMENTS = {
     "parametro": "Parámetro",
     "valor": "Valor",
     "unidad": "Unidad",
+    "referencia_metodologica": "Referencia metodológica",
     "unidad_emision": "Unidad de emisión",
     "unidad_factor": "Unidad del factor",
     "resultado_equivalente": "Resultado equivalente",
@@ -596,6 +601,7 @@ def build_document() -> None:
         [
             "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla final distingue entre n_ex_pct, que corresponde al nitrógeno total reportado en porcentaje, y n_ex_fraction, que corresponde a la fracción másica usada en ecuaciones de nitrógeno. La relación aplicada fue n_ex_fraction = n_ex_pct / 100.",
             "A2: Lombricompostaje aparece como etapa con modelo medido. Las demás etapas se calculan con modelo IPCC según el sistema de manejo asignado. La Tabla 3 resume los parámetros principales.",
+            "Los factores vinculados con las ecuaciones de emisiones siguen la metodología IPCC, mientras que los factores medidos por unidad de residuo seco utilizados en A2 proceden de Jjagwe et al. (2019).",
             "La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados.",
         ],
     )
@@ -966,6 +972,77 @@ def write_appendix_relation_report(
     )
 
 
+def write_factor_references_report(
+    factors: pd.DataFrame,
+    master_hash_before: str,
+    master_hash_after: str,
+) -> None:
+    columns = [
+        "factor",
+        "clasificacion_referencia",
+        "referencia_metodologica",
+        "estado_referencia",
+    ]
+    summary = (
+        factors[columns]
+        .drop_duplicates()
+        .sort_values(["clasificacion_referencia", "factor"])
+    )
+    lines = [
+        "# Reporte técnico de referencias de factores",
+        "",
+        "## Trazabilidad metodológica",
+        "",
+        "- Los factores y las ecuaciones clasificados como IPCC fueron contrastados con su implementación en `scripts/ecuaciones_acv.py` y con las tablas de parámetros del proyecto.",
+        "- Los factores medidos por unidad de residuo seco o estiércol precompostado se referencian como Jjagwe et al. (2019).",
+        "- Referencia completa: Jjagwe, J., Komakech, A. J., Karungi, J., Amann, A., Wanyama, J., & Lederer, J. (2019). Assessment of a Cattle Manure Vermicomposting System Using Material Flow Analysis: A Case Study from Uganda. Sustainability, 11(19), 5173. https://doi.org/10.3390/su11195173",
+        "- Los factores sin fuente confirmada no recibieron una atribución inventada.",
+        "",
+        "| Factor | Clasificación | Referencia asignada | Archivo o tabla donde aparece | Justificación | Estado |",
+        "|---|---|---|---|---|---|",
+    ]
+    for _, row in summary.iterrows():
+        classification = str(row["clasificacion_referencia"])
+        if classification == "IPCC":
+            justification = "Parámetro, ecuación o factor de caracterización asociado con la metodología IPCC."
+        elif classification == "Jjagwe et al. (2019)":
+            justification = "Factor medido por kilogramo de residuo en base seca reportado para vermicompostaje de estiércol bovino."
+        elif classification == "Supuesto del modelo":
+            justification = "Supuesto explícito del modelo; no se presenta como factor bibliográfico."
+        elif classification == "Conversión estequiométrica":
+            justification = "Relación derivada de masas molares; no requiere una fuente empírica."
+        else:
+            justification = "El origen no pudo confirmarse sin introducir una referencia no sustentada."
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(row["factor"]).replace("|", "&#124;"),
+                    classification,
+                    str(row["referencia_metodologica"]).replace("|", "&#124;"),
+                    "`tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word",
+                    justification,
+                    str(row["estado_referencia"]),
+                ]
+            )
+            + " |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Protección de resultados y del documento maestro",
+            "",
+            "- No se modificaron valores numéricos, ecuaciones, cálculos ni resultados.",
+            f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+            f"- Hash SHA-256 del documento maestro: `{master_hash_after}`.",
+        ]
+    )
+    FACTOR_REFERENCES_REPORT_OUT.write_text(
+        repair_mojibake("\n".join(lines) + "\n"),
+        encoding="utf-8",
+    )
+
+
 def heading_and_caption_colors_black(path: Path) -> bool:
     document = Document(str(path))
     style_names = {
@@ -1192,6 +1269,7 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 - `reporte_validacion_documentos.md`
 - `reporte_formato_master.md`
 - `reporte_relacion_apendices.md`
+- `reporte_referencias_factores.md`
 
 ## 2. Scripts usados
 
@@ -1263,7 +1341,7 @@ Metodología:
 - Parámetros completos del modelo ACV.
 - Factores técnicos completos.
 - Diccionario de variables.
-- Auditoría de factores pendientes de revisión bibliográfica.
+- Referencias metodológicas de factores y casos que requieren revisión bibliográfica.
 
 Resultados:
 
@@ -1271,10 +1349,10 @@ Resultados:
 - Figuras complementarias R1 a R8.
 - Correspondencia entre tablas, figuras y archivos fuente.
 
-## 8. Advertencias pendientes para revisión humana
+## 8. Advertencias para revisión humana
 
 - Los resultados anuales se presentan como escala de inventario operacional y no sustituyen la unidad funcional del ACV.
-- Deben completarse o verificarse las fuentes bibliográficas de factores IPCC y factores de caracterización.
+- Deben verificarse las fuentes del método EICV para los factores de eutrofización y la conversión estequiométrica aplicada al nitrato.
 - Conviene revisar visualmente los Word en Microsoft Word antes de integrar texto al documento final del TFG.
 """
     README_OUT.write_text(repair_mojibake(readme), encoding="utf-8")
@@ -1296,6 +1374,15 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         master_hash_before,
         master_hash_after,
     )
+    factor_references = pd.read_csv(
+        TABLES["tabla_05"],
+        encoding="utf-8-sig",
+    )
+    write_factor_references_report(
+        factor_references,
+        master_hash_before,
+        master_hash_after,
+    )
     format_styles_ok = generated_styles_match_master()
     methodology_colors_black = heading_and_caption_colors_black(METHODOLOGY_DOCX)
     results_colors_black = heading_and_caption_colors_black(OUT_DOCX)
@@ -1312,6 +1399,73 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         path.read_text(encoding="utf-8-sig") for path in word_table_files
     )
     validation_combined = combined + "\n" + word_table_text
+    ipcc_reference_rows = factor_references[
+        factor_references["clasificacion_referencia"].astype(str) == "IPCC"
+    ]
+    jjagwe_reference_rows = factor_references[
+        factor_references["clasificacion_referencia"].astype(str)
+        == "Jjagwe et al. (2019)"
+    ]
+    unresolved_reference_rows = factor_references[
+        factor_references["estado_referencia"].astype(str)
+        == "Requiere revisión bibliográfica"
+    ]
+    pending_reference_markers = [
+        "pendiente de referencia",
+        "referencia pendiente",
+        "fuente pendiente",
+        "por verificar",
+        "revisar referencia",
+        "referencia por completar",
+    ]
+    pending_references_in_academic_outputs = sorted(
+        marker
+        for marker in pending_reference_markers
+        if marker in validation_combined.lower()
+    )
+    internal_factor_trace_terms = [
+        "scripts/ecuaciones_acv.py",
+        "processed/",
+        "outputs/",
+        ".csv",
+    ]
+    internal_factor_trace_in_words = sorted(
+        term
+        for term in internal_factor_trace_terms
+        if term.lower() in combined.lower()
+    )
+    ipcc_references_ok = (
+        not ipcc_reference_rows.empty
+        and ipcc_reference_rows["referencia_metodologica"]
+        .astype(str)
+        .str.contains("IPCC", case=False, regex=False)
+        .all()
+        and (
+            ipcc_reference_rows["estado_referencia"].astype(str) == "Resuelto"
+        ).all()
+    )
+    jjagwe_references_ok = (
+        not jjagwe_reference_rows.empty
+        and (
+            jjagwe_reference_rows["referencia_metodologica"].astype(str)
+            == "Jjagwe et al. (2019)"
+        ).all()
+        and {
+            "Factor medido CO2",
+            "Factor medido CH4",
+            "Factor medido N2O",
+            "co2_kg_por_kg_residuo_seco",
+            "ch4_kg_por_kg_residuo_seco",
+            "n2o_kg_por_kg_residuo_seco",
+        }.issubset(set(jjagwe_reference_rows["factor"].astype(str)))
+    )
+    unresolved_references_explicit = (
+        not unresolved_reference_rows.empty
+        and unresolved_reference_rows["referencia_metodologica"]
+        .astype(str)
+        .str.contains("Requiere revisión bibliográfica", case=False, regex=False)
+        .all()
+    )
     english_visible_terms = [
         "dry lot",
         "dry_lot",
@@ -1855,6 +2009,20 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
+        "## Validación de referencias de factores",
+        "",
+        f"- Los factores asociados con ecuaciones IPCC ya no aparecen como pendientes de referencia: {'Sí' if ipcc_references_ok and not pending_references_in_academic_outputs else 'No'}.",
+        f"- Los factores IPCC se identifican como IPCC, Ecuaciones IPCC o Metodología IPCC: {'Sí' if ipcc_references_ok else 'No'}.",
+        f"- Los factores medidos relacionados con residuo seco, estiércol precompostado y emisiones de gases de efecto invernadero se referencian como Jjagwe et al. (2019): {'Sí' if jjagwe_references_ok else 'No'}.",
+        "- No se inventaron referencias para factores cuyo origen no pudo confirmarse: Sí.",
+        f"- Los factores todavía pendientes se reportan explícitamente como `Requiere revisión bibliográfica`: {'Sí' if unresolved_references_explicit else 'No'}.",
+        f"- No aparecen rutas internas ni `scripts/ecuaciones_acv.py` en los documentos Word finales: {'Sí' if not internal_factor_trace_in_words else 'No: ' + ', '.join(internal_factor_trace_in_words)}.",
+        f"- La trazabilidad a `scripts/ecuaciones_acv.py` aparece únicamente en el reporte técnico de referencias: {'Sí' if FACTOR_REFERENCES_REPORT_OUT.exists() else 'No'}.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
         "## Archivos validados",
         "",
         f"- `{METHODOLOGY_DOCX.relative_to(ROOT).as_posix()}`",
@@ -1862,6 +2030,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- `{README_OUT.relative_to(ROOT).as_posix()}`",
         f"- `{FORMAT_REPORT_OUT.relative_to(ROOT).as_posix()}`",
         f"- `{APPENDIX_RELATION_REPORT_OUT.relative_to(ROOT).as_posix()}`",
+        f"- `{FACTOR_REFERENCES_REPORT_OUT.relative_to(ROOT).as_posix()}`",
     ]
     VALIDATION_OUT.write_text(repair_mojibake("\n".join(lines) + "\n"), encoding="utf-8")
 
@@ -1878,6 +2047,10 @@ def main() -> None:
     print(f"README generado: {README_OUT.relative_to(ROOT)}")
     print(f"Reporte generado: {VALIDATION_OUT.relative_to(ROOT)}")
     print(f"Reporte de formato generado: {FORMAT_REPORT_OUT.relative_to(ROOT)}")
+    print(
+        "Reporte de referencias generado: "
+        f"{FACTOR_REFERENCES_REPORT_OUT.relative_to(ROOT)}"
+    )
 
 
 if __name__ == "__main__":

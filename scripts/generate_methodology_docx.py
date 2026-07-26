@@ -85,6 +85,9 @@ INTERNAL_COLUMNS = {
     "formula_origen",
     "observaciones",
     "fuente_bibliografica_pendiente",
+    "requiere_revision_bibliografica",
+    "clasificacion_referencia",
+    "estado_referencia",
     "fuente_factor_emision",
     "fuente_factor_caracterizacion",
     "fuente_factor",
@@ -115,7 +118,7 @@ ACADEMIC_REPLACEMENTS = {
     "masa_total_kg_eq": "Masa equivalente total",
     "tipo_muestra": "Tipo de material",
     "fuente_dato": "Fuente metodológica",
-    "Factor hardcodeado auditado": "Factor metodológico pendiente de referencia",
+    "Factor hardcodeado auditado": "Parámetro o factor auditado",
 }
 
 HEADER_REPLACEMENTS = {
@@ -128,6 +131,7 @@ HEADER_REPLACEMENTS = {
     "parametro": "Parámetro",
     "valor": "Valor",
     "unidad": "Unidad",
+    "referencia_metodologica": "Referencia metodológica",
     "variable": "Variable",
     "descripcion": "Descripción",
     "uso": "Uso metodológico",
@@ -605,6 +609,7 @@ def build_document() -> None:
     add_paragraphs(doc, [
         "Las ecuaciones IPCC se aplicaron por etapa según el sistema de manejo asignado. Las vías consideradas incluyeron emisiones de CH4 por manejo de estiércol, N2O directo, pérdidas por volatilización y lixiviación, N2O indirecto y emisiones asociadas con suelos gestionados.",
         "La etapa A2: Lombricompostaje se trató como caso especial cuando la estimación se basó en factores medidos. En los demás casos, las emisiones se estimaron con los factores de manejo y parámetros descritos en la Tabla 3.",
+        "Los factores asociados con las ecuaciones de estimación de emisiones se organizaron de acuerdo con la metodología IPCC. Los factores medidos utilizados para relacionar el residuo seco o estiércol precompostado con emisiones de gases de efecto invernadero fueron tomados de Jjagwe et al. (2019).",
         "Los factores de emisión y caracterización empleados en estas estimaciones se detallan en el Apéndice interno B, Factores de emisión y caracterización.",
     ])
 
@@ -629,7 +634,7 @@ def build_document() -> None:
 
     doc.add_heading("21. Limitaciones metodológicas", level=2)
     add_paragraphs(doc, [
-        "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. Además, la asignación de sistemas de manejo por etapa y la selección de factores de caracterización deben ser respaldadas con fuentes bibliográficas en la versión final del TFG.",
+        "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. La fuente metodológica de los factores de eutrofización y la conversión estequiométrica aplicada al nitrato requieren revisión bibliográfica antes de la versión final del TFG.",
         "La presentación de flujos anuales y masas equivalentes describe la escala operacional del sistema, pero la comparación metodológica entre escenarios se mantiene referida a 1 kg de estiércol fresco.",
     ])
 
