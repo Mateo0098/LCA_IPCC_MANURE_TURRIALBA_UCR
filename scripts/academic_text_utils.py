@@ -102,6 +102,28 @@ def clean_annual_units(value: object) -> str:
     return text
 
 
+def clean_chemical_notation(value: object) -> str:
+    """Normaliza fórmulas químicas visibles sin alterar identificadores mayores."""
+    text = str(value)
+    replacements = (
+        (r"(?<![\w₀-₉])PO4-eq(?![\w₀-₉])", "PO₄-eq"),
+        (r"(?<![\w₀-₉])CO2-eq(?![\w₀-₉])", "CO₂-eq"),
+        (r"(?<![\w₀-₉])PO4(?:\^?3-|³-)(?![\w₀-₉])", "PO₄³⁻"),
+        (r"(?<![\w₀-₉])N2O-N(?![\w₀-₉])", "N₂O-N"),
+        (r"(?<![\w₀-₉])NH3-N(?![\w₀-₉])", "NH₃-N"),
+        (r"(?<![\w₀-₉])NO3-N(?![\w₀-₉])", "NO₃-N"),
+        (r"(?<![\w₀-₉])CH4(?![\w₀-₉])", "CH₄"),
+        (r"(?<![\w₀-₉])N2O(?![\w₀-₉])", "N₂O"),
+        (r"(?<![\w₀-₉])NH3(?![\w₀-₉])", "NH₃"),
+        (r"(?<![\w₀-₉])NO3-?(?![\w₀-₉])", "NO₃⁻"),
+        (r"(?<![\w₀-₉])CO2(?![\w₀-₉])", "CO₂"),
+        (r"(?<![\w₀-₉])PO4(?![\w₀-₉])", "PO₄³⁻"),
+    )
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return text
+
+
 def clean_academic_label(value: object) -> str:
     text = clean_annual_units(repair_mojibake(str(value)))
     for internal, academic in sorted(
@@ -124,13 +146,4 @@ def clean_academic_label(value: object) -> str:
     text = text.replace("humeda", "húmeda")
     text = text.replace("Eutrofizacion", "Eutrofización")
     text = text.replace("categoria impacto", "Categoría de impacto")
-    for plain, scientific in (
-        ("CH4", "CH₄"),
-        ("N2O", "N₂O"),
-        ("NH3", "NH₃"),
-        ("NO3", "NO₃⁻"),
-        ("CO2", "CO₂"),
-        ("PO4", "PO₄"),
-    ):
-        text = text.replace(plain, scientific)
-    return text
+    return clean_chemical_notation(text)

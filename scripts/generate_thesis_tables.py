@@ -51,6 +51,10 @@ EMISSION_META = {
 }
 
 JJAGWE_REFERENCE = "Jjagwe et al. (2019)"
+IMN_CHARACTERIZATION_REFERENCE = "IMN (2021)"
+EUTROPHICATION_CHARACTERIZATION_REFERENCE = (
+    "Ecobilan (1999, como se citó en Vallejo, 2004)"
+)
 
 AUDITED_FACTOR_REFERENCES = {
     "B0_T": ("IPCC, ecuación de estimación de CH₄", "IPCC", "Resuelto"),
@@ -91,24 +95,24 @@ AUDITED_FACTOR_REFERENCES = {
         "Requiere revisión bibliográfica",
     ),
     "CH_4_eq": (
-        "IPCC, potencial de calentamiento global",
-        "IPCC",
+        IMN_CHARACTERIZATION_REFERENCE,
+        "IMN (2021)",
         "Resuelto",
     ),
     "N_2_O_eq": (
-        "IPCC, potencial de calentamiento global",
-        "IPCC",
+        IMN_CHARACTERIZATION_REFERENCE,
+        "IMN (2021)",
         "Resuelto",
     ),
     "NH_3_eq": (
-        "Requiere revisión bibliográfica del método EICV",
-        "Revisión manual",
-        "Requiere revisión bibliográfica",
+        EUTROPHICATION_CHARACTERIZATION_REFERENCE,
+        "Ecobilan (1999) citado en Vallejo (2004)",
+        "Resuelto",
     ),
     "NO_3_eq": (
-        "Requiere revisión bibliográfica del método EICV",
-        "Revisión manual",
-        "Requiere revisión bibliográfica",
+        EUTROPHICATION_CHARACTERIZATION_REFERENCE,
+        "Ecobilan (1999) citado en Vallejo (2004)",
+        "Resuelto",
     ),
     "co2_kg_por_kg_residuo_seco": (
         JJAGWE_REFERENCE,
@@ -387,8 +391,8 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "valor": row["equivalente_co2"],
                 "unidad": "kg CO2-eq/kg sustancia",
                 "fuente_dato": "processed/acv_factores_equivalencia.csv",
-                "referencia_metodologica": "IPCC, potencial de calentamiento global",
-                "clasificacion_referencia": "IPCC",
+                "referencia_metodologica": IMN_CHARACTERIZATION_REFERENCE,
+                "clasificacion_referencia": "IMN (2021)",
                 "estado_referencia": "Resuelto",
                 "requiere_revision_bibliografica": "No",
                 "observaciones": "Usado para calcular impacto_calentamiento_global_kg_co2eq",
@@ -401,10 +405,10 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "valor": row["equivalente_po4"],
                 "unidad": "kg PO4-eq/kg sustancia",
                 "fuente_dato": "processed/acv_factores_equivalencia.csv",
-                "referencia_metodologica": "Requiere revisión bibliográfica del método EICV",
-                "clasificacion_referencia": "Revisión manual",
-                "estado_referencia": "Requiere revisión bibliográfica",
-                "requiere_revision_bibliografica": "Sí",
+                "referencia_metodologica": EUTROPHICATION_CHARACTERIZATION_REFERENCE,
+                "clasificacion_referencia": "Ecobilan (1999) citado en Vallejo (2004)",
+                "estado_referencia": "Resuelto",
+                "requiere_revision_bibliografica": "No",
                 "observaciones": "Usado para calcular impacto_eutrofizacion_kg_po4eq",
             })
 

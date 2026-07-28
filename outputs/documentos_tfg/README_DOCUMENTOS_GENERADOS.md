@@ -111,5 +111,5 @@ Resultados:
 ## 8. Advertencias para revisión humana
 
 - Los resultados anuales se presentan como escala de inventario operacional y no sustituyen la unidad funcional del ACV.
-- Deben verificarse las fuentes del método EICV para los factores de eutrofización y la conversión estequiométrica aplicada al nitrato.
+- Debe verificarse la conversión estequiométrica aplicada al nitrato.
 - Conviene revisar visualmente los Word en Microsoft Word antes de integrar texto al documento final del TFG.

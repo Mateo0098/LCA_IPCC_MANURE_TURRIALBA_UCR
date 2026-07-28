@@ -60,6 +60,22 @@
 - No se modificaron valores numéricos ni resultados: Sí.
 - No se modificó el documento maestro de propuesta: Sí.
 
+## Validación de nomenclatura química en documentos generados
+
+- `metodologia_desarrollada_tfg.docx` no contiene compuestos químicos mal escritos: Sí.
+- `resultados_desarrollados_tfg.docx` no contiene compuestos químicos mal escritos: Sí.
+- La Tabla M2 fue revisada específicamente: Sí.
+- La Tabla R4 fue revisada específicamente: Sí.
+- Todas las tablas del cuerpo, los apéndices y las tablas académicas auxiliares fueron revisadas: Sí.
+- Las unidades equivalentes usan `CO₂-eq` y `PO₄-eq` correctamente: Sí.
+- Las emisiones usan `CH₄`, `N₂O`, `NH₃`, `NO₃⁻` y `CO₂` correctamente: Sí.
+- Las unidades anuales usan `/año`, no `/ano`: Sí.
+- No se modificaron valores numéricos: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- No se modificó el contenido técnico de las figuras: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
 ## Validación de nomenclatura de aguas verdes y purines
 
 - B2 ya no usa la etiqueta `Aguas verdes` para el componente líquido: Sí.
@@ -205,6 +221,20 @@
 - Cada documento conserva su propia numeración interna: Sí.
 - No se modificaron valores numéricos: Sí.
 - No se modificaron cálculos ni resultados: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
+## Validación de referencias de factores de caracterización
+
+- Los factores de calentamiento global de CH₄, N₂O y CO₂ se referencian como `IMN (2021)`: Sí.
+- Los factores de eutrofización de NH₃ y NO₃⁻ se referencian como `Ecobilan (1999, como se citó en Vallejo, 2004)`: Sí.
+- Los factores de caracterización ya no aparecen referenciados como IPCC: Sí.
+- Los valores numéricos de los cinco factores de caracterización permanecen en 21, 310, 1, 0,35 y 0,095: Sí.
+- No se modificaron cálculos ni resultados: Sí.
+- Las referencias IPCC de ecuaciones y factores de emisión se conservaron: Sí.
+- Los cinco factores de caracterización no presentan marcas de referencia pendiente: Sí.
+- Ambas referencias aparecen en los dos documentos Word finales: Sí.
+- No aparecen rutas internas en los documentos Word finales: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 

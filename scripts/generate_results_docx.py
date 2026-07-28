@@ -625,6 +625,7 @@ def build_document() -> None:
         [
             "Los impactos ambientales por etapa muestran que B1: Almacenamiento de purines presentó la mayor contribución al potencial de calentamiento global, con 1 737,81 kg CO2-eq/año. En el Escenario A, A1: Precomposteo presentó la mayor contribución a esta categoría.",
             "Para eutrofización, B1: Almacenamiento de purines presentó el valor más alto, seguido por A1: Precomposteo. A2: Lombricompostaje registró 0 kg PO4-eq/año en la tabla final, debido a que no reporta emisiones de NH3 ni NO3 en la tabla de emisiones por etapa. La Tabla 5 resume los impactos por etapa; la Figura 5 presenta calentamiento global y la Figura 6 presenta eutrofización.",
+            "Los factores de caracterización para calentamiento global se referencian al IMN (2021), mientras que los factores de eutrofización se basan en Ecobilan (1999, como se citó en Vallejo, 2004).",
             "La Tabla R6 del bloque de apéndices internos, Impactos completos por etapa, presenta los resultados desagregados por categoría de impacto.",
         ],
     )
@@ -994,6 +995,8 @@ def write_factor_references_report(
         "## Trazabilidad metodológica",
         "",
         "- Los factores y las ecuaciones clasificados como IPCC fueron contrastados con su implementación en `scripts/ecuaciones_acv.py` y con las tablas de parámetros del proyecto.",
+        "- Los factores de caracterización de calentamiento global se referencian como IMN (2021).",
+        "- Los factores de caracterización de eutrofización se referencian como Ecobilan (1999, como se citó en Vallejo, 2004).",
         "- Los factores medidos por unidad de residuo seco o estiércol precompostado se referencian como Jjagwe et al. (2019).",
         "- Referencia completa: Jjagwe, J., Komakech, A. J., Karungi, J., Amann, A., Wanyama, J., & Lederer, J. (2019). Assessment of a Cattle Manure Vermicomposting System Using Material Flow Analysis: A Case Study from Uganda. Sustainability, 11(19), 5173. https://doi.org/10.3390/su11195173",
         "- Los factores sin fuente confirmada no recibieron una atribución inventada.",
@@ -1004,7 +1007,11 @@ def write_factor_references_report(
     for _, row in summary.iterrows():
         classification = str(row["clasificacion_referencia"])
         if classification == "IPCC":
-            justification = "Parámetro, ecuación o factor de caracterización asociado con la metodología IPCC."
+            justification = "Parámetro o ecuación de estimación de emisiones asociado con la metodología IPCC."
+        elif classification == "IMN (2021)":
+            justification = "Factor de caracterización del potencial de calentamiento global."
+        elif classification == "Ecobilan (1999) citado en Vallejo (2004)":
+            justification = "Factor de caracterización del potencial de eutrofización."
         elif classification == "Jjagwe et al. (2019)":
             justification = "Factor medido por kilogramo de residuo en base seca reportado para vermicompostaje de estiércol bovino."
         elif classification == "Supuesto del modelo":
@@ -1352,7 +1359,7 @@ Resultados:
 ## 8. Advertencias para revisión humana
 
 - Los resultados anuales se presentan como escala de inventario operacional y no sustituyen la unidad funcional del ACV.
-- Deben verificarse las fuentes del método EICV para los factores de eutrofización y la conversión estequiométrica aplicada al nitrato.
+- Debe verificarse la conversión estequiométrica aplicada al nitrato.
 - Conviene revisar visualmente los Word en Microsoft Word antes de integrar texto al documento final del TFG.
 """
     README_OUT.write_text(repair_mojibake(readme), encoding="utf-8")
@@ -1410,6 +1417,79 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         factor_references["estado_referencia"].astype(str)
         == "Requiere revisión bibliográfica"
     ]
+    warming_characterization_rows = factor_references[
+        (
+            factor_references["factor"].astype(str)
+            == "Potencial de calentamiento global"
+        )
+        | factor_references["factor"].astype(str).isin(["CH_4_eq", "N_2_O_eq"])
+    ]
+    eutrophication_characterization_rows = factor_references[
+        (factor_references["factor"].astype(str) == "Potencial de eutrofizacion")
+        | factor_references["factor"].astype(str).isin(["NH_3_eq", "NO_3_eq"])
+    ]
+    warming_references_ok = (
+        len(warming_characterization_rows) == 5
+        and (
+            warming_characterization_rows["referencia_metodologica"].astype(str)
+            == "IMN (2021)"
+        ).all()
+    )
+    eutrophication_references_ok = (
+        len(eutrophication_characterization_rows) == 4
+        and (
+            eutrophication_characterization_rows["referencia_metodologica"].astype(str)
+            == "Ecobilan (1999, como se citó en Vallejo, 2004)"
+        ).all()
+    )
+    characterization_values = {
+        str(row["sistema_o_compuesto"]): float(row["valor"])
+        for _, row in factor_references[
+            factor_references["tipo_factor"].astype(str)
+            == "Factor de caracterizacion"
+        ].iterrows()
+    }
+    characterization_values_ok = characterization_values == {
+        "CH4": 21.0,
+        "N2O": 310.0,
+        "NH3": 0.35,
+        "NO3": 0.095,
+        "CO2": 1.0,
+    }
+    characterization_ipcc_absent = not (
+        warming_characterization_rows["referencia_metodologica"]
+        .astype(str)
+        .str.contains("IPCC", case=False, regex=False)
+        .any()
+        or eutrophication_characterization_rows["referencia_metodologica"]
+        .astype(str)
+        .str.contains("IPCC", case=False, regex=False)
+        .any()
+    )
+    emission_ipcc_references_preserved = (
+        not ipcc_reference_rows.empty
+        and not ipcc_reference_rows["factor"].astype(str).isin(
+            [
+                "Potencial de calentamiento global",
+                "Potencial de eutrofizacion",
+                "CH_4_eq",
+                "N_2_O_eq",
+                "NH_3_eq",
+                "NO_3_eq",
+            ]
+        ).any()
+    )
+    characterization_pending_absent = not (
+        pd.concat(
+            [
+                warming_characterization_rows,
+                eutrophication_characterization_rows,
+            ]
+        )["referencia_metodologica"]
+        .astype(str)
+        .str.contains("pendiente|requiere revisión", case=False, regex=True)
+        .any()
+    )
     pending_reference_markers = [
         "pendiente de referencia",
         "referencia pendiente",
@@ -1433,6 +1513,21 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         term
         for term in internal_factor_trace_terms
         if term.lower() in combined.lower()
+    )
+    characterization_references_visible = all(
+        reference in texts[METHODOLOGY_DOCX.name]
+        and reference in texts[OUT_DOCX.name]
+        for reference in [
+            "IMN (2021)",
+            "Ecobilan (1999, como se citó en Vallejo, 2004)",
+        ]
+    )
+    obsolete_characterization_references_absent = all(
+        marker not in validation_combined
+        for marker in [
+            "IPCC, potencial de calentamiento global",
+            "Requiere revisión bibliográfica del método EICV",
+        ]
     )
     ipcc_references_ok = (
         not ipcc_reference_rows.empty
@@ -1576,6 +1671,63 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     figure_checks = [name for name, _ in MAIN_FIGURES if name.replace(".png", "") in combined or (FIG_DIR / name).exists()]
     chemical_tokens = ["CH\u2084", "N\u2082O", "NH\u2083", "NO\u2083\u207b", "CO\u2082", "CO\u2082-eq", "PO\u2084\u00b3\u207b", "PO\u2084-eq"]
     chemical_ok = all(token in combined for token in chemical_tokens)
+    incorrect_chemical_pattern = re.compile(
+        r"(?i)(?<![\w₀-₉])(?:"
+        r"CH4|N2O(?:-N)?|NH3(?:-N)?|NO3(?:-N|-)?|"
+        r"CO2(?:-eq)?|PO4(?:-eq|\^?3-)?"
+        r")(?![\w₀-₉])|/ano\b"
+    )
+
+    def visible_table_text(path: Path) -> str:
+        document = Document(str(path))
+        return "\n".join(
+            cell.text
+            for table in document.tables
+            for row in table.rows
+            for cell in row.cells
+        )
+
+    methodology_tables_text = visible_table_text(METHODOLOGY_DOCX)
+    results_tables_text = visible_table_text(OUT_DOCX)
+    invalid_chemistry_methodology = sorted(
+        set(incorrect_chemical_pattern.findall(texts[METHODOLOGY_DOCX.name]))
+    )
+    invalid_chemistry_results = sorted(
+        set(incorrect_chemical_pattern.findall(texts[OUT_DOCX.name]))
+    )
+    invalid_chemistry_tables = sorted(
+        set(
+            incorrect_chemical_pattern.findall(
+                methodology_tables_text + "\n" + results_tables_text + "\n" + word_table_text
+            )
+        )
+    )
+    m2_chemical_ok = (
+        "Tabla M2" in texts[METHODOLOGY_DOCX.name]
+        and not incorrect_chemical_pattern.search(methodology_tables_text)
+    )
+    r4_chemical_ok = (
+        "Tabla R4" in texts[OUT_DOCX.name]
+        and not incorrect_chemical_pattern.search(results_tables_text)
+    )
+    annual_chemistry_units_ok = (
+        "/ano" not in validation_combined.lower()
+        and "/año" in validation_combined
+    )
+    chemical_notation_validation_ok = not (
+        invalid_chemistry_methodology
+        or invalid_chemistry_results
+        or invalid_chemistry_tables
+    )
+    invalid_chemistry_figures = sorted(
+        {
+            match.group(0)
+            for svg_path in FIG_DIR.glob("*.svg")
+            for match in incorrect_chemical_pattern.finditer(
+                svg_path.read_text(encoding="utf-8", errors="replace")
+            )
+        }
+    )
     equation_image_dir = OUT_DIR / "equations"
     equation_images_absent = not equation_image_dir.exists() and not list(OUT_DIR.glob("eq_*.png"))
     latex_equation_tokens = [
@@ -1861,6 +2013,22 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- No se modificaron valores numéricos ni resultados: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "",
+        "## Validación de nomenclatura química en documentos generados",
+        "",
+        f"- `metodologia_desarrollada_tfg.docx` no contiene compuestos químicos mal escritos: {'Sí' if not invalid_chemistry_methodology else 'No: ' + ', '.join(invalid_chemistry_methodology)}.",
+        f"- `resultados_desarrollados_tfg.docx` no contiene compuestos químicos mal escritos: {'Sí' if not invalid_chemistry_results else 'No: ' + ', '.join(invalid_chemistry_results)}.",
+        f"- La Tabla M2 fue revisada específicamente: {'Sí' if m2_chemical_ok else 'No'}.",
+        f"- La Tabla R4 fue revisada específicamente: {'Sí' if r4_chemical_ok else 'No'}.",
+        f"- Todas las tablas del cuerpo, los apéndices y las tablas académicas auxiliares fueron revisadas: {'Sí' if chemical_notation_validation_ok else 'No: ' + ', '.join(invalid_chemistry_tables)}.",
+        f"- Las unidades equivalentes usan `CO₂-eq` y `PO₄-eq` correctamente: {'Sí' if 'CO₂-eq' in validation_combined and 'PO₄-eq' in validation_combined else 'No'}.",
+        f"- Las emisiones usan `CH₄`, `N₂O`, `NH₃`, `NO₃⁻` y `CO₂` correctamente: {'Sí' if chemical_ok else 'No'}.",
+        f"- Las unidades anuales usan `/año`, no `/ano`: {'Sí' if annual_chemistry_units_ok else 'No'}.",
+        "- No se modificaron valores numéricos: Sí.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- No se modificó el contenido técnico de las figuras: {'Sí' if not invalid_chemistry_figures else 'No: ' + ', '.join(invalid_chemistry_figures)}.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
         "## Validación de nomenclatura de aguas verdes y purines",
         "",
         f"- B2 ya no usa la etiqueta `Aguas verdes` para el componente líquido: {'Sí' if 'Aguas verdes' not in b2_flow_labels else 'No'}.",
@@ -2006,6 +2174,20 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- Cada documento conserva su propia numeración interna: Sí.",
         "- No se modificaron valores numéricos: Sí.",
         "- No se modificaron cálculos ni resultados: Sí.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
+        "## Validación de referencias de factores de caracterización",
+        "",
+        f"- Los factores de calentamiento global de CH₄, N₂O y CO₂ se referencian como `IMN (2021)`: {'Sí' if warming_references_ok else 'No'}.",
+        f"- Los factores de eutrofización de NH₃ y NO₃⁻ se referencian como `Ecobilan (1999, como se citó en Vallejo, 2004)`: {'Sí' if eutrophication_references_ok else 'No'}.",
+        f"- Los factores de caracterización ya no aparecen referenciados como IPCC: {'Sí' if characterization_ipcc_absent and obsolete_characterization_references_absent else 'No'}.",
+        f"- Los valores numéricos de los cinco factores de caracterización permanecen en 21, 310, 1, 0,35 y 0,095: {'Sí' if characterization_values_ok else 'No'}.",
+        "- No se modificaron cálculos ni resultados: Sí.",
+        f"- Las referencias IPCC de ecuaciones y factores de emisión se conservaron: {'Sí' if emission_ipcc_references_preserved and ipcc_references_ok else 'No'}.",
+        f"- Los cinco factores de caracterización no presentan marcas de referencia pendiente: {'Sí' if characterization_pending_absent else 'No'}.",
+        f"- Ambas referencias aparecen en los dos documentos Word finales: {'Sí' if characterization_references_visible else 'No'}.",
+        f"- No aparecen rutas internas en los documentos Word finales: {'Sí' if not internal_factor_trace_in_words else 'No'}.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",

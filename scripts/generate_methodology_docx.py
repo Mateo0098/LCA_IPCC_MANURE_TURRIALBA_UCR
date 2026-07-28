@@ -474,7 +474,17 @@ def parameter_long_summary() -> pd.DataFrame:
 
 def characterization_factors() -> pd.DataFrame:
     factors = read_csv("factores")
-    cols = [col for col in ["sistema_o_compuesto", "factor", "valor", "unidad"] if col in factors.columns]
+    cols = [
+        col
+        for col in [
+            "sistema_o_compuesto",
+            "factor",
+            "valor",
+            "unidad",
+            "referencia_metodologica",
+        ]
+        if col in factors.columns
+    ]
     out = factors[cols].copy()
     out = out[out["sistema_o_compuesto"].isin(["CH4", "N2O", "CO2", "NH3", "NO3"])].drop_duplicates()
     return out.rename(
@@ -483,6 +493,7 @@ def characterization_factors() -> pd.DataFrame:
             "factor": "Factor",
             "valor": "Valor",
             "unidad": "Unidad",
+            "referencia_metodologica": "Referencia metodológica",
         }
     )
 
@@ -622,6 +633,7 @@ def build_document() -> None:
     doc.add_heading("19. Evaluación de impacto de ciclo de vida", level=2)
     add_paragraphs(doc, [
         "La evaluación de impacto convirtió las emisiones estimadas en resultados equivalentes mediante factores de caracterización. Las categorías consideradas fueron calentamiento global, expresado como kg CO2-eq/año, y eutrofización, expresada como kg PO4-eq/año. La unidad de eutrofización se expresa como equivalente de fosfato y se relaciona con el ion PO4.",
+        "Para la categoría de calentamiento global se emplearon los potenciales reportados por el IMN (2021), expresados en kg CO2-eq/kg de sustancia emitida. Para la categoría de eutrofización se utilizaron factores expresados en kg PO4-eq/kg, con base en Ecobilan (1999, como se citó en Vallejo, 2004).",
         "Los impactos se calcularon primero por etapa y posteriormente se agregaron por escenario. La comparación entre escenarios se realizó con diferencias absolutas y porcentuales entre el Escenario A y el Escenario B.",
     ])
     add_dataframe_table(doc, "Tabla 4. Factores de caracterización para las categorías de impacto.", format_df(characterization_factors(), decimals=4))
@@ -634,7 +646,7 @@ def build_document() -> None:
 
     doc.add_heading("21. Limitaciones metodológicas", level=2)
     add_paragraphs(doc, [
-        "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. La fuente metodológica de los factores de eutrofización y la conversión estequiométrica aplicada al nitrato requieren revisión bibliográfica antes de la versión final del TFG.",
+        "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. La conversión estequiométrica aplicada al nitrato requiere revisión bibliográfica antes de la versión final del TFG.",
         "La presentación de flujos anuales y masas equivalentes describe la escala operacional del sistema, pero la comparación metodológica entre escenarios se mantiene referida a 1 kg de estiércol fresco.",
     ])
 
