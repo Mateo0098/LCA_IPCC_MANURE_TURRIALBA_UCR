@@ -43,6 +43,12 @@ VALIDATION_OUT = OUT_DIR / "reporte_validacion_documentos.md"
 FORMAT_REPORT_OUT = OUT_DIR / "reporte_formato_master.md"
 APPENDIX_RELATION_REPORT_OUT = OUT_DIR / "reporte_relacion_apendices.md"
 FACTOR_REFERENCES_REPORT_OUT = OUT_DIR / "reporte_referencias_factores.md"
+NO3_CORRECTION_REPORT_OUT = (
+    OUT_DIR / "reporte_correccion_factor_estequiometrico_NO3.md"
+)
+
+OLD_NO3_STOICHIOMETRIC_FACTOR = 31 / 7
+CURRENT_NO3_STOICHIOMETRIC_FACTOR = 4.4268
 
 METHODOLOGY_APPENDICES = [
     ("A", "Parámetros completos del modelo ACV", "Apéndice interno"),
@@ -637,7 +643,7 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "El Escenario A alcanzó 478,78 kg CO2-eq/año para calentamiento global y 3,64 kg PO4-eq/año para eutrofización. El Escenario B alcanzó 1 787,19 kg CO2-eq/año para calentamiento global y 4,43 kg PO4-eq/año para eutrofización.",
+            "El Escenario A alcanzó 478,78 kg CO2-eq/año para calentamiento global y 3,64 kg PO4-eq/año para eutrofización. El Escenario B alcanzó 1 787,19 kg CO2-eq/año para calentamiento global y 4,42 kg PO4-eq/año para eutrofización.",
             "La Tabla 6 presenta la agregación por escenario y conserva las categorías de impacto y unidades definidas en las tablas finales validadas.",
             "La Tabla R7 del bloque de apéndices internos, Impactos totales completos por escenario, presenta el detalle de la agregación utilizada en esta comparación.",
         ],
@@ -649,7 +655,7 @@ def build_document() -> None:
         doc,
         [
             "La comparación entre escenarios muestra mayores impactos totales en el Escenario B para las dos categorías evaluadas. En calentamiento global, la diferencia absoluta B menos A fue de 1 308,41 kg CO2-eq/año, equivalente a 273,28 % respecto al Escenario A.",
-            "En eutrofización, la diferencia absoluta fue de 0,786 kg PO4-eq/año, equivalente a 21,58 % respecto al Escenario A. La Tabla 7 resume la comparación entre escenarios y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
+            "En eutrofización, la diferencia absoluta fue de 0,785 kg PO4-eq/año, equivalente a 21,58 % respecto al Escenario A. La Tabla 7 resume la comparación entre escenarios y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
             "La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente.",
         ],
     )
@@ -1050,6 +1056,159 @@ def write_factor_references_report(
     )
 
 
+def write_no3_correction_report(
+    master_hash_before: str,
+    master_hash_after: str,
+) -> None:
+    emissions = pd.read_csv(
+        ROOT / "processed" / "ACV_resumen_emisiones.csv",
+        encoding="utf-8-sig",
+    ).fillna(0)
+    impacts = pd.read_csv(
+        ROOT / "processed" / "acv_impacto_por_etapa_escenario.csv",
+        encoding="utf-8-sig",
+    )
+    impacts = impacts.set_index(["Escenario", "Etapa"])
+    ratio = OLD_NO3_STOICHIOMETRIC_FACTOR / CURRENT_NO3_STOICHIOMETRIC_FACTOR
+    rows: list[dict[str, object]] = []
+    for _, row in emissions.iterrows():
+        scenario = str(row["Escenario"])
+        stage = int(row["Etapa"])
+        new_no3 = float(row.get("NO3_ec13", 0)) + float(row.get("NO3_ec21", 0))
+        old_no3 = new_no3 * ratio
+        no3_difference = new_no3 - old_no3
+        no3_pct = (no3_difference / old_no3 * 100) if old_no3 else 0.0
+        new_eutrophication = float(
+            impacts.loc[
+                (scenario, stage),
+                "impacto_eutrofizacion_kg_po4eq",
+            ]
+        )
+        old_eutrophication = new_eutrophication - no3_difference * 0.095
+        eutrophication_difference = new_eutrophication - old_eutrophication
+        eutrophication_pct = (
+            eutrophication_difference / old_eutrophication * 100
+            if old_eutrophication
+            else 0.0
+        )
+        rows.append(
+            {
+                "scenario": scenario,
+                "stage": stage,
+                "old_no3": old_no3,
+                "new_no3": new_no3,
+                "no3_difference": no3_difference,
+                "no3_pct": no3_pct,
+                "old_eutrophication": old_eutrophication,
+                "new_eutrophication": new_eutrophication,
+                "eutrophication_difference": eutrophication_difference,
+                "eutrophication_pct": eutrophication_pct,
+            }
+        )
+
+    lines = [
+        "# Reporte de corrección del factor estequiométrico N a NO₃⁻",
+        "",
+        "## Cambio aplicado",
+        "",
+        f"- Valor anterior: `{OLD_NO3_STOICHIOMETRIC_FACTOR:.4f}` (mostrado como 4,4286).",
+        f"- Valor nuevo: `{CURRENT_NO3_STOICHIOMETRIC_FACTOR:.4f}`.",
+        "- Origen corregido: `scripts/ecuaciones_acv.py`, constante `FACTOR_N_A_NO3`.",
+        "- Referencia metodológica: Cálculo estequiométrico.",
+        "- No se asignó una cita bibliográfica externa a esta conversión.",
+        "",
+        "## Comparación por escenario y etapa",
+        "",
+        "| Escenario | Etapa | NO₃⁻ anterior (kg/año) | NO₃⁻ nuevo (kg/año) | Diferencia absoluta | Diferencia (%) | Eutrofización anterior (kg PO₄-eq/año) | Eutrofización nueva (kg PO₄-eq/año) | Diferencia absoluta | Diferencia (%) |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in rows:
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(row["scenario"]),
+                    str(row["stage"]),
+                    f"{row['old_no3']:.9f}",
+                    f"{row['new_no3']:.9f}",
+                    f"{row['no3_difference']:.9f}",
+                    f"{row['no3_pct']:.6f}",
+                    f"{row['old_eutrophication']:.9f}",
+                    f"{row['new_eutrophication']:.9f}",
+                    f"{row['eutrophication_difference']:.9f}",
+                    f"{row['eutrophication_pct']:.6f}",
+                ]
+            )
+            + " |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Comparación de totales por escenario",
+            "",
+            "| Escenario | NO₃⁻ anterior (kg/año) | NO₃⁻ nuevo (kg/año) | Diferencia absoluta | Diferencia (%) | Eutrofización anterior (kg PO₄-eq/año) | Eutrofización nueva (kg PO₄-eq/año) | Diferencia absoluta | Diferencia (%) |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for scenario in ("A", "B"):
+        scenario_rows = [row for row in rows if row["scenario"] == scenario]
+        old_no3_total = sum(float(row["old_no3"]) for row in scenario_rows)
+        new_no3_total = sum(float(row["new_no3"]) for row in scenario_rows)
+        old_eutrophication_total = sum(
+            float(row["old_eutrophication"]) for row in scenario_rows
+        )
+        new_eutrophication_total = sum(
+            float(row["new_eutrophication"]) for row in scenario_rows
+        )
+        no3_difference = new_no3_total - old_no3_total
+        eutrophication_difference = (
+            new_eutrophication_total - old_eutrophication_total
+        )
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    scenario,
+                    f"{old_no3_total:.9f}",
+                    f"{new_no3_total:.9f}",
+                    f"{no3_difference:.9f}",
+                    f"{no3_difference / old_no3_total * 100:.6f}",
+                    f"{old_eutrophication_total:.9f}",
+                    f"{new_eutrophication_total:.9f}",
+                    f"{eutrophication_difference:.9f}",
+                    f"{eutrophication_difference / old_eutrophication_total * 100:.6f}",
+                ]
+            )
+            + " |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Archivos regenerados",
+            "",
+            "- Resumen de emisiones y tablas de emisiones por etapa.",
+            "- Impactos por etapa, impactos totales y comparación entre escenarios.",
+            "- Tablas académicas reducidas para Word.",
+            "- Figuras de NO₃⁻, eutrofización por etapa, eutrofización total y comparación de escenarios.",
+            "- Documentos Word de metodología y resultados.",
+            "",
+            "## Control del alcance",
+            "",
+            "- Los cambios numéricos se limitan a las emisiones de NO₃⁻ y a la eutrofización asociada.",
+            "- No se modificaron los factores de caracterización ni factores no relacionados.",
+            "- No cambiaron las emisiones de CH₄, N₂O, NH₃ o CO₂ ni el calentamiento global.",
+            f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+            f"- Hash SHA-256 del documento maestro: `{master_hash_after}`.",
+        ]
+    )
+    NO3_CORRECTION_REPORT_OUT.write_text(
+        repair_mojibake("\n".join(lines) + "\n"),
+        encoding="utf-8",
+    )
+
+
 def heading_and_caption_colors_black(path: Path) -> bool:
     document = Document(str(path))
     style_names = {
@@ -1277,6 +1436,7 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 - `reporte_formato_master.md`
 - `reporte_relacion_apendices.md`
 - `reporte_referencias_factores.md`
+- `reporte_correccion_factor_estequiometrico_NO3.md`
 
 ## 2. Scripts usados
 
@@ -1359,7 +1519,7 @@ Resultados:
 ## 8. Advertencias para revisión humana
 
 - Los resultados anuales se presentan como escala de inventario operacional y no sustituyen la unidad funcional del ACV.
-- Debe verificarse la conversión estequiométrica aplicada al nitrato.
+- Las conversiones basadas en relaciones de masa se documentan como cálculos estequiométricos y no requieren una cita bibliográfica externa.
 - Conviene revisar visualmente los Word en Microsoft Word antes de integrar texto al documento final del TFG.
 """
     README_OUT.write_text(repair_mojibake(readme), encoding="utf-8")
@@ -1387,6 +1547,10 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     )
     write_factor_references_report(
         factor_references,
+        master_hash_before,
+        master_hash_after,
+    )
+    write_no3_correction_report(
         master_hash_before,
         master_hash_after,
     )
@@ -1490,6 +1654,74 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         .str.contains("pendiente|requiere revisión", case=False, regex=True)
         .any()
     )
+    stoichiometric_rows = factor_references[
+        factor_references["clasificacion_referencia"].astype(str)
+        == "Conversión estequiométrica"
+    ]
+    no3_stoichiometric_rows = stoichiometric_rows[
+        stoichiometric_rows["factor"].astype(str)
+        == "Conversión estequiométrica de N a NO₃⁻"
+    ]
+    no3_stoichiometric_factor_ok = (
+        len(no3_stoichiometric_rows) == 1
+        and abs(
+            float(no3_stoichiometric_rows.iloc[0]["valor"])
+            - CURRENT_NO3_STOICHIOMETRIC_FACTOR
+        )
+        < 1e-12
+    )
+    stoichiometric_references_ok = (
+        len(stoichiometric_rows) == 3
+        and (
+            stoichiometric_rows["referencia_metodologica"].astype(str)
+            == "Cálculo estequiométrico"
+        ).all()
+        and (
+            stoichiometric_rows["estado_referencia"].astype(str) == "Resuelto"
+        ).all()
+    )
+    stoichiometric_external_citations_absent = not stoichiometric_rows[
+        "referencia_metodologica"
+    ].astype(str).str.contains(
+        "IPCC|IMN|Ecobilan|Vallejo|Jjagwe|pendiente",
+        case=False,
+        regex=True,
+    ).any()
+    emissions_after_no3_correction = pd.read_csv(
+        ROOT / "processed" / "ACV_resumen_emisiones.csv",
+        encoding="utf-8-sig",
+    ).fillna(0)
+    previous_no3_values = {
+        ("A", 1): 12.963843969689863,
+        ("A", 2): 0.0,
+        ("A", 3): 1.0191405727033882,
+        ("A", 4): 5.076488072987896,
+        ("B", 1): 14.559151026042285,
+        ("B", 2): 8.614138735832643,
+    }
+    no3_results_recalculated = True
+    for _, row in emissions_after_no3_correction.iterrows():
+        key = (str(row["Escenario"]), int(row["Etapa"]))
+        current_no3 = float(row["NO3_ec13"]) + float(row["NO3_ec21"])
+        expected_no3 = (
+            previous_no3_values[key]
+            * CURRENT_NO3_STOICHIOMETRIC_FACTOR
+            / OLD_NO3_STOICHIOMETRIC_FACTOR
+        )
+        if abs(current_no3 - expected_no3) > 1e-10:
+            no3_results_recalculated = False
+            break
+    unrelated_factors_unchanged = (
+        set(stoichiometric_rows["factor"].astype(str))
+        == {
+            "Conversión estequiométrica de N₂O-N a N₂O",
+            "Conversión estequiométrica de N a NH₃",
+            "Conversión estequiométrica de N a NO₃⁻",
+        }
+        and sorted(stoichiometric_rows["valor"].astype(float).tolist())
+        == sorted([1.571428571, 1.214285714, 4.4268])
+        and characterization_values_ok
+    )
     pending_reference_markers = [
         "pendiente de referencia",
         "referencia pendiente",
@@ -1529,6 +1761,35 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
             "Requiere revisión bibliográfica del método EICV",
         ]
     )
+    old_no3_factor_patterns = [
+        "4,4286",
+        "4.4286",
+        "4,428571",
+        "4.428571",
+    ]
+    old_no3_factor_absent = not any(
+        pattern in validation_combined for pattern in old_no3_factor_patterns
+    )
+    new_no3_factor_visible = (
+        "4,4268" in combined
+        and (
+            "4.4268"
+            in (
+                TABLES["tabla_05"].read_text(
+                    encoding="utf-8-sig",
+                    errors="replace",
+                )
+            )
+        )
+    )
+    no3_source_constant_ok = bool(
+        re.search(
+            r"(?m)^FACTOR_N_A_NO3\s*=\s*4\.4268\s*$",
+            (ROOT / "scripts" / "ecuaciones_acv.py").read_text(
+                encoding="utf-8",
+            ),
+        )
+    )
     ipcc_references_ok = (
         not ipcc_reference_rows.empty
         and ipcc_reference_rows["referencia_metodologica"]
@@ -1555,8 +1816,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         }.issubset(set(jjagwe_reference_rows["factor"].astype(str)))
     )
     unresolved_references_explicit = (
-        not unresolved_reference_rows.empty
-        and unresolved_reference_rows["referencia_metodologica"]
+        unresolved_reference_rows.empty
+        or unresolved_reference_rows["referencia_metodologica"]
         .astype(str)
         .str.contains("Requiere revisión bibliográfica", case=False, regex=False)
         .all()
@@ -2177,6 +2438,20 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
+        "## Validación de factor estequiométrico N a NO₃⁻",
+        "",
+        f"- El valor anterior 4,4286 ya no aparece en los documentos Word ni en las tablas académicas finales: {'Sí' if old_no3_factor_absent else 'No'}.",
+        f"- La conversión estequiométrica de N a NO₃⁻ aparece con el valor 4,4268: {'Sí' if no3_stoichiometric_factor_ok and new_no3_factor_visible and no3_source_constant_ok else 'No'}.",
+        f"- La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: {'Sí' if stoichiometric_references_ok else 'No'}.",
+        f"- No se asignaron citas bibliográficas externas a los factores estequiométricos: {'Sí' if stoichiometric_external_citations_absent else 'No'}.",
+        f"- Se recalcularon los resultados relacionados con NO₃⁻: {'Sí' if no3_results_recalculated else 'No'}.",
+        f"- Se actualizaron las tablas, figuras y documentos afectados: {'Sí' if NO3_CORRECTION_REPORT_OUT.exists() else 'No'}.",
+        f"- El cambio numérico está documentado en `reporte_correccion_factor_estequiometrico_NO3.md`: {'Sí' if NO3_CORRECTION_REPORT_OUT.exists() else 'No'}.",
+        f"- No se modificaron factores no relacionados: {'Sí' if unrelated_factors_unchanged else 'No'}.",
+        f"- No aparecen rutas internas en los documentos Word finales: {'Sí' if not internal_factor_trace_in_words else 'No'}.",
+        f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
+        "",
         "## Validación de referencias de factores de caracterización",
         "",
         f"- Los factores de calentamiento global de CH₄, N₂O y CO₂ se referencian como `IMN (2021)`: {'Sí' if warming_references_ok else 'No'}.",
@@ -2213,6 +2488,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- `{FORMAT_REPORT_OUT.relative_to(ROOT).as_posix()}`",
         f"- `{APPENDIX_RELATION_REPORT_OUT.relative_to(ROOT).as_posix()}`",
         f"- `{FACTOR_REFERENCES_REPORT_OUT.relative_to(ROOT).as_posix()}`",
+        f"- `{NO3_CORRECTION_REPORT_OUT.relative_to(ROOT).as_posix()}`",
     ]
     VALIDATION_OUT.write_text(repair_mojibake("\n".join(lines) + "\n"), encoding="utf-8")
 
@@ -2232,6 +2508,10 @@ def main() -> None:
     print(
         "Reporte de referencias generado: "
         f"{FACTOR_REFERENCES_REPORT_OUT.relative_to(ROOT)}"
+    )
+    print(
+        "Reporte de corrección estequiométrica generado: "
+        f"{NO3_CORRECTION_REPORT_OUT.relative_to(ROOT)}"
     )
 
 

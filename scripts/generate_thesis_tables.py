@@ -55,6 +55,12 @@ IMN_CHARACTERIZATION_REFERENCE = "IMN (2021)"
 EUTROPHICATION_CHARACTERIZATION_REFERENCE = (
     "Ecobilan (1999, como se citó en Vallejo, 2004)"
 )
+STOICHIOMETRIC_REFERENCE = "Cálculo estequiométrico"
+STOICHIOMETRIC_FACTOR_LABELS = {
+    "FACTOR_N_A_N2O": "Conversión estequiométrica de N₂O-N a N₂O",
+    "FACTOR_N_A_NH3": "Conversión estequiométrica de N a NH₃",
+    "FACTOR_N_A_NO3": "Conversión estequiométrica de N a NO₃⁻",
+}
 
 AUDITED_FACTOR_REFERENCES = {
     "B0_T": ("IPCC, ecuación de estimación de CH₄", "IPCC", "Resuelto"),
@@ -80,19 +86,19 @@ AUDITED_FACTOR_REFERENCES = {
     "frac_leach_h": ("IPCC, ecuación 18", "IPCC", "Resuelto"),
     "R_N2_N2O": ("IPCC, ecuación 24", "IPCC", "Resuelto"),
     "FACTOR_N_A_N2O": (
-        "Conversión estequiométrica de N₂O-N a N₂O (44/28)",
+        STOICHIOMETRIC_REFERENCE,
         "Conversión estequiométrica",
         "Resuelto",
     ),
     "FACTOR_N_A_NH3": (
-        "Conversión estequiométrica de N a NH₃ (17/14)",
+        STOICHIOMETRIC_REFERENCE,
         "Conversión estequiométrica",
         "Resuelto",
     ),
     "FACTOR_N_A_NO3": (
-        "Requiere revisión bibliográfica y estequiométrica",
-        "Revisión manual",
-        "Requiere revisión bibliográfica",
+        STOICHIOMETRIC_REFERENCE,
+        "Conversión estequiométrica",
+        "Resuelto",
     ),
     "CH_4_eq": (
         IMN_CHARACTERIZATION_REFERENCE,
@@ -416,8 +422,9 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
     if hardcoded.exists():
         audit = pd.read_csv(hardcoded)
         for _, row in audit.iterrows():
+            raw_factor = str(row["factor"])
             reference, classification, status = AUDITED_FACTOR_REFERENCES.get(
-                str(row["factor"]),
+                raw_factor,
                 (
                     "Requiere revisión bibliográfica",
                     "Revisión manual",
@@ -427,7 +434,10 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
             rows.append({
                 "tipo_factor": "Parámetro complementario",
                 "sistema_o_compuesto": "",
-                "factor": row["factor"],
+                "factor": STOICHIOMETRIC_FACTOR_LABELS.get(
+                    raw_factor,
+                    raw_factor,
+                ),
                 "valor": row["valor"],
                 "unidad": row["unidad"],
                 "fuente_dato": row["script"],

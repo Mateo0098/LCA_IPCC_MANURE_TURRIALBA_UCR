@@ -13,7 +13,8 @@ NO_3_eq = 0.095
 # Factores de conversion de kg N a kg de compuesto emitido
 FACTOR_N_A_N2O = 44 / 28
 FACTOR_N_A_NH3 = 17 / 14
-FACTOR_N_A_NO3 = 31 / 7
+# Conversión estequiométrica de N a NO₃⁻.
+FACTOR_N_A_NO3 = 4.4268
 
 
 # Ecuación (1)

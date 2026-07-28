@@ -49,9 +49,9 @@ Parámetro complementario,,EF5,0.011,kg N₂O-N/kg N lixiviado,"IPCC, ecuaciones
 Parámetro complementario,,frac gasm,0.21,adimensional,"IPCC, ecuación 16"
 Parámetro complementario,,frac leach h,0.24,adimensional,"IPCC, ecuación 18"
 Parámetro complementario,,R N2 N₂O,3.0,kg N2-N/kg N₂O-N,"IPCC, ecuación 24"
-Parámetro complementario,,FACTOR N A N₂O,1.571428571,kg N₂O/kg N₂O-N,Conversión estequiométrica de N₂O-N a N₂O (44/28)
-Parámetro complementario,,FACTOR N A NH₃,1.214285714,kg NH₃/kg N,Conversión estequiométrica de N a NH₃ (17/14)
-Parámetro complementario,,FACTOR N A NO₃⁻,4.428571429,kg NO₃⁻/kg N,Requiere revisión bibliográfica y estequiométrica
+Parámetro complementario,,Conversión estequiométrica de N₂O-N a N₂O,1.571428571,kg N₂O/kg N₂O-N,Cálculo estequiométrico
+Parámetro complementario,,Conversión estequiométrica de N a NH₃,1.214285714,kg NH₃/kg N,Cálculo estequiométrico
+Parámetro complementario,,Conversión estequiométrica de N a NO₃⁻,4.4268,kg NO₃⁻/kg N,Cálculo estequiométrico
 Parámetro complementario,,CH 4 eq,21.0,kg CO₂-eq/kg CH₄,IMN (2021)
 Parámetro complementario,,N 2 O eq,310.0,kg CO₂-eq/kg N₂O,IMN (2021)
 Parámetro complementario,,NH 3 eq,0.35,kg PO₄-eq/kg NH₃,"Ecobilan (1999, como se citó en Vallejo, 2004)"

@@ -9,6 +9,7 @@
 - `reporte_formato_master.md`
 - `reporte_relacion_apendices.md`
 - `reporte_referencias_factores.md`
+- `reporte_correccion_factor_estequiometrico_NO3.md`
 
 ## 2. Scripts usados
 
@@ -111,5 +112,5 @@ Resultados:
 ## 8. Advertencias para revisión humana
 
 - Los resultados anuales se presentan como escala de inventario operacional y no sustituyen la unidad funcional del ACV.
-- Debe verificarse la conversión estequiométrica aplicada al nitrato.
+- Las conversiones basadas en relaciones de masa se documentan como cálculos estequiométricos y no requieren una cita bibliográfica externa.
 - Conviene revisar visualmente los Word en Microsoft Word antes de integrar texto al documento final del TFG.

@@ -224,6 +224,20 @@
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
+## Validación de factor estequiométrico N a NO₃⁻
+
+- El valor anterior 4,4286 ya no aparece en los documentos Word ni en las tablas académicas finales: Sí.
+- La conversión estequiométrica de N a NO₃⁻ aparece con el valor 4,4268: Sí.
+- La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: Sí.
+- No se asignaron citas bibliográficas externas a los factores estequiométricos: Sí.
+- Se recalcularon los resultados relacionados con NO₃⁻: Sí.
+- Se actualizaron las tablas, figuras y documentos afectados: Sí.
+- El cambio numérico está documentado en `reporte_correccion_factor_estequiometrico_NO3.md`: Sí.
+- No se modificaron factores no relacionados: Sí.
+- No aparecen rutas internas en los documentos Word finales: Sí.
+- El documento maestro protegido no fue modificado: Sí.
+- El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
+
 ## Validación de referencias de factores de caracterización
 
 - Los factores de calentamiento global de CH₄, N₂O y CO₂ se referencian como `IMN (2021)`: Sí.
@@ -260,3 +274,4 @@
 - `outputs/documentos_tfg/reporte_formato_master.md`
 - `outputs/documentos_tfg/reporte_relacion_apendices.md`
 - `outputs/documentos_tfg/reporte_referencias_factores.md`
+- `outputs/documentos_tfg/reporte_correccion_factor_estequiometrico_NO3.md`

@@ -646,7 +646,7 @@ def build_document() -> None:
 
     doc.add_heading("21. Limitaciones metodológicas", level=2)
     add_paragraphs(doc, [
-        "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. La conversión estequiométrica aplicada al nitrato requiere revisión bibliográfica antes de la versión final del TFG.",
+        "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. Las conversiones de N₂O-N a N₂O, de N a NH₃ y de N a NO₃⁻ se documentaron como cálculos estequiométricos derivados de relaciones de masa.",
         "La presentación de flujos anuales y masas equivalentes describe la escala operacional del sistema, pero la comparación metodológica entre escenarios se mantiene referida a 1 kg de estiércol fresco.",
     ])
 
