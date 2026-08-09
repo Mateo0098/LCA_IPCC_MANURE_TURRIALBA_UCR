@@ -253,8 +253,9 @@ def build_conclusions(
             "text": (
                 "El inventario de ciclo de vida representó y cuantificó las rutas diferenciadas de manejo del estiércol en "
                 f"los dos escenarios, a partir de un flujo anual común de {number(reference_flow, 6)} kg de estiércol fresco. "
-                f"En el Escenario A, {number(100 * collected_fraction, 2)} % se destinó a precomposteo y lombricompostaje, "
-                f"mientras {number(100 * remainder_fraction, 2)} % se incorporó a las aguas verdes; en el Escenario B, el "
+                f"En el Escenario A, {number(100 * collected_fraction, 2)} % ingresó a la ruta sólida mediante A1: Precomposteo; "
+                "posteriormente, la masa resultante continuó hacia A2: Lombricompostaje, mientras que "
+                f"{number(100 * remainder_fraction, 2)} % se incorporó a las aguas verdes. En el Escenario B, el "
                 "100 % ingresó al sistema de purines. De este modo, el inventario caracterizó las trayectorias de manejo y "
                 "los flujos asociados a cada alternativa estudiada."
             ),
@@ -273,8 +274,9 @@ def build_conclusions(
                 f"{a_cg[0]} aportó {number(a_cg[2], 2)} % del total del Escenario A y {b_cg[0]} aportó "
                 f"{number(b_cg[2], 2)} % del total del Escenario B. Para eutrofización, las mayores contribuciones "
                 f"correspondieron a {a_eu[0]} ({number(a_eu[2], 2)} % del total de A) y {b_eu[0]} "
-                f"({number(b_eu[2], 2)} % del total de B). La evaluación por etapa identificó así patrones de concentración "
-                "diferenciados entre las alternativas estudiadas."
+                f"({number(b_eu[2], 2)} % del total de B), considerando el supuesto de representación del nitrógeno "
+                "potencialmente eutrofizante adoptado en el estudio. La evaluación por etapa identificó así patrones de "
+                "concentración diferenciados entre las alternativas estudiadas."
             ),
             "evidence": (
                 f"CG: {a_cg[0]} = {a_cg[1]:.9f}; {b_cg[0]} = {b_cg[1]:.9f}. "
@@ -287,8 +289,8 @@ def build_conclusions(
             "objective": "OE2",
             "text": (
                 "Para calentamiento global, el Escenario B presentó el mayor impacto por unidad funcional: "
-                f"{number(normalized_values[('B', 'Calentamiento global')], 3)} kg CO₂-eq/kg de estiércol fresco, frente a "
-                f"{number(normalized_values[('A', 'Calentamiento global')], 3)} kg CO₂-eq/kg en el Escenario A. La diferencia "
+                f"{number(normalized_values[('B', 'Calentamiento global')], 3)} kg CO₂-eq/kg de estiércol fresco manejado, frente a "
+                f"{number(normalized_values[('A', 'Calentamiento global')], 3)} kg CO₂-eq/kg de estiércol fresco manejado en el Escenario A. La diferencia "
                 f"fue de {number(percentage['Calentamiento global'], 2)} % respecto a A, lo que evidenció un menor indicador "
                 "para el Escenario A bajo las condiciones estudiadas."
             ),
@@ -306,8 +308,9 @@ def build_conclusions(
             "objective": "OE2",
             "text": (
                 "Para eutrofización, el Escenario B también presentó el mayor impacto por unidad funcional: "
-                f"{number(normalized_values[('B', 'Eutrofizacion')], 6)} kg PO₄-eq/kg de estiércol fresco, en comparación con "
-                f"{number(normalized_values[('A', 'Eutrofizacion')], 6)} kg PO₄-eq/kg en el Escenario A. La diferencia de "
+                f"{number(normalized_values[('B', 'Eutrofizacion')], 6)} kg PO₄-eq/kg de estiércol fresco manejado, en comparación con "
+                f"{number(normalized_values[('A', 'Eutrofizacion')], 6)} kg PO₄-eq/kg de estiércol fresco manejado en el Escenario A. Bajo el supuesto "
+                "de representación del nitrógeno potencialmente eutrofizante adoptado en el estudio, la diferencia de "
                 f"{number(percentage['Eutrofizacion'], 2)} % respecto a A mostró que el Escenario A también alcanzó el menor "
                 "indicador de eutrofización en el sistema evaluado."
             ),
@@ -325,7 +328,8 @@ def build_conclusions(
             "objective": "Objetivo general",
             "text": (
                 "En conjunto, el ACV permitió estimar el desempeño ambiental de las dos alternativas de manejo en la lechería "
-                "estudiada. Bajo la misma unidad funcional y las condiciones modeladas, el Escenario A presentó menores "
+                "estudiada. Bajo la unidad funcional común de 1 kg de estiércol fresco manejado y las condiciones modeladas, "
+                "el Escenario A presentó menores "
                 "indicadores que el Escenario B tanto para calentamiento global como para eutrofización. Este resultado se "
                 "circunscribió al sistema evaluado y no implicó la superioridad universal de una alternativa en otras lecherías "
                 "o condiciones operativas."
@@ -410,6 +414,25 @@ def validate_outputs(conclusions: list[dict[str, str]]) -> None:
     found = [term for term in forbidden if term in visible]
     if found:
         raise RuntimeError(f"Se detectó lenguaje no permitido en el Word: {found}")
+    by_id = {item["id"]: item["text"] for item in conclusions}
+    if "tal y como fue recolectado" in visible.lower() or re.search(
+        r"unidad funcional.{0,80}(?:estiércol|estiercol).{0,25}recolectad",
+        visible,
+        flags=re.IGNORECASE | re.DOTALL,
+    ):
+        raise RuntimeError("La unidad funcional no debe limitarse al estiércol físicamente recolectado.")
+    if "precomposteo y lombricompostaje" in by_id["C1"].lower():
+        raise RuntimeError("C1 presenta simultáneamente el ingreso a precomposteo y lombricompostaje.")
+    if not all(term in by_id["C1"] for term in ["A1: Precomposteo", "posteriormente", "A2: Lombricompostaje"]):
+        raise RuntimeError("C1 no conserva la secuencia A1 seguida de A2.")
+    unit_denominator = "kg de estiércol fresco manejado"
+    if any(unit_denominator not in by_id[item] for item in ["C3", "C4"]):
+        raise RuntimeError("C3 y C4 deben expresar el denominador completo de la unidad funcional.")
+    eutrophication_caution = "supuesto de representación del nitrógeno potencialmente eutrofizante"
+    if any(eutrophication_caution not in by_id[item] for item in ["C2", "C4"]):
+        raise RuntimeError("C2 y C4 deben conservar la cautela metodológica sobre eutrofización.")
+    if re.search(r"B1.{0,160}lixiviación física|lixiviación física.{0,160}B1", visible, flags=re.IGNORECASE | re.DOTALL):
+        raise RuntimeError("Las conclusiones no deben atribuir la eutrofización de B1 a lixiviación física.")
     clauses = re.split(r"[.;]", visible)
     clauses_without_b_stages = [
         re.sub(r"\bB[12]:.*$", "", clause, flags=re.IGNORECASE) for clause in clauses
