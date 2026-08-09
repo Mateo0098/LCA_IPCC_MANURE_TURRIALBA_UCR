@@ -31,6 +31,8 @@ TABLE_DIR = ROOT / "outputs" / "tablas_tesis"
 FIG_DIR = ROOT / "outputs" / "graficos_tesis"
 OUT_DIR = ROOT / "outputs" / "documentos_tfg"
 OUT_DOCX = OUT_DIR / "metodologia_desarrollada_tfg.docx"
+OPERATIVE_PARAMS = ROOT / "Academic_documents" / "references" / "parametros_operativos_sanchez_2026.csv"
+MASS_BALANCE = ROOT / "processed" / "masa_total_escenario_etapa.csv"
 
 TABLES = {
     "unidad": TABLE_DIR / "tabla_00_unidad_funcional_y_supuestos.csv",
@@ -164,7 +166,8 @@ def validate_inputs() -> None:
         raise RuntimeError(
             "La ruta validada del documento maestro no coincide con la ruta configurada."
         )
-    missing = [path.relative_to(ROOT).as_posix() for path in TABLES.values() if not path.exists()]
+    required = [*TABLES.values(), OPERATIVE_PARAMS, MASS_BALANCE]
+    missing = [path.relative_to(ROOT).as_posix() for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError("Faltan insumos requeridos:\n" + "\n".join(f"- {item}" for item in missing))
 
@@ -237,6 +240,26 @@ def official_stage_label(scenario: object, stage: object) -> str:
         code, short_name, _ = OFFICIAL_STAGE_NAMES[key]
         return f"{code}: {short_name}"
     return f"{key[0]}{key[1]}"
+
+
+def add_calculation_framework(df: pd.DataFrame) -> pd.DataFrame:
+    """Distingue documentalmente el origen previo del marco de cálculo de cada etapa."""
+    out = df.copy()
+    frameworks = {
+        ("A", 1): "Manejo del estiércol",
+        ("A", 2): "Factores experimentales publicados",
+        ("A", 3): "Manejo del estiércol",
+        ("A", 4): "Suelos gestionados",
+        ("B", 1): "Manejo del estiércol",
+        ("B", 2): "Suelos gestionados",
+    }
+    out["Marco de cálculo de la etapa"] = [
+        frameworks.get((str(row["escenario"]).strip().upper(), int(float(row["etapa"]))), "")
+        for _, row in out.iterrows()
+    ]
+    if "sistema_manejo_ipcc" in out.columns:
+        out = out.rename(columns={"sistema_manejo_ipcc": "Sistema de manejo u origen previo"})
+    return out
 
 
 def combine_stage_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -334,6 +357,14 @@ def add_dataframe_table(doc: Document, caption: str, df: pd.DataFrame) -> None:
         for idx, value in enumerate(row):
             cells[idx].text = clean_text(value)
             cells[idx].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    for row_index, row in enumerate(table.rows):
+        tr_pr = row._tr.get_or_add_trPr()
+        cant_split = OxmlElement("w:cantSplit")
+        tr_pr.append(cant_split)
+        if row_index == 0:
+            table_header = OxmlElement("w:tblHeader")
+            table_header.set(qn("w:val"), "true")
+            tr_pr.append(table_header)
     format_table_like_master(table, analyze_master_format(REFERENCE_DOCX))
 
 
@@ -458,12 +489,12 @@ def parameter_long_summary() -> pd.DataFrame:
     ]
     out = params[params["parametro"].isin(keep)][
         ["escenario", "etapa", "nombre_etapa", "sistema_manejo_ipcc", "parametro", "valor", "unidad"]
-    ].rename(
+    ]
+    out = add_calculation_framework(out).rename(
         columns={
             "escenario": "Escenario",
             "etapa": "Etapa",
             "nombre_etapa": "Nombre de etapa",
-            "sistema_manejo_ipcc": "Sistema de manejo",
             "parametro": "Variable principal",
             "valor": "Valor",
             "unidad": "Unidad",
@@ -498,10 +529,63 @@ def characterization_factors() -> pd.DataFrame:
     )
 
 
+def methodology_context() -> dict[str, float]:
+    operational = pd.read_csv(OPERATIVE_PARAMS, encoding="utf-8-sig")
+    values = {
+        str(row["parametro"]).strip(): float(row["valor"])
+        for _, row in operational.iterrows()
+    }
+    required_operational = {
+        "peso_vivo_promedio",
+        "poblacion_media",
+        "permanencia_sala",
+        "estiercol_recolectado_animal",
+        "estiercol_recolectado_anual",
+        "agua_lavado_diaria",
+        "fraccion_generacion_diaria",
+    }
+    if not required_operational.issubset(values):
+        raise RuntimeError("Faltan parámetros operativos requeridos para documentar la metodología.")
+
+    mass = pd.read_csv(MASS_BALANCE, encoding="utf-8-sig")
+    for column in [
+        "estiercol_total_depositado_anual_kg",
+        "estiercol_remanente_anual_kg",
+        "fraccion_recolectada",
+        "fraccion_remanente",
+        "flujo_referencia_anual_kg",
+    ]:
+        mass[column] = pd.to_numeric(mass[column], errors="raise")
+    references = mass.groupby("escenario")["flujo_referencia_anual_kg"].unique()
+    if set(references.index) != {"A", "B"} or any(len(item) != 1 for item in references):
+        raise RuntimeError("No existe un flujo anual de referencia único para A y B.")
+    reference_a = float(references["A"][0])
+    reference_b = float(references["B"][0])
+    if abs(reference_a - reference_b) > 1e-6:
+        raise RuntimeError("Los escenarios no comparten el mismo flujo anual de referencia.")
+    first = mass.iloc[0]
+    daily_theoretical = values["peso_vivo_promedio"] * values["fraccion_generacion_diaria"]
+    residence_deposit = daily_theoretical * values["permanencia_sala"] / 24
+    remainder_animal = residence_deposit - values["estiercol_recolectado_animal"]
+    return {
+        **values,
+        "agua_lavado_anual": values["agua_lavado_diaria"] * 365,
+        "generacion_teorica_diaria": daily_theoretical,
+        "deposito_durante_permanencia": residence_deposit,
+        "remanente_animal": remainder_animal,
+        "fraccion_recolectada": float(first["fraccion_recolectada"]),
+        "fraccion_remanente": float(first["fraccion_remanente"]),
+        "total_depositado_anual": float(first["estiercol_total_depositado_anual_kg"]),
+        "remanente_anual": float(first["estiercol_remanente_anual_kg"]),
+        "flujo_referencia": reference_a,
+    }
+
+
 def build_document() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     doc = Document()
     profile = set_document_style(doc)
+    context = methodology_context()
 
     doc.add_paragraph(
         "Metodología desarrollada del Análisis de Ciclo de Vida", style="Title"
@@ -515,21 +599,22 @@ def build_document() -> None:
 
     doc.add_heading("2. Sitio de estudio", level=2)
     add_paragraphs(doc, [
-        "El sitio de estudio correspondió a una lechería especializada ubicada en Turrialba, Costa Rica. La evaluación se concentró en el manejo del estiércol fresco, la fracción sólida precompostada, las aguas verdes y los purines generados durante las actividades de manejo animal y lavado de las áreas operativas.",
-        "La información primaria incluyó mediciones de campo relacionadas con generación de estiércol, uso de agua de lavado y flujos asociados a las etapas de almacenamiento, transformación y aplicación en campo. La información de laboratorio permitió caracterizar los materiales empleados como entradas del inventario.",
+        "El sitio de estudio correspondió a la lechería de la Sede del Atlántico de la Universidad de Costa Rica, ubicada en Turrialba. La evaluación se concentró en el manejo del estiércol fresco, la fracción sólida precompostada, las aguas verdes y los purines generados durante las actividades de ordeño y lavado de las áreas operativas.",
+        "Sánchez-Romero y Brenes-Gamboa (2026) estudiaron esta misma lechería y aportaron la base documental de los parámetros operativos utilizados para cuantificar la generación de residuos durante el ordeño. La información de laboratorio del presente TFG permitió caracterizar los materiales empleados como entradas del inventario.",
     ])
 
     doc.add_heading("3. Meta, alcance y unidad funcional", level=2)
     add_paragraphs(doc, [
         "La meta del estudio fue comparar el desempeño ambiental de dos escenarios de manejo del estiércol bovino: el Escenario A, basado en lombricompostaje y aplicación de aguas verdes, y el Escenario B, basado en aplicación directa de purines en campo.",
-        "Para el análisis se utilizó como unidad funcional 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero. Esta unidad permitió expresar y comparar los flujos, emisiones e impactos asociados a los escenarios de manejo evaluados bajo una misma base funcional.",
-        "Adicionalmente, algunos resultados se presentan como flujos anuales estimados para describir la magnitud operacional del sistema durante el periodo evaluado; sin embargo, estos valores no sustituyen la unidad funcional del ACV.",
+        "Para el análisis se utilizó como unidad funcional 1 kg de estiércol fresco manejado. Esta unidad permitió expresar y comparar los impactos de los escenarios bajo una misma base funcional.",
+        f"El flujo anual común asociado con la unidad funcional fue {fmt(context['flujo_referencia'], 6)} kg de estiércol fresco/año. Los flujos y emisiones anuales describen la magnitud operacional del sistema, mientras que los indicadores expresados por kilogramo de estiércol fresco corresponden a la normalización respecto a la unidad funcional. La unidad funcional no se definió como 1 kg/año.",
     ])
 
     doc.add_heading("4. Escenarios evaluados", level=2)
     add_paragraphs(doc, [
-        "El Escenario A representa una alternativa de manejo en la que la fracción sólida del estiércol pasa por precomposteo y lombricompostaje, mientras que las aguas verdes se almacenan y posteriormente se aplican en campos de pastoreo. Sus etapas son A1: Precomposteo, A2: Lombricompostaje, A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo.",
-        "El Escenario B representa una alternativa en la que los purines se almacenan y se aplican directamente en campo de pastoreo. Sus etapas son B1: Almacenamiento de purines y B2: Aplicación de purines en campo de pastoreo.",
+        f"Ambos escenarios se definieron como alternativas de manejo para el mismo flujo anual de referencia de {fmt(context['flujo_referencia'], 6)} kg de estiércol fresco/año.",
+        f"En el Escenario A, {fmt(100 * context['fraccion_recolectada'], 2)} % del estiércol depositado se recolectó y entró primero a A1: Precomposteo; la masa resultante de esa transformación continuó posteriormente hacia A2: Lombricompostaje. El {fmt(100 * context['fraccion_remanente'], 2)} % restante permaneció adherido al piso, se incorporó a las aguas verdes y fue representado en A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo.",
+        f"En el Escenario B no se efectuó esa separación: el 100 % del estiércol teóricamente depositado, equivalente a {fmt(context['flujo_referencia'], 6)} kg/año, ingresó a B1: Almacenamiento de purines. En B2: Aplicación de purines en campo de pastoreo se integraron el agua de lavado y el total de estiércol depositado.",
     ])
 
     doc.add_heading("5. Fronteras del sistema", level=2)
@@ -540,13 +625,14 @@ def build_document() -> None:
     doc.add_heading("6. Etapas del Escenario A", level=2)
     add_paragraphs(doc, [
         "A1: Precomposteo corresponde al manejo inicial de la fracción sólida fresca antes del lombricompostaje. A2: Lombricompostaje corresponde a la transformación de la fracción sólida precompostada y representa el manejo posterior de dicha fracción.",
-        "A3: Almacenamiento de aguas verdes corresponde al almacenamiento del efluente generado por lavado y arrastre de residuos líquidos. A4: Aplicación de aguas verdes en campos de pastoreo corresponde al uso de ese flujo líquido en campo.",
+        "A3: Almacenamiento de aguas verdes corresponde al almacenamiento del efluente generado por el lavado y el arrastre de residuos. Para estimar las emisiones de manejo en esta etapa se utilizó como masa de actividad únicamente el estiércol remanente sometido al sistema, junto con la caracterización química del estiércol fresco y los factores del sistema IPCC seleccionado; el agua de lavado presente físicamente no se sumó como masa de estiércol en esas ecuaciones.",
+        "A4: Aplicación de aguas verdes en campos de pastoreo corresponde a la etapa subsecuente de aplicación del efluente al suelo. Su flujo aplicado integró el agua de lavado y el estiércol remanente incorporado a las aguas verdes, y se empleó la caracterización química específica de las aguas verdes en las ecuaciones asociadas con suelos gestionados.",
     ])
 
     doc.add_heading("7. Etapas del Escenario B", level=2)
     add_paragraphs(doc, [
-        "B1: Almacenamiento de purines corresponde al almacenamiento de la mezcla líquida de estiércol, orina, agua de lavado y residuos arrastrados antes de su aplicación. B2: Aplicación de purines en campo de pastoreo corresponde a la aplicación directa de purines sobre el terreno.",
-        "Ambas etapas utilizan los parámetros de masa equivalente, nitrógeno total y factores de emisión necesarios para estimar emisiones nitrogenadas y emisiones de gases de efecto invernadero.",
+        "B1: Almacenamiento de purines corresponde físicamente al almacenamiento previo a la aplicación del efluente. Para estimar las emisiones de manejo se utilizó como masa de actividad la totalidad del estiércol teóricamente depositado, junto con la caracterización química del estiércol fresco y los factores del sistema IPCC seleccionado. Aunque el almacenamiento contiene agua de lavado, ese volumen no se incorporó como masa de estiércol en las ecuaciones de manejo.",
+        "B2: Aplicación de purines en campo de pastoreo corresponde a la etapa subsecuente de aplicación del efluente al suelo. El flujo aplicado integró el agua de lavado y la totalidad del estiércol incorporado al purín, y se utilizó la caracterización química específica del purín en las ecuaciones asociadas con suelos gestionados.",
     ])
 
     doc.add_heading("8. Datos de entrada usados para el ICV", level=2)
@@ -555,6 +641,8 @@ def build_document() -> None:
         "El estiércol fresco constituyó el flujo de referencia del sistema y fue caracterizado mediante humedad, materia seca, cenizas, sólidos volátiles y nitrógeno total. El estiércol precompostado permitió representar la transformación de la fracción sólida durante el proceso de lombricompostaje.",
         "Las aguas verdes correspondieron al efluente generado durante el lavado de las áreas de manejo animal y fueron consideradas en el Escenario A para las etapas de almacenamiento y aplicación. Los purines representaron la mezcla líquida de estiércol, orina, agua de lavado y otros residuos arrastrados, considerada en el Escenario B para almacenamiento y aplicación directa en campo.",
         "Para cada flujo se organizaron las variables necesarias para estimar emisiones de CH4, N2O, NH3 y NO3, así como los impactos asociados a calentamiento global y eutrofización. Los resultados de la caracterización fisicoquímica de los materiales analizados se resumen en la Tabla 1.",
+        f"Los parámetros operativos publicados para la misma lechería fueron: peso vivo promedio de {fmt(context['peso_vivo_promedio'], 1)} kg/animal, población media de {fmt(context['poblacion_media'], 0)} vacas en ordeño, permanencia aproximada de {fmt(context['permanencia_sala'], 1)} h/día, recolección de {fmt(context['estiercol_recolectado_animal'], 1)} kg de estiércol fresco/animal, total recolectado de {fmt(context['estiercol_recolectado_anual'], 1)} kg/año y consumo de agua de lavado de {fmt(context['agua_lavado_diaria'], 1)} L/día (Sánchez-Romero y Brenes-Gamboa, 2026). El consumo anual derivado fue {fmt(context['agua_lavado_anual'], 1)} L/año.",
+        f"El valor de {fmt(context['estiercol_recolectado_anual'], 1)} kg/año representa el estiércol efectivamente recolectado durante las actividades de ordeño estudiadas; no corresponde a la excreción fisiológica total diaria de los animales.",
     ])
     add_dataframe_table(doc, "Tabla 1. Caracterización fisicoquímica de los materiales analizados.", format_df(characterization_summary(), decimals=3))
     add_dataframe_table(doc, "Tabla 2. Flujos considerados para el inventario de ciclo de vida.", format_df(flow_summary(), decimals=3))
@@ -562,8 +650,9 @@ def build_document() -> None:
 
     doc.add_heading("9. Muestreo y análisis de laboratorio", level=2)
     add_paragraphs(doc, [
-        "El muestreo se orientó a caracterizar los materiales que intervienen en las etapas del sistema evaluado. Para la fracción sólida se consideraron muestras de estiércol fresco y material precompostado, mientras que para la fracción líquida se consideraron aguas verdes y purines.",
-        "Las muestras sólidas permitieron determinar humedad, materia seca, cenizas, sólidos volátiles y nitrógeno total; las muestras líquidas se utilizaron principalmente para representar el contenido de nitrógeno total y los flujos asociados al almacenamiento y aplicación en campo. Los resultados resumidos de caracterización se presentan en la Tabla 1 y los flujos utilizados para el inventario en la Tabla 2.",
+        "De acuerdo con el diseño previsto en el documento maestro, el muestreo se orientó a caracterizar los materiales que intervienen en las etapas del sistema evaluado mediante jornadas distribuidas durante el periodo de estudio. Para la fracción sólida se consideraron muestras de estiércol fresco y material precompostado, mientras que para la fracción líquida se consideraron aguas verdes y purines.",
+        "Al estado documental de esta versión se incorporaron principalmente los resultados disponibles del primer muestreo. Las jornadas posteriores se integrarán estadísticamente cuando sus resultados estén disponibles, sin presentar las observaciones actuales como representación definitiva de toda la campaña experimental.",
+        "Las muestras sólidas permitieron determinar contenido de agua, materia seca, cenizas, sólidos volátiles y nitrógeno total; las muestras líquidas se utilizaron principalmente para representar el contenido de nitrógeno total y los flujos asociados al almacenamiento y aplicación en campo. Los resultados resumidos de caracterización se presentan en la Tabla 1 y los flujos utilizados para el inventario en la Tabla 2.",
         "La materia seca y los sólidos volátiles se emplearon para representar la fracción orgánica disponible en las estimaciones de CH4. El nitrógeno total se utilizó en la estimación de N2O, NH3 y NO3, según la alternativa de manejo correspondiente. Los parámetros principales utilizados para la estimación de emisiones se muestran en la Tabla 3.",
     ])
 
@@ -605,30 +694,47 @@ def build_document() -> None:
 
     doc.add_heading("15. Construcción de flujos del inventario", level=2)
     add_paragraphs(doc, [
-        "Los flujos del inventario se construyeron a partir de mediciones de generación de estiércol, consumo de agua de lavado, masas o volúmenes asociados a cada etapa y duración temporal considerada para representar la operación del sistema.",
+        "Los flujos del inventario se construyeron a partir de los parámetros operativos publicados para la lechería, el supuesto conservador adoptado para estimar el estiércol depositado durante la permanencia en sala y las masas o volúmenes asociados a cada etapa.",
+        "Sánchez-Romero y Brenes-Gamboa (2026) citan un intervalo bibliográfico según el cual una vaca lechera puede producir diariamente estiércol equivalente a 7–10 % de su peso vivo. El presente TFG adoptó deliberadamente el límite inferior de 7 % como supuesto conservador, con el fin de evitar sobreestimar una fracción que no fue medida directamente. Por tanto, el 7 % no se atribuyó a una medición realizada por esos autores.",
+        f"La generación teórica diaria se estimó como {fmt(context['peso_vivo_promedio'], 1)} × 0,07 = {fmt(context['generacion_teorica_diaria'], 3)} kg/animal/día. Para una permanencia de {fmt(context['permanencia_sala'], 1)} h/día, el depósito teórico fue {fmt(context['generacion_teorica_diaria'], 3)} × ({fmt(context['permanencia_sala'], 1)}/24) = {fmt(context['deposito_durante_permanencia'], 6)} kg/animal. Al descontar los {fmt(context['estiercol_recolectado_animal'], 1)} kg/animal recolectados, el remanente estimado fue {fmt(context['remanente_animal'], 6)} kg/animal.",
+        f"La fracción remanente se calculó como {fmt(context['remanente_animal'], 6)}/{fmt(context['deposito_durante_permanencia'], 6)} = {fmt(context['fraccion_remanente'], 12)}, equivalente a {fmt(100 * context['fraccion_remanente'], 2)} %. La fracción recolectada fue {fmt(100 * context['fraccion_recolectada'], 2)} %. El {fmt(100 * context['fraccion_remanente'], 2)} % constituye una estimación derivada mediante balance y no una medición directa.",
+        f"A partir del total recolectado publicado y de la fracción recolectada se obtuvo un total teóricamente depositado de {fmt(context['total_depositado_anual'], 6)} kg/año y un remanente de {fmt(context['remanente_anual'], 6)} kg/año. En el Escenario A, el total se dividió entre la ruta sólida y las aguas verdes; en el Escenario B, el total ingresó al sistema de purines.",
         "La equivalencia operativa de 1 L de agua igual a 1 kg equivalente se utilizó para integrar flujos líquidos y sólidos en una base común de inventario. Los flujos anuales estimados se reportan como magnitud operacional y no sustituyen la unidad funcional del ACV.",
         "La masa equivalente total de las etapas de aplicación no corresponde únicamente al volumen del componente líquido expresado como kg equivalente. En estas etapas se integran también las fracciones de estiércol asociadas al flujo aplicado. Por ello, aun cuando se empleó la equivalencia 1 L de agua = 1 kg para el componente líquido, la masa equivalente total representa la suma del componente líquido y la fracción de estiércol correspondiente a la etapa. En A4, esta fracción corresponde al estiércol remanente derivado del balance entre la masa teóricamente depositada en sala y la masa recolectada; en B2, corresponde al total anual de estiércol teóricamente depositado e integrado al purín aplicado en campo.",
     ])
 
     doc.add_heading("16. Normalización respecto a la unidad funcional", level=2)
     add_paragraphs(doc, [
-        "La normalización consistió en expresar flujos, emisiones e impactos respecto a la unidad funcional del estudio: 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero. Esta referencia permitió comparar los escenarios A y B bajo una base común.",
-        "Los resultados anualizados complementan la interpretación operativa del sistema durante el periodo evaluado, pero no constituyen la unidad funcional.",
+        "La normalización consistió en expresar los impactos respecto a la unidad funcional del estudio: 1 kg de estiércol fresco manejado. Esta referencia permitió comparar los escenarios A y B bajo una base común.",
+        f"Los resultados anualizados describen la magnitud operacional asociada al flujo común de {fmt(context['flujo_referencia'], 6)} kg/año, pero no constituyen la unidad funcional. El indicador normalizado se obtuvo al dividir cada impacto anual entre dicho flujo de referencia.",
     ])
 
     doc.add_heading("17. Aplicación de ecuaciones IPCC", level=2)
     add_paragraphs(doc, [
         "Las ecuaciones IPCC se aplicaron por etapa según el sistema de manejo asignado. Las vías consideradas incluyeron emisiones de CH4 por manejo de estiércol, N2O directo, pérdidas por volatilización y lixiviación, N2O indirecto y emisiones asociadas con suelos gestionados.",
-        "La etapa A2: Lombricompostaje se trató como caso especial cuando la estimación se basó en factores medidos. En los demás casos, las emisiones se estimaron con los factores de manejo y parámetros descritos en la Tabla 3.",
-        "Los factores asociados con las ecuaciones de estimación de emisiones se organizaron de acuerdo con la metodología IPCC. Los factores medidos utilizados para relacionar el residuo seco o estiércol precompostado con emisiones de gases de efecto invernadero fueron tomados de Jjagwe et al. (2019).",
+        "Para A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines, las emisiones asociadas con el manejo del estiércol se estimaron a partir de la masa de estiércol sometida al sistema, la caracterización del estiércol fresco y los factores correspondientes al sistema IPCC seleccionado. Aunque durante la operación real estos sistemas contienen agua de lavado, dicho volumen no se incorporó como masa de estiércol en las ecuaciones de manejo.",
+        "El componente líquido se incorporó en las etapas subsecuentes de aplicación en campo, A4: Aplicación de aguas verdes en campos de pastoreo y B2: Aplicación de purines en campo de pastoreo. En estas etapas se representó el flujo total aplicado, integrado por el agua de lavado y la fracción de estiércol correspondiente, y se utilizó la caracterización química específica de las aguas verdes o del purín, según el escenario, en las ecuaciones asociadas con suelos gestionados.",
+        "La etapa A2: Lombricompostaje se trató como caso especial cuando la estimación se basó en factores obtenidos de mediciones publicadas. En los demás casos, las emisiones se estimaron con los factores de manejo y parámetros descritos en la Tabla 3.",
+        "Los factores asociados con las ecuaciones de estimación de emisiones se organizaron de acuerdo con la metodología IPCC. Los factores obtenidos mediante mediciones y utilizados para relacionar el residuo seco o estiércol precompostado con emisiones de gases de efecto invernadero fueron tomados de Jjagwe et al. (2019).",
         "Los factores de emisión y caracterización empleados en estas estimaciones se detallan en el Apéndice interno B, Factores de emisión y caracterización.",
     ])
 
     doc.add_heading("18. Estimación de emisiones", level=2)
     add_paragraphs(doc, [
         "Las emisiones se estimaron por escenario, etapa y sustancia. Las sustancias consideradas fueron CO2, CH4, N2O, NH3 y NO3. Las ecuaciones de nitrógeno utilizaron n_ex,fraction como fracción másica de entrada.",
+        "Las ecuaciones del IPCC permitieron estimar las pérdidas de N por volatilización y lixiviación, así como la fracción de dichas pérdidas transformada en N₂O-N indirecto. Estas ecuaciones no se utilizaron originalmente para calcular eutrofización; por ello, el presente TFG incorporó una adaptación metodológica para representar el N remanente potencialmente contribuyente a esa categoría.",
+        "Se definió Nᴳ como el nitrógeno remanente de la ruta de volatilización después de descontar la fracción transformada en N₂O-N indirecto, y Nᴸ como el nitrógeno remanente de la ruta de lixiviación después del descuento equivalente. El conjunto potencialmente eutrofizante, Nₑᵤₜ, se definió como la suma de Nᴳ y Nᴸ. Las ecuaciones siguientes presentan estas magnitudes mediante subíndices en notación LaTeX.",
+        "Para representar la especiación de Nₑᵤₜ dentro del inventario, se adoptó como supuesto metodológico del presente TFG una distribución de 50 % como N asociado a NH₃ y 50 % como N asociado a NO₃⁻. Esta distribución tomó como antecedente el supuesto empleado por Komakech et al. (2016) para el N del estiércol que alcanza cuerpos de agua, sin atribuir a esos autores la aplicación directa de este reparto al N remanente de las rutas IPCC.",
+        "En consecuencia, NH₃ y NO₃⁻ se derivaron del conjunto Nₑᵤₜ y no de una correspondencia directa entre Nᴳ y NH₃ o entre Nᴸ y NO₃⁻. Una etapa con Nᴸ igual a cero puede presentar NO₃⁻ equivalente porque una mitad de Nₑᵤₜ se asigna a N asociado a nitrato bajo el supuesto de especiación; este resultado no representa una predicción directa de lixiviación física ni de la especie química final en el ambiente.",
         "Los factores de caracterización empleados para convertir emisiones en indicadores de impacto se presentan en la Tabla 4.",
     ])
+    add_latex_equation(doc, r"N_G = N_{volatilizado} \times (1 - EF_4)")
+    add_latex_equation(doc, r"N_L = N_{lixiviado} \times (1 - EF_5)")
+    add_latex_equation(doc, r"N_{eut} = N_G + N_L")
+    add_latex_equation(doc, r"N_{NH_3} = 0,5 \times N_{eut}")
+    add_latex_equation(doc, r"N_{NO_3^-} = 0,5 \times N_{eut}")
+    add_latex_equation(doc, r"m_{NH_3} = N_{NH_3} \times \frac{17}{14}")
+    add_latex_equation(doc, r"m_{NO_3^-} = N_{NO_3^-} \times 4,4268")
 
     doc.add_heading("19. Evaluación de impacto de ciclo de vida", level=2)
     add_paragraphs(doc, [
@@ -640,7 +746,8 @@ def build_document() -> None:
 
     doc.add_heading("20. Supuestos metodológicos", level=2)
     add_paragraphs(doc, [
-        "Los supuestos principales fueron la equivalencia 1 L de agua = 1 kg equivalente, la extrapolación anual de flujos operativos, la conservación de cenizas para estimar cambios de masa seca durante el precomposteo, la asignación de sistemas de manejo por etapa y el uso de factores de caracterización para las categorías de impacto evaluadas.",
+        "Los supuestos principales fueron la equivalencia 1 L de agua = 1 kg equivalente, la extrapolación anual de flujos operativos, la adopción conservadora de 7 % del peso vivo/día para estimar el depósito teórico durante la permanencia en sala, la conservación de cenizas para estimar cambios de masa seca durante el precomposteo, la asignación de sistemas de manejo por etapa y el uso de factores de caracterización para las categorías de impacto evaluadas.",
+        "Para la eutrofización se incluyó además la adaptación que distribuye por partes iguales el conjunto Nₑᵤₜ entre N asociado a NH₃ y N asociado a NO₃⁻. Esta adaptación representa una convención de inventario del presente TFG y no una medición directa de la especiación ambiental.",
         "Estos supuestos permiten mantener coherencia entre la caracterización de materiales, los flujos del inventario y las vías de emisión empleadas en el ACV.",
     ])
 
@@ -650,11 +757,17 @@ def build_document() -> None:
         "La presentación de flujos anuales y masas equivalentes describe la escala operacional del sistema, pero la comparación metodológica entre escenarios se mantiene referida a 1 kg de estiércol fresco.",
     ])
 
+    doc.add_heading("22. Referencias metodológicas incorporadas", level=2)
+    add_paragraphs(doc, [
+        "Sánchez-Romero, C. A., & Brenes-Gamboa, S. (2026). Cuantificación y caracterización de residuos generados durante el ordeño de ganado Jersey. Agronomía Mesoamericana, 37, artículo 6135ky76. https://doi.org/10.15517/6135ky76",
+        "Komakech, A. J., Zurbrügg, C., Miito, G. J., Wanyama, J., & Vinnerås, B. (2016). Environmental impact from vermicomposting of organic waste in Kampala, Uganda. Journal of Environmental Management, 181, 395–402. https://doi.org/10.1016/j.jenvman.2016.06.028",
+    ])
+
     doc.add_heading("Apéndices internos de metodología", level=1)
     add_paragraphs(doc, ["Los apéndices internos reúnen material técnico de apoyo. La Tabla M1 presenta parámetros completos del modelo ACV, la Tabla M2 presenta factores de emisión y caracterización, y la Tabla M3 presenta el diccionario de variables metodológicas."])
 
     doc.add_heading("Apéndice interno A. Parámetros completos del modelo ACV", level=2)
-    params = strip_internal_columns(apply_official_stage_names(read_csv("parametros")))
+    params = add_calculation_framework(strip_internal_columns(apply_official_stage_names(read_csv("parametros"))))
     add_dataframe_table(doc, "Tabla M1. Parámetros completos usados por escenario y etapa.", format_df(params, decimals=4))
 
     doc.add_heading("Apéndice interno B. Factores de emisión y caracterización", level=2)

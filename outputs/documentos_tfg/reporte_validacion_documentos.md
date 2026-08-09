@@ -14,7 +14,7 @@
 - `resultados_desarrollados_tfg.docx` fue regenerado: Sí.
 - Las figuras principales fueron insertadas o están disponibles para inserción: Sí.
 - Se conservaron subíndices y superíndices en fórmulas químicas principales: Sí.
-- Se agregaron ecuaciones en sintaxis LaTeX válida para humedad, materia seca, cenizas, sólidos volátiles, nitrógeno total y conservación de cenizas: Sí.
+- Se agregaron ecuaciones en sintaxis LaTeX válida para caracterización, conservación de cenizas y representación del N potencialmente eutrofizante: Sí.
 - Las ecuaciones fueron insertadas con formato matemático centrado: Sí.
 - La sección de datos de entrada del ICV incluye estiércol fresco, precompostado, aguas verdes y purines: Sí.
 - La sección de muestreo y análisis de laboratorio referencia explícitamente las tablas mencionadas: Sí.
@@ -27,7 +27,7 @@
 - No se usaron archivos `antes_correccion_nitrogeno`: Sí.
 - No aparecen nombres antiguos de etapas: Sí.
 - No aparecen rutas internas del repositorio en la prosa principal: Sí
-- La metodología de nitrógeno en los documentos usa `n_ex_fraction = n_ex_pct / 100`: Sí.
+- La metodología convierte el N total porcentual a fracción másica antes de aplicar las ecuaciones: Sí.
 - El documento original de propuesta no fue modificado: Sí.
 
 ## Validación de unidad funcional
@@ -40,10 +40,17 @@
 - No se modificó el documento maestro de propuesta: Sí.
 - Los Word fueron regenerados: Sí.
 
+## Validación del estado metodológico y numérico vigente
+
+- La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el remanente derivado, el flujo común, Nᴳ, Nᴸ, Nₑᵤₜ, la adaptación 50/50 y su antecedente bibliográfico: Sí.
+- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B, las etapas dominantes y la interpretación no física del NO₃⁻ de B1: Sí.
+- La magnitud operacional anual y la normalización por 1 kg de estiércol fresco manejado se presentan por separado: Sí.
+- Las observaciones experimentales actuales se identifican discretamente como principalmente correspondientes al primer muestreo: Sí.
+
 ## Validación de ecuaciones en sintaxis LaTeX
 
 - Método usado: texto LaTeX válido, seleccionable, en párrafos independientes y centrados.
-- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; masa de cenizas del estiércol fresco; masa seca equivalente del material precompostado; factor de masa seca remanente.
+- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; conservación de cenizas; N remanente de volatilización y lixiviación; N potencialmente eutrofizante; reparto 50/50; y conversiones estequiométricas a NH₃ y NO₃⁻.
 - Las nueve ecuaciones LaTeX requeridas aparecen como texto seleccionable: Sí.
 - No se usaron imágenes de ecuaciones ni archivos `eq_*.png`: Sí.
 - No se usaron delimitadores visibles `\[`, `\]` ni `$$`: Sí.
@@ -52,7 +59,7 @@
 
 ## Validación de codificación de caracteres
 
-- Scripts modificados: `scripts/generate_thesis_tables.py`, `scripts/generate_methodology_docx.py`, `scripts/generate_results_docx.py` y `scripts/academic_text_utils.py`.
+- Generadores documentales ejecutados: `scripts/generate_methodology_docx.py` y `scripts/generate_results_docx.py`.
 - Documentos regenerados: `metodologia_desarrollada_tfg.docx` y `resultados_desarrollados_tfg.docx`.
 - Estrategia aplicada: lectura explícita UTF-8 de CSV y reparación controlada de mojibake solo cuando se detectan marcadores de codificación dañada.
 - No quedan marcadores de mojibake en los documentos y reportes generados (U+00C3, U+00C2, secuencias de comillas dañadas ni carácter de reemplazo): Sí.
@@ -230,7 +237,7 @@
 - La conversión estequiométrica de N a NO₃⁻ aparece con el valor 4,4268: Sí.
 - La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: Sí.
 - No se asignaron citas bibliográficas externas a los factores estequiométricos: Sí.
-- Se recalcularon los resultados relacionados con NO₃⁻: Sí.
+- Se recalcularon los resultados relacionados con NO₃⁻: No.
 - Se actualizaron las tablas, figuras y documentos afectados: Sí.
 - El cambio numérico está documentado en `reporte_correccion_factor_estequiometrico_NO3.md`: Sí.
 - No se modificaron factores no relacionados: Sí.

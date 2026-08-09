@@ -26,6 +26,7 @@ env/
 *.log
 *.tmp
 *.temp
+~$*.xlsx
 
 # Local env / secrets
 .env

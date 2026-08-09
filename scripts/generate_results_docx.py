@@ -37,6 +37,8 @@ FIG_DIR = ROOT / "outputs" / "graficos_tesis"
 GRAPHICS_SCRIPT = ROOT / "scripts" / "generate_thesis_graphics.py"
 OUT_DIR = ROOT / "outputs" / "documentos_tfg"
 OUT_DOCX = OUT_DIR / "resultados_desarrollados_tfg.docx"
+PROCESSED_TOTALS = ROOT / "processed" / "acv_impacto_total_por_escenario.csv"
+PROCESSED_STAGE_IMPACTS = ROOT / "processed" / "acv_impacto_por_etapa_escenario.csv"
 METHODOLOGY_DOCX = OUT_DIR / "metodologia_desarrollada_tfg.docx"
 README_OUT = OUT_DIR / "README_DOCUMENTOS_GENERADOS.md"
 VALIDATION_OUT = OUT_DIR / "reporte_validacion_documentos.md"
@@ -241,7 +243,12 @@ def validate_inputs() -> None:
         raise RuntimeError(
             "La ruta validada del documento maestro no coincide con la ruta configurada."
         )
-    required = [*TABLES.values(), *(FIG_DIR / name for name, _ in MAIN_FIGURES)]
+    required = [
+        *TABLES.values(),
+        PROCESSED_TOTALS,
+        PROCESSED_STAGE_IMPACTS,
+        *(FIG_DIR / name for name, _ in MAIN_FIGURES),
+    ]
     missing = [path.relative_to(ROOT).as_posix() for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError("Faltan insumos requeridos:\n" + "\n".join(f"- {item}" for item in missing))
@@ -318,6 +325,26 @@ def official_stage_label(scenario: object, stage: object) -> str:
         code, short_name, _ = OFFICIAL_STAGE_NAMES[key]
         return f"{code}: {short_name}"
     return f"{key[0]}{key[1]}"
+
+
+def add_calculation_framework(df: pd.DataFrame) -> pd.DataFrame:
+    """Distingue documentalmente el origen previo del marco de cálculo de cada etapa."""
+    out = df.copy()
+    frameworks = {
+        ("A", 1): "Manejo del estiércol",
+        ("A", 2): "Factores experimentales publicados",
+        ("A", 3): "Manejo del estiércol",
+        ("A", 4): "Suelos gestionados",
+        ("B", 1): "Manejo del estiércol",
+        ("B", 2): "Suelos gestionados",
+    }
+    out["Marco de cálculo de la etapa"] = [
+        frameworks.get((str(row["escenario"]).strip().upper(), int(float(row["etapa"]))), "")
+        for _, row in out.iterrows()
+    ]
+    if "sistema_manejo_ipcc" in out.columns:
+        out = out.rename(columns={"sistema_manejo_ipcc": "Sistema de manejo u origen previo"})
+    return out
 
 
 def combine_stage_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -416,6 +443,14 @@ def add_dataframe_table(doc: Document, caption: str, df: pd.DataFrame) -> None:
         for idx, value in enumerate(row):
             cells[idx].text = clean_text(value)
             cells[idx].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    for row_index, row in enumerate(table.rows):
+        tr_pr = row._tr.get_or_add_trPr()
+        cant_split = OxmlElement("w:cantSplit")
+        tr_pr.append(cant_split)
+        if row_index == 0:
+            table_header = OxmlElement("w:tblHeader")
+            table_header.set(qn("w:val"), "true")
+            tr_pr.append(table_header)
     format_table_like_master(table, analyze_master_format(REFERENCE_DOCX))
 
 
@@ -475,8 +510,9 @@ def flow_summary() -> pd.DataFrame:
 def parameter_summary() -> pd.DataFrame:
     t04 = apply_official_stage_names(read_csv("tabla_04"))
     subset = t04[t04["parametro"].isin(["Masa equivalente total", "Nitrogeno total reportado", "Nitrogeno total como fraccion masica", "MCF", "EF3"])]
+    subset = add_calculation_framework(subset)
     out = subset.pivot_table(
-        index=["escenario", "etapa", "nombre_etapa", "modelo_calculo"],
+        index=["escenario", "etapa", "nombre_etapa", "modelo_calculo", "Marco de cálculo de la etapa"],
         columns="parametro",
         values="valor",
         aggfunc="first",
@@ -529,13 +565,21 @@ def impact_stage_summary() -> pd.DataFrame:
 
 
 def total_impact_summary() -> pd.DataFrame:
-    t08 = read_csv("tabla_08")
-    out = t08.pivot(index="escenario", columns="categoria_impacto", values="resultado_total").reset_index().rename_axis(None, axis=1)
-    return out.rename(
+    totals = pd.read_csv(PROCESSED_TOTALS, encoding="utf-8-sig")
+    return totals[
+        [
+            "Escenario",
+            "impacto_calentamiento_global_kg_co2eq",
+            "impacto_eutrofizacion_kg_po4eq",
+            "impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco",
+            "impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco",
+        ]
+    ].rename(
         columns={
-            "escenario": "Escenario",
-            "Calentamiento global": "Calentamiento global (kg CO2-eq/año)",
-            "Eutrofizacion": "Eutrofización (kg PO4-eq/año)",
+            "impacto_calentamiento_global_kg_co2eq": "Calentamiento global (kg CO2-eq/año)",
+            "impacto_eutrofizacion_kg_po4eq": "Eutrofización (kg PO4-eq/año)",
+            "impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco": "Calentamiento global (kg CO2-eq/kg de estiércol fresco)",
+            "impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco": "Eutrofización (kg PO4-eq/kg de estiércol fresco)",
         }
     )
 
@@ -564,10 +608,68 @@ def comparison_summary() -> pd.DataFrame:
     return out
 
 
+def results_context() -> dict[str, object]:
+    totals = pd.read_csv(PROCESSED_TOTALS, encoding="utf-8-sig")
+    stages = pd.read_csv(PROCESSED_STAGE_IMPACTS, encoding="utf-8-sig")
+    comparison = read_csv("tabla_09")
+    if set(totals["Escenario"].astype(str)) != {"A", "B"}:
+        raise RuntimeError("Los impactos procesados deben contener los escenarios A y B.")
+    by_scenario = totals.set_index("Escenario")
+    context: dict[str, object] = {
+        "cg_a": float(by_scenario.loc["A", "impacto_calentamiento_global_kg_co2eq"]),
+        "eu_a": float(by_scenario.loc["A", "impacto_eutrofizacion_kg_po4eq"]),
+        "cg_b": float(by_scenario.loc["B", "impacto_calentamiento_global_kg_co2eq"]),
+        "eu_b": float(by_scenario.loc["B", "impacto_eutrofizacion_kg_po4eq"]),
+        "cg_norm_a": float(by_scenario.loc["A", "impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"]),
+        "eu_norm_a": float(by_scenario.loc["A", "impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco"]),
+        "cg_norm_b": float(by_scenario.loc["B", "impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"]),
+        "eu_norm_b": float(by_scenario.loc["B", "impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco"]),
+    }
+    comparison_index = comparison.set_index("categoria_impacto")
+    context["cg_difference"] = float(comparison_index.loc["Calentamiento global", "diferencia_absoluta_B_menos_A"])
+    context["eu_difference"] = float(comparison_index.loc["Eutrofizacion", "diferencia_absoluta_B_menos_A"])
+    context["cg_percentage"] = float(comparison_index.loc["Calentamiento global", "diferencia_porcentual_B_vs_A"])
+    context["eu_percentage"] = float(comparison_index.loc["Eutrofizacion", "diferencia_porcentual_B_vs_A"])
+
+    stage_names = {
+        ("A", 1): "A1: Precomposteo",
+        ("A", 2): "A2: Lombricompostaje",
+        ("A", 3): "A3: Almacenamiento de aguas verdes",
+        ("A", 4): "A4: Aplicación de aguas verdes en campos de pastoreo",
+        ("B", 1): "B1: Almacenamiento de purines",
+        ("B", 2): "B2: Aplicación de purines en campo de pastoreo",
+    }
+    category_columns = {
+        "cg": "impacto_calentamiento_global_kg_co2eq",
+        "eu": "impacto_eutrofizacion_kg_po4eq",
+    }
+    for scenario in ("A", "B"):
+        subset = stages[stages["Escenario"] == scenario]
+        for short, column in category_columns.items():
+            row = subset.loc[subset[column].idxmax()]
+            value = float(row[column])
+            total = float(context[f"{short}_{scenario.lower()}"])
+            context[f"{short}_dominant_{scenario.lower()}_name"] = stage_names[(scenario, int(row["Etapa"]))]
+            context[f"{short}_dominant_{scenario.lower()}_value"] = value
+            context[f"{short}_dominant_{scenario.lower()}_percentage"] = 100 * value / total
+
+    b1 = stages[(stages["Escenario"] == "B") & (stages["Etapa"] == 1)].iloc[0]
+    emissions = read_csv("tabla_06")
+    b1_emissions = emissions[(emissions["escenario"] == "B") & (emissions["etapa"] == 1)]
+    context["b1_eutrophication"] = float(b1["impacto_eutrofizacion_kg_po4eq"])
+    context["b1_nh3"] = float(b1_emissions.loc[b1_emissions["sustancia"] == "NH3", "valor"].sum())
+    context["b1_no3"] = float(b1_emissions.loc[b1_emissions["sustancia"] == "NO3", "valor"].sum())
+    context["b1_n2o_leaching"] = float(
+        b1_emissions.loc[b1_emissions["emision"].str.contains("lixiviacion", case=False, na=False), "valor"].sum()
+    )
+    return context
+
+
 def build_document() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     doc = Document()
     profile = set_document_style(doc)
+    context = results_context()
 
     doc.add_paragraph(
         "Resultados desarrollados del Análisis de Ciclo de Vida", style="Title"
@@ -577,10 +679,11 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "La caracterización de las muestras analizadas permitió establecer los parámetros fisicoquímicos usados como entradas del inventario de ciclo de vida. El estiércol fresco presentó una humedad promedio de 85,77 % y una materia seca de 14,23 %. El estiércol precompostado presentó una humedad promedio de 77,59 % y una materia seca de 22,41 %.",
+            "La caracterización de las muestras analizadas permitió establecer los parámetros fisicoquímicos usados como entradas del inventario de ciclo de vida. El estiércol fresco presentó un contenido promedio de agua de 85,77 % y una materia seca de 14,23 %. El estiércol precompostado presentó un contenido promedio de agua de 77,59 % y una materia seca de 22,41 %.",
             "La fracción de sólidos volátiles fue mayor en el estiércol fresco, con 85,88 % en base seca, mientras que el estiércol precompostado presentó 70,96 %. En contraste, las cenizas fueron mayores en el material precompostado. El nitrógeno total fue de 0,372 % para estiércol fresco y de 2,425 % para estiércol precompostado.",
             "La Tabla 1 resume los valores de caracterización de las muestras. La Figura 1 presenta humedad y materia seca, mientras que la Figura 2 presenta sólidos volátiles y cenizas.",
             "La Tabla R1 del bloque de apéndices internos, Caracterización completa de muestras, presenta la desagregación de los resultados fisicoquímicos utilizados en esta sección.",
+            "Los valores presentados corresponden principalmente a las observaciones disponibles del primer muestreo incorporado. Las jornadas restantes se integrarán estadísticamente cuando sus resultados estén disponibles.",
         ],
     )
     add_dataframe_table(doc, "Tabla 1. Caracterización resumida de las muestras.", format_df(characterization_summary(), decimals=3))
@@ -591,9 +694,10 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Estos valores se presentan como flujos anuales estimados del inventario, manteniendo como referencia metodológica la unidad funcional de 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero.",
+            "Estos valores se presentan como flujos anuales estimados del inventario, manteniendo como referencia metodológica la unidad funcional de 1 kg de estiércol fresco manejado. El flujo anual común expresa la escala operacional del inventario y no redefine la unidad funcional.",
             "Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. B2: Aplicación de purines en campo de pastoreo presentó la mayor masa equivalente total, con 276 851,23 kg eq/año. En el Escenario A, A4: Aplicación de aguas verdes en campos de pastoreo dominó la masa equivalente, con 259 326,13 kg eq/año.",
             "La masa equivalente de A4 integra el agua de lavado y 8 753,63 kg/año de estiércol remanente derivados del balance en sala. La masa equivalente de B2 integra agua de lavado y 26 278,73 kg/año de estiércol fresco teóricamente depositado.",
+            "En contraste, para estimar las emisiones de manejo en A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se utilizó la masa de estiércol correspondiente, sin sumar el agua de lavado como masa de actividad. El flujo total de agua y estiércol se incorporó en las etapas subsecuentes de aplicación A4 y B2.",
             "A2: Lombricompostaje presentó la menor masa equivalente. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
             "La Tabla R2 del bloque de apéndices internos, Flujos completos del inventario, contiene la desagregación de los flujos empleados para construir el ICV.",
         ],
@@ -605,9 +709,9 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla final distingue entre n_ex_pct, que corresponde al nitrógeno total reportado en porcentaje, y n_ex_fraction, que corresponde a la fracción másica usada en ecuaciones de nitrógeno. La relación aplicada fue n_ex_fraction = n_ex_pct / 100.",
-            "A2: Lombricompostaje aparece como etapa con modelo medido. Las demás etapas se calculan con modelo IPCC según el sistema de manejo asignado. La Tabla 3 resume los parámetros principales.",
-            "Los factores vinculados con las ecuaciones de emisiones siguen la metodología IPCC, mientras que los factores medidos por unidad de residuo seco utilizados en A2 proceden de Jjagwe et al. (2019).",
+            "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla distingue entre el nitrógeno total reportado en porcentaje y la fracción másica empleada en las ecuaciones de nitrógeno. La fracción másica se obtuvo al dividir el porcentaje reportado entre 100.",
+            "A2: Lombricompostaje aparece como una etapa estimada mediante información experimental publicada. Las demás etapas se calculan con ecuaciones IPCC según el sistema de manejo asignado. La Tabla 3 resume los parámetros principales.",
+            "Los factores vinculados con las ecuaciones de emisiones siguen la metodología IPCC, mientras que los factores obtenidos mediante mediciones por unidad de residuo seco utilizados en A2 proceden de Jjagwe et al. (2019).",
             "La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados.",
         ],
     )
@@ -618,7 +722,7 @@ def build_document() -> None:
         doc,
         [
             "Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó 151,99 kg CH4/año, 3,11 kg N2O/año, 24,91 kg NH3/año, 90,82 kg NO3/año y 123,70 kg CO2/año. El Escenario B presentó 413,11 kg CH4/año, 1,33 kg N2O/año, 29,01 kg NH3/año y 105,74 kg NO3/año.",
-            "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje reportó CO2 por el uso de un factor medido. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
+            "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje reportó CO2 mediante un factor experimental publicado. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
             "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
         ],
     )
@@ -629,8 +733,9 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Los impactos ambientales por etapa muestran que B1: Almacenamiento de purines presentó la mayor contribución al potencial de calentamiento global, con 8 908,48 kg CO2-eq/año. En el Escenario A, A3: Almacenamiento de aguas verdes presentó la mayor contribución a esta categoría.",
-            "Para eutrofización, B1: Almacenamiento de purines presentó el valor más alto, seguido por A1: Precomposteo. A2: Lombricompostaje registró 0 kg PO4-eq/año en la tabla final, debido a que no reporta emisiones de NH3 ni NO3 en la tabla de emisiones por etapa. La Tabla 5 resume los impactos por etapa; la Figura 5 presenta calentamiento global y la Figura 6 presenta eutrofización.",
+            f"Los impactos ambientales por etapa mostraron que {context['cg_dominant_b_name']} concentró {fmt(context['cg_dominant_b_percentage'], 2)} % del calentamiento global del Escenario B, con {fmt(context['cg_dominant_b_value'], 6)} kg CO2-eq/año. En el Escenario A, {context['cg_dominant_a_name']} aportó {fmt(context['cg_dominant_a_percentage'], 2)} % del total de esta categoría.",
+            f"Para eutrofización, {context['eu_dominant_b_name']} presentó la mayor contribución del Escenario B, con {fmt(context['eu_dominant_b_percentage'], 2)} % de su total; en el Escenario A, {context['eu_dominant_a_name']} concentró {fmt(context['eu_dominant_a_percentage'], 2)} %. A2: Lombricompostaje registró 0 kg PO4-eq/año porque no presenta emisiones de NH3 ni NO3 en el inventario de esa etapa. La Tabla 5 resume los impactos por etapa; la Figura 5 presenta calentamiento global y la Figura 6 presenta eutrofización.",
+            f"En B1: Almacenamiento de purines, la lixiviación explícita utilizada para estimar N2O indirecto fue nula. No obstante, bajo el supuesto de especiación adoptado, el conjunto de N potencialmente eutrofizante se distribuyó en partes iguales como N asociado a NH3 y a NO3. Por ello, los {fmt(context['b1_no3'], 6)} kg NO3/año registrados para B1 representan NO3 equivalente derivado de esa asignación y no evidencia de lixiviación física directa.",
             "Los factores de caracterización para calentamiento global se referencian al IMN (2021), mientras que los factores de eutrofización se basan en Ecobilan (1999, como se citó en Vallejo, 2004).",
             "La Tabla R6 del bloque de apéndices internos, Impactos completos por etapa, presenta los resultados desagregados por categoría de impacto.",
         ],
@@ -643,19 +748,31 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "El Escenario A alcanzó 4 278,43 kg CO2-eq/año para calentamiento global y 17,35 kg PO4-eq/año para eutrofización. El Escenario B alcanzó 9 087,05 kg CO2-eq/año para calentamiento global y 20,20 kg PO4-eq/año para eutrofización.",
-            "La Tabla 6 presenta la agregación por escenario y conserva las categorías de impacto y unidades definidas en las tablas finales validadas.",
+            f"El Escenario A alcanzó {fmt(context['cg_a'], 6)} kg CO2-eq/año para calentamiento global y {fmt(context['eu_a'], 6)} kg PO4-eq/año para eutrofización. El Escenario B alcanzó {fmt(context['cg_b'], 6)} kg CO2-eq/año y {fmt(context['eu_b'], 6)} kg PO4-eq/año, respectivamente.",
+            f"Respecto a la unidad funcional, los indicadores del Escenario A fueron {fmt(context['cg_norm_a'], 9)} kg CO2-eq/kg de estiércol fresco y {fmt(context['eu_norm_a'], 9)} kg PO4-eq/kg de estiércol fresco. Para el Escenario B fueron {fmt(context['cg_norm_b'], 9)} kg CO2-eq/kg y {fmt(context['eu_norm_b'], 9)} kg PO4-eq/kg de estiércol fresco.",
+            "La Tabla 6 distingue los resultados anualizados, que representan la magnitud operacional, de los resultados normalizados respecto a 1 kg de estiércol fresco manejado.",
             "La Tabla R7 del bloque de apéndices internos, Impactos totales completos por escenario, presenta el detalle de la agregación utilizada en esta comparación.",
         ],
     )
-    add_dataframe_table(doc, "Tabla 6. Impactos ambientales totales por escenario.", format_df(total_impact_summary()))
+    add_dataframe_table(
+        doc,
+        "Tabla 6. Impactos ambientales totales y normalizados por escenario.",
+        format_df(
+            total_impact_summary(),
+            decimals=6,
+            decimals_by_col={
+                "Calentamiento global (kg CO2-eq/kg de estiércol fresco)": 9,
+                "Eutrofización (kg PO4-eq/kg de estiércol fresco)": 9,
+            },
+        ),
+    )
 
     doc.add_heading("7. Comparación entre escenarios", level=2)
     add_paragraphs(
         doc,
         [
-            "La comparación entre escenarios muestra un mayor impacto total de calentamiento global en el Escenario B. La diferencia absoluta B menos A fue de 4 808,61 kg CO2-eq/año, equivalente a 112,39 % respecto al Escenario A.",
-            "En eutrofización, el Escenario B fue 2,851 kg PO4-eq/año mayor que el Escenario A, equivalente a una diferencia de 16,43 % respecto al Escenario A. La Tabla 7 resume la comparación entre escenarios y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
+            f"La comparación bajo la misma unidad funcional mostró un mayor impacto de calentamiento global en el Escenario B. La diferencia B menos A fue de {fmt(context['cg_difference'], 6)} kg CO2-eq/año, equivalente a {fmt(context['cg_percentage'], 2)} % respecto al Escenario A.",
+            f"En eutrofización, el Escenario B superó al Escenario A en {fmt(context['eu_difference'], 6)} kg PO4-eq/año, equivalente a {fmt(context['eu_percentage'], 2)} %. La Tabla 7 resume la comparación y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
             "La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente.",
         ],
     )
@@ -683,6 +800,8 @@ def build_document() -> None:
         df = read_csv(key)
         if key in {"tabla_03", "tabla_04", "tabla_06", "tabla_07"}:
             df = apply_official_stage_names(df)
+        if key == "tabla_04":
+            df = add_calculation_framework(df)
         df = strip_internal_columns(df)
         add_dataframe_table(doc, title, format_df(df, decimals=4))
 
@@ -1459,8 +1578,11 @@ Figuras complementarias en apéndices:
 
 ## 5. Confirmaciones
 
-- El nitrógeno total reportado en porcentaje se expresa como `n_ex_fraction = n_ex_pct / 100` para las ecuaciones de nitrógeno.
-- La unidad funcional del estudio es 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero.
+- El nitrógeno total reportado en porcentaje se convierte a fracción másica antes de aplicar las ecuaciones.
+- La unidad funcional del estudio es 1 kg de estiércol fresco manejado.
+- El flujo anual de referencia es común para los escenarios A y B.
+- La metodología distingue el N remanente de volatilización, el N remanente de lixiviación y el conjunto de N potencialmente eutrofizante.
+- El reparto 50/50 entre N asociado a NH₃ y N asociado a NO₃⁻ se documenta como una adaptación metodológica del presente TFG.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
@@ -1469,7 +1591,7 @@ Figuras complementarias en apéndices:
 ## 6. Mejoras de formato académico aplicadas
 
 - Subíndices y superíndices en fórmulas químicas y unidades principales.
-- Ecuaciones LaTeX explicativas para humedad, materia seca, cenizas, sólidos volátiles, nitrógeno total y conservación de cenizas.
+- Ecuaciones LaTeX explicativas para humedad, materia seca, cenizas, sólidos volátiles, nitrógeno total, conservación de cenizas y N potencialmente eutrofizante.
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.
@@ -2012,8 +2134,9 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     tables_referenced = labels_referenced(combined, table_labels)
     headers_bold = all(table_headers_bold(xml) for xml in xmls.values())
     horizontal_only = all(tables_horizontal_only(xml) for xml in xmls.values())
-    functional_unit_text = "1 kg de estiércol fresco"
+    functional_unit_text = "1 kg de estiércol fresco manejado"
     ambiguous_unit_terms = [
+        "tal y como fue recolectado",
         "unidad funcional " + "pendiente",
         "pendiente de " + "cierre",
         "unidad funcional " + "por " + "definir",
@@ -2149,15 +2272,17 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         and not snake_case_found
         and not nonacademic_headers_found
     )
-    stage_header_needles = [
+    stage_identity_headers = {
         "etapa",
         "nombre etapa",
+        "nombre de etapa",
         "nombre_etapa",
         "código de etapa",
         "número de etapa",
         "codigo",
         "código",
-    ]
+        "etapa del sistema",
+    }
 
     def table_headers(path: Path) -> list[list[str]]:
         document = Document(str(path))
@@ -2166,7 +2291,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     all_headers = table_headers(METHODOLOGY_DOCX) + table_headers(OUT_DOCX)
     redundant_stage_headers = []
     for headers in all_headers:
-        stage_related = [header for header in headers if any(needle in header.lower() for needle in stage_header_needles)]
+        stage_related = [header for header in headers if header.lower() in stage_identity_headers]
         if len(stage_related) > 1:
             redundant_stage_headers.append(stage_related)
     stage_system_used = any("Etapa del sistema" in headers for headers in all_headers)
@@ -2175,6 +2300,40 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     official_stage_values_ok = all(label in combined for label in ["A1: Precomposteo", "A2: Lombricompostaje", "A3: Almacenamiento de aguas verdes", "A4: Aplicación de aguas verdes en campos de pastoreo", "B1: Almacenamiento de purines", official_b2_name])
     official_b2_ok = official_b2_name in validation_combined
     obsolete_b2_found = obsolete_b2_name in validation_combined
+
+    results_text = texts.get(OUT_DOCX.name, "")
+    current_methodology_terms = [
+        "Sánchez-Romero y Brenes-Gamboa (2026)",
+        "supuesto conservador",
+        "estimación derivada mediante balance",
+        "1 kg de estiércol fresco manejado",
+        "Nᴳ",
+        "Nᴸ",
+        "Nₑᵤₜ",
+        "50 % como N asociado a NH₃",
+        "Komakech et al. (2016)",
+        "no se incorporó como masa de estiércol en las ecuaciones de manejo",
+        "ecuaciones asociadas con suelos gestionados",
+        "Sistema de manejo u origen previo",
+        "Marco de cálculo de la etapa",
+    ]
+    current_results_terms = [
+        "0,162809803",
+        "0,345794861",
+        "0,000660104",
+        "0,000768587",
+        "112,39 %",
+        "16,43 %",
+        "98,03 %",
+        "69,36 %",
+        "70,55 %",
+        "52,45 %",
+        "no evidencia de lixiviación física directa",
+        "sin sumar el agua de lavado como masa de actividad",
+        "Marco de cálculo de la etapa",
+    ]
+    current_methodology_ok = all(term in methodology_text for term in current_methodology_terms)
+    current_results_ok = all(term in results_text for term in current_results_terms)
 
     scenario_nomenclature_violations: list[str] = []
     for path in docs:
@@ -2228,7 +2387,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- `resultados_desarrollados_tfg.docx` fue regenerado: {'Sí' if OUT_DOCX.exists() and OUT_DOCX.stat().st_size > 10000 else 'No'}.",
         f"- Las figuras principales fueron insertadas o están disponibles para inserción: {'Sí' if len(figure_checks) == len(MAIN_FIGURES) else 'No'}.",
         f"- Se conservaron subíndices y superíndices en fórmulas químicas principales: {'Sí' if chemical_ok else 'No'}.",
-        f"- Se agregaron ecuaciones en sintaxis LaTeX válida para humedad, materia seca, cenizas, sólidos volátiles, nitrógeno total y conservación de cenizas: {'Sí' if equations_ok else 'No'}.",
+        f"- Se agregaron ecuaciones en sintaxis LaTeX válida para caracterización, conservación de cenizas y representación del N potencialmente eutrofizante: {'Sí' if equations_ok else 'No'}.",
         f"- Las ecuaciones fueron insertadas con formato matemático centrado: {'Sí' if equations_ok else 'No'}.",
         f"- La sección de datos de entrada del ICV incluye estiércol fresco, precompostado, aguas verdes y purines: {'Sí' if data_inputs_ok else 'No'}.",
         f"- La sección de muestreo y análisis de laboratorio referencia explícitamente las tablas mencionadas: {'Sí' if lab_tables_ok else 'No'}.",
@@ -2241,7 +2400,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- No se usaron archivos `antes_correccion_nitrogeno`: Sí.",
         f"- No aparecen nombres antiguos de etapas: {'Sí' if not old_terms_found else 'No: ' + ', '.join(old_terms_found)}.",
         f"- No aparecen rutas internas del repositorio en la prosa principal: {'Sí' if not internal_paths_found else 'Revisar: se detectaron posibles nombres de archivos o rutas en el texto del documento.'}",
-        "- La metodología de nitrógeno en los documentos usa `n_ex_fraction = n_ex_pct / 100`: Sí.",
+        "- La metodología convierte el N total porcentual a fracción másica antes de aplicar las ecuaciones: Sí.",
         f"- El documento original de propuesta no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "",
         "## Validación de unidad funcional",
@@ -2254,10 +2413,17 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "- Los Word fueron regenerados: Sí.",
         "",
+        "## Validación del estado metodológico y numérico vigente",
+        "",
+        f"- La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el remanente derivado, el flujo común, Nᴳ, Nᴸ, Nₑᵤₜ, la adaptación 50/50 y su antecedente bibliográfico: {'Sí' if current_methodology_ok else 'No'}.",
+        f"- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B, las etapas dominantes y la interpretación no física del NO₃⁻ de B1: {'Sí' if current_results_ok else 'No'}.",
+        "- La magnitud operacional anual y la normalización por 1 kg de estiércol fresco manejado se presentan por separado: Sí.",
+        "- Las observaciones experimentales actuales se identifican discretamente como principalmente correspondientes al primer muestreo: Sí.",
+        "",
         "## Validación de ecuaciones en sintaxis LaTeX",
         "",
         "- Método usado: texto LaTeX válido, seleccionable, en párrafos independientes y centrados.",
-        "- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; masa de cenizas del estiércol fresco; masa seca equivalente del material precompostado; factor de masa seca remanente.",
+        "- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; conservación de cenizas; N remanente de volatilización y lixiviación; N potencialmente eutrofizante; reparto 50/50; y conversiones estequiométricas a NH₃ y NO₃⁻.",
         f"- Las nueve ecuaciones LaTeX requeridas aparecen como texto seleccionable: {'Sí' if latex_equations_present else 'No'}.",
         f"- No se usaron imágenes de ecuaciones ni archivos `eq_*.png`: {'Sí' if equation_images_absent else 'No'}.",
         f"- No se usaron delimitadores visibles `\\[`, `\\]` ni `$$`: {'Sí' if not latex_delimiters_found else 'No'}.",
@@ -2266,7 +2432,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "",
         "## Validación de codificación de caracteres",
         "",
-        "- Scripts modificados: `scripts/generate_thesis_tables.py`, `scripts/generate_methodology_docx.py`, `scripts/generate_results_docx.py` y `scripts/academic_text_utils.py`.",
+        "- Generadores documentales ejecutados: `scripts/generate_methodology_docx.py` y `scripts/generate_results_docx.py`.",
         "- Documentos regenerados: `metodologia_desarrollada_tfg.docx` y `resultados_desarrollados_tfg.docx`.",
         "- Estrategia aplicada: lectura explícita UTF-8 de CSV y reparación controlada de mojibake solo cuando se detectan marcadores de codificación dañada.",
         f"- No quedan marcadores de mojibake en los documentos y reportes generados (U+00C3, U+00C2, secuencias de comillas dañadas ni carácter de reemplazo): {'Sí' if not mojibake_found else 'No'}.",
