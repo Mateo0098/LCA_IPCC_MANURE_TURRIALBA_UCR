@@ -108,6 +108,32 @@ def load_emissions(path: Path) -> pd.DataFrame:
     return df
 
 
+def load_functional_reference(path: Path, tolerance: float = 1e-6) -> float:
+    mass = pd.read_csv(path)
+    required = {"escenario", "flujo_referencia_anual_kg"}
+    missing = required - set(mass.columns)
+    if missing:
+        raise ValueError(f"Faltan columnas de referencia funcional: {sorted(missing)}")
+
+    references: dict[str, float] = {}
+    for scenario, group in mass.groupby(mass["escenario"].astype(str).str.upper()):
+        values = pd.to_numeric(group["flujo_referencia_anual_kg"], errors="raise").unique()
+        if len(values) != 1:
+            raise ValueError(f"El escenario {scenario} tiene múltiples flujos de referencia: {values}")
+        references[str(scenario)] = float(values[0])
+
+    if set(references) != {"A", "B"}:
+        raise ValueError(f"Se requieren referencias para A y B; se obtuvo {references}")
+    if references["A"] <= 0 or references["B"] <= 0:
+        raise ValueError("Los flujos de referencia deben ser positivos.")
+    if abs(references["A"] - references["B"]) > tolerance:
+        raise ValueError(
+            "Los escenarios no parten del mismo flujo anual de referencia: "
+            f"A={references['A']:.12f}; B={references['B']:.12f}"
+        )
+    return references["A"]
+
+
 def resolve_emissions_path(base: Path) -> Path:
     candidates = [
         base / "processed" / "ACV_resumen_emisiones.csv",
@@ -121,7 +147,11 @@ def resolve_emissions_path(base: Path) -> Path:
     return candidates[0]
 
 
-def compute_impacts(df: pd.DataFrame, factors: dict[str, dict[str, float]]) -> pd.DataFrame:
+def compute_impacts(
+    df: pd.DataFrame,
+    factors: dict[str, dict[str, float]],
+    functional_reference_kg: float,
+) -> pd.DataFrame:
     out = df.copy()
     out["n2o_total_kg"] = out[N2O_COLS].sum(axis=1)
     out["nh3_total_kg"] = out[NH3_COLS].sum(axis=1)
@@ -143,6 +173,13 @@ def compute_impacts(df: pd.DataFrame, factors: dict[str, dict[str, float]]) -> p
     out["impacto_eutrofizacion_kg_po4eq"] = (
         out["nh3_total_kg"] * f_nh3_po4 + out["no3_total_kg"] * f_no3_po4
     )
+    out["referencia_funcional_estiercol_fresco_kg"] = functional_reference_kg
+    out["impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"] = (
+        out["impacto_calentamiento_global_kg_co2eq"] / functional_reference_kg
+    )
+    out["impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco"] = (
+        out["impacto_eutrofizacion_kg_po4eq"] / functional_reference_kg
+    )
 
     cols = [
         "Escenario",
@@ -154,6 +191,9 @@ def compute_impacts(df: pd.DataFrame, factors: dict[str, dict[str, float]]) -> p
         "no3_total_kg",
         "impacto_calentamiento_global_kg_co2eq",
         "impacto_eutrofizacion_kg_po4eq",
+        "referencia_funcional_estiercol_fresco_kg",
+        "impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco",
+        "impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco",
     ]
     return out[cols].sort_values(["Escenario", "Etapa"]).reset_index(drop=True)
 
@@ -258,11 +298,13 @@ def main() -> None:
     graphics_dir = base / "graphics_results"
     graphics_dir.mkdir(parents=True, exist_ok=True)
     factors_path = processed / "acv_factores_equivalencia.csv"
+    mass_path = processed / "masa_total_escenario_etapa.csv"
     emissions_path = resolve_emissions_path(base)
 
     factors = load_factors(factors_path)
+    functional_reference_kg = load_functional_reference(mass_path)
     emissions = load_emissions(emissions_path)
-    impact_stage = compute_impacts(emissions, factors)
+    impact_stage = compute_impacts(emissions, factors, functional_reference_kg)
 
     stage_out = processed / "acv_impacto_por_etapa_escenario.csv"
     impact_stage.to_csv(stage_out, index=False, encoding="utf-8-sig")
@@ -273,6 +315,13 @@ def main() -> None:
         ]
         .sum()
         .sort_values("Escenario")
+    )
+    totals["referencia_funcional_estiercol_fresco_kg"] = functional_reference_kg
+    totals["impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"] = (
+        totals["impacto_calentamiento_global_kg_co2eq"] / functional_reference_kg
+    )
+    totals["impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco"] = (
+        totals["impacto_eutrofizacion_kg_po4eq"] / functional_reference_kg
     )
     totals_out = processed / "acv_impacto_total_por_escenario.csv"
     totals.to_csv(totals_out, index=False, encoding="utf-8-sig")

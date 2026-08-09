@@ -19,6 +19,10 @@ ETAPAS = [
     "scripts/ACV_EscenarioB_etapa2.py",
 ]
 
+PREPROCESO = [
+    "scripts/compute_masa_etapas_escenarios.py",
+]
+
 POSTPROCESO = [
     "scripts/compute_acv_impact_equivalents.py",
     "scripts/ACV_graficos_emisiones.py",
@@ -31,6 +35,14 @@ def main() -> int:
 
     print(f"Python: {python_exec}")
     print(f"Working directory: {base_dir}")
+
+    for script in PREPROCESO:
+        script_path = base_dir / script
+        print(f"\n[RUN] {script}")
+        result = subprocess.run([str(python_exec), str(script_path)], cwd=base_dir, check=False)
+        if result.returncode != 0:
+            print(f"[ERROR] Fallo {script} con codigo {result.returncode}")
+            return result.returncode
 
     for script in ETAPAS:
         script_path = base_dir / script

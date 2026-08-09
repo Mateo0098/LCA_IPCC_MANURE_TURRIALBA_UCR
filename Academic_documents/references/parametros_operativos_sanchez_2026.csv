@@ -1,0 +1,10 @@
+parametro,valor,unidad,tipo,fuente,nota
+peso_vivo_promedio,396.6,kg/animal,dato_publicado,Sánchez-Romero y Brenes-Gamboa (2026),Peso vivo promedio de las vacas Jersey
+poblacion_media,18,animales,dato_publicado,Sánchez-Romero y Brenes-Gamboa (2026),Población media de vacas en ordeño
+permanencia_sala,3.5,h/día,dato_publicado,Sánchez-Romero y Brenes-Gamboa (2026),Permanencia aproximada en sala de espera
+estiercol_recolectado_animal,2.7,kg/animal,dato_publicado,Sánchez-Romero y Brenes-Gamboa (2026),Masa recolectada durante las actividades evaluadas
+estiercol_recolectado_anual,17525.1,kg/año,dato_publicado,Sánchez-Romero y Brenes-Gamboa (2026),Total publicado del sistema; no representa excreción fisiológica de 24 horas
+agua_lavado_diaria,686.5,L/día,dato_publicado,Sánchez-Romero y Brenes-Gamboa (2026),Consumo promedio publicado
+fraccion_generacion_diaria,0.07,adimensional,supuesto_tfg,TFG a partir del límite inferior del intervalo bibliográfico 7–10 % citado por Sánchez-Romero y Brenes-Gamboa (2026),No fue medida por los autores del artículo
+horas_dia,24,h/día,identidad_temporal,Definición temporal,Usada para prorratear la generación diaria durante la permanencia en sala
+dias_ano,365,días/año,identidad_temporal,Convención de anualización,Usada para anualizar el consumo diario de agua

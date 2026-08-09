@@ -1,25 +1,85 @@
 from __future__ import annotations
 
 import csv
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
 
-def load_agua_boniga_flujo_anual(csv_path: Path) -> Dict[str, float]:
+@dataclass(frozen=True)
+class ParametrosOperativos:
+    peso_vivo_promedio: float
+    poblacion_media: float
+    permanencia_sala: float
+    estiercol_recolectado_animal: float
+    estiercol_recolectado_anual: float
+    agua_lavado_diaria: float
+    fraccion_generacion_diaria: float
+    horas_dia: float
+    dias_ano: float
+
+
+@dataclass(frozen=True)
+class BalanceEstiercol:
+    generacion_diaria_teorica_animal: float
+    estiercol_teorico_sala_animal: float
+    fraccion_recolectada: float
+    fraccion_remanente: float
+    estiercol_total_depositado_anual: float
+    estiercol_remanente_anual: float
+    agua_lavado_anual: float
+
+
+def load_operational_parameters(csv_path: Path) -> ParametrosOperativos:
     with csv_path.open("r", encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)
         values: Dict[str, float] = {}
         for row in reader:
-            variable = str(row.get("variable", "")).strip().lower()
-            flujo_anual = row.get("flujo_por_ano")
-            if variable and flujo_anual not in (None, ""):
-                values[variable] = float(flujo_anual)
-    faltantes = {"agua", "boniga"} - set(values.keys())
+            parameter = str(row.get("parametro", "")).strip()
+            raw_value = row.get("valor")
+            if parameter and raw_value not in (None, ""):
+                values[parameter] = float(raw_value)
+    required = set(ParametrosOperativos.__dataclass_fields__)
+    faltantes = required - set(values)
     if faltantes:
+        raise ValueError(f"Faltan parámetros operativos: {sorted(faltantes)} en {csv_path}")
+    return ParametrosOperativos(**{name: values[name] for name in required})
+
+
+def compute_manure_balance(params: ParametrosOperativos) -> BalanceEstiercol:
+    if params.peso_vivo_promedio <= 0 or params.estiercol_recolectado_anual <= 0:
+        raise ValueError("El peso vivo y el estiércol anual recolectado deben ser positivos.")
+    if not 0 < params.fraccion_generacion_diaria <= 1:
+        raise ValueError("La fracción de generación diaria debe estar en (0, 1].")
+    if not 0 < params.permanencia_sala <= params.horas_dia:
+        raise ValueError("La permanencia en sala debe estar entre 0 y las horas del día.")
+
+    generacion_diaria = params.peso_vivo_promedio * params.fraccion_generacion_diaria
+    teorico_sala = generacion_diaria * (params.permanencia_sala / params.horas_dia)
+    if params.estiercol_recolectado_animal >= teorico_sala:
         raise ValueError(
-            f"Faltan valores de flujo_por_ano para: {sorted(faltantes)} en {csv_path}"
+            "El estiércol recolectado por animal debe ser menor que el depósito teórico en sala."
         )
-    return values
+    fraccion_recolectada = params.estiercol_recolectado_animal / teorico_sala
+    fraccion_remanente = 1.0 - fraccion_recolectada
+    total_depositado = params.estiercol_recolectado_anual / fraccion_recolectada
+    remanente = total_depositado - params.estiercol_recolectado_anual
+    agua_anual = params.agua_lavado_diaria * params.dias_ano
+
+    if abs(total_depositado - params.estiercol_recolectado_anual - remanente) > 1e-9:
+        raise AssertionError("No se conserva el balance de estiércol en sala.")
+    if abs(fraccion_recolectada + fraccion_remanente - 1.0) > 1e-12:
+        raise AssertionError("Las fracciones recolectada y remanente no suman uno.")
+
+    return BalanceEstiercol(
+        generacion_diaria_teorica_animal=generacion_diaria,
+        estiercol_teorico_sala_animal=teorico_sala,
+        fraccion_recolectada=fraccion_recolectada,
+        fraccion_remanente=fraccion_remanente,
+        estiercol_total_depositado_anual=total_depositado,
+        estiercol_remanente_anual=remanente,
+        agua_lavado_anual=agua_anual,
+    )
 
 
 def load_mass_ratio(csv_path: Path) -> float:
@@ -113,7 +173,9 @@ def apply_factor_overrides(
     return updated_rows
 
 
-def build_rows(agua_anual_l: float, boniga_anual_kg: float, factor_a2: float) -> List[Dict[str, object]]:
+def build_rows(
+    params: ParametrosOperativos, balance: BalanceEstiercol, factor_a2: float
+) -> List[Dict[str, object]]:
     rows: List[Dict[str, object]] = []
 
     def add_row(
@@ -136,21 +198,34 @@ def build_rows(agua_anual_l: float, boniga_anual_kg: float, factor_a2: float) ->
             }
         )
 
-    # Base neutral para todas las etapas/escenarios:
-    # - agua base: flujo anual de agua
-    # - boniga base: flujo anual de boniga fresca
-    # Excepcion permitida fuera de override: A2 convierte fresca->precompostada con factor_a2.
+    # El estiércol remanente es parte del depósito teórico total y no una generación adicional.
+    # Solo A3/A4 usan el remanente para representar la formación de aguas verdes.
+    # B recibe el 100 % del depósito teórico, sin separación por paleado.
     stage_definitions = [
-        ("A", 1, 1.0, "base_anual (override controla inclusion de agua/boniga)"),
-        ("A", 2, factor_a2, "base_anual con conversion fresca->precompostada (factor_a2)"),
-        ("A", 3, 1.0, "base_anual (override controla inclusion de agua/boniga)"),
-        ("A", 4, 1.0, "base_anual (override controla inclusion de agua/boniga)"),
-        ("B", 1, 1.0, "base_anual (override controla inclusion de agua/boniga)"),
-        ("B", 2, 1.0, "base_anual (override controla inclusion de agua/boniga)"),
+        ("A", 1, params.estiercol_recolectado_anual, "estiércol fresco recolectado"),
+        (
+            "A",
+            2,
+            params.estiercol_recolectado_anual * factor_a2,
+            "estiércol recolectado con conversión fresca a precompostada",
+        ),
+        ("A", 3, balance.estiercol_remanente_anual, "estiércol remanente arrastrable"),
+        ("A", 4, balance.estiercol_remanente_anual, "estiércol remanente más agua de lavado"),
+        (
+            "B",
+            1,
+            balance.estiercol_total_depositado_anual,
+            "estiércol total teóricamente depositado",
+        ),
+        (
+            "B",
+            2,
+            balance.estiercol_total_depositado_anual,
+            "estiércol total teóricamente depositado más agua de lavado",
+        ),
     ]
-    for escenario, etapa, factor_boniga_base, formula in stage_definitions:
-        boniga_base = boniga_anual_kg * factor_boniga_base
-        agua_base = agua_anual_l
+    for escenario, etapa, boniga_base, formula in stage_definitions:
+        agua_base = balance.agua_lavado_anual
         masa_base = boniga_base + agua_base
         add_row(
             escenario,
@@ -164,7 +239,51 @@ def build_rows(agua_anual_l: float, boniga_anual_kg: float, factor_a2: float) ->
     return rows
 
 
-def write_output(rows: List[Dict[str, object]], output_path: Path, factor_a2: float) -> None:
+def validate_scenario_balances(
+    rows: List[Dict[str, object]],
+    params: ParametrosOperativos,
+    balance: BalanceEstiercol,
+    tolerance: float = 1e-6,
+) -> None:
+    by_stage = {
+        (str(row["escenario"]), int(row["etapa"])): row
+        for row in rows
+    }
+    required = {("A", 1), ("A", 3), ("A", 4), ("B", 1), ("B", 2)}
+    missing = required - set(by_stage)
+    if missing:
+        raise AssertionError(f"Faltan etapas para validar balances: {sorted(missing)}")
+
+    a1 = float(by_stage[("A", 1)]["boniga_kg"])
+    a3 = float(by_stage[("A", 3)]["boniga_kg"])
+    a4 = float(by_stage[("A", 4)]["masa_total_kg_eq"])
+    b1 = float(by_stage[("B", 1)]["boniga_kg"])
+    b2 = float(by_stage[("B", 2)]["masa_total_kg_eq"])
+    reference_a = a1 + a3
+    reference_b = b1
+
+    checks = {
+        "balance A": (reference_a, balance.estiercol_total_depositado_anual),
+        "balance B": (reference_b, balance.estiercol_total_depositado_anual),
+        "aplicación A4": (a4, balance.agua_lavado_anual + balance.estiercol_remanente_anual),
+        "aplicación B2": (b2, balance.agua_lavado_anual + balance.estiercol_total_depositado_anual),
+        "flujo de referencia A/B": (reference_a, reference_b),
+        "A1 recolectado": (a1, params.estiercol_recolectado_anual),
+    }
+    for name, (actual, expected) in checks.items():
+        if not abs(actual - expected) <= tolerance:
+            raise AssertionError(
+                f"Fallo en {name}: valor={actual:.12f}; esperado={expected:.12f}"
+            )
+
+
+def write_output(
+    rows: List[Dict[str, object]],
+    output_path: Path,
+    factor_a2: float,
+    params: ParametrosOperativos,
+    balance: BalanceEstiercol,
+) -> None:
     columns = [
         "escenario",
         "etapa",
@@ -181,6 +300,12 @@ def write_output(rows: List[Dict[str, object]], output_path: Path, factor_a2: fl
         "fuente_agua_boniga",
         "fuente_factor_a2",
         "fuente_factor_overrides",
+        "estiercol_recolectado_anual_kg",
+        "estiercol_total_depositado_anual_kg",
+        "estiercol_remanente_anual_kg",
+        "fraccion_recolectada",
+        "fraccion_remanente",
+        "flujo_referencia_anual_kg",
     ]
     with output_path.open("w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=columns)
@@ -188,9 +313,19 @@ def write_output(rows: List[Dict[str, object]], output_path: Path, factor_a2: fl
         for row in rows:
             out = dict(row)
             out["factor_restante_a2"] = factor_a2
-            out["fuente_agua_boniga"] = "processed/agua_boniga_estadistica_descriptiva.csv"
+            out["fuente_agua_boniga"] = "Academic_documents/references/parametros_operativos_sanchez_2026.csv"
             out["fuente_factor_a2"] = "processed/volatile_solids_mass_loss_fresh_to_precomposted.csv"
             out["fuente_factor_overrides"] = "processed/masa_total_factor_overrides.csv"
+            out["estiercol_recolectado_anual_kg"] = f"{params.estiercol_recolectado_anual:.6f}"
+            out["estiercol_total_depositado_anual_kg"] = (
+                f"{balance.estiercol_total_depositado_anual:.6f}"
+            )
+            out["estiercol_remanente_anual_kg"] = f"{balance.estiercol_remanente_anual:.6f}"
+            out["fraccion_recolectada"] = f"{balance.fraccion_recolectada:.12f}"
+            out["fraccion_remanente"] = f"{balance.fraccion_remanente:.12f}"
+            out["flujo_referencia_anual_kg"] = (
+                f"{balance.estiercol_total_depositado_anual:.6f}"
+            )
             for key in ("boniga_kg", "agua_l", "factor_restante_a2", "masa_total_kg_eq"):
                 out[key] = f"{float(out[key]):.6f}"
             for key in ("factor_boniga_override", "factor_agua_override", "factor_masa_total_override"):
@@ -202,28 +337,40 @@ def main() -> None:
     project_root = Path(__file__).resolve().parent.parent
     processed = project_root / "processed"
 
-    agua_boniga_path = processed / "agua_boniga_estadistica_descriptiva.csv"
+    operational_parameters_path = (
+        project_root / "Academic_documents" / "references" / "parametros_operativos_sanchez_2026.csv"
+    )
     mass_loss_path = processed / "volatile_solids_mass_loss_fresh_to_precomposted.csv"
     factor_overrides_path = processed / "masa_total_factor_overrides.csv"
     output_path = processed / "masa_total_escenario_etapa.csv"
 
-    flujo_anual = load_agua_boniga_flujo_anual(agua_boniga_path)
-    agua_anual_l = flujo_anual["agua"]
-    boniga_anual_kg = flujo_anual["boniga"]
+    params = load_operational_parameters(operational_parameters_path)
+    balance = compute_manure_balance(params)
     factor_a2 = load_mass_ratio(mass_loss_path)
 
-    rows_base = build_rows(agua_anual_l=agua_anual_l, boniga_anual_kg=boniga_anual_kg, factor_a2=factor_a2)
+    rows_base = build_rows(params=params, balance=balance, factor_a2=factor_a2)
     required_keys = [
         (str(r["escenario"]).strip().upper(), int(r["etapa"]))
         for r in rows_base
     ]
     overrides = load_factor_overrides(factor_overrides_path, required_keys)
     rows = apply_factor_overrides(rows_base, overrides)
-    write_output(rows, output_path, factor_a2)
+    validate_scenario_balances(rows, params, balance)
+    write_output(rows, output_path, factor_a2, params, balance)
 
     print(f"Generated file: {output_path}")
     print(f"Rows: {len(rows)}")
     print(f"Factor overrides: {factor_overrides_path} ({len(overrides)} filas aplicadas)")
+    print(f"Estiércol recolectado: {params.estiercol_recolectado_anual:.6f} kg/año")
+    print(f"Estiércol total depositado: {balance.estiercol_total_depositado_anual:.6f} kg/año")
+    print(f"Estiércol remanente: {balance.estiercol_remanente_anual:.6f} kg/año")
+    print(f"Fracción recolectada: {balance.fraccion_recolectada:.12f}")
+    print(f"Fracción remanente: {balance.fraccion_remanente:.12f}")
+    print(f"Agua de lavado: {balance.agua_lavado_anual:.6f} L/año")
+    print(
+        "Flujo de referencia A = B: "
+        f"{balance.estiercol_total_depositado_anual:.6f} kg estiércol fresco/año"
+    )
 
 
 if __name__ == "__main__":

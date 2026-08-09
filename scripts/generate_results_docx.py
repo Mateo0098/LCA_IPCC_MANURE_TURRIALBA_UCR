@@ -592,9 +592,9 @@ def build_document() -> None:
         doc,
         [
             "Estos valores se presentan como flujos anuales estimados del inventario, manteniendo como referencia metodológica la unidad funcional de 1 kg de estiércol fresco, tal y como fue recolectado del módulo lechero.",
-            "Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. B2: Aplicación de purines en campo de pastoreo presentó la mayor masa equivalente total, con 76 557,27 kg eq/año. En el Escenario A, A4: Aplicación de aguas verdes en campos de pastoreo dominó la masa equivalente, con 71 789,81 kg eq/año.",
-            "La masa equivalente de A4 integra el componente líquido de aguas verdes y una fracción de boñiga asociada a esa línea. La masa equivalente de B2 integra agua de lavado y boñiga fresca incorporada al purín aplicado en campo.",
-            "Las etapas con menor masa equivalente fueron A3: Almacenamiento de aguas verdes y A2: Lombricompostaje. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
+            "Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. B2: Aplicación de purines en campo de pastoreo presentó la mayor masa equivalente total, con 276 851,23 kg eq/año. En el Escenario A, A4: Aplicación de aguas verdes en campos de pastoreo dominó la masa equivalente, con 259 326,13 kg eq/año.",
+            "La masa equivalente de A4 integra el agua de lavado y 8 753,63 kg/año de estiércol remanente derivados del balance en sala. La masa equivalente de B2 integra agua de lavado y 26 278,73 kg/año de estiércol fresco teóricamente depositado.",
+            "A2: Lombricompostaje presentó la menor masa equivalente. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
             "La Tabla R2 del bloque de apéndices internos, Flujos completos del inventario, contiene la desagregación de los flujos empleados para construir el ICV.",
         ],
     )
@@ -617,7 +617,7 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó 9,55 kg CH4/año, 0,79 kg N2O/año, 5,23 kg NH3/año, 19,06 kg NO3/año y 33,65 kg CO2/año. El Escenario B presentó 80,59 kg CH4/año, 0,31 kg N2O/año, 6,35 kg NH3/año y 23,17 kg NO3/año.",
+            "Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó 151,99 kg CH4/año, 3,11 kg N2O/año, 24,91 kg NH3/año, 90,82 kg NO3/año y 123,70 kg CO2/año. El Escenario B presentó 413,11 kg CH4/año, 1,33 kg N2O/año, 29,01 kg NH3/año y 105,74 kg NO3/año.",
             "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje reportó CO2 por el uso de un factor medido. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
             "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
         ],
@@ -629,7 +629,7 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Los impactos ambientales por etapa muestran que B1: Almacenamiento de purines presentó la mayor contribución al potencial de calentamiento global, con 1 737,81 kg CO2-eq/año. En el Escenario A, A1: Precomposteo presentó la mayor contribución a esta categoría.",
+            "Los impactos ambientales por etapa muestran que B1: Almacenamiento de purines presentó la mayor contribución al potencial de calentamiento global, con 8 908,48 kg CO2-eq/año. En el Escenario A, A3: Almacenamiento de aguas verdes presentó la mayor contribución a esta categoría.",
             "Para eutrofización, B1: Almacenamiento de purines presentó el valor más alto, seguido por A1: Precomposteo. A2: Lombricompostaje registró 0 kg PO4-eq/año en la tabla final, debido a que no reporta emisiones de NH3 ni NO3 en la tabla de emisiones por etapa. La Tabla 5 resume los impactos por etapa; la Figura 5 presenta calentamiento global y la Figura 6 presenta eutrofización.",
             "Los factores de caracterización para calentamiento global se referencian al IMN (2021), mientras que los factores de eutrofización se basan en Ecobilan (1999, como se citó en Vallejo, 2004).",
             "La Tabla R6 del bloque de apéndices internos, Impactos completos por etapa, presenta los resultados desagregados por categoría de impacto.",
@@ -643,7 +643,7 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "El Escenario A alcanzó 478,78 kg CO2-eq/año para calentamiento global y 3,64 kg PO4-eq/año para eutrofización. El Escenario B alcanzó 1 787,19 kg CO2-eq/año para calentamiento global y 4,42 kg PO4-eq/año para eutrofización.",
+            "El Escenario A alcanzó 4 278,43 kg CO2-eq/año para calentamiento global y 17,35 kg PO4-eq/año para eutrofización. El Escenario B alcanzó 9 087,05 kg CO2-eq/año para calentamiento global y 20,20 kg PO4-eq/año para eutrofización.",
             "La Tabla 6 presenta la agregación por escenario y conserva las categorías de impacto y unidades definidas en las tablas finales validadas.",
             "La Tabla R7 del bloque de apéndices internos, Impactos totales completos por escenario, presenta el detalle de la agregación utilizada en esta comparación.",
         ],
@@ -654,8 +654,8 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "La comparación entre escenarios muestra mayores impactos totales en el Escenario B para las dos categorías evaluadas. En calentamiento global, la diferencia absoluta B menos A fue de 1 308,41 kg CO2-eq/año, equivalente a 273,28 % respecto al Escenario A.",
-            "En eutrofización, la diferencia absoluta fue de 0,785 kg PO4-eq/año, equivalente a 21,58 % respecto al Escenario A. La Tabla 7 resume la comparación entre escenarios y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
+            "La comparación entre escenarios muestra un mayor impacto total de calentamiento global en el Escenario B. La diferencia absoluta B menos A fue de 4 808,61 kg CO2-eq/año, equivalente a 112,39 % respecto al Escenario A.",
+            "En eutrofización, el Escenario B fue 2,851 kg PO4-eq/año mayor que el Escenario A, equivalente a una diferencia de 16,43 % respecto al Escenario A. La Tabla 7 resume la comparación entre escenarios y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
             "La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente.",
         ],
     )
@@ -2062,11 +2062,11 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     b2_liquid_ok = "Aguas verdes" not in b2_flow_labels and "Agua de lavado incorporada al purín" in b2_flow_labels
     a4_liquid_ok = "Agua de lavado incorporada a las aguas verdes" in a4_flow_labels
     flow_values = {
-        ("A", 4, "Masa equivalente total"): 71789.81012,
-        ("B", 2, "Masa equivalente total"): 76557.26695,
-        ("A", 4, "Agua de lavado incorporada a las aguas verdes"): 71430.96929,
-        ("B", 2, "Agua de lavado incorporada al purín"): 71430.96929,
-        ("B", 2, "Boñiga incorporada al purín"): 5126.297667,
+        ("A", 4, "Masa equivalente total"): 259326.125181,
+        ("B", 2, "Masa equivalente total"): 276851.225181,
+        ("A", 4, "Agua de lavado incorporada a las aguas verdes"): 250572.5,
+        ("B", 2, "Agua de lavado incorporada al purín"): 250572.5,
+        ("B", 2, "Boñiga incorporada al purín"): 26278.725181,
     }
     values_unchanged = True
     for (scenario, stage, flow), expected in flow_values.items():
@@ -2082,8 +2082,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         phrase in methodology_text
         for phrase in [
             "La masa equivalente total de las etapas de aplicación no corresponde únicamente al volumen del componente líquido",
-            "En A4, esta fracción corresponde al 7 % de la boñiga fresca anual",
-            "en B2, corresponde a la masa anual total de boñiga fresca integrada al purín aplicado en campo",
+            "En A4, esta fracción corresponde al estiércol remanente derivado del balance",
+            "en B2, corresponde al total anual de estiércol teóricamente depositado e integrado al purín aplicado en campo",
         ]
     )
     academic_forbidden_terms = [

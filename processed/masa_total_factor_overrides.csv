@@ -1,7 +1,7 @@
 escenario,etapa,factor_boniga,factor_agua,factor_masa_total,comentario
-A,1,0.93,0,1,default
-A,2,0.93,0,1,default
-A,3,0.07,0,1,factor_boniga define porcentaje de boniga fresca a A3
-A,4,0.07,1,1,default
-B,1,1,0,1,default
-B,2,1,1,1,default
+A,1,1,0,1,masa recolectada destinada a precomposteo
+A,2,1,0,1,masa recolectada transformada por el factor fresco a precompostado
+A,3,1,0,1,masa remanente derivada del balance en sala
+A,4,1,1,1,masa remanente más agua de lavado
+B,1,1,0,1,estiércol total teóricamente depositado destinado al almacenamiento de purines
+B,2,1,1,1,estiércol total teóricamente depositado más agua de lavado
