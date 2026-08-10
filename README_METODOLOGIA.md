@@ -22,6 +22,8 @@ Los datos crudos principales estan en `Academic_documents/`:
 - `Academic_documents/resultados CIA y LASA muestreo 1/`: reportes de
   laboratorio CIA/LASA y archivo de trabajo para humedad, materia seca, cenizas,
   solidos volatiles y nitrogeno total.
+- `Academic_documents/resultados CIA y LASA muestreo 2/`: segunda jornada de
+  muestras compuestas independientes y sus determinaciones analiticas.
 - `Academic_documents/Datos boniga y agua proy_AS.xlsx`: mediciones de agua y
   boniga usadas para estimar flujos diarios, semanales y anuales.
 - `processed/masa_total_factor_overrides.csv`: factores manuales para asignar
@@ -56,6 +58,52 @@ El procesamiento de laboratorio se hace en dos rutas:
      - `processed/volatile_solids_representative_table.csv`
      - `processed/volatile_solids_treatment_table.csv`
      - `processed/volatile_solids_mass_loss_fresh_to_precomposted.csv`
+
+### Capa multijornada independiente del modelo
+
+La ingestión de M1 y M2 se ejecuta con:
+
+```powershell
+.venv\Scripts\python.exe scripts\build_sampling_ingestion.py
+.venv\Scripts\python.exe scripts\validate_sampling_ingestion.py
+```
+
+La configuración explícita está en `scripts/sampling_ingestion_config.py`.
+Esta capa genera:
+
+- `processed/muestreos_observaciones_normalizadas.csv`: una fila por
+  observación primaria recuperable, con jornada, muestra compuesta, réplica
+  analítica, variable, unidad, laboratorio, método y fuente;
+- `processed/muestreos_resumen_intrajornada.csv`: primero promedia las
+  submuestras dentro de cada muestra compuesta y después las muestras dentro de
+  cada jornada.
+
+La jerarquía es `jornada -> muestra compuesta -> réplica analítica`. No se
+agrupan todas las réplicas como muestras independientes y no se integran M1 y
+M2 entre sí en esta fase. Estas dos salidas nuevas no alimentan todavía el
+modelo ACV ni sustituyen los archivos históricos de parámetros.
+
+Para N de aguas verdes y purines, M1 conserva por separado la especiación de N
+amoniacal, N nítrico y N ureico con uso `solo_trazabilidad`. M2 conserva N total
+con método `Kjeldahl` y uso `elegible`. La asignación de M2 se fundamenta en la
+metodología oficial CIA suministrada por el investigador: digestión húmeda de
+10 g de abono líquido con H2SO4 mediante Kjeldahl, volumen final de 250 mL y
+determinación colorimétrica con FIA. La elegibilidad no implica conexión actual
+con el modelo.
+
+Para N y C del estiércol precompostado, los reportes CIA 97600 y 100751 se
+documentan con el método `Dumas (combustión seca)`, conforme a la metodología
+oficial CIA suministrada por el investigador: secado a 80 °C, molienda, criba
+de 1 mm, pesada aproximada de 80–100 mg y análisis en un autoanalizador
+Elementar Vario Macro Cube. Los reportes y la metodología no declaran
+inequívocamente si el porcentaje final está en base seca o fresca; la capa
+normalizada registra `base_medicion = no especificada en el reporte` y no
+altera los valores.
+
+El estado `solo_caracterizacion` se usa para densidad, carbono y relación C/N:
+estas variables se conservan, pero no se presentan como parámetros consumidos
+actualmente por el modelo. N, humedad, materia seca, cenizas y sólidos
+volátiles mantienen su elegibilidad definida por fuente y método.
 
 ## Conversion de unidades
 

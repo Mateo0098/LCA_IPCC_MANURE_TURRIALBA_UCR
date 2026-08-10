@@ -5,9 +5,12 @@ import re
 import statistics
 import xml.etree.ElementTree as ET
 import zipfile
+import unicodedata
 from collections import defaultdict
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Tuple
+
+import openpyxl
 
 NS = {"a": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 DRYING_ID_RE = re.compile(r"^[AB]\d{2}$")
@@ -455,6 +458,148 @@ def write_mass_loss_csv(row: Dict[str, object], output_path: Path) -> None:
             else:
                 formatted[col] = value if value is not None else ""
         writer.writerow(formatted)
+
+
+# ---------------------------------------------------------------------------
+# Extracción gravimétrica normalizada. Conserva las ecuaciones históricas,
+# pero localiza las masas por encabezado y no consume fórmulas de resumen.
+# ---------------------------------------------------------------------------
+
+def _canonical_text(value: object) -> str:
+    text = unicodedata.normalize("NFKD", str(value or "")).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"\s+", " ", text).strip().lower()
+
+
+def _find_header_rows(worksheet) -> Tuple[int, int]:
+    rows = []
+    for row in worksheet.iter_rows():
+        if _canonical_text(row[0].value) == "id muestra":
+            rows.append(row[0].row)
+    if len(rows) != 2:
+        raise ValueError(f"Se esperaban dos bloques con 'ID muestra'; se encontraron {len(rows)}")
+    return rows[0], rows[1]
+
+
+def _header_map(worksheet, row_number: int) -> Dict[str, int]:
+    return {
+        _canonical_text(cell.value): cell.column
+        for cell in worksheet[row_number]
+        if cell.value not in (None, "")
+    }
+
+
+def _required_col(headers: Dict[str, int], phrase: str) -> int:
+    if phrase in headers:
+        return headers[phrase]
+    matches = [col for header, col in headers.items() if phrase in header and "monitor" not in header]
+    if len(matches) != 1:
+        raise ValueError(f"Encabezado primario ambiguo o ausente: {phrase!r}; coincidencias={matches}")
+    return matches[0]
+
+
+def _numeric_primary(worksheet, row: int, col: int, label: str) -> float:
+    value = worksheet.cell(row, col).value
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"La masa primaria {label} en {worksheet.title}!{worksheet.cell(row, col).coordinate} no es numérica")
+    return float(value)
+
+
+def extract_gravimetric_normalized(source: Dict[str, object], project_root: Path) -> List[Dict[str, object]]:
+    """Extrae humedad, MS, cenizas y SV desde masas primarias.
+
+    Ecuaciones preservadas:
+    humedad = ((masa_húmeda - masa_seca) / masa_húmeda) * 100;
+    materia seca = (masa_seca / masa_húmeda) * 100;
+    cenizas = (masa_ceniza / masa_seca_incineración) * 100;
+    sólidos volátiles = 100 - cenizas.
+    """
+    path = Path(source["absolute_path"])
+    workbook = openpyxl.load_workbook(path, data_only=False, read_only=True)
+    if "Data" not in workbook.sheetnames:
+        raise ValueError(f"El libro no contiene la hoja Data: {path}")
+    worksheet = workbook["Data"]
+    drying_header_row, ash_header_row = _find_header_rows(worksheet)
+    drying_headers = _header_map(worksheet, drying_header_row)
+    ash_headers = _header_map(worksheet, ash_header_row)
+
+    # Los nombres se refieren solo a masas primarias. Columnas auxiliares o de
+    # resumen (incluida CRISOL ID si existe) quedan fuera de la selección.
+    dry_empty = _required_col(drying_headers, "peso crisol 1 solo")
+    dry_wet = _required_col(drying_headers, "peso crisol 1 con muestra humeda")
+    dry_after = _required_col(drying_headers, "peso crisol 1 con muestra seca")
+    ash_empty = _required_col(ash_headers, "peso crisol 2 solo")
+    ash_before = _required_col(ash_headers, "peso crisol 2 con muestra seca")
+    ash_after = _required_col(ash_headers, "peso crisol 2 con muestra incinerada")
+
+    drying: Dict[str, Tuple[float, float]] = {}
+    for row in range(drying_header_row + 1, ash_header_row):
+        sample_id = str(worksheet.cell(row, 1).value or "").strip().upper()
+        if not re.fullmatch(r"[AB]\d\d", sample_id):
+            continue
+        empty = _numeric_primary(worksheet, row, dry_empty, "crisol vacío de secado")
+        wet_total = _numeric_primary(worksheet, row, dry_wet, "crisol con muestra húmeda")
+        dry_total = _numeric_primary(worksheet, row, dry_after, "crisol con muestra seca")
+        drying[sample_id] = (wet_total - empty, dry_total - empty)
+
+    ash: Dict[str, Tuple[float, float]] = {}
+    for row in range(ash_header_row + 1, worksheet.max_row + 1):
+        raw_id = str(worksheet.cell(row, 1).value or "").strip().upper()
+        if not re.fullmatch(r"[AB]I\d\d", raw_id):
+            continue
+        sample_id = raw_id.replace("I", "", 1)
+        # La disposición espacial al final de algunos libros repite los IDs,
+        # pero no contiene masas primarias.
+        if sample_id in ash:
+            continue
+        empty = _numeric_primary(worksheet, row, ash_empty, "crisol vacío de incineración")
+        dry_total = _numeric_primary(worksheet, row, ash_before, "crisol con muestra seca para incineración")
+        ash_total = _numeric_primary(worksheet, row, ash_after, "crisol con muestra incinerada")
+        ash[sample_id] = (dry_total - empty, ash_total - empty)
+
+    if set(drying) != set(ash):
+        raise ValueError(f"No coinciden los identificadores de secado e incineración: {sorted(set(drying) ^ set(ash))}")
+
+    expected_samples = int(source["expected_samples_by_material"])
+    expected_ids = {
+        f"{material}{sample}{replica}"
+        for material in "AB"
+        for sample in range(1, expected_samples + 1)
+        for replica in range(1, int(source["expected_replicates"]) + 1)
+    }
+    if set(drying) != expected_ids:
+        raise ValueError(f"Identificadores gravimétricos inesperados en {path.name}: {sorted(set(drying) ^ expected_ids)}")
+
+    records: List[Dict[str, object]] = []
+    for sample_id in sorted(drying):
+        material = "estiércol fresco" if sample_id.startswith("A") else "estiércol precompostado"
+        sample_number, replica = int(sample_id[1]), int(sample_id[2])
+        wet_mass, dry_mass = drying[sample_id]
+        dry_inc_mass, ash_mass = ash[sample_id]
+        if wet_mass == 0 or dry_inc_mass == 0:
+            raise ValueError(f"Denominador cero para {sample_id}")
+        values = {
+            "humedad": ((wet_mass - dry_mass) / wet_mass) * 100.0,
+            "materia seca": (dry_mass / wet_mass) * 100.0,
+            "cenizas": (ash_mass / dry_inc_mass) * 100.0,
+        }
+        values["sólidos volátiles"] = 100.0 - values["cenizas"]
+        normalized_id = f'{source["jornada"]}-{"EF" if material == "estiércol fresco" else "EP"}-{sample_number}'
+        for variable, value in values.items():
+            records.append({
+                "jornada_muestreo": source["jornada"], "fecha_muestreo": source.get("sampling_date", ""),
+                "fecha_recepcion": "", "fecha_analisis": "", "tipo_material": material,
+                "identificador_muestra": normalized_id, "identificador_muestra_origen": sample_id,
+                "repeticion_muestra": sample_number, "replica_analitica": replica,
+                "nivel_observacion": "replica_analitica", "variable": variable,
+                "valor": value, "unidad": "%", "base_medicion": "masa seca" if variable in {"cenizas", "sólidos volátiles"} else "masa fresca",
+                "incertidumbre": "", "laboratorio": source["laboratorio"],
+                "metodo_analitico": source["metodo"], "fuente_metodo_analitico": source["fuente_metodo"],
+                "archivo_origen": str(path.relative_to(project_root)).replace("\\", "/"),
+                "hoja_origen": "Data", "celda_o_fila_origen": f"{sample_id} / {sample_id[0]}I{sample_id[1:]}",
+                "id_reporte_laboratorio": "", "uso_modelo": source["uso_modelo"],
+                "motivo_uso_modelo": source["motivo_uso"], "bandera_calidad": "",
+            })
+    return records
 
 
 def write_with_fallback(

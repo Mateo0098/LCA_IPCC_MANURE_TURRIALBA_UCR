@@ -11,6 +11,8 @@ import zipfile
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
+import openpyxl
+
 NS_MAIN = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 NS_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
 NS_PKG = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -558,6 +560,257 @@ def write_treatment_summary_csv(base_path: Path, prefix: str, summary_rows: List
         for row in summary_rows:
             writer.writerow(row)
     return summary_path
+
+
+# ---------------------------------------------------------------------------
+# Ingestión normalizada multijornada. La interfaz histórica anterior se
+# conserva para no alterar todavía ningún consumidor del modelo ACV.
+# ---------------------------------------------------------------------------
+
+NORMALIZED_COMMON_FIELDS = [
+    "jornada_muestreo", "fecha_muestreo", "fecha_recepcion", "fecha_analisis",
+    "tipo_material", "identificador_muestra", "identificador_muestra_origen",
+    "repeticion_muestra", "replica_analitica", "nivel_observacion", "variable",
+    "valor", "unidad", "base_medicion", "incertidumbre", "laboratorio",
+    "metodo_analitico", "fuente_metodo_analitico", "archivo_origen",
+    "hoja_origen", "celda_o_fila_origen", "id_reporte_laboratorio",
+    "uso_modelo", "motivo_uso_modelo", "bandera_calidad",
+]
+
+
+def _fold(value: object) -> str:
+    return re.sub(r"\s+", " ", ascii_fold(str(value or ""))).strip().upper()
+
+
+def _to_float_locale(value: object) -> Optional[float]:
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value or "").strip().replace(" ", "")
+    if not text or text.startswith("="):
+        return None
+    if "," in text and "." not in text:
+        text = text.replace(",", ".")
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _material_code(material: str) -> str:
+    return {
+        "estiércol fresco": "EF",
+        "estiércol precompostado": "EP",
+        "aguas verdes": "AV",
+        "purines": "PU",
+    }[material]
+
+
+def _sample_number(origin_id: str, jornada: str, fallback: int) -> int:
+    folded = _fold(origin_id)
+    if jornada != "M1":
+        match = re.search(r"(?:^|\D)2\s*[-,]\s*(\d+)\s*$", folded)
+        if match:
+            return int(match.group(1))
+    match = re.search(r"(\d+)\s*$", folded)
+    return int(match.group(1)) if match else fallback
+
+
+def _find_result_sheet(workbook: openpyxl.Workbook):
+    candidates = []
+    for worksheet in workbook.worksheets:
+        header_row = None
+        for row in worksheet.iter_rows():
+            if any(_fold(cell.value) == "ID USUARIO" for cell in row):
+                header_row = row[0].row
+                break
+        if header_row is None:
+            continue
+        result_rows = 0
+        for row_num in range(header_row + 1, min(worksheet.max_row, header_row + 30) + 1):
+            value = worksheet.cell(row_num, 1).value
+            if value and "ULTIMA LINEA" in _fold(value):
+                break
+            if value and ("LIQ:" in _fold(value) or "SOL:" in _fold(value)):
+                result_rows += 1
+        if result_rows:
+            candidates.append((result_rows, worksheet, header_row))
+    if not candidates:
+        raise ValueError("No se encontró una tabla CIA con filas reales de resultados")
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    return candidates[0][1], candidates[0][2]
+
+
+def _label_value(worksheet, labels: set[str]) -> str:
+    targets = {_fold(label).rstrip(":") for label in labels}
+    for row in worksheet.iter_rows():
+        for cell in row:
+            if _fold(cell.value).rstrip(":") in targets:
+                for col in range(cell.column + 1, worksheet.max_column + 1):
+                    value = worksheet.cell(cell.row, col).value
+                    if value not in (None, ""):
+                        return str(value).strip()
+    return ""
+
+
+def _cia_variable(header: str, material: str) -> str:
+    key = canonical_header(header)
+    mapping = {
+        "N": "N total",
+        "NNH4": "N amoniacal",
+        "NNO3": "N nítrico",
+        "NUREICO": "N ureico",
+        "C": "carbono",
+        "CN": "relación C/N",
+        "DENSIDAD": "densidad",
+    }
+    if key == "N" and material in {"aguas verdes", "purines"}:
+        return "N total"
+    return mapping.get(key, header.strip())
+
+
+def _base_for(variable: str, unit: str) -> str:
+    folded_unit = _fold(unit)
+    if variable in {"cenizas", "sólidos volátiles"}:
+        return "masa seca"
+    if "%" in unit or "MASA" in folded_unit:
+        return "masa fresca" if variable in {"humedad", "materia seca", "N total", "carbono"} else "masa"
+    if "/L" in folded_unit:
+        return "volumen"
+    return "no especificada"
+
+
+def _cia_base_for(material: str, variable: str, unit: str) -> str:
+    # Los reportes CIA 97600 y 100751 expresan N/C como porcentaje, pero no
+    # declaran si el resultado final está referido a base seca o fresca. El
+    # secado a 80 °C es preparación de muestra y no basta para inferir la base.
+    if material == "estiércol precompostado" and variable in {"N total", "carbono"}:
+        return "no especificada en el reporte"
+    return _base_for(variable, unit)
+
+
+def _variable_usage(source: Dict[str, object], variable: str) -> Tuple[str, str]:
+    if variable in {"densidad", "carbono", "relación C/N"}:
+        return (
+            "solo_caracterizacion",
+            "Variable conservada para caracterización y trazabilidad; no es un parámetro consumido actualmente por el modelo ACV.",
+        )
+    return str(source["uso_modelo"]), str(source["motivo_uso"])
+
+
+def extract_cia_normalized(source: Dict[str, object], project_root: Path) -> List[Dict[str, object]]:
+    path = Path(source["absolute_path"])
+    workbook = openpyxl.load_workbook(path, data_only=False, read_only=True)
+    worksheet, header_row = _find_result_sheet(workbook)
+    headers = {cell.column: str(cell.value).strip() for cell in worksheet[header_row] if cell.value not in (None, "")}
+    id_user_col = next(col for col, value in headers.items() if _fold(value) == "ID USUARIO")
+    id_lab_col = next((col for col, value in headers.items() if _fold(value).replace(" ", "") == "IDLAB"), None)
+
+    units: Dict[int, str] = {}
+    last_unit = ""
+    for col in sorted(headers):
+        raw = worksheet.cell(header_row - 1, col).value
+        if raw not in (None, ""):
+            last_unit = str(raw).strip()
+        if last_unit:
+            units[col] = last_unit
+
+    report_id = _label_value(worksheet, {"Nº DE REPORTE", "N° DE REPORTE"})
+    reception = _label_value(worksheet, {"FECHA RECEPCIÓN", "FECHA DE RECEPCIÓN"})
+    emission = _label_value(worksheet, {"EMISIÓN DE REPORTE"})
+    records: List[Dict[str, object]] = []
+    sample_index = 0
+    for row_num in range(header_row + 1, worksheet.max_row + 1):
+        origin_id = str(worksheet.cell(row_num, id_user_col).value or "").strip()
+        if "ULTIMA LINEA" in _fold(origin_id):
+            break
+        if not origin_id:
+            continue
+        sample_index += 1
+        sample_number = _sample_number(origin_id, str(source["jornada"]), sample_index)
+        normalized_id = f'{source["jornada"]}-{_material_code(str(source["material"]))}-{sample_number}'
+        id_lab = str(worksheet.cell(row_num, id_lab_col).value or "").strip() if id_lab_col else ""
+        for col, header in headers.items():
+            if col in {id_user_col, id_lab_col}:
+                continue
+            value = _to_float_locale(worksheet.cell(row_num, col).value)
+            if value is None:
+                continue
+            variable = _cia_variable(header, str(source["material"]))
+            # Las columnas derivadas o de resumen nunca son observaciones primarias.
+            if variable not in {"N total", "N amoniacal", "N nítrico", "N ureico", "carbono", "relación C/N", "densidad"}:
+                continue
+            unit = units.get(col, "")
+            method = "densidad reportada" if variable == "densidad" else source["metodo"]
+            method_source = (
+                "Valor de densidad consignado en el informe CIA; el procedimiento no se describe."
+                if variable == "densidad" else source["fuente_metodo"]
+            )
+            variable_usage, variable_usage_reason = _variable_usage(source, variable)
+            records.append({
+                "jornada_muestreo": source["jornada"], "fecha_muestreo": "",
+                "fecha_recepcion": reception, "fecha_analisis": emission,
+                "tipo_material": source["material"], "identificador_muestra": normalized_id,
+                "identificador_muestra_origen": origin_id, "repeticion_muestra": sample_number,
+                "replica_analitica": "", "nivel_observacion": "muestra_compuesta",
+                "variable": variable, "valor": value, "unidad": unit,
+                "base_medicion": _cia_base_for(str(source["material"]), variable, unit), "incertidumbre": "",
+                "laboratorio": source["laboratorio"], "metodo_analitico": method,
+                "fuente_metodo_analitico": method_source,
+                "archivo_origen": str(path.relative_to(project_root)).replace("\\", "/"),
+                "hoja_origen": worksheet.title, "celda_o_fila_origen": f"fila {row_num}",
+                "id_reporte_laboratorio": report_id or id_lab,
+                "uso_modelo": variable_usage, "motivo_uso_modelo": variable_usage_reason,
+                "bandera_calidad": "",
+            })
+    return records
+
+
+def extract_lasa_normalized(source: Dict[str, object], project_root: Path) -> List[Dict[str, object]]:
+    from pypdf import PdfReader
+
+    path = Path(source["absolute_path"])
+    reader = PdfReader(str(path))
+    pages = [page.extract_text() or "" for page in reader.pages]
+    text = "\n".join(pages)
+    descriptions = {
+        key.upper(): value.rstrip(".")
+        for key, value in re.findall(r"\b([ABC])\.\s*(Fresco\s+\d+(?:,\d+)?)", text, flags=re.IGNORECASE)
+    }
+    sample_date_match = re.search(r"Muestreo\s+(\d{1,2}/\d{1,2}/\d{4})", text, flags=re.IGNORECASE)
+    reception_match = re.search(r"Fecha de recepción:\s*(\d{1,2}/\d{1,2}/\d{2,4})", text, flags=re.IGNORECASE)
+    analysis_match = re.search(r"Fecha de análisis:\s*(.+?\d{4})", text, flags=re.IGNORECASE)
+    report_match = re.search(r"Informe de Analisis\s+N\S*\s*([0-9]+-[0-9]+)", ascii_fold(text), flags=re.IGNORECASE)
+    results_text = text.split("Cuadro I.", 1)[-1].split("Descripción del procedimiento", 1)[0]
+    starts = list(re.finditer(r"(?:^|\s)([ABC])\s+(?=(?:Contenido|1\s+\d))", results_text, flags=re.IGNORECASE))
+    records: List[Dict[str, object]] = []
+    for index, start in enumerate(starts):
+        key = start.group(1).upper()
+        end = starts[index + 1].start() if index + 1 < len(starts) else len(results_text)
+        block = results_text[start.end():end]
+        sample_number = index + 1
+        origin = f"{key}. {descriptions.get(key, 'Fresco sin descripción')}"
+        normalized_id = f'{source["jornada"]}-EF-{sample_number}'
+        for match in re.finditer(r"\b([123])\s+([0-9]+,[0-9]+)\s*±\s*([0-9]+,[0-9]+)", block):
+            records.append({
+                "jornada_muestreo": source["jornada"],
+                "fecha_muestreo": sample_date_match.group(1) if sample_date_match else "",
+                "fecha_recepcion": reception_match.group(1) if reception_match else "",
+                "fecha_analisis": analysis_match.group(1).strip() if analysis_match else "",
+                "tipo_material": source["material"], "identificador_muestra": normalized_id,
+                "identificador_muestra_origen": origin, "repeticion_muestra": sample_number,
+                "replica_analitica": int(match.group(1)), "nivel_observacion": "replica_analitica",
+                "variable": "N total", "valor": to_float_from_decimal_comma(match.group(2)),
+                "unidad": "% masa", "base_medicion": "masa fresca",
+                "incertidumbre": to_float_from_decimal_comma(match.group(3)),
+                "laboratorio": source["laboratorio"], "metodo_analitico": source["metodo"],
+                "fuente_metodo_analitico": source["fuente_metodo"],
+                "archivo_origen": str(path.relative_to(project_root)).replace("\\", "/"),
+                "hoja_origen": "página 1", "celda_o_fila_origen": f"muestra {key}, réplica {match.group(1)}",
+                "id_reporte_laboratorio": report_match.group(1) if report_match else "",
+                "uso_modelo": source["uso_modelo"], "motivo_uso_modelo": source["motivo_uso"],
+                "bandera_calidad": "",
+            })
+    return records
 
 
 def main() -> int:
