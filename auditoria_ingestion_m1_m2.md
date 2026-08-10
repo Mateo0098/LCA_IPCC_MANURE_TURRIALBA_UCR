@@ -132,7 +132,7 @@ Resultado: `VALIDACIÓN CORRECTA: 176 observaciones y 35 resúmenes intrajornada
 
 - La fecha exacta de muestreo M2 no aparece en todos los informes; se conservaron las fechas documentales disponibles sin convertir automáticamente la recepción en fecha de muestreo.
 - El laboratorio emisor de los libros gravimétricos no está identificado inequívocamente; se registró `no documentado`.
-- Los reportes CIA no indican inequívocamente si los porcentajes de N y C del precompostado están expresados en base seca o fresca. La metodología oficial aportada posteriormente confirma Dumas (combustión seca), pero el secado preparatorio no basta para definir la base final reportada; la capa registra `no especificada en el reporte`.
+- Los reportes CIA no indican inequívocamente si los porcentajes de N y C del precompostado están expresados en base seca o fresca. La aclaración posterior confirma Dumas después de secar la muestra a 80 °C durante 48 h y que el CIA no determinó humedad a 105 °C; esta preparación no basta para definir la base formal final reportada, por lo que ambas condiciones se conservan separadamente en la metadata.
 - El libro gravimétrico M2 disponible aún muestra la columna vacía `CRISOL ID`, pese a que se informó su eliminación. Esto no afecta el lector basado en encabezados.
 - No se asignó réplica analítica a los resultados CIA cuando el informe solo presenta una fila por muestra compuesta.
 

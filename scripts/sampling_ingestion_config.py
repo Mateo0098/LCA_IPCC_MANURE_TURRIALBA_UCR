@@ -18,13 +18,22 @@ CIA_LIQUID_N_METHOD_SOURCE = (
     "y se determina N por colorimetría con FIA."
 )
 
+CIA_LIQUID_REPORTING_CLARIFICATION = (
+    "Aclaración oficial del CIA suministrada por el investigador: el laboratorio "
+    "reporta el resultado hasta el segundo decimal, como se observa en el informe; "
+    "los decimales adicionales de la celda corresponden a la lectura almacenada por "
+    "el equipo. Se conservan internamente sin atribuirles mayor precisión analítica "
+    "formal y el redondeo se reserva para la presentación final."
+)
+
 CIA_SOLID_CN_METHOD_SOURCE = (
     "Metodología oficial del Laboratorio de Suelos y Foliares de la Ciudad de "
     "la Investigación (CIA), suministrada por el investigador: la muestra de "
-    "abono sólido se seca a 80 °C, se muele, se criba a 1 mm, se pesan "
+    "abono sólido se seca a 80 °C durante 48 h, se muele, se criba a 1 mm, se pesan "
     "aproximadamente 80–100 mg y se determina N y C por combustión seca de "
-    "Dumas en un autoanalizador Elementar Vario Macro Cube. La metodología y "
-    "los reportes no especifican inequívocamente la base final del porcentaje."
+    "Dumas en un autoanalizador Elementar Vario Macro Cube. El CIA aclaró que no "
+    "determinó humedad a 105 °C porque no fue solicitada. La metodología y los "
+    "reportes no especifican formalmente la base final del porcentaje."
 )
 
 
@@ -50,6 +59,7 @@ SOURCES = [
         "laboratorio": "CIA",
         "metodo": "Dumas (combustión seca)",
         "fuente_metodo": CIA_SOLID_CN_METHOD_SOURCE,
+        "condicion_muestra": "Muestra secada a 80 °C durante 48 h; el CIA no determinó humedad a 105 °C porque no fue solicitada.",
         "uso_modelo": "elegible",
         "motivo_uso": "Caracterización de N y C de estiércol precompostado.",
         "expected_samples": 2,
@@ -112,6 +122,7 @@ SOURCES = [
         "laboratorio": "CIA",
         "metodo": "Kjeldahl",
         "fuente_metodo": CIA_LIQUID_N_METHOD_SOURCE,
+        "nota_precision": CIA_LIQUID_REPORTING_CLARIFICATION,
         "uso_modelo": "elegible",
         "motivo_uso": "N total de abono líquido por el método oficial CIA confirmado por el investigador.",
         "expected_samples": 3,
@@ -124,6 +135,7 @@ SOURCES = [
         "laboratorio": "CIA",
         "metodo": "Dumas (combustión seca)",
         "fuente_metodo": CIA_SOLID_CN_METHOD_SOURCE,
+        "condicion_muestra": "Muestra secada a 80 °C durante 48 h; el CIA no determinó humedad a 105 °C porque no fue solicitada.",
         "uso_modelo": "elegible",
         "motivo_uso": "Caracterización de N y C de estiércol precompostado.",
         "expected_samples": 3,
@@ -136,6 +148,7 @@ SOURCES = [
         "laboratorio": "CIA",
         "metodo": "Kjeldahl",
         "fuente_metodo": CIA_LIQUID_N_METHOD_SOURCE,
+        "nota_precision": CIA_LIQUID_REPORTING_CLARIFICATION,
         "uso_modelo": "elegible",
         "motivo_uso": "N total de abono líquido por el método oficial CIA confirmado por el investigador.",
         "expected_samples": 3,

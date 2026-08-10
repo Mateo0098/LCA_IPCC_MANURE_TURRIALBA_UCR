@@ -8,7 +8,7 @@ Esta revisión se limita a metadata analítica, evidencia documental y trazabili
 
 La metodología oficial del Laboratorio de Suelos y Foliares de la Ciudad de la Investigación (CIA), aportada por el investigador, establece para N y C en abonos sólidos:
 
-1. secado de la muestra a 80 °C;
+1. secado de la muestra a 80 °C durante 48 h;
 2. molienda;
 3. paso por criba de 1 mm;
 4. pesada aproximada de 80–100 mg;
@@ -45,7 +45,7 @@ La fuente se registra en `scripts/sampling_ingestion_config.py` como “metodolo
 
 ## 3. Base del porcentaje reportado
 
-El secado a 80 °C forma parte del procedimiento de preparación para el análisis de Dumas. Por sí solo no demuestra que el laboratorio exprese el resultado final sobre base seca: el método podría incluir una convención de reporte o una corrección posterior no descrita en los archivos disponibles.
+El secado a 80 °C durante 48 h forma parte del procedimiento de preparación para el análisis de Dumas. El CIA aclaró que no determinó humedad a 105 °C porque no fue solicitada. Por sí sola, esta preparación no demuestra que el laboratorio exprese el resultado final sobre base seca: el método podría incluir una convención de reporte o una corrección posterior no descrita en los archivos disponibles.
 
 Los reportes solo declaran `% masa` o `%`; la metodología aportada describe el procedimiento, pero no especifica inequívocamente la base final de cálculo del porcentaje reportado. Por tanto, la conclusión documental es:
 
@@ -54,7 +54,7 @@ Los reportes solo declaran `% masa` o `%`; la metodología aportada describe el 
 La capa normalizada registra para N y C de precompostado M1 y M2:
 
 ```text
-base_medicion = no especificada en el reporte
+base_medicion = muestra previamente secada a 80 °C durante 48 h; base final del porcentaje no especificada formalmente por el reporte
 ```
 
 No se afirma base seca ni base fresca y no se cambia ningún valor numérico.
@@ -120,7 +120,7 @@ Independientemente de la rama de emisiones, el 2,425 % también es consumido com
 ## 6. Cambios de metadata
 
 - M1 y M2 de precompostado: `metodo_analitico = Dumas (combustión seca)`.
-- N y C de precompostado: `base_medicion = no especificada en el reporte`.
+- N y C de precompostado: se registra el secado previo a 80 °C durante 48 h y que la base formal del porcentaje no fue especificada por el reporte.
 - N de precompostado conserva `uso_modelo = elegible`, sin conexión nueva con el modelo.
 - Carbono, relación C/N y densidad usan `uso_modelo = solo_caracterizacion`.
 - N, humedad, materia seca, cenizas y sólidos volátiles no fueron excluidos por esta revisión.

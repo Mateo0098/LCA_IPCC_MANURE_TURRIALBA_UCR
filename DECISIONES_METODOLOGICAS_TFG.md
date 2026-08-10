@@ -111,3 +111,22 @@ Actualmente, parte de los resultados experimentales incorporados procede princip
 ## 12. Regla para futuras regeneraciones
 
 Los generadores de metodología y resultados deben conservar estas decisiones. Si se detecta una discrepancia entre los documentos generados, la implementación del modelo y este archivo, debe reportarse al investigador antes de modificar cálculos, parámetros, factores, flujos o decisiones metodológicas.
+
+## 13. Aclaraciones CIA sobre reporte de N y preparación de N/C
+
+### Política de precisión y redondeo
+
+- Para N de aguas verdes y purines, el CIA aclaró que reporta el resultado hasta el segundo decimal, tal como aparece en el informe.
+- Los decimales adicionales almacenados en las celdas corresponden a la lectura que conserva el equipo. Deben mantenerse en la ingestión y en los cálculos para evitar redondeo prematuro y asegurar reproducibilidad.
+- El redondeo se aplica únicamente en la presentación final, respetando la precisión de reporte del laboratorio.
+- Los decimales adicionales no deben interpretarse ni describirse como mayor precisión analítica formal.
+- No deben sustituirse por `0,01 %` valores internos diferentes que el informe muestre redondeados de la misma forma.
+
+### N y C del estiércol precompostado
+
+- El CIA determinó N y C por Dumas (combustión seca) después de secar la muestra a 80 °C durante 48 h y realizar la preparación establecida por su metodología.
+- El CIA no determinó humedad a 105 °C como parte de ese análisis porque no fue solicitada.
+- La humedad y materia seca del TFG proceden de ensayos gravimétricos independientes, con aproximadamente 10 g a 105 °C hasta masa constante o durante el tiempo establecido.
+- El secado CIA a 80 °C es una condición de preparación para N/C; no debe mezclarse con la determinación gravimétrica del TFG a 105 °C.
+- No se debe etiquetar el N/C del precompostado como base fresca ni afirmar automáticamente base seca. La base formal del porcentaje no está especificada explícitamente en los reportes.
+- No deben realizarse conversiones automáticas de N usando la materia seca determinada a 105 °C sin evidencia documental y aprobación metodológica expresa.

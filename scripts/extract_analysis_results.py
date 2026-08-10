@@ -571,10 +571,10 @@ NORMALIZED_COMMON_FIELDS = [
     "jornada_muestreo", "fecha_muestreo", "fecha_recepcion", "fecha_analisis",
     "tipo_material", "identificador_muestra", "identificador_muestra_origen",
     "repeticion_muestra", "replica_analitica", "nivel_observacion", "variable",
-    "valor", "unidad", "base_medicion", "incertidumbre", "laboratorio",
+    "valor", "unidad", "base_medicion", "condicion_muestra", "incertidumbre", "laboratorio",
     "metodo_analitico", "fuente_metodo_analitico", "archivo_origen",
     "hoja_origen", "celda_o_fila_origen", "id_reporte_laboratorio",
-    "uso_modelo", "motivo_uso_modelo", "bandera_calidad",
+    "uso_modelo", "motivo_uso_modelo", "nota_precision_reporte", "bandera_calidad",
 ]
 
 
@@ -684,7 +684,7 @@ def _cia_base_for(material: str, variable: str, unit: str) -> str:
     # declaran si el resultado final está referido a base seca o fresca. El
     # secado a 80 °C es preparación de muestra y no basta para inferir la base.
     if material == "estiércol precompostado" and variable in {"N total", "carbono"}:
-        return "no especificada en el reporte"
+        return "muestra previamente secada a 80 °C durante 48 h; base final del porcentaje no especificada formalmente por el reporte"
     return _base_for(variable, unit)
 
 
@@ -753,13 +753,15 @@ def extract_cia_normalized(source: Dict[str, object], project_root: Path) -> Lis
                 "identificador_muestra_origen": origin_id, "repeticion_muestra": sample_number,
                 "replica_analitica": "", "nivel_observacion": "muestra_compuesta",
                 "variable": variable, "valor": value, "unidad": unit,
-                "base_medicion": _cia_base_for(str(source["material"]), variable, unit), "incertidumbre": "",
+                "base_medicion": _cia_base_for(str(source["material"]), variable, unit),
+                "condicion_muestra": source.get("condicion_muestra", ""), "incertidumbre": "",
                 "laboratorio": source["laboratorio"], "metodo_analitico": method,
                 "fuente_metodo_analitico": method_source,
                 "archivo_origen": str(path.relative_to(project_root)).replace("\\", "/"),
                 "hoja_origen": worksheet.title, "celda_o_fila_origen": f"fila {row_num}",
                 "id_reporte_laboratorio": report_id or id_lab,
                 "uso_modelo": variable_usage, "motivo_uso_modelo": variable_usage_reason,
+                "nota_precision_reporte": source.get("nota_precision", ""),
                 "bandera_calidad": "",
             })
     return records

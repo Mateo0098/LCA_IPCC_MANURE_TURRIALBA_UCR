@@ -31,7 +31,7 @@ def main() -> int:
         "identificador_muestra_origen", "repeticion_muestra", "replica_analitica", "nivel_observacion",
         "variable", "valor", "unidad", "base_medicion", "laboratorio",
         "metodo_analitico", "archivo_origen", "hoja_origen", "uso_modelo",
-        "motivo_uso_modelo", "bandera_calidad",
+        "motivo_uso_modelo", "nota_precision_reporte", "condicion_muestra", "bandera_calidad",
     }
     missing_columns = required - set(rows[0] if rows else {})
     if missing_columns:
@@ -48,7 +48,7 @@ def main() -> int:
 
     for row in rows:
         for field in required - {"bandera_calidad"}:
-            if field not in {"replica_analitica"} and not str(row.get(field, "")).strip():
+            if field not in {"replica_analitica", "nota_precision_reporte", "condicion_muestra"} and not str(row.get(field, "")).strip():
                 fail(errors, f"Valor obligatorio vacío: {field} en {duplicate_key(row)}")
         try:
             float(row["valor"])
@@ -106,8 +106,11 @@ def main() -> int:
     ]
     if not precomp_nc or any(row["metodo_analitico"] != "Dumas (combustión seca)" for row in precomp_nc):
         fail(errors, "N/C de precompostado M1/M2 no quedó documentado mediante Dumas")
-    if any(row["base_medicion"] != "no especificada en el reporte" for row in precomp_nc):
+    expected_base = "muestra previamente secada a 80 °C durante 48 h; base final del porcentaje no especificada formalmente por el reporte"
+    if any(row["base_medicion"] != expected_base for row in precomp_nc):
         fail(errors, "N/C de precompostado afirma una base de medición no respaldada")
+    if any("80 °C durante 48 h" not in row["condicion_muestra"] or "no determinó humedad a 105 °C" not in row["condicion_muestra"] for row in precomp_nc):
+        fail(errors, "Falta la condición de preparación CIA de N/C del precompostado")
     precomp_n = [row for row in precomp_nc if row["variable"] == "N total"]
     if any(row["uso_modelo"] != "elegible" for row in precomp_n):
         fail(errors, "El N de precompostado dejó de estar marcado como elegible")
@@ -116,6 +119,30 @@ def main() -> int:
     ]
     if any(row["uso_modelo"] != "solo_caracterizacion" for row in characterization):
         fail(errors, "Densidad, carbono o relación C/N heredó elegibilidad de la fuente")
+
+    expected_liquid_m2 = {
+        "M2-AV-1": 0.009886,
+        "M2-AV-2": 0.009021,
+        "M2-AV-3": 0.00886066666666667,
+        "M2-PU-1": 0.0140366666666667,
+        "M2-PU-2": 0.0140033333333333,
+        "M2-PU-3": 0.0137733333333333,
+    }
+    liquid_m2 = {
+        row["identificador_muestra"]: float(row["valor"])
+        for row in rows
+        if row["jornada_muestreo"] == "M2"
+        and row["tipo_material"] in {"aguas verdes", "purines"}
+        and row["variable"] == "N total"
+    }
+    if liquid_m2 != expected_liquid_m2:
+        fail(errors, f"Los valores internos completos de N líquido M2 cambiaron: {liquid_m2}")
+    liquid_notes = [
+        row["nota_precision_reporte"] for row in rows
+        if row["identificador_muestra"] in expected_liquid_m2 and row["variable"] == "N total"
+    ]
+    if len(liquid_notes) != 6 or any("segundo decimal" not in note or "presentación final" not in note for note in liquid_notes):
+        fail(errors, "Falta la política CIA de reporte hasta el segundo decimal para N líquido M2")
 
     unit_groups = defaultdict(set)
     for row in rows:
@@ -137,8 +164,9 @@ def main() -> int:
     print("M1: 2 muestras compuestas por material; M2: 3 muestras compuestas por material")
     print("Sólidos y LASA: 3 réplicas analíticas por muestra")
     print("Líquidos M1: especiación/solo_trazabilidad; líquidos M2: Kjeldahl/elegible")
-    print("Precompostado M1/M2: N/C por Dumas; base del porcentaje no especificada en el reporte")
+    print("Precompostado M1/M2: N/C por Dumas; muestra secada a 80 °C durante 48 h; base formal no especificada")
     print("Densidad, carbono y relación C/N: solo_caracterizacion")
+    print("N líquido M2: valores internos completos conservados; redondeo reservado para presentación")
     return 0
 
 

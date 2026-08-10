@@ -96,11 +96,10 @@ def _write_csv(path: Path, fields: List[str], rows: Iterable[Dict[str, object]])
         writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
         writer.writeheader()
         for row in rows:
-            formatted = {
-                key: f"{value:.10g}" if isinstance(value, float) else value
-                for key, value in row.items()
-            }
-            writer.writerow(formatted)
+            # csv usa str(float), que conserva una representación decimal de
+            # ida y vuelta. No se redondean observaciones ni resúmenes antes de
+            # escribir; el formato de presentación se aplica aguas abajo.
+            writer.writerow(row)
 
 
 def main() -> int:

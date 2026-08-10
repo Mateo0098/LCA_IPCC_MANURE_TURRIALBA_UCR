@@ -93,12 +93,20 @@ con el modelo.
 
 Para N y C del estiércol precompostado, los reportes CIA 97600 y 100751 se
 documentan con el método `Dumas (combustión seca)`, conforme a la metodología
-oficial CIA suministrada por el investigador: secado a 80 °C, molienda, criba
+oficial CIA suministrada por el investigador: secado a 80 °C durante 48 h, molienda, criba
 de 1 mm, pesada aproximada de 80–100 mg y análisis en un autoanalizador
 Elementar Vario Macro Cube. Los reportes y la metodología no declaran
-inequívocamente si el porcentaje final está en base seca o fresca; la capa
-normalizada registra `base_medicion = no especificada en el reporte` y no
-altera los valores.
+inequívocamente si el porcentaje final está en base seca o fresca. El CIA no
+determinó humedad a 105 °C porque no fue solicitada; esa preparación no debe
+confundirse con los ensayos gravimétricos independientes del TFG a 105 °C. La
+capa normalizada registra la condición física de secado y que la base formal
+del porcentaje no fue especificada, sin alterar los valores ni convertirlos con
+la materia seca del TFG.
+
+Para N líquido M2, se conservan todos los decimales almacenados por el equipo
+en los archivos CIA y se calculan los resúmenes antes de cualquier formato de
+presentación. El CIA reporta el resultado hasta el segundo decimal; los
+decimales adicionales no se interpretan como mayor precisión analítica formal.
 
 El estado `solo_caracterizacion` se usa para densidad, carbono y relación C/N:
 estas variables se conservan, pero no se presentan como parámetros consumidos
