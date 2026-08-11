@@ -54,6 +54,7 @@ Antes de realizar cualquier modificación, Codex debe:
 2. Registrar la rama activa, el commit `HEAD` y el estado general del working tree al inicio.
 3. Trabajar exclusivamente sobre la rama activa encontrada.
 4. No cambiar de rama por iniciativa propia, salvo que el prompt lo solicite explícitamente.
+5. No interpretar una rama histórica conservada como respaldo como fuente vigente ni como línea activa de trabajo.
 
 
 

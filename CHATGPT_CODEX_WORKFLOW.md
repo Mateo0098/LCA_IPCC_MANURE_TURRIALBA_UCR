@@ -89,14 +89,11 @@ también requiere una rama separada.
 ### Objetivo de la rama
 
 El objetivo del chat y el objetivo de la rama Git no tienen que ser idénticos.
-Una rama puede reunir varias tareas estrechamente relacionadas con un mismo
-cambio metodológico, técnico o documental. ChatGPT debe conocer la rama vigente
-mediante el contexto Git de los reportes de Codex y evitar introducir en ella
-trabajo que no pertenezca naturalmente a su propósito.
-
-Cuando una nueva tarea sea independiente del objetivo de la rama, ChatGPT debe
-recomendar crear otra rama antes de iniciar los cambios. No corresponde crear
-una rama distinta para cada ajuste pequeño.
+Normalmente existe una sola rama activa de avance, que puede reunir cambios
+científicos, metodológicos, documentales, técnicos y de gobernanza del TFG.
+ChatGPT debe conocerla mediante el contexto Git de los reportes de Codex. No se
+requiere una rama distinta para cada unidad ni una separación estricta por tipo
+de cambio.
 
 ### Cierre conceptual de una rama
 
@@ -109,13 +106,30 @@ el working tree está limpio y no quedan pendientes que pertenezcan naturalmente
 al mismo objetivo. No es necesario agotar toda mejora futura relacionada con el
 tema; esas mejoras pueden constituir una línea posterior independiente.
 
-La decisión se basa en coherencia conceptual, no en días, cantidad de tareas o
-número de commits. Conviene dejar de acumular trabajo cuando aparecen unidades
-independientes, se vuelve recurrente justificar su pertenencia a la rama, cambia
-de forma importante la arquitectura, metodología o propósito, o el historial
-empieza a mezclar objetivos distintos. Estas señales indican que la rama corre
-el riesgo de convertirse en una segunda `main`, aunque todavía pueda contener
-trabajo técnicamente útil.
+La decisión se basa en el estado acumulado, no en días, cantidad de tareas,
+número de commits ni categorías de cambios. Mateo determina cuándo el avance es
+considerable, coherente y suficientemente validado para integrar completa la
+rama a `main`.
+
+### Modelo Git simplificado
+
+Este repositorio se utiliza principalmente como proyecto individual y como
+sistema de respaldo y recuperación. `main` representa la versión estable e
+integrada del TFG que pueden consultar los asesores. El flujo habitual es:
+
+```text
+main estable → una rama activa de avance → trabajo y validaciones
+→ promoción completa a main cuando el avance sea significativo
+→ nueva rama de avance cuando corresponda
+```
+
+Después de la integración, `main` vuelve a ser la referencia vigente y el
+siguiente avance relevante puede comenzar desde ese estado actualizado. Las
+ramas anteriores pueden conservarse como respaldo o referencia histórica sin
+eliminarse automáticamente; una rama histórica no es fuente vigente ni línea
+activa de trabajo. No se imponen ramas estrictamente temáticas, varias ramas
+activas en paralelo, releases ni estrategias avanzadas de Git salvo que surja
+una necesidad real.
 
 ## Flujo general de trabajo
 
@@ -280,10 +294,10 @@ objetivo sigue siendo el mismo y el contexto continúa siendo útil.
 
 ### Nueva rama Git
 
-ChatGPT puede recomendar una nueva rama para un cambio metodológico
-independiente, una modificación arquitectónica separable, una integración
-importante nueva, una tarea ajena al propósito natural de la rama vigente o un
-conjunto de cambios que convenga revisar e integrar por separado.
+ChatGPT puede recomendar una nueva rama de avance después de que el trabajo
+anterior se haya integrado a `main`, o excepcionalmente cuando una necesidad
+real justifique aislar cambios. Por defecto no mantiene varias ramas activas en
+paralelo ni crea una rama por unidad o categoría de trabajo.
 
 Antes del cambio debe aplicar la revisión de cierre, comprobar documentación y
 validaciones, revisar el estado Git y recomendar commit y push cuando
@@ -310,11 +324,10 @@ no incorpore trabajo no validado.
 
 Después de confirmar la integración, debe verificarse que `main` contiene los
 cambios esperados; desde entonces, `main` vuelve a ser la referencia vigente
-para ese trabajo y la rama cerrada deja de recibir tareas independientes. Una
-mejora conceptualmente nueva puede comenzar desde `main` en otra rama. La rama
-remota no necesita conservarse indefinidamente si Git y la política del
-repositorio permiten eliminarla después de verificar la integración; esta
-limpieza no sustituye la comprobación previa ni se realiza de forma automática.
+para el TFG. El siguiente avance relevante puede comenzar desde ese `main`
+actualizado en otra rama. Las ramas anteriores pueden conservarse como respaldo
+o referencia histórica y no necesitan eliminarse automáticamente, pero no se
+interpretan como fuente vigente ni como líneas activas de trabajo.
 
 ### Nueva sesión de Codex
 
