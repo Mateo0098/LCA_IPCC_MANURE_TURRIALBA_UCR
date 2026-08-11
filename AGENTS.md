@@ -24,7 +24,11 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 \- No hacer commit automáticamente.
 
-\- Antes de modificar archivos, revisar `git status` y confirmar la branch activa.
+\- Antes de modificar archivos, revisar `git status`, comprobar y registrar la rama activa.
+
+\- No cambiar de rama automáticamente salvo que el prompt lo solicite explícitamente.
+
+\- Si la rama activa no parece corresponder con el contexto solicitado, señalarlo antes de realizar cambios potencialmente incorrectos.
 
 \- Mantener valores numéricos, factores, ecuaciones y resultados salvo que la tarea pida explícitamente recalcular.
 
@@ -38,7 +42,7 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 \- El flujo de coordinación con Mateo y ChatGPT se documenta en `CHATGPT_CODEX_WORKFLOW.md`.
 
-\- Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/`. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
+\- Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/` e indicar la rama sobre la que se realizó el trabajo. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
 
 
 

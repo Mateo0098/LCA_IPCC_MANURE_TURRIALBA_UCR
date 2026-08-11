@@ -50,6 +50,18 @@ Mateo + ChatGPT → prompt para Codex → ejecución por Codex → reporte Markd
 7. A partir del reporte, ChatGPT solicita únicamente los archivos concretos que necesite inspeccionar para validar el trabajo.
 8. La afirmación de Codex de que una tarea terminó correctamente no sustituye la revisión posterior cuando esta sea necesaria.
 
+### Contexto de rama
+
+Cuando Mateo indique a ChatGPT que una tarea se desarrolla en una rama distinta
+de `main`, ChatGPT debe considerar esa rama como la referencia vigente para
+todas las consultas, prompts y validaciones relacionadas con la tarea. La rama
+seguirá siendo la referencia hasta que Mateo comunique explícitamente que cambió
+de rama o que los cambios fueron integrados a `main`.
+
+Si ChatGPT sabe que el trabajo relevante todavía vive en otra rama, no debe
+consultar `main` como fuente vigente de esa tarea. Esta regla evita preparar
+prompts o validar cambios usando código o documentación desactualizados.
+
 ## Reportes temporales de Codex
 
 Salvo que no resulte aplicable, los prompts para Codex deberían solicitar un
