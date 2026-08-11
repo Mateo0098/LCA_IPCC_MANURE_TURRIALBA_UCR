@@ -103,7 +103,11 @@ Cuando una tarea genere un reporte, este debe permitir que ChatGPT conozca, como
 
 
 
-Si una tarea cambia metodología, pipeline, arquitectura, gobernanza o reglas permanentes y el prompt incluye actualización documental, Codex debe comprobar antes de reportarla como terminada que la documentación correspondiente quedó actualizada y coherente. Codex no debe decidir por iniciativa propia cuándo crear un nuevo chat, una nueva rama o una nueva sesión; esas transiciones pertenecen al flujo de coordinación entre Mateo y ChatGPT documentado en `CHATGPT_CODEX_WORKFLOW.md`. La prohibición de cambiar de rama sin solicitud explícita continúa vigente.
+Si una tarea cambia metodología, pipeline, arquitectura, gobernanza o reglas permanentes y el prompt incluye actualización documental, Codex debe consultar `docs/DOCUMENTACION_VIVA.md`, revisar los documentos indicados y comprobar antes de reportarla como terminada que la documentación correspondiente quedó actualizada y coherente. La selección debe responder al componente afectado y no limitarse siempre a los mismos documentos generales. Si descubre otra guía o manifiesto afectado, debe indicarlo en el reporte. Los manifiestos generados se corrigen desde su generador cuando corresponda, no solo en el archivo final.
+
+
+
+Codex debe reportar los documentos redundantes, obsoletos o sin función clara que detecte. No debe eliminarlos por iniciativa propia: su retiro, integración, sustitución o traslado requiere una instrucción y una decisión documentada. Codex tampoco debe decidir por iniciativa propia cuándo crear un nuevo chat, una nueva rama o una nueva sesión; esas transiciones pertenecen al flujo de coordinación entre Mateo y ChatGPT documentado en `CHATGPT_CODEX_WORKFLOW.md`. La prohibición de cambiar de rama sin solicitud explícita continúa vigente.
 
 
 

@@ -131,9 +131,10 @@ no solamente en un reporte temporal.
 
 ## Documentación viva del repositorio
 
-`README.md`, `AGENTS.md`, los documentos de decisiones metodológicas, la
-documentación del pipeline y otras pautas equivalentes son documentos vivos:
-describen el estado vigente y orientan el trabajo futuro de Codex.
+El registro canónico `docs/DOCUMENTACION_VIVA.md` clasifica los documentos
+vivos, especializados, generados y estáticos, e indica su fuente responsable y
+sus disparadores de revisión. El registro orienta el cierre, pero no sustituye
+la búsqueda contextual de documentación del componente afectado.
 
 Cuando una decisión de Mateo y ChatGPT cambie la metodología, arquitectura,
 fuente de verdad, estructura de datos, pipeline, flujo entre scripts, comandos
@@ -143,10 +144,11 @@ explícitamente qué documentación versionada necesita actualizarse. El objetiv
 es evitar que el código y el pipeline evolucionen mientras sus instrucciones
 quedan obsoletas.
 
-Antes de cerrar una tarea importante, ChatGPT debe comprobar, según el cambio,
-si requieren actualización `AGENTS.md`, `README.md`, este documento,
-`DECISIONES_METODOLOGICAS_TFG.md`, la documentación técnica específica y la
-documentación académica generada. Esta revisión suele ser necesaria ante cambios
+Antes de cerrar una tarea importante, ChatGPT debe identificar qué documentación
+viva, especializada o generada resulta afectada; no basta con revisar siempre
+los mismos documentos generales. Debe consultar el registro canónico, las
+referencias inmediatas y la documentación específica del componente. Esta
+revisión suele ser necesaria ante cambios
 de metodología, arquitectura, fuentes de datos, pipeline, comandos, parámetros
 activos, modelos o sistemas IPCC, integración estadística, tratamiento de
 muestreos, convenciones, gobernanza, reglas para agentes o generación y
@@ -154,7 +156,11 @@ validación documental.
 
 Cada contenido debe actualizarse en su fuente responsable. No se deben duplicar
 decisiones metodológicas en documentos operativos ni reglas de coordinación en
-el registro de decisiones científicas.
+el registro de decisiones científicas. Los manifiestos generados deben
+regenerarse con su productor y corresponder a la misma corrida que los outputs.
+Si un documento deja de cumplir una función diferenciada, ChatGPT debe proponer
+su integración, sustitución, traslado o retiro; la decisión debe documentarse
+antes de eliminarlo.
 
 ## Revisión de cierre
 
@@ -168,7 +174,7 @@ evaluar, en la medida aplicable al alcance real del trabajo:
 - si se regeneraron los productos afectados;
 - si los documentos académicos afectados quedaron actualizados;
 - si las decisiones metodológicas permanentes y las instrucciones para Codex permanecen actualizadas y coherentes;
-- si los documentos vivos que correspondan fueron revisados o actualizados;
+- si los documentos vivos, especializados y generados afectados fueron revisados o actualizados conforme al registro canónico y al contexto del componente;
 - si se conoce la rama, el commit `HEAD` y el estado del working tree;
 - si una unidad coherente de cambios está lista y corresponde hacer commit, push o ambos;
 - si el working tree quedó limpio o existe una razón documentada para mantener cambios.
