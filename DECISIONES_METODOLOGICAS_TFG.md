@@ -130,3 +130,33 @@ Los generadores de metodología y resultados deben conservar estas decisiones. S
 - El secado CIA a 80 °C es una condición de preparación para N/C; no debe mezclarse con la determinación gravimétrica del TFG a 105 °C.
 - No se debe etiquetar el N/C del precompostado como base fresca ni afirmar automáticamente base seca. La base formal del porcentaje no está especificada explícitamente en los reportes.
 - No deben realizarse conversiones automáticas de N usando la materia seca determinada a 105 °C sin evidencia documental y aprobación metodológica expresa.
+
+## 14. Integración temporal de jornadas
+
+### Jerarquía estadística e igual peso temporal
+
+La jerarquía de análisis es: réplica analítica → muestra compuesta → promedio de jornada → integración entre jornadas. Las réplicas analíticas no constituyen observaciones temporales independientes.
+
+Para variables metodológicamente comparables, cada jornada aporta su promedio de jornada con igual peso temporal. La integración no se pondera por el número de réplicas analíticas ni por el número de muestras compuestas. Por tanto, aunque M1 contenga generalmente dos muestras compuestas y M2 o M3 contengan tres, cada jornada recibe el mismo peso temporal.
+
+### Variables sólidas
+
+Para N total, humedad, materia seca, cenizas y sólidos volátiles del estiércol fresco y del estiércol precompostado, M1, M2 y la futura M3 son integrables si mantienen compatibilidad metodológica. Actualmente, el valor provisional corresponde a la media de los promedios de M1 y M2.
+
+El valor final requerirá obligatoriamente M1, M2 y M3 con métodos compatibles. Una combinación incompleta, como M1 + M3 o M2 + M3, no podrá considerarse final.
+
+### N de aguas verdes y purines
+
+En M1, el N de aguas verdes y purines corresponde a especiación, se conserva únicamente para trazabilidad y se excluye del estimador de N total. M2, determinado mediante Kjeldahl, es elegible. M3 será elegible si utiliza una metodología Kjeldahl compatible.
+
+El valor final será la media de los promedios de M2 y M3; M1 no se incorporará. Hasta disponer de M3, el N líquido permanecerá en estado `pendiente_M3`.
+
+### Variabilidad e inferencia estadística
+
+La variabilidad intrajornada, calculada entre muestras compuestas, debe mantenerse separada de la variabilidad interjornada, calculada entre promedios de jornada. La desviación estándar interjornada no debe combinarse automáticamente con la desviación estándar intrajornada.
+
+Con las jornadas actuales no se realizarán automáticamente ANOVA, pruebas t, pruebas de normalidad, modelos mixtos ni declaraciones de diferencia estadísticamente significativa. Las diferencias entre M1 y M2 tienen carácter exclusivamente descriptivo.
+
+### Estado actual y relación con el ACV
+
+La integración M1–M2 es provisional y permanece completamente desacoplada del modelo ACV. No se sustituirán parámetros del ACV hasta disponer de M3 y contar con aprobación expresa del investigador.
