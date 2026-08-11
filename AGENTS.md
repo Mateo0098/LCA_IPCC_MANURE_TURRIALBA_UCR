@@ -24,10 +24,6 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 \- No hacer commit automáticamente.
 
-\- Antes de modificar archivos, revisar `git status`, comprobar y registrar la rama activa.
-
-\- No cambiar de rama automáticamente salvo que el prompt lo solicite explícitamente.
-
 \- Si la rama activa no parece corresponder con el contexto solicitado, señalarlo antes de realizar cambios potencialmente incorrectos.
 
 \- Mantener valores numéricos, factores, ecuaciones y resultados salvo que la tarea pida explícitamente recalcular.
@@ -42,7 +38,48 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 \- El flujo de coordinación con Mateo y ChatGPT se documenta en `CHATGPT_CODEX_WORKFLOW.md`.
 
-\- Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/` e indicar la rama sobre la que se realizó el trabajo. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
+\- Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/`. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
+
+
+
+## Contexto Git obligatorio para tareas de Codex
+
+
+
+Antes de realizar cualquier modificación, Codex debe:
+
+
+
+1. Ejecutar `git branch --show-current`.
+2. Registrar la rama activa, el commit `HEAD` y el estado general del working tree al inicio.
+3. Trabajar exclusivamente sobre la rama activa encontrada.
+4. No cambiar de rama por iniciativa propia, salvo que el prompt lo solicite explícitamente.
+
+
+
+Antes de finalizar la tarea, Codex debe volver a ejecutar `git branch --show-current` y registrar la rama activa, el commit `HEAD` y el estado general del working tree al finalizar. Si la rama cambia durante la ejecución, debe indicarlo explícitamente en el reporte y explicar la causa.
+
+
+
+Todo reporte dentro de `.codex_reports/` debe contener cerca del inicio una sección con este formato:
+
+
+
+```markdown
+## Contexto Git
+
+- Rama al inicio: `...`
+- HEAD inicial: `...`
+- Working tree inicial: limpio / con cambios
+- Rama al finalizar: `...`
+- HEAD final: `...`
+- Working tree final: limpio / con cambios
+- Cambio de rama durante la tarea: sí / no
+```
+
+
+
+Si hubo un cambio de rama, se debe añadir una breve explicación. La rama indicada en el reporte permite que ChatGPT identifique la referencia vigente de la tarea y detecte cambios de rama sin una notificación manual separada.
 
 
 

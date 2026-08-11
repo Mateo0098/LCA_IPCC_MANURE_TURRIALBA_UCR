@@ -52,15 +52,17 @@ Mateo + ChatGPT → prompt para Codex → ejecución por Codex → reporte Markd
 
 ### Contexto de rama
 
-Cuando Mateo indique a ChatGPT que una tarea se desarrolla en una rama distinta
-de `main`, ChatGPT debe considerar esa rama como la referencia vigente para
-todas las consultas, prompts y validaciones relacionadas con la tarea. La rama
-seguirá siendo la referencia hasta que Mateo comunique explícitamente que cambió
-de rama o que los cambios fueron integrados a `main`.
+Cada reporte de Codex debe incluir el contexto Git obligatorio definido en
+`AGENTS.md`: rama, commit `HEAD` y estado general del working tree al inicio y
+al final, además de cualquier cambio de rama y su causa. Al recibir el reporte,
+ChatGPT debe considerar la rama allí indicada como la referencia vigente para
+las consultas, prompts y validaciones relacionadas con esa tarea.
 
 Si ChatGPT sabe que el trabajo relevante todavía vive en otra rama, no debe
 consultar `main` como fuente vigente de esa tarea. Esta regla evita preparar
-prompts o validar cambios usando código o documentación desactualizados.
+prompts o validar cambios usando código o documentación desactualizados. Si la
+rama inicial y la final difieren, ChatGPT debe tomar en cuenta la explicación
+registrada antes de continuar la coordinación.
 
 ## Reportes temporales de Codex
 
@@ -79,6 +81,7 @@ ordinarios.
 
 Según la tarea, un reporte debería resumir:
 
+- contexto Git obligatorio conforme a `AGENTS.md`;
 - objetivo;
 - archivos inspeccionados, modificados y creados;
 - cambios implementados;
