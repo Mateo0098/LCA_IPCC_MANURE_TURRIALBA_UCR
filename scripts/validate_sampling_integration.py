@@ -6,9 +6,10 @@ import ast
 import csv
 import hashlib
 import math
+import statistics
 from pathlib import Path
 
-from build_sampling_integration import _build_row, _fmt
+from build_sampling_integration import _build_row, _fmt, build_mass_transformation_rows
 from sampling_integration_rules import RULES_BY_KEY
 
 
@@ -16,6 +17,8 @@ ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "scripts" / "build_sampling_integration.py"
 SOURCE = ROOT / "processed" / "muestreos_resumen_intrajornada.csv"
 OUTPUT = ROOT / "processed" / "muestreos_integracion_interjornada_provisional.csv"
+MASS_OUTPUT = ROOT / "processed" / "muestreos_transformacion_masa_interjornada.csv"
+HISTORICAL_M1 = ROOT / "processed" / "volatile_solids_mass_loss_fresh_to_precomposted.csv"
 PROTECTED = [
     "processed/ACV_resumen_emisiones.csv", "processed/acv_impacto_por_etapa_escenario.csv",
     "processed/acv_impacto_total_por_escenario.csv", "processed/masa_total_escenario_etapa.csv",
@@ -36,6 +39,7 @@ def main() -> None:
     before = {name: sha256(ROOT / name) for name in PROTECTED}
     source = _rows(SOURCE)
     result = _rows(OUTPUT)
+    mass_result = _rows(MASS_OUTPUT)
     build_text = BUILD.read_text(encoding="utf-8")
     tree = ast.parse(build_text)
     literals = {node.value for node in ast.walk(tree) if isinstance(node, ast.Constant) and isinstance(node.value, str)}
@@ -95,6 +99,40 @@ def main() -> None:
         if row["estado_integracion"] == "solo_caracterizacion":
             assert "no es parámetro" in row["uso_previsto"]
     assert "numero_muestras_compuestas" not in build_text and "numero_replicas_analiticas" not in build_text
+    mass_journeys = {row["jornada"]: row for row in mass_result if row["tipo_fila"] == "jornada"}
+    mass_summary = next(row for row in mass_result if row["tipo_fila"] == "integracion")
+    assert set(mass_journeys) == {"M1", "M2"}
+    assert mass_summary["jornadas_elegibles"] == "M1;M2"
+    assert mass_summary["numero_jornadas"] == "2"
+    assert mass_summary["estado_integracion"] == "provisional_M1_M2"
+    expected_integrated = statistics.fmean(
+        float(mass_journeys[j]["mass_ratio_precomp_over_fresh"]) for j in ("M1", "M2")
+    )
+    assert math.isclose(float(mass_summary["mass_ratio_integrado"]), expected_integrated, rel_tol=1e-15)
+    assert math.isclose(
+        float(mass_summary["mass_loss_pct_integrado"]),
+        (1.0 - float(mass_summary["mass_ratio_integrado"])) * 100.0,
+        rel_tol=1e-15,
+    )
+    historical = _rows(HISTORICAL_M1)[0]
+    assert math.isclose(
+        float(mass_journeys["M1"]["mass_ratio_precomp_over_fresh"]),
+        float(historical["mass_ratio_to_over_from"]),
+        abs_tol=5e-7,
+    ), "M1 no reproduce el factor histórico dentro de la precisión persistida"
+    gravimetric = [
+        row for row in source
+        if row["material"] in {"estiércol fresco", "estiércol precompostado"}
+        and row["variable"] in {"materia seca", "cenizas"}
+    ]
+    m1 = [row for row in gravimetric if row["jornada"] == "M1"]
+    m2 = [row for row in gravimetric if row["jornada"] == "M2"]
+    m3 = [{**row, "jornada": "M3"} for row in m2]
+    assert build_mass_transformation_rows(m1 + m2)[-1]["estado_integracion"] == "provisional_M1_M2"
+    assert build_mass_transformation_rows(m1 + m2 + m3)[-1]["estado_integracion"] == "final"
+    assert build_mass_transformation_rows(m1 + m3)[-1]["estado_integracion"] == "provisional_incompleto"
+    assert build_mass_transformation_rows(m2 + m3)[-1]["estado_integracion"] == "provisional_incompleto"
+    assert build_mass_transformation_rows(m1 + m2 + m3[:-1])[-1]["estado_integracion"] != "final"
     after = {name: sha256(ROOT / name) for name in PROTECTED}
     assert before == after, "La validación modificó archivos protegidos del ACV"
     print(f"VALIDACIÓN CORRECTA: {len(result)} reglas; ACV desacoplado y hashes protegidos sin cambios.")

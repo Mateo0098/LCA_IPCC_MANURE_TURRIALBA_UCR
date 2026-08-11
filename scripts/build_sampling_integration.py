@@ -6,13 +6,14 @@ import csv
 import statistics
 from pathlib import Path
 
-from sampling_integration_rules import INTEGRATION_RULES
+from sampling_integration_rules import INTEGRATION_RULES, MASS_TRANSFORMATION_RULE
 
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "processed" / "muestreos_resumen_intrajornada.csv"
 OUTPUT = ROOT / "processed" / "muestreos_integracion_interjornada_provisional.csv"
 REPORT = ROOT / "auditoria_integracion_estadistica_m1_m2.md"
+MASS_TRANSFORMATION_OUTPUT = ROOT / "processed" / "muestreos_transformacion_masa_interjornada.csv"
 
 FIELDNAMES = [
     "material", "variable", "unidad", "metodo_o_compatibilidad", "jornadas_disponibles",
@@ -21,6 +22,14 @@ FIELDNAMES = [
     "minimo_entre_jornadas", "maximo_entre_jornadas", "diferencia_M2_M1",
     "diferencia_pct_M2_vs_M1", "estado_integracion", "uso_previsto",
     "regla_integracion", "observacion_metodologica",
+]
+
+MASS_TRANSFORMATION_FIELDS = [
+    "tipo_fila", "jornada", "materia_seca_fresco", "materia_seca_precompostado",
+    "cenizas_fresco", "cenizas_precompostado", "dry_matter_retention_ratio",
+    "mass_ratio_precomp_over_fresh", "mass_loss_pct", "estado",
+    "jornadas_elegibles", "numero_jornadas", "mass_ratio_integrado",
+    "mass_loss_pct_integrado", "estado_integracion",
 ]
 
 
@@ -131,6 +140,72 @@ def _build_row(rule: dict, source_rows: list[dict]) -> dict:
     }
 
 
+def build_mass_transformation_rows(source_rows: list[dict]) -> list[dict]:
+    """Calcula primero el factor de cada jornada y luego integra esos factores."""
+    indexed = {
+        (row["jornada"], row["material"], row["variable"]): row
+        for row in source_rows
+    }
+    journey_rows: list[dict] = []
+    for jornada in MASS_TRANSFORMATION_RULE["jornadas_esperadas"]:
+        required = [
+            indexed.get((jornada, material, variable))
+            for material, variable in MASS_TRANSFORMATION_RULE["variables_requeridas"]
+        ]
+        if any(row is None for row in required):
+            continue
+        if any(row["metodo"] != MASS_TRANSFORMATION_RULE["metodo_requerido"] for row in required):
+            continue
+        values = {
+            (row["material"], row["variable"]): float(row["promedio_jornada"])
+            for row in required
+        }
+        dm_fresh = values[("estiércol fresco", "materia seca")]
+        dm_precomp = values[("estiércol precompostado", "materia seca")]
+        ash_fresh = values[("estiércol fresco", "cenizas")]
+        ash_precomp = values[("estiércol precompostado", "cenizas")]
+        if dm_precomp == 0 or ash_precomp == 0:
+            raise ValueError(f"Denominador cero en la transformación de masa de {jornada}")
+        retention = ash_fresh / ash_precomp
+        mass_ratio = retention * (dm_fresh / dm_precomp)
+        journey_rows.append({
+            "tipo_fila": "jornada", "jornada": jornada,
+            "materia_seca_fresco": _fmt(dm_fresh),
+            "materia_seca_precompostado": _fmt(dm_precomp),
+            "cenizas_fresco": _fmt(ash_fresh),
+            "cenizas_precompostado": _fmt(ash_precomp),
+            "dry_matter_retention_ratio": _fmt(retention),
+            "mass_ratio_precomp_over_fresh": _fmt(mass_ratio),
+            "mass_loss_pct": _fmt((1.0 - mass_ratio) * 100.0),
+            "estado": "elegible", "jornadas_elegibles": "", "numero_jornadas": "",
+            "mass_ratio_integrado": "", "mass_loss_pct_integrado": "",
+            "estado_integracion": "",
+        })
+    eligible = {row["jornada"] for row in journey_rows}
+    expected = set(MASS_TRANSFORMATION_RULE["jornadas_esperadas"])
+    factors = [float(row["mass_ratio_precomp_over_fresh"]) for row in journey_rows]
+    integrated = statistics.fmean(factors) if factors else None
+    if eligible == expected and len(eligible) == MASS_TRANSFORMATION_RULE["numero_jornadas_final_esperado"]:
+        state = "final"
+    elif eligible == {"M1", "M2"}:
+        state = "provisional_M1_M2"
+    elif eligible:
+        state = "provisional_incompleto"
+    else:
+        state = "no_integrable"
+    summary = {
+        "tipo_fila": "integracion", "jornada": "", "materia_seca_fresco": "",
+        "materia_seca_precompostado": "", "cenizas_fresco": "",
+        "cenizas_precompostado": "", "dry_matter_retention_ratio": "",
+        "mass_ratio_precomp_over_fresh": "", "mass_loss_pct": "", "estado": "",
+        "jornadas_elegibles": ";".join(sorted(eligible)),
+        "numero_jornadas": str(len(eligible)), "mass_ratio_integrado": _fmt(integrated),
+        "mass_loss_pct_integrado": _fmt((1.0 - integrated) * 100.0 if integrated is not None else None),
+        "estado_integracion": state,
+    }
+    return journey_rows + [summary]
+
+
 def _report(rows: list[dict]) -> str:
     provisional = [r for r in rows if r["estado_integracion"] == "provisional_M1_M2"]
     pending = [r for r in rows if r["estado_integracion"] == "pendiente_M3"]
@@ -173,8 +248,14 @@ def main() -> None:
         writer = csv.DictWriter(stream, fieldnames=FIELDNAMES, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
+    mass_rows = build_mass_transformation_rows(source_rows)
+    with MASS_TRANSFORMATION_OUTPUT.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=MASS_TRANSFORMATION_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(mass_rows)
     REPORT.write_text(_report(rows), encoding="utf-8")
     print(f"Generadas {len(rows)} filas en {OUTPUT.relative_to(ROOT)}")
+    print(f"Generadas {len(mass_rows)} filas en {MASS_TRANSFORMATION_OUTPUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":

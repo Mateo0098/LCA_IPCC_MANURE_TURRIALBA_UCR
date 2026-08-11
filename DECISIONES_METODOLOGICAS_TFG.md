@@ -160,3 +160,5 @@ Con las jornadas actuales no se realizarán automáticamente ANOVA, pruebas t, p
 ### Estado actual y relación con el ACV
 
 La integración M1–M2 es provisional y permanece completamente desacoplada del modelo ACV. No se sustituirán parámetros del ACV hasta disponer de M3 y contar con aprobación expresa del investigador.
+
+El factor de transformación de masa de estiércol fresco a estiércol precompostado se calcula primero de forma independiente para cada jornada a partir de sus promedios gravimétricos validados. Los factores de jornada reciben igual peso temporal y el parámetro integrado principal es `mass_ratio_precomp_over_fresh`. La pérdida porcentual integrada se deriva de ese factor mediante `(1 - mass_ratio_precomp_over_fresh) × 100`; no se promedia por una ruta independiente. El resultado M1–M2 es provisional y el valor definitivo requerirá M1, M2 y M3 metodológicamente elegibles.

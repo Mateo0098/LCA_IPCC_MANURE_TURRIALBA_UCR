@@ -1,0 +1,4 @@
+tipo_fila,jornada,materia_seca_fresco,materia_seca_precompostado,cenizas_fresco,cenizas_precompostado,dry_matter_retention_ratio,mass_ratio_precomp_over_fresh,mass_loss_pct,estado,jornadas_elegibles,numero_jornadas,mass_ratio_integrado,mass_loss_pct_integrado,estado_integracion
+jornada,M1,14.23017093427972,22.40695493579587,14.123007600287302,29.04135297366371,0.4863068057846623,0.30884290135131276,69.11570986486872,elegible,,,,,
+jornada,M2,12.9697456278362,18.92893216426164,16.45109457122497,20.909649589034746,0.7867704573993487,0.5390802086148174,46.091979138518255,elegible,,,,,
+integracion,,,,,,,,,,M1;M2,2,0.4239615549830651,57.60384450169349,provisional_M1_M2

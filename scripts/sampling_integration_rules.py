@@ -122,3 +122,23 @@ for variable in ("carbono", "relación C/N"):
 
 RULES_BY_KEY = {(rule["material"], rule["variable"]): rule for rule in INTEGRATION_RULES}
 
+
+MASS_TRANSFORMATION_RULE = {
+    "nombre": "transformación de masa de estiércol fresco a precompostado",
+    "variables_requeridas": (
+        ("estiércol fresco", "materia seca"),
+        ("estiércol precompostado", "materia seca"),
+        ("estiércol fresco", "cenizas"),
+        ("estiércol precompostado", "cenizas"),
+    ),
+    "metodo_requerido": "gravimetría",
+    "jornadas_esperadas": ("M1", "M2", "M3"),
+    "numero_jornadas_final_esperado": 3,
+    "politica_integracion": (
+        "calcular mass_ratio_precomp_over_fresh por jornada e integrar los factores "
+        "de jornada con igual peso temporal"
+    ),
+    "parametro_integrado_principal": "mass_ratio_precomp_over_fresh",
+    "perdida_integrada": "(1 - mass_ratio_integrado) × 100",
+    "uso_previsto": "resultado experimental desacoplado del modelo ACV",
+}
