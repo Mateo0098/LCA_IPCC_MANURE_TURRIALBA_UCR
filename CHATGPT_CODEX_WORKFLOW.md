@@ -98,6 +98,25 @@ Cuando una nueva tarea sea independiente del objetivo de la rama, ChatGPT debe
 recomendar crear otra rama antes de iniciar los cambios. No corresponde crear
 una rama distinta para cada ajuste pequeño.
 
+### Cierre conceptual de una rama
+
+El cierre de una unidad de trabajo no implica por sí solo cerrar la rama. Una
+rama queda conceptualmente terminada cuando su propósito actual está
+suficientemente completo: las unidades previstas para ese propósito están
+cerradas, los cambios relevantes cuentan con las validaciones y actualizaciones
+documentales aplicables, los commits forman checkpoints coherentes y publicados,
+el working tree está limpio y no quedan pendientes que pertenezcan naturalmente
+al mismo objetivo. No es necesario agotar toda mejora futura relacionada con el
+tema; esas mejoras pueden constituir una línea posterior independiente.
+
+La decisión se basa en coherencia conceptual, no en días, cantidad de tareas o
+número de commits. Conviene dejar de acumular trabajo cuando aparecen unidades
+independientes, se vuelve recurrente justificar su pertenencia a la rama, cambia
+de forma importante la arquitectura, metodología o propósito, o el historial
+empieza a mezclar objetivos distintos. Estas señales indican que la rama corre
+el riesgo de convertirse en una segunda `main`, aunque todavía pueda contener
+trabajo técnicamente útil.
+
 ## Flujo general de trabajo
 
 ```text
@@ -269,6 +288,33 @@ conjunto de cambios que convenga revisar e integrar por separado.
 Antes del cambio debe aplicar la revisión de cierre, comprobar documentación y
 validaciones, revisar el estado Git y recomendar commit y push cuando
 corresponda. Codex nunca debe cambiar de rama por iniciativa propia.
+
+### Integración a `main`
+
+`main` representa el estado integrado y estable del repositorio. Mientras un
+trabajo viva únicamente en una rama, esa rama es su referencia vigente. Antes
+de recomendar su integración, ChatGPT debe comprobar de forma proporcional al
+alcance:
+
+- que el working tree esté limpio;
+- que la rama esté sincronizada con su remoto y los commits relevantes estén publicados;
+- que se hayan superado las validaciones pertinentes, sin exigir el pipeline científico completo a cambios exclusivamente documentales o de gobernanza;
+- que la documentación viva afectada sea coherente;
+- que no haya archivos temporales versionados ni cambios accidentales fuera del propósito;
+- que se conozcan las divergencias relevantes respecto de `main` y no se mezcle trabajo pendiente o no validado.
+
+No se impone por defecto `merge`, `squash` ni `rebase + merge`. Mateo y ChatGPT
+pueden escoger la forma apropiada según el historial y las herramientas
+disponibles, siempre que la integración conserve una historia comprensible y
+no incorpore trabajo no validado.
+
+Después de confirmar la integración, debe verificarse que `main` contiene los
+cambios esperados; desde entonces, `main` vuelve a ser la referencia vigente
+para ese trabajo y la rama cerrada deja de recibir tareas independientes. Una
+mejora conceptualmente nueva puede comenzar desde `main` en otra rama. La rama
+remota no necesita conservarse indefinidamente si Git y la política del
+repositorio permiten eliminarla después de verificar la integración; esta
+limpieza no sustituye la comprobación previa ni se realiza de forma automática.
 
 ### Nueva sesión de Codex
 
