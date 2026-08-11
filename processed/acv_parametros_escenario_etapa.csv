@@ -1,7 +1,7 @@
-escenario,etapa,tratamiento,n_ex_pct,vs_t_pct,fecha_n_ex,fecha_vs_t,unidad_n_ex,unidad_vs_t,fuente_n_ex,fuente_vs_t
-A,1,ESTIERCOL FRESCO,0.371666667,85.876992,19/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
-A,2,SOL: PRECOMPOSTADO,2.425,70.958647,21/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
-A,3,ESTIERCOL FRESCO,0.371666667,85.876992,19/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
-A,4,LIQ: AGUA VERDE,0.00718577,,21/11/2025,,% N total,,CIA_samples_table_v6_treatment_summary.csv,
-B,1,ESTIERCOL FRESCO,0.371666667,85.876992,19/11/2025,2025-11-10,% N total,% Solidos volatiles,CIA_samples_table_v6_treatment_summary.csv,volatile_solids_treatment_table.csv
-B,2,LIQ: PURINES,0.011434,,28/11/2025,,% N total,,CIA_samples_table_v6_treatment_summary.csv,
+escenario,etapa,tratamiento,material_integrado,n_ex_pct,vs_t_pct,materia_seca_pct,unidad_n_ex,unidad_vs_t,unidad_materia_seca,jornadas_n_ex,jornadas_vs_t,jornadas_materia_seca,estado_integracion_n_ex,estado_integracion_vs_t,estado_integracion_materia_seca,fuente_integracion
+A,1,ESTIERCOL FRESCO,estiércol fresco,0.5180555555555556,84.71294891424387,13.59995828105796,% N total,% Sólidos volátiles,% Materia seca,M1;M2,M1;M2,M1;M2,provisional_M1_M2,provisional_M1_M2,provisional_M1_M2,muestreos_integracion_interjornada_provisional.csv
+A,2,SOL: PRECOMPOSTADO,estiércol precompostado,2.5041666666666664,75.02449871865076,20.667943550028752,% N total,% Sólidos volátiles,% Materia seca,M1;M2,M1;M2,M1;M2,provisional_M1_M2,provisional_M1_M2,provisional_M1_M2,muestreos_integracion_interjornada_provisional.csv
+A,3,ESTIERCOL FRESCO,estiércol fresco,0.5180555555555556,84.71294891424387,13.59995828105796,% N total,% Sólidos volátiles,% Materia seca,M1;M2,M1;M2,M1;M2,provisional_M1_M2,provisional_M1_M2,provisional_M1_M2,muestreos_integracion_interjornada_provisional.csv
+A,4,LIQ: AGUA VERDE,aguas verdes,0.00925588888888889,,,% N total,,,M2,,,provisional_M2_pendiente_M3,,,muestreos_integracion_interjornada_provisional.csv
+B,1,ESTIERCOL FRESCO,estiércol fresco,0.5180555555555556,84.71294891424387,13.59995828105796,% N total,% Sólidos volátiles,% Materia seca,M1;M2,M1;M2,M1;M2,provisional_M1_M2,provisional_M1_M2,provisional_M1_M2,muestreos_integracion_interjornada_provisional.csv
+B,2,LIQ: PURINES,purines,0.013937777777777768,,,% N total,,,M2,,,provisional_M2_pendiente_M3,,,muestreos_integracion_interjornada_provisional.csv

@@ -72,9 +72,9 @@ for material in LIQUID_MATERIALS:
             "politica_integracion": "media aritmética de los promedios M2 y M3 con igual peso temporal; M1 excluida",
             "minimo_jornadas_necesarias": 2,
             "numero_jornadas_final_esperado": 2,
-            "uso_previsto": "estimador experimental pendiente, desacoplado del modelo ACV",
-            "observacion_metodologica": "M2 es el único estimador de jornada elegible disponible; no constituye un valor representativo final.",
-            "tipo_regla": "liquido_n_pendiente",
+            "uso_previsto": "estimador experimental provisional vigente para el modelo ACV; pendiente de integración final con M3",
+            "observacion_metodologica": "M2 es el único estimador Kjeldahl elegible disponible y constituye el valor provisional vigente; M3 permanece pendiente para la integración final.",
+            "tipo_regla": "liquido_n_provisional",
         }
     )
 

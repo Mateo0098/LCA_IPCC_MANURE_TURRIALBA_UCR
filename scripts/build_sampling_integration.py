@@ -85,7 +85,7 @@ def _build_row(rule: dict, source_rows: list[dict]) -> dict:
         else:
             state = "provisional_incompleto"
         integrated = statistics.fmean(numeric)
-    elif rule["tipo_regla"] == "liquido_n_pendiente":
+    elif rule["tipo_regla"] == "liquido_n_provisional":
         expected_final = {
             journey["jornada"] for journey in rule["jornadas"]
             if journey["elegibilidad_temporal"]
@@ -94,10 +94,12 @@ def _build_row(rule: dict, source_rows: list[dict]) -> dict:
             len(eligible_journeys) == rule["numero_jornadas_final_esperado"]
             and eligible_journeys == expected_final
         )
-        state, integrated = (
-            ("final", statistics.fmean(numeric))
-            if final_complete else ("pendiente_M3", None)
-        )
+        if final_complete:
+            state, integrated = "final", statistics.fmean(numeric)
+        elif eligible_journeys == {"M2"}:
+            state, integrated = "provisional_M2_pendiente_M3", values["M2"]
+        else:
+            state, integrated = "provisional_incompleto", None
     elif rule["tipo_regla"] == "solo_caracterizacion":
         state, integrated = "solo_caracterizacion", statistics.fmean(numeric) if numeric else None
     else:
@@ -208,7 +210,7 @@ def build_mass_transformation_rows(source_rows: list[dict]) -> list[dict]:
 
 def _report(rows: list[dict]) -> str:
     provisional = [r for r in rows if r["estado_integracion"] == "provisional_M1_M2"]
-    pending = [r for r in rows if r["estado_integracion"] == "pendiente_M3"]
+    pending = [r for r in rows if r["estado_integracion"] == "provisional_M2_pendiente_M3"]
     characterization = [r for r in rows if r["estado_integracion"] == "solo_caracterizacion"]
     lines = [
         "# Auditoría de integración estadística provisional M1–M2", "",

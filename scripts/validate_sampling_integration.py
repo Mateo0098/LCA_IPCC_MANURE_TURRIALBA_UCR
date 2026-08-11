@@ -53,7 +53,7 @@ def main() -> None:
     indexed = {(r["material"], r["variable"]): r for r in result}
     assert len(result) == 16
     assert sum(r["estado_integracion"] == "provisional_M1_M2" for r in result) == 10
-    assert sum(r["estado_integracion"] == "pendiente_M3" for r in result) == 2
+    assert sum(r["estado_integracion"] == "provisional_M2_pendiente_M3" for r in result) == 2
     assert sum(r["estado_integracion"] == "solo_caracterizacion" for r in result) == 4
     assert _fmt(1.2345678901234567) == str(1.2345678901234567)
     for material in ("estiércol fresco", "estiércol precompostado"):
@@ -81,18 +81,23 @@ def main() -> None:
     for material in ("aguas verdes", "purines"):
         row = indexed[(material, "N total")]
         assert row["jornadas_elegibles"] == "M2" and "M1=" not in row["promedios_jornada"]
-        assert row["estado_integracion"] == "pendiente_M3"
-        assert row["valor_integrado_provisional"] == ""
+        assert row["estado_integracion"] == "provisional_M2_pendiente_M3"
+        assert row["valor_integrado_provisional"] != ""
+        values = dict(item.split("=", 1) for item in row["promedios_jornada"].split(";") if item)
+        assert set(values) == {"M2"}
+        assert math.isclose(float(row["valor_integrado_provisional"]), float(values["M2"]), rel_tol=1e-12)
         rule = RULES_BY_KEY[(material, "N total")]
         m2 = next(
             item for item in source
             if (item["jornada"], item["material"], item["variable"]) == ("M2", material, "N total")
         )
         m3 = {**m2, "jornada": "M3"}
-        assert _build_row(rule, [m2])["estado_integracion"] == "pendiente_M3"
+        provisional = _build_row(rule, [m2])
+        assert provisional["estado_integracion"] == "provisional_M2_pendiente_M3"
+        assert math.isclose(float(provisional["valor_integrado_provisional"]), float(m2["promedio_jornada"]), rel_tol=1e-12)
         assert _build_row(rule, [m2, m3])["estado_integracion"] == "final"
         incompatible_m3 = {**m3, "metodo": "método incompatible"}
-        assert _build_row(rule, [m2, incompatible_m3])["estado_integracion"] == "pendiente_M3"
+        assert _build_row(rule, [m2, incompatible_m3])["estado_integracion"] == "provisional_M2_pendiente_M3"
     pre_n = indexed[("estiércol precompostado", "N total")]
     assert "No se aplica conversión" in pre_n["observacion_metodologica"]
     for row in result:

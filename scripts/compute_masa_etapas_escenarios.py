@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
+from sampling_integration_rules import FUTURE_JOURNEY, MASS_TRANSFORMATION_RULE
+
 
 @dataclass(frozen=True)
 class ParametrosOperativos:
@@ -86,12 +88,38 @@ def load_mass_ratio(csv_path: Path) -> float:
     with csv_path.open("r", encoding="utf-8-sig", newline="") as fh:
         reader = csv.DictReader(fh)
         rows = list(reader)
-    if not rows:
-        raise ValueError(f"Sin filas en {csv_path}")
-    raw = rows[0].get("mass_ratio_to_over_from")
+    integrations = [row for row in rows if str(row.get("tipo_fila", "")).strip() == "integracion"]
+    if len(integrations) != 1:
+        raise ValueError(
+            f"Se esperaba exactamente una fila de integración en {csv_path}; "
+            f"se encontraron {len(integrations)}"
+        )
+    row = integrations[0]
+    configured = list(MASS_TRANSFORMATION_RULE["jornadas_esperadas"])
+    provisional = [journey for journey in configured if journey != FUTURE_JOURNEY]
+    observed = [item for item in str(row.get("jornadas_elegibles", "")).split(";") if item]
+    if observed not in (provisional, configured):
+        raise ValueError(
+            f"Jornadas vigentes incompatibles con MASS_TRANSFORMATION_RULE en {csv_path}: {observed}"
+        )
+    if len(observed) != int(str(row.get("numero_jornadas", "")).strip()):
+        raise ValueError(f"Número de jornadas incoherente en {csv_path}: {observed}")
+    state = str(row.get("estado_integracion", "")).strip()
+    if observed == configured:
+        if state != "final":
+            raise ValueError(f"La transformación completa debe tener estado final en {csv_path}: {state}")
+    elif not state.startswith("provisional_"):
+        raise ValueError(f"La transformación incompleta válida debe ser provisional en {csv_path}: {state}")
+    raw = row.get("mass_ratio_integrado")
     if raw in (None, ""):
-        raise ValueError(f"Columna mass_ratio_to_over_from vacia en {csv_path}")
-    return float(raw)
+        raise ValueError(f"Columna mass_ratio_integrado vacía en {csv_path}")
+    try:
+        value = float(raw)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"mass_ratio_integrado no numérico en {csv_path}: {raw}") from exc
+    if not 0 < value < 1:
+        raise ValueError(f"mass_ratio_integrado debe estar entre 0 y 1 en {csv_path}: {value}")
+    return value
 
 
 def _parse_optional_float(raw: object) -> float | None:
@@ -314,7 +342,7 @@ def write_output(
             out = dict(row)
             out["factor_restante_a2"] = factor_a2
             out["fuente_agua_boniga"] = "Academic_documents/references/parametros_operativos_sanchez_2026.csv"
-            out["fuente_factor_a2"] = "processed/volatile_solids_mass_loss_fresh_to_precomposted.csv"
+            out["fuente_factor_a2"] = "processed/muestreos_transformacion_masa_interjornada.csv"
             out["fuente_factor_overrides"] = "processed/masa_total_factor_overrides.csv"
             out["estiercol_recolectado_anual_kg"] = f"{params.estiercol_recolectado_anual:.6f}"
             out["estiercol_total_depositado_anual_kg"] = (
@@ -326,8 +354,9 @@ def write_output(
             out["flujo_referencia_anual_kg"] = (
                 f"{balance.estiercol_total_depositado_anual:.6f}"
             )
-            for key in ("boniga_kg", "agua_l", "factor_restante_a2", "masa_total_kg_eq"):
+            for key in ("boniga_kg", "agua_l", "masa_total_kg_eq"):
                 out[key] = f"{float(out[key]):.6f}"
+            out["factor_restante_a2"] = repr(float(out["factor_restante_a2"]))
             for key in ("factor_boniga_override", "factor_agua_override", "factor_masa_total_override"):
                 out[key] = f"{float(out[key]):.6f}"
             writer.writerow(out)
@@ -340,7 +369,7 @@ def main() -> None:
     operational_parameters_path = (
         project_root / "Academic_documents" / "references" / "parametros_operativos_sanchez_2026.csv"
     )
-    mass_loss_path = processed / "volatile_solids_mass_loss_fresh_to_precomposted.csv"
+    mass_loss_path = processed / "muestreos_transformacion_masa_interjornada.csv"
     factor_overrides_path = processed / "masa_total_factor_overrides.csv"
     output_path = processed / "masa_total_escenario_etapa.csv"
 
