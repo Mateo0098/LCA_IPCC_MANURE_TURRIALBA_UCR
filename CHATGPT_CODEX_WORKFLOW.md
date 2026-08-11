@@ -78,10 +78,9 @@ sesión nueva, pero iniciar una sesión nueva no obliga a crear otra rama.
 
 Al comenzar una nueva línea de trabajo, ChatGPT debe identificar y mantener
 claro el objetivo principal del chat. Puede ser, por ejemplo, diagnosticar una
-inconsistencia, migrar una etapa del ACV, integrar un muestreo, regenerar
-documentación o corregir un componente del pipeline. No se exige una fórmula ni
-un formulario rígido: el objetivo funciona como criterio práctico de
-seguimiento y cierre.
+inconsistencia, actualizar documentación, corregir un componente o validar un
+conjunto coherente de cambios. No se exige una fórmula ni un formulario rígido:
+el objetivo funciona como criterio práctico de seguimiento y cierre.
 
 Si el objetivo cambia de manera significativa, ChatGPT debe evaluar si el nuevo
 trabajo continúa naturalmente en el mismo chat, si conviene abrir otro o si
@@ -242,8 +241,8 @@ Si el working tree contiene cambios conceptualmente independientes, ChatGPT
 debe advertirlo, proponer una separación lógica y sugerir un mensaje distinto
 para cada commit, en vez de ocultarlos bajo un único mensaje. Por ejemplo:
 
-- `docs: formalize task closure and context transition workflow`
-- `fix: use IPCC equations for A2 manure management emissions`
+- `docs: clarify task closure and context transition workflow`
+- `fix: correct validation of generated artifacts`
 
 Los ejemplos son ilustrativos y no constituyen decisiones metodológicas
 vigentes. ChatGPT propone los mensajes como parte de la supervisión; Mateo

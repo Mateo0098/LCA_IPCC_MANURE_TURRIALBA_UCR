@@ -1,8 +1,8 @@
-\# Instrucciones para Codex en este repositorio
+# Instrucciones para Codex en este repositorio
 
 
 
-\## Objetivo del proyecto
+## Objetivo del proyecto
 
 
 
@@ -14,31 +14,31 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 
 
-\## Reglas generales
+## Reglas generales
 
 
 
-\- No modificar el documento maestro de propuesta salvo instrucción explícita.
+- No modificar el documento maestro de propuesta salvo instrucción explícita.
 
-\- No usar archivos con sufijo `antes\_correccion\_nitrogeno`.
+- No usar archivos con sufijo `antes_correccion_nitrogeno`.
 
-\- No hacer commit automáticamente.
+- No hacer commit automáticamente.
 
-\- Si la rama activa no parece corresponder con el contexto solicitado, señalarlo antes de realizar cambios potencialmente incorrectos.
+- Si la rama activa no parece corresponder con el contexto solicitado, señalarlo antes de realizar cambios potencialmente incorrectos.
 
-\- Mantener valores numéricos, factores, ecuaciones y resultados salvo que la tarea pida explícitamente recalcular.
+- Mantener valores numéricos, factores, ecuaciones y resultados salvo que la tarea pida explícitamente recalcular.
 
-\- Corregir los scripts generadores, no solo los archivos finales.
+- Corregir los scripts generadores, no solo los archivos finales.
 
-\- El documento maestro protegido está en `MASTER\_escrito/TFG\_ACV\_Estiercol\_MASTER.docx`.
+- El documento maestro protegido está en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
 
-\- No modificar, sobrescribir ni usar como archivo de salida ningún archivo dentro de `MASTER\_escrito/`.
+- No modificar, sobrescribir ni usar como archivo de salida ningún archivo dentro de `MASTER_escrito/`.
 
-\- Los generadores pueden usar el documento maestro únicamente como referencia de formato y deben verificar su hash antes y después de generar documentos.
+- Los generadores pueden usar el documento maestro únicamente como referencia de formato y deben verificar su hash antes y después de generar documentos.
 
-\- El flujo de coordinación con Mateo y ChatGPT se documenta en `CHATGPT_CODEX_WORKFLOW.md`.
+- El flujo de coordinación con Mateo y ChatGPT se documenta en `CHATGPT_CODEX_WORKFLOW.md`.
 
-\- Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/`. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
+- Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/`. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
 
 
 
@@ -112,7 +112,7 @@ Codex debe reportar los documentos redundantes, obsoletos o sin función clara q
 
 
 
-\## Escritura académica
+## Escritura académica
 
 
 
@@ -124,33 +124,33 @@ No usar en prosa ni tablas académicas etiquetas internas como:
 
 
 
-\- dry\_lot
+- `dry_lot`
 
-\- uncovered\_anaerobic\_lagoon
+- `uncovered_anaerobic_lagoon`
 
-\- composting\_invessel
+- `composting_invessel`
 
-\- modelo\_calculo
+- `modelo_calculo`
 
-\- sistema\_manejo\_ipcc
+- `sistema_manejo_ipcc`
 
-\- n\_ex\_pct
+- `n_ex_pct`
 
-\- n\_ex\_fraction
+- `n_ex_fraction`
 
-\- masa\_total\_kg\_eq
+- `masa_total_kg_eq`
 
-\- processed
+- `processed`
 
-\- outputs
+- `outputs`
 
-\- scripts
+- `scripts`
 
-\- .csv
+- `.csv`
 
-\- hardcodeado
+- `hardcodeado`
 
-\- auditado
+- `auditado`
 
 
 
@@ -158,7 +158,7 @@ Reemplazar etiquetas técnicas por lenguaje académico claro.
 
 
 
-\## Nomenclatura de escenarios y etapas
+## Nomenclatura de escenarios y etapas
 
 
 
@@ -166,17 +166,17 @@ Usar siempre:
 
 
 
-\- A1: Precomposteo
+- A1: Precomposteo
 
-\- A2: Lombricompostaje
+- A2: Lombricompostaje
 
-\- A3: Almacenamiento de aguas verdes
+- A3: Almacenamiento de aguas verdes
 
-\- A4: Aplicación de aguas verdes en campos de pastoreo
+- A4: Aplicación de aguas verdes en campos de pastoreo
 
-\- B1: Almacenamiento de purines
+- B1: Almacenamiento de purines
 
-\- B2: Aplicación de purines en campo de pastoreo
+- B2: Aplicación de purines en campo de pastoreo
 
 
 
@@ -184,21 +184,21 @@ No mostrar etapas con decimales, por ejemplo:
 
 
 
-\- 1,000
+- 1,000
 
-\- 2,000
+- 2,000
 
-\- 3,000
+- 3,000
 
-\- 4,000
+- 4,000
 
-\- 1.0000
+- 1.0000
 
-\- 2.0000
+- 2.0000
 
 
 
-\## Aguas verdes y purines
+## Aguas verdes y purines
 
 
 
@@ -210,11 +210,11 @@ Para A4 usar:
 
 
 
-\- Agua de lavado incorporada a las aguas verdes
+- Agua de lavado incorporada a las aguas verdes
 
-\- Fracción de boñiga incorporada a las aguas verdes
+- Fracción de boñiga incorporada a las aguas verdes
 
-\- Masa equivalente total
+- Masa equivalente total
 
 
 
@@ -222,15 +222,15 @@ Para B2 usar:
 
 
 
-\- Agua de lavado incorporada al purín
+- Agua de lavado incorporada al purín
 
-\- Boñiga incorporada al purín
+- Boñiga incorporada al purín
 
-\- Masa equivalente total
+- Masa equivalente total
 
 
 
-\## Tablas en documentos Word
+## Tablas en documentos Word
 
 
 
@@ -238,23 +238,23 @@ Las tablas deben verse académicas.
 
 
 
-\- No duplicar columnas relacionadas con etapa.
+- No duplicar columnas relacionadas con etapa.
 
-\- Evitar columnas como `Etapa` y `Nombre etapa` al mismo tiempo.
+- Evitar columnas como `Etapa` y `Nombre etapa` al mismo tiempo.
 
-\- Usar preferiblemente una sola columna: `Etapa del sistema`.
+- Usar preferiblemente una sola columna: `Etapa del sistema`.
 
-\- Los valores deben verse como `A4: Aplicación de aguas verdes en campos de pastoreo`.
+- Los valores deben verse como `A4: Aplicación de aguas verdes en campos de pastoreo`.
 
-\- No incluir rutas internas, nombres de scripts, archivos CSV ni columnas técnicas innecesarias.
+- No incluir rutas internas, nombres de scripts, archivos CSV ni columnas técnicas innecesarias.
 
-\- Encabezados en español, claros y académicos.
+- Encabezados en español, claros y académicos.
 
-\- Solo bordes horizontales, sin bordes verticales.
+- Solo bordes horizontales, sin bordes verticales.
 
 
 
-\## Codificación
+## Codificación
 
 
 
@@ -266,13 +266,13 @@ Evitar errores como:
 
 
 
-\- AnÃ¡lisis
+- AnÃ¡lisis
 
-\- metodologÃ­a
+- metodologÃ­a
 
-\- estiÃ©rcol
+- estiÃ©rcol
 
-\- nitrÃ³geno
+- nitrÃ³geno
 
 
 
@@ -280,7 +280,7 @@ El texto final debe mostrar correctamente tildes, eñes y símbolos científicos
 
 
 
-\## Documentos principales
+## Documentos principales
 
 
 
@@ -288,11 +288,11 @@ El documento maestro protegido y de referencia de formato es:
 
 
 
-\- MASTER\_escrito/TFG\_ACV\_Estiercol\_MASTER.docx
+- `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`
 
 
 
-Los documentos generados deben guardarse en `outputs/documentos\_tfg/`, nunca en `MASTER\_escrito/`.
+Los documentos generados deben guardarse en `outputs/documentos_tfg/`, nunca en `MASTER_escrito/`.
 
 
 
@@ -300,11 +300,11 @@ Los documentos principales generados son:
 
 
 
-\- outputs/documentos\_tfg/metodologia\_desarrollada\_tfg.docx
+- `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
 
-\- outputs/documentos\_tfg/resultados\_desarrollados\_tfg.docx
+- `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`
 
-\- outputs/documentos\_tfg/conclusiones\_desarrolladas\_tfg.docx
+- `outputs/documentos_tfg/conclusiones_desarrolladas_tfg.docx`
 
 
 
@@ -312,13 +312,13 @@ Cuando se actualicen, también actualizar:
 
 
 
-\- outputs/documentos\_tfg/reporte\_validacion\_documentos.md
+- `outputs/documentos_tfg/reporte_validacion_documentos.md`
 
-\- outputs/documentos\_tfg/README\_DOCUMENTOS\_GENERADOS.md
+- `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md`
 
 
 
-\## Validación obligatoria
+## Validación obligatoria
 
 
 
@@ -326,17 +326,17 @@ Después de regenerar documentos, verificar:
 
 
 
-\- No hay etiquetas técnicas internas visibles.
+- No hay etiquetas técnicas internas visibles.
 
-\- No hay etapas con decimales.
+- No hay etapas con decimales.
 
-\- No hay errores de codificación.
+- No hay errores de codificación.
 
-\- No hay rutas internas en prosa académica.
+- No hay rutas internas en prosa académica.
 
-\- No se modificaron valores numéricos sin instrucción explícita.
+- No se modificaron valores numéricos sin instrucción explícita.
 
-\- No se modificó el documento maestro de propuesta.
+- No se modificó el documento maestro de propuesta.
 
 
 ## Pipeline y decisiones metodológicas
