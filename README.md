@@ -23,6 +23,10 @@ Las decisiones metodológicas aprobadas se registran en
 `DECISIONES_METODOLOGICAS_TFG.md`. No deben reinterpretarse ni modificarse al
 regenerar el proyecto sin autorización del investigador.
 
+La coordinación entre Mateo, ChatGPT y Codex, incluido el uso de reportes
+temporales no versionados en `.codex_reports/`, se describe en
+`CHATGPT_CODEX_WORKFLOW.md`.
+
 ## Documento maestro protegido
 
 El documento maestro de referencia de formato es

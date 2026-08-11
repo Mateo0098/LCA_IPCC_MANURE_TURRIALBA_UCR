@@ -27,6 +27,8 @@ env/
 *.tmp
 *.temp
 ~$*.xlsx
+.codex_reports/*
+!.codex_reports/.gitkeep
 
 # Local env / secrets
 .env

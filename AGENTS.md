@@ -36,6 +36,10 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 \- Los generadores pueden usar el documento maestro únicamente como referencia de formato y deben verificar su hash antes y después de generar documentos.
 
+\- El flujo de coordinación con Mateo y ChatGPT se documenta en `CHATGPT_CODEX_WORKFLOW.md`.
+
+\- Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/`. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
+
 
 
 \## Escritura académica
