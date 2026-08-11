@@ -92,7 +92,8 @@ Cuando una tarea genere un reporte, este debe permitir que ChatGPT conozca, como
 
 
 - el contexto Git obligatorio;
-- el objetivo ejecutado;
+- el objetivo concreto de la unidad de trabajo y si inicia una unidad nueva o continúa una anterior;
+- su estado de cierre y, cuando ya exista, el commit o los commits que la consolidan;
 - los archivos inspeccionados, modificados y creados;
 - los cambios implementados;
 - los comandos ejecutados;

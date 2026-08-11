@@ -49,6 +49,31 @@ motivar la evaluación de si conviene iniciar una nueva sesión de Codex.
 
 ## Objetivos del trabajo
 
+### Unidad de trabajo y trazabilidad mínima
+
+Una **unidad de trabajo** es un conjunto coherente de cambios orientado a un
+objetivo concreto y susceptible de revisión conjunta. No requiere un
+identificador numerado: el nombre semántico de la rama, el reporte temporal y
+el historial Git aportan el contexto suficiente.
+
+Durante la ejecución, el reporte de Codex conecta brevemente el objetivo con la
+rama, el `HEAD` y el estado del working tree. Puede indicar que la unidad inicia
+o continúa trabajo anterior y, si ya existe, señalar el commit que la cierra.
+Esta información facilita la revisión, pero sigue siendo temporal.
+
+Una vez validada y autorizada la unidad, uno o varios commits coherentes se
+convierten en sus checkpoints históricos permanentes. Sus mensajes deben
+expresar el propósito real del cambio; Git conserva la evolución sin necesidad
+de ledgers, inventarios manuales de commits, copias de conversaciones ni
+registros de sesiones. Si la unidad todavía no se ha consolidado en un commit,
+permanece explícitamente abierta como trabajo pendiente en la rama y no debe
+presentarse como cerrada.
+
+Una sesión nueva de Codex puede continuar la misma unidad y rama. No se guardan
+IDs internos de sesión: cuando el cambio de contexto resulte relevante, basta
+con indicarlo en el reporte. Cambiar de rama obliga a reevaluar si conviene una
+sesión nueva, pero iniciar una sesión nueva no obliga a crear otra rama.
+
 ### Objetivo principal del chat
 
 Al comenzar una nueva línea de trabajo, ChatGPT debe identificar y mantener
