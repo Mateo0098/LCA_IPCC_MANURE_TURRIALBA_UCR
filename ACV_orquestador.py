@@ -20,8 +20,12 @@ ETAPAS = [
 ]
 
 PREPROCESO = [
+    "scripts/generate_acv_parametros_escenario_etapa.py",
     "scripts/compute_masa_etapas_escenarios.py",
 ]
+
+INICIALIZACION_EMISIONES = ["scripts/acv_resumen_emisiones_csv.py", "--initialize"]
+VALIDACION_EMISIONES = ["scripts/acv_resumen_emisiones_csv.py", "--validate"]
 
 POSTPROCESO = [
     "scripts/compute_acv_impact_equivalents.py",
@@ -44,6 +48,14 @@ def main() -> int:
             print(f"[ERROR] Fallo {script} con codigo {result.returncode}")
             return result.returncode
 
+    print("\n[RUN] Inicialización limpia del resumen de emisiones")
+    result = subprocess.run(
+        [str(python_exec), *INICIALIZACION_EMISIONES], cwd=base_dir, check=False
+    )
+    if result.returncode != 0:
+        print(f"[ERROR] Falló la inicialización con código {result.returncode}")
+        return result.returncode
+
     for script in ETAPAS:
         script_path = base_dir / script
         if not script_path.exists():
@@ -59,6 +71,14 @@ def main() -> int:
         if result.returncode != 0:
             print(f"[ERROR] Fallo {script} con codigo {result.returncode}")
             return result.returncode
+
+    print("\n[RUN] Validación del resumen completo de emisiones")
+    result = subprocess.run(
+        [str(python_exec), *VALIDACION_EMISIONES], cwd=base_dir, check=False
+    )
+    if result.returncode != 0:
+        print(f"[ERROR] Falló la validación con código {result.returncode}")
+        return result.returncode
 
     for script in POSTPROCESO:
         script_path = base_dir / script

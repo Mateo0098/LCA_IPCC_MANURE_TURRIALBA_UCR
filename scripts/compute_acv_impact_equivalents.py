@@ -135,16 +135,10 @@ def load_functional_reference(path: Path, tolerance: float = 1e-6) -> float:
 
 
 def resolve_emissions_path(base: Path) -> Path:
-    candidates = [
-        base / "processed" / "ACV_resumen_emisiones.csv",
-        base / "processed" / "ACV_resumen_emisiones_updated.csv",
-        base / "ACV_resumen_emisiones" / "ACV_resumen_emisiones.csv",
-        base / "ACV_resumen_emisiones" / "ACV_resumen_emisiones_updated.csv",
-    ]
-    for path in candidates:
-        if path.exists():
-            return path
-    return candidates[0]
+    path = base / "processed" / "ACV_resumen_emisiones.csv"
+    if not path.exists():
+        raise FileNotFoundError(f"No existe el resumen canónico de emisiones: {path}")
+    return path
 
 
 def compute_impacts(

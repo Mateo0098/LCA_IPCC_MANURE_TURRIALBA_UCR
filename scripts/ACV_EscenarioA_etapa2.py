@@ -28,41 +28,8 @@ from ecuaciones_acv import (
     nh3_direct_mm,
     no3_direct_mm,
 )
-from acv_masa_seca import convertir_vs_base_humeda
+from acv_masa_seca import convertir_vs_base_humeda, obtener_fraccion_masa_seca_etapa
 from acv_factores_manejo_estiercol import obtener_factores_manejo_ipcc
-
-
-def _load_precomposted_dry_matter_fraction(base: Path) -> float:
-    """
-    Carga fracción de materia seca del estiércol precompostado desde:
-    processed/volatile_solids_treatment_table.csv
-    Referencia de usuario: columna H, fila 3.
-    """
-    path = base / "processed" / "volatile_solids_treatment_table.csv"
-    df = pd.read_csv(path)
-
-    col_dm = "dry_matter_treatment_mean_pct"
-    if col_dm not in df.columns:
-        raise ValueError(f"No existe columna '{col_dm}' en {path}")
-
-    row = None
-    if "sample_type" in df.columns:
-        mask = df["sample_type"].astype(str).str.lower().str.contains("precompost")
-        if mask.any():
-            row = df.loc[mask].iloc[0]
-    if row is None and "treatment" in df.columns:
-        mask = df["treatment"].astype(str).str.strip().str.upper() == "B"
-        if mask.any():
-            row = df.loc[mask].iloc[0]
-    if row is None:
-        if df.shape[0] < 2:
-            raise ValueError(f"No hay suficientes filas en {path} para tomar fila 3/segundo tratamiento.")
-        row = df.iloc[1]
-
-    dm_pct = float(row[col_dm])
-    if dm_pct <= 0:
-        raise ValueError(f"dry_matter_treatment_mean_pct invalido: {dm_pct} en {path}")
-    return dm_pct / 100.0
 
 
 def _load_medido_factors(base: Path) -> tuple[float, float, float]:
@@ -97,7 +64,7 @@ def _build_ipcc_row() -> dict[str, float | int]:
     params = obtener_parametros_etapa("A", 2)
     factores_mms = obtener_factores_manejo_ipcc("A", 2)
 
-    dry_fraction = _load_precomposted_dry_matter_fraction(Path(__file__).resolve().parent.parent)
+    dry_fraction = obtener_fraccion_masa_seca_etapa("A", 2)
     vs_t = convertir_vs_base_humeda(params["vs_t_pct"], dry_fraction)
     b0_t = 0.24
     mcf = float(factores_mms["MCF"])
@@ -144,7 +111,7 @@ def _build_medido_row(base: Path) -> dict[str, float | int]:
     # Factores medidos (por kg residuo seco) desde tabla editable.
     ef_co2_dry, ef_ch4_dry, ef_n2o_dry = _load_medido_factors(base)
 
-    dry_fraction = _load_precomposted_dry_matter_fraction(base)
+    dry_fraction = obtener_fraccion_masa_seca_etapa("A", 2)
 
     # Se exportan factores por kg masa húmeda y luego exportar_fila escala por masa_total_kg_eq.
     co2_per_kg_wet = ef_co2_dry * dry_fraction
