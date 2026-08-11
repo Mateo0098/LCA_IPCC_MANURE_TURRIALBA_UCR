@@ -83,6 +83,30 @@ Si hubo un cambio de rama, se debe añadir una breve explicación. La rama indic
 
 
 
+## Cierre y reportes de tareas
+
+
+
+Cuando una tarea genere un reporte, este debe permitir que ChatGPT conozca, como mínimo:
+
+
+
+- el contexto Git obligatorio;
+- el objetivo ejecutado;
+- los archivos inspeccionados, modificados y creados;
+- los cambios implementados;
+- los comandos ejecutados;
+- las validaciones realizadas y sus resultados;
+- la documentación actualizada;
+- los pendientes y anomalías;
+- cualquier decisión que todavía requiera intervención del investigador.
+
+
+
+Si una tarea cambia metodología, pipeline, arquitectura, gobernanza o reglas permanentes y el prompt incluye actualización documental, Codex debe comprobar antes de reportarla como terminada que la documentación correspondiente quedó actualizada y coherente. Codex no debe decidir por iniciativa propia cuándo crear un nuevo chat, una nueva rama o una nueva sesión; esas transiciones pertenecen al flujo de coordinación entre Mateo y ChatGPT documentado en `CHATGPT_CODEX_WORKFLOW.md`. La prohibición de cambiar de rama sin solicitud explícita continúa vigente.
+
+
+
 \## Escritura académica
 
 

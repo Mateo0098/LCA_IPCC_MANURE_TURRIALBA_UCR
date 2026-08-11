@@ -34,6 +34,46 @@ y documentar lo realizado. Debe respetar las decisiones y reglas vigentes del
 repositorio, especialmente `AGENTS.md`, `README.md` y los documentos de
 decisiones metodológicas aplicables.
 
+## Tres niveles de continuidad
+
+El flujo distingue tres niveles relacionados, pero no equivalentes:
+
+- **Chat de ChatGPT:** espacio de decisión, supervisión y seguimiento de un objetivo principal.
+- **Rama Git:** unidad de aislamiento y versionado de un conjunto coherente de cambios.
+- **Sesión de Codex:** contexto operativo del agente que inspecciona y modifica el repositorio.
+
+No existe una relación obligatoria 1:1 entre ellos. Un chat puede requerir varias
+sesiones de Codex, una rama puede abarcar varios chats relacionados y una nueva
+sesión de Codex puede continuar sobre la misma rama. Un cambio de rama sí debe
+motivar la evaluación de si conviene iniciar una nueva sesión de Codex.
+
+## Objetivos del trabajo
+
+### Objetivo principal del chat
+
+Al comenzar una nueva línea de trabajo, ChatGPT debe identificar y mantener
+claro el objetivo principal del chat. Puede ser, por ejemplo, diagnosticar una
+inconsistencia, migrar una etapa del ACV, integrar un muestreo, regenerar
+documentación o corregir un componente del pipeline. No se exige una fórmula ni
+un formulario rígido: el objetivo funciona como criterio práctico de
+seguimiento y cierre.
+
+Si el objetivo cambia de manera significativa, ChatGPT debe evaluar si el nuevo
+trabajo continúa naturalmente en el mismo chat, si conviene abrir otro o si
+también requiere una rama separada.
+
+### Objetivo de la rama
+
+El objetivo del chat y el objetivo de la rama Git no tienen que ser idénticos.
+Una rama puede reunir varias tareas estrechamente relacionadas con un mismo
+cambio metodológico, técnico o documental. ChatGPT debe conocer la rama vigente
+mediante el contexto Git de los reportes de Codex y evitar introducir en ella
+trabajo que no pertenezca naturalmente a su propósito.
+
+Cuando una nueva tarea sea independiente del objetivo de la rama, ChatGPT debe
+recomendar crear otra rama antes de iniciar los cambios. No corresponde crear
+una rama distinta para cada ajuste pequeño.
+
 ## Flujo general de trabajo
 
 ```text
@@ -49,6 +89,7 @@ Mateo + ChatGPT → prompt para Codex → ejecución por Codex → reporte Markd
 6. ChatGPT analiza primero el reporte.
 7. A partir del reporte, ChatGPT solicita únicamente los archivos concretos que necesite inspeccionar para validar el trabajo.
 8. La afirmación de Codex de que una tarea terminó correctamente no sustituye la revisión posterior cuando esta sea necesaria.
+9. ChatGPT aplica la revisión de cierre y recomienda explícitamente cómo continuar.
 
 ### Contexto de rama
 
@@ -79,17 +120,9 @@ datos del TFG ni resultados permanentes. Pueden eliminarse posteriormente sin
 afectar la reproducibilidad del proyecto y no deben incluirse en commits
 ordinarios.
 
-Según la tarea, un reporte debería resumir:
-
-- contexto Git obligatorio conforme a `AGENTS.md`;
-- objetivo;
-- archivos inspeccionados, modificados y creados;
-- cambios implementados;
-- comandos ejecutados;
-- validaciones y sus resultados;
-- documentación actualizada;
-- advertencias y decisiones pendientes;
-- estado final relevante del repositorio.
+El contenido mínimo que Codex debe aportar para facilitar el cierre se define en
+`AGENTS.md`. El prompt puede solicitar información adicional según el alcance de
+la tarea, sin convertir el reporte en un formulario extenso.
 
 No es necesario conservar indiscriminadamente logs completos cuando un resumen
 reproducible sea suficiente. Los hechos permanentes necesarios para ejecutar o
@@ -109,6 +142,85 @@ estructura de salidas o reglas permanentes para Codex, el prompt debe considerar
 explícitamente qué documentación versionada necesita actualizarse. El objetivo
 es evitar que el código y el pipeline evolucionen mientras sus instrucciones
 quedan obsoletas.
+
+Antes de cerrar una tarea importante, ChatGPT debe comprobar, según el cambio,
+si requieren actualización `AGENTS.md`, `README.md`, este documento,
+`DECISIONES_METODOLOGICAS_TFG.md`, la documentación técnica específica y la
+documentación académica generada. Esta revisión suele ser necesaria ante cambios
+de metodología, arquitectura, fuentes de datos, pipeline, comandos, parámetros
+activos, modelos o sistemas IPCC, integración estadística, tratamiento de
+muestreos, convenciones, gobernanza, reglas para agentes o generación y
+validación documental.
+
+Cada contenido debe actualizarse en su fuente responsable. No se deben duplicar
+decisiones metodológicas en documentos operativos ni reglas de coordinación en
+el registro de decisiones científicas.
+
+## Revisión de cierre
+
+Antes de recomendar otra tarea, chat, rama o sesión de Codex, ChatGPT debe
+evaluar, en la medida aplicable al alcance real del trabajo:
+
+- si el cambio solicitado fue implementado;
+- si Codex produjo el reporte solicitado y ChatGPT lo revisó;
+- si se inspeccionaron los archivos necesarios para validar el cambio;
+- si se ejecutaron las validaciones pertinentes;
+- si se regeneraron los productos afectados;
+- si los documentos académicos afectados quedaron actualizados;
+- si las decisiones metodológicas permanentes y las instrucciones para Codex permanecen actualizadas y coherentes;
+- si los documentos vivos que correspondan fueron revisados o actualizados;
+- si se conoce la rama, el commit `HEAD` y el estado del working tree;
+- si corresponde hacer commit y push;
+- si el working tree quedó limpio o existe una razón documentada para mantener cambios.
+
+La revisión es proporcional: una tarea trivial no exige recorrer pasos que no
+le aplican. Una tarea importante no debe considerarse cerrada si el código, el
+pipeline o la metodología cambiaron y la documentación que orienta a Codex
+quedó obsoleta.
+
+## Criterios de transición
+
+### Nuevo chat de ChatGPT
+
+ChatGPT puede recomendar un nuevo chat cuando el objetivo anterior ya se cerró
+y comienza una línea de trabajo diferente, cuando el contexto acumulado puede
+dificultar el seguimiento o cuando una fase importante se beneficia de una
+conversación limpia. No debe recomendarlo solo por la longitud del chat si el
+objetivo sigue siendo el mismo y el contexto continúa siendo útil.
+
+### Nueva rama Git
+
+ChatGPT puede recomendar una nueva rama para un cambio metodológico
+independiente, una modificación arquitectónica separable, una integración
+importante nueva, una tarea ajena al propósito natural de la rama vigente o un
+conjunto de cambios que convenga revisar e integrar por separado.
+
+Antes del cambio debe aplicar la revisión de cierre, comprobar documentación y
+validaciones, revisar el estado Git y recomendar commit y push cuando
+corresponda. Codex nunca debe cambiar de rama por iniciativa propia.
+
+### Nueva sesión de Codex
+
+ChatGPT puede recomendar una nueva sesión de Codex cuando cambia de manera
+importante el objetivo técnico o metodológico, cambia la rama, podrían
+arrastrarse supuestos obsoletos, una fase nueva se beneficia de contexto limpio,
+conviene separar diagnóstico de implementación o implementación de una auditoría
+independiente, o comienza una tarea claramente independiente.
+
+Debe preferir continuar en la sesión actual cuando la tarea es una continuación
+directa, Codex acaba de inspeccionar los archivos pertinentes, el contexto sigue
+siendo correcto y útil y no existe un riesgo significativo de conservar
+supuestos obsoletos. Una nueva sesión no debe proponerse mecánicamente en cada
+prompt.
+
+## Recomendación de continuidad
+
+Cuando ChatGPT determine que el objetivo principal se completó, debe comunicar
+una recomendación explícita y basada en el estado real: continuar en el mismo
+chat o abrir otro; mantener la rama o crear una nueva; continuar la sesión de
+Codex o iniciar otra; y realizar commit o push antes de avanzar cuando
+corresponda. La recomendación se formula después de la revisión de cierre, no
+como una transición automática.
 
 ## Separación de responsabilidades documentales
 
