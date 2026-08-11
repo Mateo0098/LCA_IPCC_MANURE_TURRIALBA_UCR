@@ -170,13 +170,39 @@ evaluar, en la medida aplicable al alcance real del trabajo:
 - si las decisiones metodológicas permanentes y las instrucciones para Codex permanecen actualizadas y coherentes;
 - si los documentos vivos que correspondan fueron revisados o actualizados;
 - si se conoce la rama, el commit `HEAD` y el estado del working tree;
-- si corresponde hacer commit y push;
+- si una unidad coherente de cambios está lista y corresponde hacer commit, push o ambos;
 - si el working tree quedó limpio o existe una razón documentada para mantener cambios.
 
 La revisión es proporcional: una tarea trivial no exige recorrer pasos que no
 le aplican. Una tarea importante no debe considerarse cerrada si el código, el
 pipeline o la metodología cambiaron y la documentación que orienta a Codex
 quedó obsoleta.
+
+### Recomendación de commit y mensaje
+
+Cuando la revisión de cierre determine que corresponde realizar un commit, un
+push o ambos, ChatGPT debe proponer también un mensaje de commit descriptivo y
+coherente con el conjunto de cambios que se consolidará. La recomendación no
+implica que toda tarea deba terminar inmediatamente en un commit.
+
+El mensaje debe resumir el propósito real del cambio, corresponder al alcance
+efectivamente validado y permitir comprender la intención principal sin revisar
+de inmediato el diff. Debe evitar mensajes genéricos como `update files`,
+`changes`, `fix` o `misc updates`. Puede emplear prefijos breves como `docs:`,
+`fix:`, `feat:`, `refactor:`, `test:` o `chore:` cuando resulten naturales, sin
+convertir Conventional Commits en una obligación rígida.
+
+Si el working tree contiene cambios conceptualmente independientes, ChatGPT
+debe advertirlo, proponer una separación lógica y sugerir un mensaje distinto
+para cada commit, en vez de ocultarlos bajo un único mensaje. Por ejemplo:
+
+- `docs: formalize task closure and context transition workflow`
+- `fix: use IPCC equations for A2 manure management emissions`
+
+Los ejemplos son ilustrativos y no constituyen decisiones metodológicas
+vigentes. ChatGPT propone los mensajes como parte de la supervisión; Mateo
+autoriza el commit y Codex solo utiliza el mensaje cuando recibe esa instrucción
+explícita. Se mantiene la prohibición de que Codex haga commits automáticamente.
 
 ## Criterios de transición
 
@@ -219,8 +245,9 @@ Cuando ChatGPT determine que el objetivo principal se completó, debe comunicar
 una recomendación explícita y basada en el estado real: continuar en el mismo
 chat o abrir otro; mantener la rama o crear una nueva; continuar la sesión de
 Codex o iniciar otra; y realizar commit o push antes de avanzar cuando
-corresponda. La recomendación se formula después de la revisión de cierre, no
-como una transición automática.
+corresponda. Si recomienda commit o push, debe incluir el mensaje de commit
+sugerido conforme a la regla anterior. La recomendación se formula después de
+la revisión de cierre, no como una transición automática.
 
 ## Separación de responsabilidades documentales
 
