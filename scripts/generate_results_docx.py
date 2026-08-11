@@ -31,6 +31,12 @@ from reference_docx_utils import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PROVISIONAL_LABEL = "PROVISIONAL M1–M2"
+PROVISIONAL_NOTE = (
+    "Esta versión incorpora las jornadas disponibles M1 y M2. Para los sólidos se utiliza la "
+    "integración provisional M1–M2; para el N total de aguas verdes y purines se utiliza "
+    "exclusivamente M2 mediante Kjeldahl. La caracterización final se actualizará al incorporar M3."
+)
 REFERENCE_DOCX = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 TABLE_DIR = ROOT / "outputs" / "tablas_tesis"
 FIG_DIR = ROOT / "outputs" / "graficos_tesis"
@@ -469,6 +475,18 @@ def add_paragraphs(doc: Document, paragraphs: list[str]) -> None:
         doc.add_paragraph(clean_text(text), style="Normal")
 
 
+def add_provisional_identification(doc: Document) -> None:
+    marker = doc.add_paragraph()
+    marker.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = marker.add_run(PROVISIONAL_LABEL)
+    run.bold = True
+    for section in doc.sections:
+        header = section.header.paragraphs[0]
+        header.text = PROVISIONAL_LABEL
+        header.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc.add_paragraph(PROVISIONAL_NOTE, style="Normal")
+
+
 def characterization_summary() -> pd.DataFrame:
     t02 = read_csv("tabla_02")
     rows = []
@@ -674,16 +692,39 @@ def build_document() -> None:
     doc.add_paragraph(
         "Resultados desarrollados del Análisis de Ciclo de Vida", style="Title"
     )
+    add_provisional_identification(doc)
+
+    characterization = characterization_summary().set_index("Tipo de muestra")
+    fresh = characterization.loc["Estiércol fresco"]
+    precomposted = characterization.loc["Estiércol precompostado"]
+    emission_totals = emissions_summary().set_index("Escenario")
+
+    def emission_totals_text(scenario: str) -> str:
+        substances = (
+            ("CH4", "CH4"),
+            ("N2O", "N2O"),
+            ("NH3", "NH3"),
+            ("NO3", "NO3"),
+            ("CO2", "CO2"),
+        )
+        values = []
+        for column, label in substances:
+            value = emission_totals.loc[scenario, f"{column} (kg/año)"]
+            if pd.notna(value):
+                values.append(f"{fmt(value, 2)} kg {label}/año")
+        if len(values) == 1:
+            return values[0]
+        return ", ".join(values[:-1]) + f" y {values[-1]}"
 
     doc.add_heading("1. Caracterización de las muestras analizadas", level=2)
     add_paragraphs(
         doc,
         [
-            "La caracterización de las muestras analizadas permitió establecer los parámetros fisicoquímicos usados como entradas del inventario de ciclo de vida. El estiércol fresco presentó un contenido promedio de agua de 85,77 % y una materia seca de 14,23 %. El estiércol precompostado presentó un contenido promedio de agua de 77,59 % y una materia seca de 22,41 %.",
-            "La fracción de sólidos volátiles fue mayor en el estiércol fresco, con 85,88 % en base seca, mientras que el estiércol precompostado presentó 70,96 %. En contraste, las cenizas fueron mayores en el material precompostado. El nitrógeno total fue de 0,372 % para estiércol fresco y de 2,425 % para estiércol precompostado.",
+            f"La caracterización de las muestras analizadas permitió establecer los parámetros fisicoquímicos usados como entradas del inventario de ciclo de vida. El estiércol fresco presentó un contenido promedio de agua de {fmt(fresh['Humedad (%)'], 2)} % y una materia seca de {fmt(fresh['Materia seca (%)'], 2)} %. El estiércol precompostado presentó un contenido promedio de agua de {fmt(precomposted['Humedad (%)'], 2)} % y una materia seca de {fmt(precomposted['Materia seca (%)'], 2)} %.",
+            f"La fracción de sólidos volátiles fue mayor en el estiércol fresco, con {fmt(fresh['Sólidos volátiles (% base seca)'], 2)} % en base seca, mientras que el estiércol precompostado presentó {fmt(precomposted['Sólidos volátiles (% base seca)'], 2)} %. En contraste, las cenizas fueron mayores en el material precompostado. El nitrógeno total fue de {fmt(fresh['N total (%)'], 3)} % para estiércol fresco y de {fmt(precomposted['N total (%)'], 3)} % para estiércol precompostado.",
             "La Tabla 1 resume los valores de caracterización de las muestras. La Figura 1 presenta humedad y materia seca, mientras que la Figura 2 presenta sólidos volátiles y cenizas.",
             "La Tabla R1 del bloque de apéndices internos, Caracterización completa de muestras, presenta la desagregación de los resultados fisicoquímicos utilizados en esta sección.",
-            "Los valores presentados corresponden principalmente a las observaciones disponibles del primer muestreo incorporado. Las jornadas restantes se integrarán estadísticamente cuando sus resultados estén disponibles.",
+            "Los valores presentados corresponden a la integración provisional M1–M2 para sólidos y al N total Kjeldahl de M2 para aguas verdes y purines. La jornada M3 se incorporará posteriormente para actualizar la caracterización final.",
         ],
     )
     add_dataframe_table(doc, "Tabla 1. Caracterización resumida de las muestras.", format_df(characterization_summary(), decimals=3))
@@ -721,7 +762,7 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó 151,99 kg CH4/año, 3,11 kg N2O/año, 24,91 kg NH3/año, 90,82 kg NO3/año y 123,70 kg CO2/año. El Escenario B presentó 413,11 kg CH4/año, 1,33 kg N2O/año, 29,01 kg NH3/año y 105,74 kg NO3/año.",
+            f"Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó {emission_totals_text('A')}. El Escenario B presentó {emission_totals_text('B')}.",
             "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje reportó CO2 mediante un factor experimental publicado. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
             "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
         ],
@@ -2418,7 +2459,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el remanente derivado, el flujo común, Nᴳ, Nᴸ, Nₑᵤₜ, la adaptación 50/50 y su antecedente bibliográfico: {'Sí' if current_methodology_ok else 'No'}.",
         f"- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B, las etapas dominantes y la interpretación no física del NO₃⁻ de B1: {'Sí' if current_results_ok else 'No'}.",
         "- La magnitud operacional anual y la normalización por 1 kg de estiércol fresco manejado se presentan por separado: Sí.",
-        "- Las observaciones experimentales actuales se identifican discretamente como principalmente correspondientes al primer muestreo: Sí.",
+        "- Los documentos identifican la integración vigente como PROVISIONAL M1–M2 y señalan que M3 permanece pendiente: Sí.",
         "",
         "## Validación de ecuaciones en sintaxis LaTeX",
         "",
@@ -2663,6 +2704,9 @@ def main() -> None:
     validate_inputs()
     master_hash_before = sha256_file(REFERENCE_DOCX)
     build_document()
+    visible = "\n".join(paragraph.text for paragraph in Document(OUT_DOCX).paragraphs)
+    if PROVISIONAL_LABEL not in visible or "M3" not in visible:
+        raise RuntimeError("Los resultados no quedaron identificados como PROVISIONAL M1–M2 pendientes de M3.")
     master_hash_after = assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
     write_format_report(master_hash_before, master_hash_after)
     write_readme(master_hash_before, master_hash_after)

@@ -1,5 +1,5 @@
 ﻿escenario,categoria_impacto,resultado_total,unidad,fuente,observaciones
-A,Calentamiento global,4278.434080065856,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-A,Eutrofizacion,17.346686954312876,kg PO4-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-B,Calentamiento global,9087.048109384126,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-B,Eutrofizacion,20.19749497067001,kg PO4-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
+A,Calentamiento global,4559.390712843972,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
+A,Eutrofizacion,23.80867226220509,kg PO4-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
+B,Calentamiento global,8721.386683007422,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
+B,Eutrofizacion,27.11249770691752,kg PO4-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa

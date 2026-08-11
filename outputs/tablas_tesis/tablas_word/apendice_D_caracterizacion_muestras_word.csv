@@ -1,3 +1,5 @@
-﻿Tipo de muestra,Cenizas (% base seca),Humedad (% masa húmeda),Materia seca (% masa húmeda),Nitrógeno total (% N total),Nitrógeno total (mg N/kg muestra),Sólidos volátiles (% base seca)
-Estiércol fresco,14.123008,85.769829,14.230171,0.371666667,3716.666667,85.876992
-Estiércol precompostado,29.041353,77.593045,22.406955,2.425,24250.0,70.958647
+﻿Tipo de muestra,Carbono (% masa),Cenizas (%),Densidad (g/mL),Humedad (%),Materia seca (%),Nitrógeno total (% N total),Relación C/N (Relación),Sólidos volátiles (%)
+Aguas verdes,,,1.0,,,0.0092558888888888,,
+Estiércol fresco,,15.287051085756136,,86.40004171894205,13.59995828105796,0.5180555555555556,,84.71294891424387
+Estiércol precompostado,36.30583333333333,24.975501281349228,,79.33205644997125,20.667943550028752,2.5041666666666664,14.3,75.02449871865076
+Purines,,,1.0,,,0.0139377777777777,,

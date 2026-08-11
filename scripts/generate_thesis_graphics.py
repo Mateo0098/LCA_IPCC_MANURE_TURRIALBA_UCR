@@ -129,8 +129,15 @@ def finish_figure(fig: plt.Figure, filename: str) -> None:
     fig.tight_layout()
     resolve_x_tick_overlaps(fig)
     fig.tight_layout()
-    for ext in ("png", "svg"):
-        fig.savefig(OUT_DIR / f"{filename}.{ext}", bbox_inches="tight", dpi=300)
+    png_path = OUT_DIR / f"{filename}.png"
+    svg_path = OUT_DIR / f"{filename}.svg"
+    fig.savefig(png_path, bbox_inches="tight", dpi=300)
+    fig.savefig(svg_path, bbox_inches="tight", dpi=300, metadata={"Date": None})
+    svg_text = svg_path.read_text(encoding="utf-8")
+    svg_path.write_text(
+        "\n".join(line.rstrip() for line in svg_text.splitlines()) + "\n",
+        encoding="utf-8",
+    )
     plt.close(fig)
 
 
@@ -217,6 +224,19 @@ def simple_bar(
     finish_figure(fig, filename)
 
 
+def characterization_series(df: pd.DataFrame, variables: list[str]) -> pd.DataFrame:
+    """Selecciona y valida los valores numéricos que alimentan una figura de caracterización."""
+    subset = df[df["variable"].isin(variables)].copy()
+    subset["valor"] = pd.to_numeric(subset["valor"], errors="coerce")
+    subset = subset.dropna(subset=["valor"])
+    missing = [variable for variable in variables if subset[subset["variable"] == variable].empty]
+    if missing:
+        raise ValueError(f"Series de caracterización vacías en tabla_02: {missing}")
+    if subset.empty:
+        raise ValueError("No existen datos numéricos para la figura de caracterización")
+    return subset
+
+
 def plot_sample_characterization(readme: list[dict[str, str]]) -> None:
     df = read_table("muestras")
 
@@ -245,7 +265,7 @@ def plot_sample_characterization(readme: list[dict[str, str]]) -> None:
     ]
 
     for variables, unit, ylabel, filename, description in specs:
-        subset = df[df["variable"].isin(variables) & (df["unidad"] == unit)].copy()
+        subset = characterization_series(df, variables)
         grouped_bar(
             subset,
             x_col="tipo_muestra",
@@ -508,6 +528,7 @@ def main() -> None:
             "ytick.labelsize": 9,
             "legend.fontsize": 9,
             "svg.fonttype": "none",
+            "svg.hashsalt": "tfg-acv-provisional-m1-m2",
         }
     )
 

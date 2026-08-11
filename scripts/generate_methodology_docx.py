@@ -26,6 +26,12 @@ from reference_docx_utils import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PROVISIONAL_LABEL = "PROVISIONAL M1–M2"
+PROVISIONAL_NOTE = (
+    "Esta versión incorpora las jornadas disponibles M1 y M2. Para los sólidos se utiliza la "
+    "integración provisional M1–M2; para el N total de aguas verdes y purines se utiliza "
+    "exclusivamente M2 mediante Kjeldahl. La caracterización final se actualizará al incorporar M3."
+)
 REFERENCE_DOCX = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 TABLE_DIR = ROOT / "outputs" / "tablas_tesis"
 FIG_DIR = ROOT / "outputs" / "graficos_tesis"
@@ -383,6 +389,18 @@ def add_paragraphs(doc: Document, paragraphs: list[str]) -> None:
         doc.add_paragraph(clean_text(text), style="Normal")
 
 
+def add_provisional_identification(doc: Document) -> None:
+    marker = doc.add_paragraph()
+    marker.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = marker.add_run(PROVISIONAL_LABEL)
+    run.bold = True
+    for section in doc.sections:
+        header = section.header.paragraphs[0]
+        header.text = PROVISIONAL_LABEL
+        header.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    doc.add_paragraph(PROVISIONAL_NOTE, style="Normal")
+
+
 def add_latex_equation(doc: Document, equation: str, definitions: list[str] | None = None) -> None:
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -590,6 +608,7 @@ def build_document() -> None:
     doc.add_paragraph(
         "Metodología desarrollada del Análisis de Ciclo de Vida", style="Title"
     )
+    add_provisional_identification(doc)
 
     doc.add_heading("1. Enfoque metodológico general del ACV", level=2)
     add_paragraphs(doc, [
@@ -651,7 +670,7 @@ def build_document() -> None:
     doc.add_heading("9. Muestreo y análisis de laboratorio", level=2)
     add_paragraphs(doc, [
         "De acuerdo con el diseño previsto en el documento maestro, el muestreo se orientó a caracterizar los materiales que intervienen en las etapas del sistema evaluado mediante jornadas distribuidas durante el periodo de estudio. Para la fracción sólida se consideraron muestras de estiércol fresco y material precompostado, mientras que para la fracción líquida se consideraron aguas verdes y purines.",
-        "Al estado documental de esta versión se incorporaron principalmente los resultados disponibles del primer muestreo. Las jornadas posteriores se integrarán estadísticamente cuando sus resultados estén disponibles, sin presentar las observaciones actuales como representación definitiva de toda la campaña experimental.",
+        "Esta versión metodológica corresponde a la integración provisional de M1 y M2. La jornada M3 permanece pendiente y su incorporación actualizará la caracterización final.",
         "Las muestras sólidas permitieron determinar contenido de agua, materia seca, cenizas, sólidos volátiles y nitrógeno total; las muestras líquidas se utilizaron principalmente para representar el contenido de nitrógeno total y los flujos asociados al almacenamiento y aplicación en campo. Los resultados resumidos de caracterización se presentan en la Tabla 1 y los flujos utilizados para el inventario en la Tabla 2.",
         "La materia seca y los sólidos volátiles se emplearon para representar la fracción orgánica disponible en las estimaciones de CH4. El nitrógeno total se utilizó en la estimación de N2O, NH3 y NO3, según la alternativa de manejo correspondiente. Los parámetros principales utilizados para la estimación de emisiones se muestran en la Tabla 3.",
     ])
@@ -786,6 +805,9 @@ def main() -> None:
     validate_inputs()
     master_hash_before = sha256_file(REFERENCE_DOCX)
     build_document()
+    visible = "\n".join(paragraph.text for paragraph in Document(OUT_DOCX).paragraphs)
+    if PROVISIONAL_LABEL not in visible or "M3" not in visible:
+        raise RuntimeError("La metodología no quedó identificada como PROVISIONAL M1–M2 pendiente de M3.")
     assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
     print(f"Documento generado: {OUT_DOCX.relative_to(ROOT)}")
 

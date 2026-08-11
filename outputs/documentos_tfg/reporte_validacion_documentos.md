@@ -43,9 +43,9 @@
 ## Validación del estado metodológico y numérico vigente
 
 - La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el remanente derivado, el flujo común, Nᴳ, Nᴸ, Nₑᵤₜ, la adaptación 50/50 y su antecedente bibliográfico: Sí.
-- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B, las etapas dominantes y la interpretación no física del NO₃⁻ de B1: Sí.
+- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B, las etapas dominantes y la interpretación no física del NO₃⁻ de B1: No.
 - La magnitud operacional anual y la normalización por 1 kg de estiércol fresco manejado se presentan por separado: Sí.
-- Las observaciones experimentales actuales se identifican discretamente como principalmente correspondientes al primer muestreo: Sí.
+- Los documentos identifican la integración vigente como PROVISIONAL M1–M2 y señalan que M3 permanece pendiente: Sí.
 
 ## Validación de ecuaciones en sintaxis LaTeX
 

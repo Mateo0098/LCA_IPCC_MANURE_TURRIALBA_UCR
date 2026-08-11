@@ -35,6 +35,7 @@ OE1_PREFIX = "Realizar el inventario para el Análisis de Ciclo de Vida"
 OE2_PREFIX = "Evaluar el impacto ambiental del estiércol bovino"
 EXPECTED_SCENARIOS = {"A", "B"}
 EXPECTED_CATEGORIES = {"Calentamiento global", "Eutrofizacion"}
+PROVISIONAL_LABEL = "PROVISIONAL M1–M2"
 
 OFFICIAL_STAGES = {
     ("A", 1): "A1: Precomposteo",
@@ -344,6 +345,19 @@ def write_docx(conclusions: list[dict[str, str]]) -> None:
     document = Document()
     profile = apply_master_format(document, MASTER)
     document.add_paragraph("Conclusiones", style="Title")
+    marker = document.add_paragraph()
+    marker.alignment = 1
+    run = marker.add_run(PROVISIONAL_LABEL)
+    run.bold = True
+    for section in document.sections:
+        header = section.header.paragraphs[0]
+        header.text = PROVISIONAL_LABEL
+        header.alignment = 1
+    document.add_paragraph(
+        "Estas conclusiones se derivan de la corrida provisional M1–M2 vigente. La incorporación de M3 "
+        "actualizará la caracterización final y podrá modificar los resultados cuantitativos.",
+        style="Normal",
+    )
     document.add_heading("Conclusiones del análisis de ciclo de vida", level=1)
     for conclusion in conclusions:
         document.add_paragraph(conclusion["text"], style="Normal")
@@ -362,7 +376,7 @@ def write_trace(objectives: dict[str, str], conclusions: list[dict[str, str]], m
         "",
         "## Estado documental",
         "",
-        "Esta matriz corresponde al estado actual del modelo y de los datos experimentales incorporados, principalmente del primer muestreo. Todas las conclusiones se clasifican como **PROVISIONAL** hasta integrar estadísticamente las jornadas restantes y regenerar los documentos.",
+        "Esta matriz corresponde a la corrida **PROVISIONAL M1–M2** vigente. Para sólidos integra M1 y M2; para N total de aguas verdes y purines utiliza exclusivamente M2 Kjeldahl. Todas las conclusiones permanecen provisionales hasta incorporar M3 y regenerar los documentos.",
         "",
         f"El documento maestro se utilizó únicamente en modo de lectura. SHA-256 verificado: `{master_hash}`.",
         "",
@@ -395,7 +409,7 @@ def write_trace(objectives: dict[str, str], conclusions: list[dict[str, str]], m
             "",
             "## Criterio para fortalecer las conclusiones",
             "",
-            "La clasificación podrá revisarse cuando se incorporen las jornadas experimentales pendientes, se integren estadísticamente los parámetros medidos y se regenere la cadena de resultados. Hasta entonces, no se interpreta el primer muestreo como evidencia definitiva del conjunto de campañas.",
+            "La clasificación podrá revisarse cuando se incorpore M3 y se regenere la cadena de resultados. Hasta entonces, la integración M1–M2 no se interpreta como evidencia definitiva de toda la campaña experimental.",
             "",
         ]
     )
@@ -410,6 +424,8 @@ def validate_outputs(conclusions: list[dict[str, str]]) -> None:
     if document.tables or document.inline_shapes:
         raise RuntimeError("El documento de conclusiones no debe contener tablas ni figuras.")
     visible = "\n".join(paragraphs)
+    if PROVISIONAL_LABEL not in visible or "M3" not in visible:
+        raise RuntimeError("Las conclusiones no quedaron identificadas como PROVISIONAL M1–M2 pendientes de M3.")
     forbidden = ["processed", "outputs", "scripts", ".csv", "n_ex_pct", "n_ex_fraction", "dry_lot", "1,000", "2,000", "3,000", "4,000", "L/ano", "kg/ano", "AnÃ"]
     found = [term for term in forbidden if term in visible]
     if found:

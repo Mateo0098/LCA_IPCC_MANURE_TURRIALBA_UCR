@@ -206,45 +206,44 @@ def tabla_01_etapas_escenarios() -> Path:
 
 
 def tabla_02_caracterizacion_muestras() -> Path:
-    vs = _read_csv("volatile_solids_treatment_table.csv")
-    n = _read_csv("CIA_samples_table_v6_treatment_summary.csv")
-
-    treatment_to_lab = {
-        "A": "ESTIERCOL FRESCO",
-        "B": "SOL: PRECOMPOSTADO",
+    integration = _read_csv("muestreos_integracion_interjornada_provisional.csv")
+    material_labels = {
+        "estiércol fresco": "Estiércol fresco",
+        "estiércol precompostado": "Estiércol precompostado",
+        "aguas verdes": "Aguas verdes",
+        "purines": "Purines",
+    }
+    variable_labels = {
+        "humedad": "Humedad",
+        "materia seca": "Materia seca",
+        "cenizas": "Cenizas",
+        "sólidos volátiles": "Solidos volatiles",
+        "N total": "Nitrogeno total",
+        "densidad": "Densidad",
+        "carbono": "Carbono",
+        "relación C/N": "Relación C/N",
     }
     rows: list[dict[str, object]] = []
-    for _, row in vs.iterrows():
-        treatment = str(row["treatment"]).strip().upper()
-        lab_treatment = treatment_to_lab.get(treatment, treatment)
-        n_match = n[n["treatment"].astype(str).str.strip().str.upper() == lab_treatment]
-        n_row = n_match.iloc[0] if not n_match.empty else None
-        common = {
-            "tipo_muestra": row.get("sample_type", ""),
-            "tratamiento_laboratorio": lab_treatment,
-            "jornada_muestreo": row.get("sampling_date", ""),
-            "numero_muestras_solidos": row.get("sample_count", ""),
-            "numero_muestras_nitrogeno": n_row.get("n_samples", "") if n_row is not None else "",
-            "fuente_dato": "processed/volatile_solids_treatment_table.csv; processed/CIA_samples_table_v6_treatment_summary.csv",
-        }
-        variables = [
-            ("Humedad", row.get("moisture_content_treatment_mean_pct"), "% masa humeda", row.get("moisture_content_treatment_sd_pct"), "Promedio por tratamiento"),
-            ("Materia seca", row.get("dry_matter_treatment_mean_pct"), "% masa humeda", row.get("dry_matter_treatment_sd_pct"), "Promedio por tratamiento"),
-            ("Cenizas", row.get("ash_content_treatment_mean_pct"), "% base seca", row.get("ash_content_treatment_sd_pct"), "Promedio por tratamiento"),
-            ("Solidos volatiles", row.get("volatile_solids_treatment_mean_pct"), "% base seca", row.get("volatile_solids_treatment_sd_pct"), "Calculado como 100 - cenizas"),
-        ]
-        if n_row is not None:
-            variables.append(("Nitrogeno total", n_row.get("mean_n_percentage"), "% N total", "", "Promedio por tratamiento"))
-            variables.append(("Nitrogeno total", n_row.get("mean_n_total_mg_kg"), "mg N/kg muestra", "", "Promedio por tratamiento"))
-        for variable, value, unit, sd, obs in variables:
-            rows.append({
-                **common,
-                "variable": variable,
-                "valor": value,
-                "unidad": unit,
-                "desviacion_estandar": sd,
-                "observaciones": obs,
-            })
+    for _, row in integration.iterrows():
+        value = row.get("valor_integrado_provisional", "")
+        if pd.isna(value) or str(value).strip() == "":
+            continue
+        material = str(row["material"]).strip()
+        variable = str(row["variable"]).strip()
+        rows.append({
+            "tipo_muestra": material_labels.get(material, material),
+            "tratamiento_laboratorio": material_labels.get(material, material),
+            "jornada_muestreo": row.get("jornadas_elegibles", ""),
+            "numero_muestras_solidos": "",
+            "numero_muestras_nitrogeno": "",
+            "variable": variable_labels.get(variable, variable),
+            "valor": value,
+            "unidad": "% N total" if variable == "N total" else row.get("unidad", ""),
+            "desviacion_estandar": row.get("desviacion_estandar_entre_jornadas", ""),
+            "estado_integracion": row.get("estado_integracion", ""),
+            "observaciones": row.get("observacion_metodologica", ""),
+            "fuente_dato": "processed/muestreos_integracion_interjornada_provisional.csv",
+        })
 
     return _write(pd.DataFrame(rows), "tabla_02_caracterizacion_muestras.csv")
 
@@ -315,9 +314,10 @@ def tabla_04_parametros_modelo_acv() -> Path:
 
     rows = []
     param_defs = [
-        ("n_ex_pct", "Nitrogeno total reportado", "% N total", "fuente_n_ex", "Valor de caracterizacion; no usar directamente en ecuaciones de N"),
-        ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg muestra", "fuente_n_ex", "Usado como fraccion masica en ecuaciones de N"),
-        ("vs_t_pct", "Solidos volatiles", "% base seca", "fuente_vs_t", "Parametro para CH4 en etapas solidas"),
+        ("n_ex_pct", "Nitrogeno total reportado", "% N total", "fuente_integracion", "Valor de caracterizacion; no usar directamente en ecuaciones de N"),
+        ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg muestra", "fuente_integracion", "Usado como fraccion masica en ecuaciones de N"),
+        ("vs_t_pct", "Solidos volatiles", "% base seca", "fuente_integracion", "Parametro para CH4 en etapas solidas"),
+        ("materia_seca_pct", "Materia seca", "% masa húmeda", "fuente_integracion", "Fracción de materia seca usada en etapas sólidas"),
         ("masa_total_kg_eq", "Masa equivalente total", "kg eq/ano", "", "Base de escalamiento por etapa"),
         ("mcf_pct", "MCF", "%", "", "Factor IPCC por sistema de manejo"),
         ("ef3", "EF3", "kg N2O-N/kg N", "", "Factor IPCC por sistema de manejo"),
