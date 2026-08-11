@@ -120,6 +120,10 @@ datos del TFG ni resultados permanentes. Pueden eliminarse posteriormente sin
 afectar la reproducibilidad del proyecto y no deben incluirse en commits
 ordinarios.
 
+La carpeta completa `.codex_reports/` está excluida mediante `.gitignore`. Puede
+vaciarse o recrearse sin afectar la ejecución ni la comprensión del proyecto;
+ningún script, validador o documento permanente debe depender de su contenido.
+
 El contenido mínimo que Codex debe aportar para facilitar el cierre se define en
 `AGENTS.md`. El prompt puede solicitar información adicional según el alcance de
 la tarea, sin convertir el reporte en un formulario extenso.
@@ -162,6 +166,12 @@ Si un documento deja de cumplir una función diferenciada, ChatGPT debe proponer
 su integración, sustitución, traslado o retiro; la decisión debe documentarse
 antes de eliminarlo.
 
+Git es la fuente ordinaria para recuperar revisiones históricas. Una auditoría
+puntual debe retirarse de la rama vigente cuando sus hallazgos estén resueltos,
+la información permanente ya resida en su fuente responsable y el archivo no
+sea necesario para reproducibilidad. No se crea un archivo histórico paralelo
+sin una necesidad operativa concreta.
+
 ## Revisión de cierre
 
 Antes de recomendar otra tarea, chat, rama o sesión de Codex, ChatGPT debe
@@ -190,6 +200,11 @@ Cuando la revisión de cierre determine que corresponde realizar un commit, un
 push o ambos, ChatGPT debe proponer también un mensaje de commit descriptivo y
 coherente con el conjunto de cambios que se consolidará. La recomendación no
 implica que toda tarea deba terminar inmediatamente en un commit.
+
+No es necesario hacer commit después de cada modificación pequeña. Un commit
+debe representar un checkpoint coherente y suficientemente validado; antes de
+crearlo se ejecutan las validaciones pertinentes al alcance y se confirma qué
+archivos integran realmente la unidad de trabajo.
 
 El mensaje debe resumir el propósito real del cambio, corresponder al alcance
 efectivamente validado y permitir comprender la intención principal sin revisar

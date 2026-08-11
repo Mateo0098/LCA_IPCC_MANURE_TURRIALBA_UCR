@@ -5,14 +5,16 @@
 Este registro identifica la función, responsabilidad y disparador de revisión de
 la documentación versionada del repositorio. Es un índice de orientación: no
 duplica las reglas, decisiones ni resultados contenidos en cada fuente.
+Representa el estado actual del repositorio y evoluciona con él: los documentos
+pueden incorporarse, integrarse, reclasificarse o retirarse según cambien sus
+funciones y responsabilidades.
 
 Las categorías son:
 
 - **A. Documento vivo canónico:** gobierna o describe el estado general vigente.
 - **B. Documento especializado vivo:** describe un componente concreto.
 - **C. Manifiesto generado:** lo escribe un generador o validador y debe corresponder a sus artefactos.
-- **D. Referencia estática:** conserva el contexto o resultado de una revisión histórica y no se actualiza como si describiera el estado vigente.
-- **E. Candidato a retiro:** perdió una función diferenciada o duplica una fuente responsable; no se elimina sin documentar antes la decisión.
+- **D. Revisión pendiente:** conserva información única que aún requiere una decisión y no se interpreta como estado vigente.
 
 ## Regla de mantenimiento
 
@@ -22,10 +24,11 @@ es contextual: este registro orienta la búsqueda, pero no sustituye la inspecci
 de referencias y documentación específica del componente afectado.
 
 Los manifiestos generados se actualizan mediante su generador y se validan contra
-los artefactos de la misma corrida. Las referencias estáticas conservan el estado
-de la revisión que documentan y no se reinterpretan como fuentes vigentes. Si un
-documento deja de ser necesario, debe proponerse su retiro, integración,
-sustitución o traslado antes de eliminarlo, dejando documentada la decisión.
+los artefactos de la misma corrida. Una revisión puntual no se conserva como
+auditoría histórica cuando sus hallazgos ya fueron resueltos y la información
+permanente reside en su fuente responsable: Git permite recuperar ese estado si
+fuera necesario. Si contiene una decisión todavía abierta, se mantiene solo
+hasta resolverla y nunca se interpreta como fuente del estado vigente.
 
 ## Documentos vivos
 
@@ -60,41 +63,27 @@ Los manifiestos generados no deben corregirse manualmente cuando la corrección
 pueda aplicarse en su generador. Deben pertenecer a la misma corrida que los
 outputs que describen.
 
-## Referencias estáticas
+## Revisiones pendientes de decisión
 
-Las siguientes auditorías conservan evidencia de tareas o decisiones en un
-momento determinado. Se consultan cuando su asunto es relevante, pero no se
-mantienen como descripciones del estado vigente:
+Estas revisiones conservan hallazgos aún no cerrados y no describen por sí solas
+el estado vigente:
 
-- `auditoria_aclaraciones_cia_precision_base_n.md`
-- `auditoria_actualizacion_flujos_sanchez_2026.md`
-- `auditoria_alineacion_tfg.md`
-- `auditoria_base_n_precompostado.md`
-- `auditoria_cierre_documental_metodologia_2026.md`
-- `auditoria_correccion_balance_escenario_B_y_UF.md`
-- `auditoria_eutrofizacion_B1.md`
-- `auditoria_ingestion_m1_m2.md`
-- `auditoria_integracion_muestreo_2.md`
-- `auditoria_mapa_parametros_experimentales_acv.md`
-- `auditoria_regeneracion_metodologia_resultados_2026.md`
-- `outputs/reporte_correccion_graficos_eje_x.md`
-- `outputs/reporte_correccion_nombres_etapas.md`
-- `outputs/reporte_limpieza_correccion_nitrogeno.md`
-- `outputs/reporte_regeneracion_word_resultados.md`
-- `outputs/reporte_revision_flujos_A4_B2.md`
+- `auditoria_alineacion_tfg.md`: vacíos de alineación entre objetivos, resultados
+  y conclusiones que requieren seguimiento académico.
+- `auditoria_eutrofizacion_B1.md`: observación científica sobre la representación
+  del nitrógeno potencialmente eutrofizante que requiere criterio del investigador.
 
-Conviene evaluar en una tarea separada si estas referencias deben permanecer en
-la raíz y en `outputs/`, trasladarse a un archivo histórico o retirarse después
-de preservar la información permanente en su fuente canónica.
+Una vez resuelta cada decisión, su resultado permanente debe incorporarse en la
+fuente responsable y la auditoría debe retirarse, sin crear una carpeta histórica
+por defecto.
 
 ## Selección contextual al cierre
 
 La revisión no parte de una lista fija idéntica para todas las tareas:
 
-- Un cambio de sistema IPCC en A2 exige revisar las decisiones metodológicas,
-  la metodología especializada, la configuración y ejecución del pipeline, el
-  diccionario de trazabilidad y los manifiestos o documentos regenerados
-  afectados.
+- Un cambio metodológico importante exige revisar las decisiones metodológicas,
+  la documentación especializada, la configuración y ejecución del pipeline,
+  la trazabilidad y los manifiestos o productos regenerados afectados.
 - Un cambio exclusivo de generación de figuras exige revisar el generador, el
   manifiesto de gráficos y las reglas documentales aplicables, pero no modifica
   por sí mismo las decisiones metodológicas.
