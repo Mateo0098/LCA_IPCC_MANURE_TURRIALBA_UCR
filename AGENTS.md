@@ -230,6 +230,8 @@ Los documentos principales generados son:
 
 \- outputs/documentos\_tfg/resultados\_desarrollados\_tfg.docx
 
+\- outputs/documentos\_tfg/conclusiones\_desarrolladas\_tfg.docx
+
 
 
 Cuando se actualicen, también actualizar:
@@ -263,9 +265,52 @@ Después de regenerar documentos, verificar:
 \- No se modificó el documento maestro de propuesta.
 
 
+## Pipeline y decisiones metodológicas
+
+### Fuentes canónicas y ejecución coherente
+
+- Existe un único pipeline activo: datos experimentales → ingestión normalizada → resumen intrajornada → integración interjornada vigente → promoción a parámetros activos → ACV → tablas → gráficos → metodología → resultados → conclusiones → validación cruzada.
+- No utilizar tablas históricas de M1, incluidas las familias `CIA_samples_table*` y `volatile_solids_*`, como sustituto de las salidas multijornada vigentes.
+- Distinguir las fronteras activas: `processed/muestreos_integracion_interjornada_provisional.csv` contiene la integración de parámetros; `processed/muestreos_transformacion_masa_interjornada.csv` contiene la transformación de masa; `processed/acv_parametros_escenario_etapa.csv` contiene los parámetros activos del ACV; y `processed/masa_total_escenario_etapa.csv` contiene las masas activas.
+- No generar documentos contra una integración, parámetros, emisiones, tablas o gráficos pertenecientes a corridas diferentes. Cuando cambien datos experimentales, regenerar en orden todas las capas afectadas para evitar productos híbridos.
+- `ACV_orquestador.py` parte de la integración vigente; no ejecuta la ingestión ni la integración estadística.
+
+### Jerarquía estadística
+
+- La jerarquía es: réplica analítica → muestra compuesta → promedio de jornada → integración entre jornadas.
+- Las réplicas analíticas no son observaciones temporales independientes.
+- Las jornadas reciben igual peso temporal. No ponderar M2 más que M1 por contener más muestras compuestas o réplicas.
+- Para sólidos metodológicamente comparables, el estado provisional actual integra M1+M2. El estado final futuro requerirá M1+M2+M3 compatible.
+
+### N líquido y precisión
+
+- En aguas verdes y purines, M1 corresponde a especiación y se conserva solo para trazabilidad. Nunca reconstruir N total M1 sumando especies.
+- El valor activo provisional de N total líquido procede de M2 mediante Kjeldahl. La integración final futura utilizará M2+M3 compatible y excluirá M1.
+- Conservar para cálculo los decimales internos almacenados por el CIA. No interpretarlos como mayor precisión analítica formal y reservar el redondeo para la presentación; no redondear prematuramente.
+
+### N/C y transformación fresco→precompostado
+
+- No convertir automáticamente los resultados de N/C determinados por Dumas tras preparación a 80 °C durante 48 h usando la materia seca gravimétrica determinada a 105 °C. Son procedimientos separados y la base formal final del porcentaje no fue especificada por el reporte.
+- Calcular la transformación fresco→precompostado primero por jornada usando materia seca y cenizas de ambos materiales; después integrar los factores de jornada con igual peso temporal.
+- No promediar primero las cuatro variables entre jornadas ni crear una segunda ruta principal basada en un promedio independiente de pérdidas. La pérdida integrada se deriva del factor integrado.
+
+### Decisiones aprobadas
+
+- Antes de cambiar la unidad funcional, sistemas IPCC, factores, adaptación de eutrofización, balance, integración estadística, tratamiento de N líquido o transformación de masa, consultar `DECISIONES_METODOLOGICAS_TFG.md`.
+- Ante una discrepancia: inspeccionar el código vigente, consultar la decisión metodológica, reportar al investigador y no reinterpretar ni cambiar cálculos automáticamente.
+- M3 debe incorporarse mediante el mismo pipeline: ingestión, validación, integración final, validación, ACV, productos académicos y validación cruzada. No crear perfiles históricos, snapshots del modelo ni pipelines paralelos.
+
+### Validaciones por capa
+
+- `scripts/validate_sampling_ingestion.py` valida estructura, fuentes y decisiones metodológicas de la ingestión y del resumen intrajornada.
+- `scripts/validate_sampling_integration.py` valida la integración estadística y confirma que su ejecución no modifica las salidas protegidas del ACV.
+- `scripts/validate_provisional_m1_m2_outputs.py` se ejecuta después de regenerar la corrida completa y comprueba la coherencia cruzada entre integración, masas, emisiones, impactos, tablas, gráficos, metodología, resultados, conclusiones y MASTER.
+- No atribuir a un validador comprobaciones que corresponden a otra capa.
+
+
 ## Reglas de formato para documentos Word generados
 
-Estas reglas son obligatorias para `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx` y `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`:
+Estas reglas son obligatorias, según corresponda a su contenido, para `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`, `outputs/documentos_tfg/resultados_desarrollados_tfg.docx` y `outputs/documentos_tfg/conclusiones_desarrolladas_tfg.docx`:
 
 1. Seguir el estilo visual de `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
 2. Usar el MASTER únicamente como referencia de formato. Nunca modificarlo, sobrescribirlo ni usarlo como archivo de salida.

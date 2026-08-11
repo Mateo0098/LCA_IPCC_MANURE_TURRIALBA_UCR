@@ -140,7 +140,10 @@ def main() -> None:
     assert build_mass_transformation_rows(m1 + m2 + m3[:-1])[-1]["estado_integracion"] != "final"
     after = {name: sha256(ROOT / name) for name in PROTECTED}
     assert before == after, "La validación modificó archivos protegidos del ACV"
-    print(f"VALIDACIÓN CORRECTA: {len(result)} reglas; ACV desacoplado y hashes protegidos sin cambios.")
+    print(
+        f"VALIDACIÓN CORRECTA: {len(result)} reglas; integración válida; "
+        "archivos protegidos del ACV sin cambios durante la validación."
+    )
     for name in PROTECTED:
         print(f"{after[name]}  {name}")
 

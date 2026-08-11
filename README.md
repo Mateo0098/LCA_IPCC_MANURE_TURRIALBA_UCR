@@ -1,25 +1,40 @@
-﻿# ACV Pipeline (ES/EN)
+# Pipeline del ACV
 
-## ES - Objetivo
-Este proyecto calcula emisiones e impactos ACV por etapa/escenario, a partir de tablas en `processed/`, y genera salidas tabulares y graficas.
+## Objetivo
 
-## ES - Documento maestro protegido
+Este proyecto calcula emisiones e impactos de análisis de ciclo de vida (ACV)
+por etapa y escenario para el manejo de estiércol bovino en una lechería
+especializada de Turrialba, Costa Rica. También genera tablas, gráficos y
+documentos académicos para el TFG.
+
+## Estado actual
+
+La corrida vigente es **ACV PROVISIONAL M1–M2**:
+
+- las variables comparables de los sólidos integran M1 y M2 con igual peso temporal;
+- el N total de aguas verdes y purines procede únicamente de M2, determinado mediante Kjeldahl;
+- la transformación de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado.
+
+Cuando exista una M3 metodológicamente compatible, el mismo pipeline integrará
+M1+M2+M3 para sólidos y transformación de masa, y M2+M3 para N líquido. No hay
+perfiles históricos, snapshots del modelo ni pipelines paralelos activos.
+
+Las decisiones metodológicas aprobadas se registran en
+`DECISIONES_METODOLOGICAS_TFG.md`. No deben reinterpretarse ni modificarse al
+regenerar el proyecto sin autorización del investigador.
+
+## Documento maestro protegido
 
 El documento maestro de referencia de formato es
-`MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`. Los generadores deben usarlo
-solo para consultar el formato, verificar su hash antes y después de la
-generación y guardar los documentos producidos en `outputs/documentos_tfg/`.
-Nunca deben sobrescribir ni modificar archivos dentro de `MASTER_escrito/`.
+`MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`. Es una fuente inmutable: los
+generadores solo pueden consultarlo como referencia de formato y deben verificar
+su hash antes y después de generar documentos. Nunca debe modificarse,
+sobrescribirse, regenerarse ni usarse como destino. Todos los documentos
+generados se guardan en `outputs/documentos_tfg/`.
 
-## ES - Flujo operativo (resumen)
-1. Preparar/actualizar tablas en `processed/` (solo si cambian muestreos o configuracion manual).
-2. Ejecutar el modelo con `ACV_orquestador.py`.
-3. Revisar resultados procesados en `processed/`, tablas académicas en
-   `outputs/tablas_tesis/`, figuras en `outputs/graficos_tesis/` y documentos
-   en `outputs/documentos_tfg/`.
+## Crear el entorno virtual
 
-## ES - Crear entorno virtual e instalar librerias
-Desde la raiz del proyecto:
+Desde la raíz del proyecto:
 
 ```powershell
 python -m venv .venv
@@ -28,200 +43,86 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## ES - Cuando debo regenerar datos desde `Academic_documents`?
-Regenera datos de muestreo cuando:
-- se actualizan archivos fuente en `Academic_documents/`,
-- cambian reportes de laboratorio,
-- o falta alguna tabla derivada de muestreos.
+## Pipeline canónico
 
-Si no cambio nada de muestreos y las tablas ya existen, puedes correr directo el orquestador.
-
-## ES - Paso A: Tablas derivadas de muestreos (no manuales)
-Estas tablas se generan con scripts y no se editan manualmente:
-
-- `processed/CIA_samples_table.csv`  
-  Script: `scripts/extract_analysis_results.py`
-
-- `processed/CIA_samples_table_treatment_summary.csv` (o `CIA_samples_table_v6_treatment_summary.csv`)  
-  Script: `scripts/extract_analysis_results.py`
-
-- `processed/volatile_solids_table.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/volatile_solids_representative_table.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/volatile_solids_treatment_table.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/volatile_solids_mass_loss_fresh_to_precomposted.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/agua_boniga_estadistica_descriptiva.csv`  
-  Script: `scripts/compute_agua_boniga_stats.py`
-
-- `processed/masa_total_escenario_etapa.csv`  
-  Script: `scripts/compute_masa_etapas_escenarios.py`
-
-- `processed/acv_parametros_escenario_etapa.csv`  
-  Script: `scripts/generate_acv_parametros_escenario_etapa.py`
-
-## ES - Paso B: Tablas manuales de configuracion del modelo
-Estas tablas si son de manejo manual:
-
-- `processed/modelo_etapa_overrides.csv`  
-  Define que modelo usa cada etapa/escenario (por ejemplo IPCC vs medido).
-
-- `processed/factores_emision_medidos.csv`  
-  Factores de emision medidos (base seca) para etapas en modo medido.
-
-- `processed/ipcc_sistemas_manejo_estiercol_factores.csv`  
-  Catalogo IPCC de factores por sistema de manejo (`MCF`, `EF3`, `frac_gas_ms`, `frac_leach_ms`).
-
-- `processed/ipcc_sistema_manejo_por_etapa.csv`  
-  Mapeo escenario/etapa -> sistema de manejo IPCC.
-
-- `processed/masa_total_factor_overrides.csv`  
-  Ajustes manuales de masa por etapa/escenario (`factor_boniga`, `factor_agua`, `factor_masa_total`).
-
-## ES - Orden de ejecucion recomendado
-Desde la raiz del proyecto:
+Cuando cambien los datos experimentales, debe ejecutarse la secuencia completa
+en este orden:
 
 ```powershell
-.venv\Scripts\python.exe scripts\extract_analysis_results.py
-.venv\Scripts\python.exe scripts\compute_sample_parameters.py
-.venv\Scripts\python.exe scripts\compute_agua_boniga_stats.py
-.venv\Scripts\python.exe scripts\compute_masa_etapas_escenarios.py
-.venv\Scripts\python.exe scripts\generate_acv_parametros_escenario_etapa.py
+.venv\Scripts\python.exe scripts\build_sampling_ingestion.py
+.venv\Scripts\python.exe scripts\validate_sampling_ingestion.py
+.venv\Scripts\python.exe scripts\build_sampling_integration.py
+.venv\Scripts\python.exe scripts\validate_sampling_integration.py
 .venv\Scripts\python.exe ACV_orquestador.py
+.venv\Scripts\python.exe scripts\generate_thesis_tables.py
+.venv\Scripts\python.exe scripts\generate_thesis_graphics.py
+.venv\Scripts\python.exe scripts\generate_methodology_docx.py
+.venv\Scripts\python.exe scripts\generate_results_docx.py
+.venv\Scripts\python.exe scripts\generate_conclusions_docx.py
+.venv\Scripts\python.exe scripts\validate_provisional_m1_m2_outputs.py
 ```
 
-## ES - Ejecucion rapida (sin actualizar muestreos)
-Si `processed/` ya esta actualizado y validado:
+`ACV_orquestador.py` parte de la integración experimental vigente. En orden,
+genera `processed/acv_parametros_escenario_etapa.csv`, calcula las masas,
+inicializa el resumen de emisiones, ejecuta A1–B2, valida la presencia de las
+seis etapas, calcula impactos y ejecuta el postproceso técnico existente. No
+ejecuta la ingestión, la integración estadística, los generadores académicos ni
+la validación cruzada final.
 
-```powershell
-.venv\Scripts\python.exe ACV_orquestador.py
-```
+El orquestador solo puede ejecutarse de forma abreviada cuando la ingestión y la
+integración vigentes ya estén actualizadas y hayan superado sus validadores. Si
+existe duda sobre su vigencia, debe ejecutarse la secuencia completa.
 
-## ES - Salidas principales
+## Fronteras activas
+
+- `processed/muestreos_integracion_interjornada_provisional.csv` contiene la integración experimental vigente.
+- `processed/acv_parametros_escenario_etapa.csv` promueve N total, sólidos volátiles y materia seca hacia el ACV según las necesidades de cada etapa.
+- `processed/muestreos_transformacion_masa_interjornada.csv` contiene los factores por jornada y el factor integrado fresco→precompostado.
+- `processed/masa_total_escenario_etapa.csv` contiene las masas activas por etapa.
+
+No todos los parámetros experimentales pasan por una sola tabla. La
+caracterización química y la transformación de masa siguen fronteras separadas
+que convergen en la corrida del ACV.
+
+### Rama activa de A2
+
+A2 utiliza actualmente la rama `medido`. Sus factores proceden de
+`processed/factores_emision_medidos.csv`; la materia seca integrada del
+precompostado convierte los factores de base seca a base húmeda. El N total y
+los sólidos volátiles del precompostado permanecen almacenados, pero la rama
+activa `medido` no los consume. La masa de A2 sí depende del factor integrado de
+transformación fresco→precompostado.
+
+## Configuración manual vigente
+
+Estas tablas se mantienen manualmente y no sustituyen las capas experimentales:
+
+- `processed/modelo_etapa_overrides.csv`: selecciona el modelo de cada etapa.
+- `processed/factores_emision_medidos.csv`: factores medidos en base seca para A2.
+- `processed/ipcc_sistemas_manejo_estiercol_factores.csv`: factores por sistema de manejo IPCC.
+- `processed/ipcc_sistema_manejo_por_etapa.csv`: asignación de sistemas IPCC por etapa.
+- `processed/masa_total_factor_overrides.csv`: ajustes controlados de masa por etapa.
+
+## Incorporación futura de M3
+
+M3 seguirá el mismo flujo: ingestión → validación de ingestión → integración
+final → validación de integración → mismo ACV → tablas → gráficos → metodología
+→ resultados → conclusiones → validación cruzada. Una integración incompleta no
+debe presentarse como resultado experimental final.
+
+## Salidas principales
+
 - `processed/ACV_resumen_emisiones.csv`
 - `processed/acv_impacto_por_etapa_escenario.csv`
 - `processed/acv_impacto_total_por_escenario.csv`
-- `outputs/tablas_tesis/`: tablas finales y tablas académicas para Word.
+- `outputs/tablas_tesis/`: tablas académicas y versiones para Word.
 - `outputs/graficos_tesis/`: figuras académicas en PNG y SVG.
-- `outputs/documentos_tfg/`: metodología, resultados y reportes de validación.
+- `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
+- `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`
+- `outputs/documentos_tfg/conclusiones_desarrolladas_tfg.docx`
+- `outputs/documentos_tfg/reporte_validacion_provisional_m1_m2.md`
 
-## ES - Generadores académicos
-
-- `scripts/generate_thesis_tables.py`: tablas finales y versiones para Word.
-- `scripts/generate_thesis_graphics.py`: figuras académicas.
-- `scripts/generate_methodology_docx.py`: documento de metodología.
-- `scripts/generate_results_docx.py`: documento de resultados y validación.
-
-Las carpetas de salida anteriores no deben usarse como fuente de los documentos
-académicos cuando exista una salida vigente en `outputs/`.
-
----
-
-## EN - Goal
-This project computes stage/scenario ACV emissions and impacts from `processed/` tables, then generates tabular and graphical outputs.
-
-## EN - Operating flow (summary)
-1. Prepare/update `processed/` tables (only if sampling inputs or manual config changed).
-2. Run the model through `ACV_orquestador.py`.
-3. Review processed results in `processed/` and the current academic outputs
-   under `outputs/tablas_tesis/`, `outputs/graficos_tesis/`, and
-   `outputs/documentos_tfg/`.
-
-## EN - Create virtual environment and install dependencies
-From the project root:
-
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-## EN - When should I regenerate data from `Academic_documents`?
-Regenerate sampling-derived data when:
-- source files in `Academic_documents/` change,
-- lab reports are updated,
-- or any sampling-derived table is missing.
-
-If sampling inputs did not change and tables already exist, run the orchestrator directly.
-
-## EN - Step A: Sampling-derived tables (non-manual)
-These tables are script-generated and should not be manually edited:
-
-- `processed/CIA_samples_table.csv`  
-  Script: `scripts/extract_analysis_results.py`
-
-- `processed/CIA_samples_table_treatment_summary.csv` (or `CIA_samples_table_v6_treatment_summary.csv`)  
-  Script: `scripts/extract_analysis_results.py`
-
-- `processed/volatile_solids_table.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/volatile_solids_representative_table.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/volatile_solids_treatment_table.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/volatile_solids_mass_loss_fresh_to_precomposted.csv`  
-  Script: `scripts/compute_sample_parameters.py`
-
-- `processed/agua_boniga_estadistica_descriptiva.csv`  
-  Script: `scripts/compute_agua_boniga_stats.py`
-
-- `processed/masa_total_escenario_etapa.csv`  
-  Script: `scripts/compute_masa_etapas_escenarios.py`
-
-- `processed/acv_parametros_escenario_etapa.csv`  
-  Script: `scripts/generate_acv_parametros_escenario_etapa.py`
-
-## EN - Step B: Manual model-configuration tables
-These tables are manually maintained:
-
-- `processed/modelo_etapa_overrides.csv`  
-  Defines which model each stage/scenario uses (for example IPCC vs measured).
-
-- `processed/factores_emision_medidos.csv`  
-  Measured emission factors (dry basis) for stages running in measured mode.
-
-- `processed/ipcc_sistemas_manejo_estiercol_factores.csv`  
-  IPCC factor catalog by manure-management system (`MCF`, `EF3`, `frac_gas_ms`, `frac_leach_ms`).
-
-- `processed/ipcc_sistema_manejo_por_etapa.csv`  
-  Scenario/stage -> IPCC management system mapping.
-
-- `processed/masa_total_factor_overrides.csv`  
-  Manual mass-adjustment factors by scenario/stage (`factor_boniga`, `factor_agua`, `factor_masa_total`).
-
-## EN - Recommended execution order
-From the project root:
-
-```powershell
-.venv\Scripts\python.exe scripts\extract_analysis_results.py
-.venv\Scripts\python.exe scripts\compute_sample_parameters.py
-.venv\Scripts\python.exe scripts\compute_agua_boniga_stats.py
-.venv\Scripts\python.exe scripts\compute_masa_etapas_escenarios.py
-.venv\Scripts\python.exe scripts\generate_acv_parametros_escenario_etapa.py
-.venv\Scripts\python.exe ACV_orquestador.py
-```
-
-## EN - Fast run (no sampling updates)
-If `processed/` is already up to date and validated:
-
-```powershell
-.venv\Scripts\python.exe ACV_orquestador.py
-```
-
-## EN - Main outputs
-- `processed/ACV_resumen_emisiones.csv`
-- `processed/acv_impacto_por_etapa_escenario.csv`
-- `processed/acv_impacto_total_por_escenario.csv`
-- `outputs/tablas_tesis/`: final tables and academic Word tables.
-- `outputs/graficos_tesis/`: academic PNG and SVG figures.
-- `outputs/documentos_tfg/`: methodology, results, and validation reports.
+Los archivos generados son productos regenerables del pipeline vigente. Las
+tablas históricas `CIA_samples_table*` y `volatile_solids_*` pueden conservarse
+por trazabilidad o usos auxiliares, pero no constituyen la ruta canónica actual
+hacia el ACV.

@@ -48,7 +48,7 @@ for material in SOLID_MATERIALS:
                 "politica_integracion": "media aritmética de promedios de jornada con igual peso temporal",
                 "minimo_jornadas_necesarias": 2,
                 "numero_jornadas_final_esperado": 3,
-                "uso_previsto": "estimador experimental provisional desacoplado del modelo ACV",
+                "uso_previsto": "estimador experimental provisional vigente y elegible para promoción al ACV",
                 "observacion_metodologica": observacion,
                 "tipo_regla": "solido_integrable",
             }
@@ -140,5 +140,5 @@ MASS_TRANSFORMATION_RULE = {
     ),
     "parametro_integrado_principal": "mass_ratio_precomp_over_fresh",
     "perdida_integrada": "(1 - mass_ratio_integrado) × 100",
-    "uso_previsto": "resultado experimental desacoplado del modelo ACV",
+    "uso_previsto": "factor experimental integrado vigente consumido por el cálculo de masas",
 }

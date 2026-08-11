@@ -106,11 +106,11 @@ Estas decisiones solo deben modificarse por decisión expresa del investigador o
 
 ## 11. Estado provisional
 
-Actualmente, parte de los resultados experimentales incorporados procede principalmente del primer muestreo. Las jornadas siguientes deberán integrarse estadísticamente cuando estén disponibles, y los documentos deberán regenerarse conservando las decisiones metodológicas aquí registradas.
+La caracterización experimental activa es provisional: las variables sólidas metodológicamente comparables integran M1 y M2 con igual peso temporal; el N total de aguas verdes y purines procede únicamente de M2 mediante Kjeldahl; y la transformación de masa de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado. La corrida del ACV fue regenerada con estos estimadores y se identifica expresamente como **PROVISIONAL M1–M2**. M3 permanece pendiente para completar la integración final según las reglas de la sección 14.
 
 ## 12. Regla para futuras regeneraciones
 
-Los generadores de metodología y resultados deben conservar estas decisiones. Si se detecta una discrepancia entre los documentos generados, la implementación del modelo y este archivo, debe reportarse al investigador antes de modificar cálculos, parámetros, factores, flujos o decisiones metodológicas.
+Las tablas, los gráficos, la metodología, los resultados, las conclusiones y la validación cruzada deben corresponder a una misma corrida vigente y conservar estas decisiones. Si se detecta una discrepancia entre los productos generados, la implementación del modelo y este archivo, debe reportarse al investigador antes de modificar cálculos, parámetros, factores, flujos o decisiones metodológicas.
 
 ## 13. Aclaraciones CIA sobre reporte de N y preparación de N/C
 
@@ -159,6 +159,6 @@ Con las jornadas actuales no se realizarán automáticamente ANOVA, pruebas t, p
 
 ### Estado actual y relación con el ACV
 
-La integración M1–M2 es provisional y permanece completamente desacoplada del modelo ACV. No se sustituirán parámetros del ACV hasta disponer de M3 y contar con aprobación expresa del investigador.
+La integración M1–M2 constituye la caracterización experimental provisional activa. Los parámetros elegibles se promueven hacia el ACV y la corrida resultante se identifica expresamente como **PROVISIONAL M1–M2**. Cuando exista M3 metodológicamente compatible, se actualizará la integración y se regenerará el mismo pipeline. No deben crearse perfiles históricos, snapshots del modelo ni pipelines paralelos para incorporar M3.
 
 El factor de transformación de masa de estiércol fresco a estiércol precompostado se calcula primero de forma independiente para cada jornada a partir de sus promedios gravimétricos validados. Los factores de jornada reciben igual peso temporal y el parámetro integrado principal es `mass_ratio_precomp_over_fresh`. La pérdida porcentual integrada se deriva de ese factor mediante `(1 - mass_ratio_precomp_over_fresh) × 100`; no se promedia por una ruta independiente. El resultado M1–M2 es provisional y el valor definitivo requerirá M1, M2 y M3 metodológicamente elegibles.
