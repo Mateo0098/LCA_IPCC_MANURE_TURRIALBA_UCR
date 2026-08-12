@@ -40,6 +40,10 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 - Cuando un prompt solicite un reporte de ejecución, guardarlo en la ruta indicada dentro de `.codex_reports/`. Estos reportes son temporales, no constituyen fuente de verdad ni entrada del pipeline y no deben incluirse en commits ordinarios.
 
+- No hacer commit, push, integración ni cambio de rama por iniciativa propia. Un prompt específico preparado por ChatGPT autoriza únicamente las operaciones Git, los archivos y las ramas que describe; no ampliar ese alcance.
+
+- Tratar `.codex_reports/` como bandeja temporal. Al comenzar, durante y al cerrar una unidad, evaluar de forma conservadora si pueden eliminarse reportes de unidades ya cerradas. Conservar los necesarios para revisión, validación, cierre Git o decisiones vigentes; ante duda, conservar. No borrar el reporte solicitado por el prompt, no actuar fuera de `.codex_reports/` bajo esta regla y trasladar primero a su fuente responsable cualquier información permanente que solo exista en un reporte.
+
 
 
 ## Contexto Git obligatorio para tareas de Codex

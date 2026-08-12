@@ -213,6 +213,28 @@ reproducible sea suficiente. Los hechos permanentes necesarios para ejecutar o
 comprender el proyecto deben quedar en la documentación versionada apropiada,
 no solamente en un reporte temporal.
 
+### Ciclo de vida y limpieza de la bandeja temporal
+
+`.codex_reports/` funciona como una bandeja temporal de coordinación, no como
+un archivo histórico. No se aplica una retención rígida por antigüedad o número
+de archivos. Se conservan los reportes que todavía sostienen una unidad abierta,
+una revisión o validación pendiente, un cierre Git aún no confirmado o un
+diagnóstico que condiciona una decisión vigente.
+
+Un reporte puede retirarse cuando la unidad ya fue validada, consolidada,
+publicada o integrada según correspondiera, no quedan decisiones pendientes y
+los hechos permanentes necesarios ya residen en Git o en la documentación
+responsable. Los reportes retirados no se trasladan a archivos históricos:
+Git, los commits y la documentación viva constituyen el historial permanente.
+
+Codex debe evaluar esta limpieza de forma contextual al comenzar una unidad,
+durante el trabajo y después de confirmar su cierre o integración. La limpieza
+es conservadora: ante duda se conserva el reporte, nunca se elimina el que el
+prompt vigente solicita devolver y, si un hecho permanente existe únicamente
+allí, primero se traslada a su fuente responsable. Esta regla solo permite
+actuar dentro de `.codex_reports/`; no requiere scripts, tareas programadas,
+hooks, índices, manifiestos, copias de respaldo ni carpetas de archivo.
+
 ## Documentación viva del repositorio
 
 El registro canónico `docs/DOCUMENTACION_VIVA.md` clasifica los documentos
@@ -274,12 +296,34 @@ le aplican. Una tarea importante no debe considerarse cerrada si el código, el
 pipeline o la metodología cambiaron y la documentación que orienta a Codex
 quedó obsoleta.
 
-### Recomendación de commit y mensaje
+### Recomendación Git y prompt operativo para Codex
 
 Cuando la revisión de cierre determine que corresponde realizar un commit, un
-push o ambos, ChatGPT debe proponer también un mensaje de commit descriptivo y
-coherente con el conjunto de cambios que se consolidará. La recomendación no
-implica que toda tarea deba terminar inmediatamente en un commit.
+push o ambos, ChatGPT debe indicar con precisión la operación recomendada,
+proponer un mensaje de commit descriptivo cuando corresponda y proporcionar en
+esa misma respuesta un prompt listo para ejecutar en Codex. También debe indicar
+la ruta exacta del reporte `.codex_reports/...md` que Mateo devolverá para la
+revisión posterior.
+
+El prompt se adapta al cierre real —commit solamente, commit y push, push de
+commits existentes o integración validada de una rama a `main`— y solicita, en
+la medida aplicable:
+
+- comprobar rama, `HEAD`, working tree, upstream y remoto;
+- identificar los archivos de la unidad y detectar cambios accidentales o temporales;
+- ejecutar las validaciones pertinentes;
+- excluir `.codex_reports/` y otros artefactos temporales;
+- añadir únicamente los archivos expresamente autorizados;
+- crear el commit con el mensaje recomendado;
+- publicar los commits y configurar upstream cuando resulte necesario;
+- verificar los SHA local y remoto y el estado final;
+- generar el reporte temporal en la ruta indicada.
+
+El prompt específico preparado por ChatGPT constituye la autorización operativa
+para las acciones Git que describe. Codex no puede ampliarla a otros archivos,
+ramas u operaciones y no realiza commit, push, integración ni cambio de rama por
+iniciativa propia. La recomendación no implica que toda tarea deba terminar
+inmediatamente en un commit.
 
 No es necesario hacer commit después de cada modificación pequeña. Un commit
 debe representar un checkpoint coherente y suficientemente validado; antes de
@@ -301,9 +345,15 @@ para cada commit, en vez de ocultarlos bajo un único mensaje. Por ejemplo:
 - `fix: correct validation of generated artifacts`
 
 Los ejemplos son ilustrativos y no constituyen decisiones metodológicas
-vigentes. ChatGPT propone los mensajes como parte de la supervisión; Mateo
-autoriza el commit y Codex solo utiliza el mensaje cuando recibe esa instrucción
-explícita. Se mantiene la prohibición de que Codex haga commits automáticamente.
+vigentes. Mateo ejecuta el prompt que autoriza el alcance concreto y Codex debe
+respetar literalmente esos límites.
+
+El cierre sigue esta secuencia conceptual:
+
+```text
+revisión y validación → recomendación Git + prompt de Codex
+→ ejecución → reporte → revisión de ChatGPT
+```
 
 ## Criterios de transición
 
