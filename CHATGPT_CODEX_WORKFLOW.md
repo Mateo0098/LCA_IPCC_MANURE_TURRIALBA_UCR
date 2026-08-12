@@ -290,8 +290,12 @@ el checkpoint ya contiene una versión accesible.
 Cada reporte de Codex debe incluir el contexto Git obligatorio definido en
 `AGENTS.md`: rama, commit `HEAD` y estado general del working tree al inicio y
 al final, además de cualquier cambio de rama y su causa. Al recibir el reporte,
-ChatGPT debe considerar la rama allí indicada como la referencia vigente para
-las consultas, prompts y validaciones relacionadas con esa tarea.
+ChatGPT debe usar la rama allí indicada como contexto inicial para las consultas,
+prompts y validaciones relacionadas con esa tarea, pero no asumir solo por estar
+checkout que continúa siendo la referencia vigente. Debe contrastar si contiene
+avance abierto, si su propósito sigue activo y si es compatible con la unidad.
+Una rama histórica, cerrada, experimental, abandonada o ya integrada no se vuelve
+vigente por el mero hecho de estar checkout.
 
 Si ChatGPT sabe que el trabajo relevante todavía vive en otra rama, no debe
 consultar `main` como fuente vigente de esa tarea. Esta regla evita preparar
@@ -491,13 +495,15 @@ suficiente certeza, no debe asumir que `main` es la referencia vigente: debe
 solicitar a Codex la comprobación mediante el contexto Git del repositorio.
 Cambiar de chat no implica cambiar de rama; ambos son contextos independientes.
 
-Si existe una rama activa, ChatGPT debe tratarla como referencia vigente y no
-recomendar automáticamente otra. Debe evaluar si la nueva unidad puede
-acumularse razonablemente en ella o si conviene cerrar e integrar primero el
-avance existente. Cuando el objetivo de la rama ya esté terminado, debe revisar
-antes las validaciones, los commits y el push pendientes y su integración a
-`main`. Cuando todavía contenga trabajo abierto, debe preferir mantener una sola
-rama activa, incluso si la nueva tarea se discute en otro chat.
+Si existe una rama activa de avance, ChatGPT debe evaluar primero si la nueva
+unidad encaja naturalmente en su línea de trabajo. Cuando encaje, debe preferir
+continuar en ella: una unidad nueva no implica una rama nueva. Cuando no encaje,
+debe evaluar el cierre y la integración del avance existente o justificar una
+excepción real antes de abrir una línea paralela. Si el objetivo de la rama ya
+está terminado, debe revisar antes las validaciones, los commits y el push
+pendientes y su integración a `main`. Mientras contenga trabajo abierto, debe
+preferir mantener una sola rama activa, incluso si la nueva tarea se discute en
+otro chat o pertenece a otra categoría científica, técnica o documental.
 
 Solo debe recomendar una nueva rama después de comprobar que el avance anterior
 se integró y que `main` volvió a ser la referencia vigente, o cuando exista una
@@ -507,6 +513,19 @@ unidad o categoría de trabajo. Antes del cambio debe aplicar la revisión de
 cierre, comprobar documentación y validaciones, revisar el estado Git y
 recomendar commit y push cuando corresponda. Codex nunca debe cambiar de rama
 por iniciativa propia.
+
+Si la rama checkout es histórica, ya cerrada, experimental, abandonada o
+incompatible con la unidad, ChatGPT no debe confundirla con la rama activa de
+avance. Antes de autorizar modificaciones debe determinar la referencia vigente
+y decidir explícitamente si corresponde continuar, cambiar de rama o crear otra.
+Codex inspecciona la discrepancia, la informa y ejecuta una transición únicamente
+cuando el prompt la autoriza y delimita.
+
+Para una tarea puramente diagnóstica o de inspección de solo lectura normalmente
+no se crea ni se cambia de rama: Git permite consultar las referencias pertinentes
+sin modificar el checkout. Si el diagnóstico concluye que hace falta implementar,
+ChatGPT decide después el contexto de rama correspondiente. Esta separación evita
+introducir complejidad Git antes de que exista una necesidad de escritura.
 
 ### Integración a `main`
 
