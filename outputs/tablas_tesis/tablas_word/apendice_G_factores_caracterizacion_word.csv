@@ -31,31 +31,9 @@ Factor IPCC por sistema de manejo,Compostaje pasivo,MCF,2.5,%,IPCC
 Factor IPCC por sistema de manejo,Compostaje pasivo,EF3,0.005,kg N₂O-N/kg N,IPCC
 Factor IPCC por sistema de manejo,Compostaje pasivo,Fraccion volatilizada MMS,0.45,adimensional,IPCC
 Factor IPCC por sistema de manejo,Compostaje pasivo,Fraccion lixiviada MMS,0.04,adimensional,IPCC
-Factor de emision medido,medido,Factor medido CO₂,0.102,kg CO₂/kg residuo seco,Jjagwe et al. (2019)
-Factor de emision medido,medido,Factor medido CH₄,0.0076,kg CH₄/kg residuo seco,Jjagwe et al. (2019)
-Factor de emision medido,medido,Factor medido N₂O,3.943e-08,kg N₂O/kg residuo seco,Jjagwe et al. (2019)
+Parámetro específico del sistema estudiado,A2: Lombricompostaje,Fracción lixiviada efectiva,0.0,adimensional,Vargas Sarmiento (2023) y observación directa del investigador
 Factor de caracterizacion,CH₄,Potencial de calentamiento global,21.0,kg CO₂-eq/kg sustancia,IMN (2021)
 Factor de caracterizacion,N₂O,Potencial de calentamiento global,310.0,kg CO₂-eq/kg sustancia,IMN (2021)
 Factor de caracterizacion,NH₃,Potencial de eutrofizacion,0.35,kg PO₄-eq/kg sustancia,"Ecobilan (1999, como se citó en Vallejo, 2004)"
 Factor de caracterizacion,NO₃⁻,Potencial de eutrofizacion,0.095,kg PO₄-eq/kg sustancia,"Ecobilan (1999, como se citó en Vallejo, 2004)"
 Factor de caracterizacion,CO₂,Potencial de calentamiento global,1.0,kg CO₂-eq/kg sustancia,IMN (2021)
-Parámetro complementario,,B0 T,0.24,m3 CH₄/kg SV,"IPCC, ecuación de estimación de CH₄"
-Parámetro complementario,,AWMS,1.0,adimensional,Supuesto del modelo con estructura IPCC
-Parámetro complementario,,N,1.0,unidad o cabeza equivalente,Supuesto de unidad equivalente del modelo
-Parámetro complementario,,N cdg,0.0,kg N/año,Supuesto de ausencia de codigestión
-Parámetro complementario,,EF1,0.006,kg N₂O-N/kg N,"IPCC, ecuación 14"
-Parámetro complementario,,EF4,0.014,kg N₂O-N/(kg NH₃-N + NOx-N volatilizado),"IPCC, ecuaciones 5 y 16"
-Parámetro complementario,,EF5,0.011,kg N₂O-N/kg N lixiviado,"IPCC, ecuaciones 6 y 18"
-Parámetro complementario,,frac gasm,0.21,adimensional,"IPCC, ecuación 16"
-Parámetro complementario,,frac leach h,0.24,adimensional,"IPCC, ecuación 18"
-Parámetro complementario,,R N2 N₂O,3.0,kg N2-N/kg N₂O-N,"IPCC, ecuación 24"
-Parámetro complementario,,Conversión estequiométrica de N₂O-N a N₂O,1.571428571,kg N₂O/kg N₂O-N,Cálculo estequiométrico
-Parámetro complementario,,Conversión estequiométrica de N a NH₃,1.214285714,kg NH₃/kg N,Cálculo estequiométrico
-Parámetro complementario,,Conversión estequiométrica de N a NO₃⁻,4.4268,kg NO₃⁻/kg N,Cálculo estequiométrico
-Parámetro complementario,,CH 4 eq,21.0,kg CO₂-eq/kg CH₄,IMN (2021)
-Parámetro complementario,,N 2 O eq,310.0,kg CO₂-eq/kg N₂O,IMN (2021)
-Parámetro complementario,,NH 3 eq,0.35,kg PO₄-eq/kg NH₃,"Ecobilan (1999, como se citó en Vallejo, 2004)"
-Parámetro complementario,,NO 3 eq,0.095,kg PO₄-eq/kg NO₃⁻,"Ecobilan (1999, como se citó en Vallejo, 2004)"
-Parámetro complementario,,CO₂ kg por kg residuo seco,0.102,kg CO₂/kg residuo seco,Jjagwe et al. (2019)
-Parámetro complementario,,CH₄ kg por kg residuo seco,0.0076,kg CH₄/kg residuo seco,Jjagwe et al. (2019)
-Parámetro complementario,,N₂O kg por kg residuo seco,3.943e-08,kg N₂O/kg residuo seco,Jjagwe et al. (2019)

@@ -88,23 +88,22 @@ No todos los parámetros experimentales pasan por una sola tabla. La
 caracterización química y la transformación de masa siguen fronteras separadas
 que convergen en la corrida del ACV.
 
-### Rama activa de A2
+### Modelo activo de A2
 
-A2 utiliza actualmente la rama `medido`. Sus factores proceden de
-`processed/factores_emision_medidos.csv`; la materia seca integrada del
-precompostado convierte los factores de base seca a base húmeda. El N total y
-los sólidos volátiles del precompostado permanecen almacenados, pero la rama
-activa `medido` no los consume. La masa de A2 sí depende del factor integrado de
-transformación fresco→precompostado.
+A2 utiliza las ecuaciones IPCC compartidas y la categoría de manejo
+`composting_pasive` como aproximación al lombricompostaje. Conserva los factores
+genéricos de esa categoría, excepto `FracLeachMS = 0`, configurado como parámetro
+específico de A2 en `processed/ipcc_factores_manejo_overrides_etapa.csv`. La masa
+de A2 depende del factor integrado de transformación fresco→precompostado.
 
 ## Configuración manual vigente
 
 Estas tablas se mantienen manualmente y no sustituyen las capas experimentales:
 
 - `processed/modelo_etapa_overrides.csv`: selecciona el modelo de cada etapa.
-- `processed/factores_emision_medidos.csv`: factores medidos en base seca para A2.
 - `processed/ipcc_sistemas_manejo_estiercol_factores.csv`: factores por sistema de manejo IPCC.
 - `processed/ipcc_sistema_manejo_por_etapa.csv`: asignación de sistemas IPCC por etapa.
+- `processed/ipcc_factores_manejo_overrides_etapa.csv`: excepciones específicas por escenario y etapa sin alterar factores genéricos.
 - `processed/masa_total_factor_overrides.csv`: ajustes controlados de masa por etapa.
 
 ## Incorporación futura de M3

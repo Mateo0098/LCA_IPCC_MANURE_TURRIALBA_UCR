@@ -25,11 +25,11 @@ def obtener_modelo_etapa(escenario: str, etapa: int, default: str = "ipcc") -> s
             except ValueError:
                 continue
             if esc == objetivo_escenario and et == objetivo_etapa:
-                if modelo in {"ipcc", "medido"}:
+                if modelo == "ipcc":
                     return modelo
                 raise ValueError(
                     f"Modelo invalido '{modelo}' para escenario={esc}, etapa={et}. "
-                    "Modelos permitidos: ipcc, medido."
+                    "Modelo permitido en el pipeline vigente: ipcc."
                 )
 
     return default

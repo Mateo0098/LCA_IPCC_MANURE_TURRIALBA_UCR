@@ -1,17 +1,13 @@
 """
 Escenario A etapa 2. Exporta resultados de emisiones a tabla común.
 
-Soporta dos modelos:
-- ipcc (default)
-- medido (factores medidos sobre residuo en base seca)
+Utiliza las ecuaciones IPCC compartidas y los factores efectivos configurados
+para la etapa.
 """
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
-import pandas as pd
 
 from acv_modelo_etapa import obtener_modelo_etapa
 from acv_parametros_etapa import obtener_parametros_etapa
@@ -30,34 +26,6 @@ from ecuaciones_acv import (
 )
 from acv_masa_seca import convertir_vs_base_humeda, obtener_fraccion_masa_seca_etapa
 from acv_factores_manejo_estiercol import obtener_factores_manejo_ipcc
-
-
-def _load_medido_factors(base: Path) -> tuple[float, float, float]:
-    path = base / "processed" / "factores_emision_medidos.csv"
-    df = pd.read_csv(path)
-    if "modelo" not in df.columns:
-        raise ValueError(f"No existe columna 'modelo' en {path}")
-
-    row_df = df[df["modelo"].astype(str).str.strip().str.lower() == "medido"]
-    if row_df.empty:
-        raise ValueError(f"No existe fila con modelo='medido' en {path}")
-    row = row_df.iloc[0]
-
-    required = [
-        "co2_kg_por_kg_residuo_seco",
-        "ch4_kg_por_kg_residuo_seco",
-        "n2o_kg_por_kg_residuo_seco",
-    ]
-    for col in required:
-        if col not in row.index:
-            raise ValueError(f"No existe columna '{col}' en {path}")
-
-    ef_co2_dry = float(row["co2_kg_por_kg_residuo_seco"])
-    ef_ch4_dry = float(row["ch4_kg_por_kg_residuo_seco"])
-    ef_n2o_dry = float(row["n2o_kg_por_kg_residuo_seco"])
-    if ef_co2_dry < 0 or ef_ch4_dry < 0 or ef_n2o_dry < 0:
-        raise ValueError(f"Factores medidos no pueden ser negativos en {path}")
-    return ef_co2_dry, ef_ch4_dry, ef_n2o_dry
 
 
 def _build_ipcc_row() -> dict[str, float | int]:
@@ -107,43 +75,11 @@ def _build_ipcc_row() -> dict[str, float | int]:
     }
 
 
-def _build_medido_row(base: Path) -> dict[str, float | int]:
-    # Factores medidos (por kg residuo seco) desde tabla editable.
-    ef_co2_dry, ef_ch4_dry, ef_n2o_dry = _load_medido_factors(base)
-
-    dry_fraction = obtener_fraccion_masa_seca_etapa("A", 2)
-
-    # Se exportan factores por kg masa húmeda y luego exportar_fila escala por masa_total_kg_eq.
-    co2_per_kg_wet = ef_co2_dry * dry_fraction
-    ch4_per_kg_wet = ef_ch4_dry * dry_fraction
-    n2o_per_kg_wet = ef_n2o_dry * dry_fraction
-
-    return {
-        "Escenario": "A",
-        "Etapa": 2,
-        "CO2_medido": co2_per_kg_wet,
-        "CH4_ec1": ch4_per_kg_wet,
-        "N2O_ec2": n2o_per_kg_wet,
-        "N2O_ec5": 0.0,
-        "N2O_ec6": 0.0,
-        "NH3_ec12": 0.0,
-        "NH3_ec20": np.nan,
-        "NO3_ec13": 0.0,
-        "NO3_ec21": np.nan,
-    }
-
-
 def main() -> None:
-    base = Path(__file__).resolve().parent.parent
     modelo = obtener_modelo_etapa("A", 2, default="ipcc")
-
-    if modelo == "ipcc":
-        fila = _build_ipcc_row()
-    elif modelo == "medido":
-        fila = _build_medido_row(base)
-    else:
+    if modelo != "ipcc":
         raise ValueError(f"Modelo no soportado para A2: {modelo}")
-
+    fila = _build_ipcc_row()
     exportar_fila("A", 2, fila)
     print(f"A2 modelo usado: {modelo}")
 

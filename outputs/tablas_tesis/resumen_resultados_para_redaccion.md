@@ -32,24 +32,23 @@ B2, correspondiente a la Etapa 2: Aplicación de purines en campo de pastoreo, p
 
 | Escenario | Sustancia | Emision total anual |
 |---|---|---:|
-| A | CH4 | 146.27394963116686 |
-| A | CO2 | 156.63341602617308 |
-| A | N2O | 4.293562434075147 |
-| A | NH3 | 34.19155268206127 |
-| A | NO3 | 124.64872445772257 |
+| A | CH4 | 139.23463637335524 |
+| A | N2O | 7.59737454401099 |
+| A | NH3 | 84.31379943054523 |
+| A | NO3 | 307.3743872039958 |
 | B | CH4 | 389.4643414947861 |
 | B | N2O | 1.7504371342481058 |
 | B | NH3 | 38.93616508636328 |
 | B | NO3 | 141.945683438846 |
 
-B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente de CH4, NH3 y NO3. A1, correspondiente a la Etapa 1: Precomposteo, es la mayor fuente de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, reporta CO2 por uso de factor medido.
+B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente de CH4, NH3 y NO3. A1, correspondiente a la Etapa 1: Precomposteo, es la mayor fuente de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.
 
 ## 6.5 Impactos ambientales por etapa
 
 | Escenario | Etapa | Codigo | Nombre de etapa | Calentamiento global | Eutrofizacion |
 |---|---:|---|---|---:|---:|
 | A | 1 | A1 | Etapa 1: Precomposteo | 1189.6041709349145 | 12.68246985818677 |
-| A | 2 | A2 | Etapa 2: Lombricompostaje | 401.73741382040185 | 0.0 |
+| A | 2 | A2 | Etapa 2: Lombricompostaje | 1121.4601734602961 | 34.90172432286534 |
 | A | 3 | A3 | Etapa 3: Almacenamiento de aguas verdes | 2832.6458116004305 | 6.616319745709744 |
 | A | 4 | A4 | Etapa 4: Aplicación de aguas verdes en campos de pastoreo | 135.40331648822615 | 4.509882658308575 |
 | B | 1 | B1 | Etapa 1: Almacenamiento de purines | 8503.71352199646 | 19.86245066609851 |
@@ -61,8 +60,8 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominan
 
 | escenario | categoria_impacto | resultado_total | unidad | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- |
-| A | Calentamiento global | 4559.390712843972 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| A | Eutrofizacion | 23.80867226220509 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Calentamiento global | 5279.113472483867 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Eutrofizacion | 58.71039658507043 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 | B | Calentamiento global | 8721.386683007422 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 | B | Eutrofizacion | 27.11249770691752 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 
@@ -70,5 +69,5 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominan
 
 | categoria_impacto | escenario_A | escenario_B | unidad | diferencia_absoluta_B_menos_A | diferencia_porcentual_B_vs_A | escenario_con_mayor_impacto | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Calentamiento global | 4559.390712843972 | 8721.386683007422 | kg CO2-eq/año | 4161.99597016345 | 91.28403842291809 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
-| Eutrofizacion | 23.80867226220509 | 27.11249770691752 | kg PO4-eq/año | 3.3038254447124302 | 13.876563162898693 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
+| Calentamiento global | 5279.113472483867 | 8721.386683007422 | kg CO2-eq/año | 3442.2732105235555 | 65.2055165789785 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
+| Eutrofizacion | 58.71039658507043 | 27.11249770691752 | kg PO4-eq/año | -31.597898878152908 | -53.81993772153806 | A | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |

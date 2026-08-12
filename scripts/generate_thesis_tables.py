@@ -36,10 +36,10 @@ SCENARIO_NAMES = {
 }
 
 EMISSION_META = {
-    "CO2_medido": ("CO2", "Dioxido de carbono medido", "kg CO2/ano", "factor medido", "Jjagwe et al. (2019)"),
-    "CH4_ec1": ("CH4", "Metano", "kg CH4/ano", "Ecuacion 1 IPCC o factor medido en A2", "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/factores_emision_medidos.csv"),
+    "CO2_medido": ("CO2", "Dioxido de carbono", "kg CO2/ano", "No aplica en la ruta IPCC vigente", "No aplica"),
+    "CH4_ec1": ("CH4", "Metano", "kg CH4/ano", "Ecuacion 1 IPCC", "processed/ipcc_sistemas_manejo_estiercol_factores.csv"),
     "N2O_ec14": ("N2O", "N2O directo por entradas de N en suelos", "kg N2O/ano", "Ecuacion 14", "IPCC, ecuación 14"),
-    "N2O_ec2": ("N2O", "N2O directo por gestion de estiercol", "kg N2O/ano", "Ecuacion 2 IPCC o factor medido en A2", "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/factores_emision_medidos.csv"),
+    "N2O_ec2": ("N2O", "N2O directo por gestion de estiercol", "kg N2O/ano", "Ecuacion 2 IPCC", "processed/ipcc_sistemas_manejo_estiercol_factores.csv"),
     "N2O_ec5": ("N2O", "N2O indirecto por volatilizacion", "kg N2O/ano", "Ecuacion 5", "IPCC, ecuación 5"),
     "N2O_ec6": ("N2O", "N2O indirecto por lixiviacion", "kg N2O/ano", "Ecuacion 6", "IPCC, ecuación 6"),
     "N2O_ec16": ("N2O", "N2O indirecto por deposicion atmosferica en suelos", "kg N2O/ano", "Ecuacion 16", "IPCC, ecuación 16"),
@@ -50,7 +50,6 @@ EMISSION_META = {
     "NO3_ec21": ("NO3", "Nitrato desde suelos gestionados", "kg NO3/ano", "Ecuacion 21", "Derivado de N en suelos; conversion estequiometrica en codigo"),
 }
 
-JJAGWE_REFERENCE = "Jjagwe et al. (2019)"
 IMN_CHARACTERIZATION_REFERENCE = "IMN (2021)"
 EUTROPHICATION_CHARACTERIZATION_REFERENCE = (
     "Ecobilan (1999, como se citó en Vallejo, 2004)"
@@ -118,21 +117,6 @@ AUDITED_FACTOR_REFERENCES = {
     "NO_3_eq": (
         EUTROPHICATION_CHARACTERIZATION_REFERENCE,
         "Ecobilan (1999) citado en Vallejo (2004)",
-        "Resuelto",
-    ),
-    "co2_kg_por_kg_residuo_seco": (
-        JJAGWE_REFERENCE,
-        "Jjagwe et al. (2019)",
-        "Resuelto",
-    ),
-    "ch4_kg_por_kg_residuo_seco": (
-        JJAGWE_REFERENCE,
-        "Jjagwe et al. (2019)",
-        "Resuelto",
-    ),
-    "n2o_kg_por_kg_residuo_seco": (
-        JJAGWE_REFERENCE,
-        "Jjagwe et al. (2019)",
         "Resuelto",
     ),
 }
@@ -304,11 +288,19 @@ def tabla_04_parametros_modelo_acv() -> Path:
     selection = _read_csv("ipcc_sistema_manejo_por_etapa.csv")
     factors = _read_csv("ipcc_sistemas_manejo_estiercol_factores.csv")
     models = _read_csv("modelo_etapa_overrides.csv")
+    overrides = _read_csv("ipcc_factores_manejo_overrides_etapa.csv")
 
     df = params.merge(mass[["escenario", "etapa", "masa_total_kg_eq"]], on=["escenario", "etapa"], how="left")
     df = df.merge(selection[["escenario", "etapa", "sistema_manejo"]], on=["escenario", "etapa"], how="left")
     df = df.merge(models, on=["escenario", "etapa"], how="left")
     df = df.merge(factors, on="sistema_manejo", how="left")
+    override_columns = ["mcf_pct", "ef3", "frac_gas_ms", "frac_leach_ms"]
+    df = df.merge(
+        overrides[["escenario", "etapa", *override_columns]],
+        on=["escenario", "etapa"], how="left", suffixes=("", "_override")
+    )
+    for column in override_columns:
+        df[column] = df[f"{column}_override"].combine_first(df[column])
     df["nombre_etapa"] = df.apply(lambda r: _stage_name(r["escenario"], r["etapa"]), axis=1)
     df["n_ex_fraction"] = pd.to_numeric(df["n_ex_pct"], errors="coerce") / 100.0
 
@@ -322,7 +314,7 @@ def tabla_04_parametros_modelo_acv() -> Path:
         ("mcf_pct", "MCF", "%", "", "Factor IPCC por sistema de manejo"),
         ("ef3", "EF3", "kg N2O-N/kg N", "", "Factor IPCC por sistema de manejo"),
         ("frac_gas_ms", "Fraccion de N volatilizado en MMS", "adimensional", "", "Factor IPCC por sistema de manejo"),
-        ("frac_leach_ms", "Fraccion de N lixiviado en MMS", "adimensional", "", "Factor IPCC por sistema de manejo"),
+        ("frac_leach_ms", "Fraccion de N lixiviado en MMS", "adimensional", "", "Factor efectivo; A2 aplica un valor específico del sistema estudiado"),
     ]
     for _, row in df.iterrows():
         for col, name, unit, source_col, obs in param_defs:
@@ -336,7 +328,7 @@ def tabla_04_parametros_modelo_acv() -> Path:
                 "parametro": name,
                 "valor": row.get(col, ""),
                 "unidad": unit,
-                "fuente_dato": row.get(source_col, "") if source_col else "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/masa_total_escenario_etapa.csv",
+                "fuente_dato": row.get(source_col, "") if source_col else "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/ipcc_factores_manejo_overrides_etapa.csv; processed/masa_total_escenario_etapa.csv",
                 "observaciones": obs,
             })
     return _write(pd.DataFrame(rows), "tabla_04_parametros_modelo_acv.csv")
@@ -366,25 +358,21 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "observaciones": row.get("comentario", ""),
             })
 
-    measured = _read_csv("factores_emision_medidos.csv")
-    for _, row in measured.iterrows():
-        for col, name, unit in [
-            ("co2_kg_por_kg_residuo_seco", "Factor medido CO2", "kg CO2/kg residuo seco"),
-            ("ch4_kg_por_kg_residuo_seco", "Factor medido CH4", "kg CH4/kg residuo seco"),
-            ("n2o_kg_por_kg_residuo_seco", "Factor medido N2O", "kg N2O/kg residuo seco"),
-        ]:
+    overrides = _read_csv("ipcc_factores_manejo_overrides_etapa.csv")
+    for _, row in overrides.iterrows():
+        if pd.notna(row.get("frac_leach_ms")):
             rows.append({
-                "tipo_factor": "Factor de emision medido",
-                "sistema_o_compuesto": row["modelo"],
-                "factor": name,
-                "valor": row[col],
-                "unidad": unit,
-                "fuente_dato": "processed/factores_emision_medidos.csv",
-                "referencia_metodologica": JJAGWE_REFERENCE,
-                "clasificacion_referencia": "Jjagwe et al. (2019)",
+                "tipo_factor": "Parámetro específico del sistema estudiado",
+                "sistema_o_compuesto": f"{row['escenario']}{int(row['etapa'])}: Lombricompostaje",
+                "factor": "Fracción lixiviada efectiva",
+                "valor": row["frac_leach_ms"],
+                "unidad": "adimensional",
+                "fuente_dato": "processed/ipcc_factores_manejo_overrides_etapa.csv",
+                "referencia_metodologica": "Vargas Sarmiento (2023) y observación directa del investigador",
+                "clasificacion_referencia": "Supuesto del modelo",
                 "estado_referencia": "Resuelto",
                 "requiere_revision_bibliografica": "No",
-                "observaciones": row.get("nota", ""),
+                "observaciones": row.get("justificacion", ""),
             })
 
     eq = _read_csv("acv_factores_equivalencia.csv")
@@ -657,7 +645,7 @@ def resumen_resultados_para_redaccion() -> Path:
             "",
             "B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente de CH4, NH3 y NO3. "
             "A1, correspondiente a la Etapa 1: Precomposteo, es la mayor fuente de N2O. "
-            "A2, correspondiente a la Etapa 2: Lombricompostaje, reporta CO2 por uso de factor medido.",
+            "A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.",
             "",
             "## 6.5 Impactos ambientales por etapa",
             "",

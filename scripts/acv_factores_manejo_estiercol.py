@@ -9,9 +9,11 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 TABLA_FACTORES = BASE_DIR / "processed" / "ipcc_sistemas_manejo_estiercol_factores.csv"
 TABLA_SELECCION = BASE_DIR / "processed" / "ipcc_sistema_manejo_por_etapa.csv"
+TABLA_OVERRIDES = BASE_DIR / "processed" / "ipcc_factores_manejo_overrides_etapa.csv"
 
 _CACHE_FACTORES: dict[str, dict[str, float]] | None = None
 _CACHE_SELECCION: dict[tuple[str, int], str] | None = None
+_CACHE_OVERRIDES: dict[tuple[str, int], dict[str, float]] | None = None
 
 
 def _parse_float(raw: object, campo: str, ruta: Path) -> float:
@@ -76,13 +78,40 @@ def _cargar_seleccion() -> dict[tuple[str, int], str]:
     return out
 
 
+def _cargar_overrides() -> dict[tuple[str, int], dict[str, float]]:
+    if not TABLA_OVERRIDES.exists():
+        return {}
+
+    campos = {"MCF": "mcf_pct", "EF3": "ef3", "frac_gas_ms": "frac_gas_ms", "frac_leach_ms": "frac_leach_ms"}
+    out: dict[tuple[str, int], dict[str, float]] = {}
+    with TABLA_OVERRIDES.open("r", encoding="utf-8-sig", newline="") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            escenario = str(row.get("escenario", "")).strip().upper()
+            etapa_raw = row.get("etapa")
+            if not escenario or etapa_raw in (None, ""):
+                continue
+            key = (escenario, int(str(etapa_raw).strip()))
+            if key in out:
+                raise ValueError(f"Override duplicado para escenario={key[0]}, etapa={key[1]} en {TABLA_OVERRIDES}")
+            valores: dict[str, float] = {}
+            for nombre_salida, columna in campos.items():
+                raw = row.get(columna)
+                if raw is not None and str(raw).strip() != "":
+                    valores[nombre_salida] = float(str(raw).strip())
+            out[key] = valores
+    return out
+
+
 def obtener_factores_manejo_ipcc(escenario: str, etapa: int) -> dict[str, float | str]:
     """Retorna factores (MCF, EF3, frac_gas_ms, frac_leach_ms) por etapa IPCC."""
-    global _CACHE_FACTORES, _CACHE_SELECCION
+    global _CACHE_FACTORES, _CACHE_SELECCION, _CACHE_OVERRIDES
     if _CACHE_FACTORES is None:
         _CACHE_FACTORES = _cargar_factores()
     if _CACHE_SELECCION is None:
         _CACHE_SELECCION = _cargar_seleccion()
+    if _CACHE_OVERRIDES is None:
+        _CACHE_OVERRIDES = _cargar_overrides()
 
     key = (str(escenario).strip().upper(), int(etapa))
     sistema = _CACHE_SELECCION.get(key)
@@ -98,13 +127,16 @@ def obtener_factores_manejo_ipcc(escenario: str, etapa: int) -> dict[str, float 
             f"(referenciado por escenario={key[0]}, etapa={key[1]})."
         )
 
-    return {
+    resultado: dict[str, float | str] = {
         "sistema_manejo": sistema,
         "MCF": float(factores["MCF"]),
         "EF3": float(factores["EF3"]),
         "frac_gas_ms": float(factores["frac_gas_ms"]),
         "frac_leach_ms": float(factores["frac_leach_ms"]),
     }
+    for campo, valor in _CACHE_OVERRIDES.get(key, {}).items():
+        resultado[campo] = valor
+    return resultado
 
 
 def main() -> None:

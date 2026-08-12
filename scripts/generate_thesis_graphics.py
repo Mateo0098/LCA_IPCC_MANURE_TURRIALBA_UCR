@@ -373,7 +373,13 @@ def plot_emissions(readme: list[dict[str, str]]) -> None:
     for i, substance in enumerate(order, start=6):
         subset = df[df["sustancia"] == substance].copy()
         if subset.empty:
-            continue
+            if substance != "CO2":
+                continue
+            subset = (
+                df[["escenario", "etapa", "nombre_etapa"]]
+                .drop_duplicates()
+                .assign(unidad="kg CO2/año", valor=0.0)
+            )
         grouped = (
             subset.groupby(["escenario", "etapa", "nombre_etapa", "unidad"], as_index=False)["valor"]
             .sum()

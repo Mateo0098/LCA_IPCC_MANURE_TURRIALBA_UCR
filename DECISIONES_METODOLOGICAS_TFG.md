@@ -104,6 +104,24 @@ No deben cambiarse automáticamente:
 
 Estas decisiones solo deben modificarse por decisión expresa del investigador o como resultado de una revisión académica posterior autorizada.
 
+### Representación aprobada de A2
+
+A2: Lombricompostaje utiliza las ecuaciones IPCC de manejo de estiércol y la
+categoría `composting_pasive` (Composting – Passive Windrow) como aproximación
+al proceso estudiado. La selección responde al manejo de material sólido sin
+reactor cerrado, aireación forzada ni volteo mecánico intensivo, con movilización
+y aireación no intensiva asociada a la actividad de las lombrices.
+
+Para A2 se establece `FracLeachMS = 0` como parámetro específico del sistema;
+no modifica el valor genérico de `composting_pasive`. Vargas Sarmiento (2023)
+documentó para el mismo lombricario camas bajo techo, completamente construidas
+con piso y paredes de cemento y sin drenajes. El riego descrito en esa tesis
+perteneció a su protocolo experimental para mantener una humedad objetivo. De
+forma independiente, las giras del presente TFG registraron exclusión de lluvia
+directa y ausencia de riego operacional regular. En consecuencia, no se modela
+una pérdida de N hacia el ambiente por lixiviación durante A2; esto no equivale
+a afirmar que no exista movimiento de agua dentro del sustrato.
+
 ## 11. Estado provisional
 
 La caracterización experimental activa es provisional: las variables sólidas metodológicamente comparables integran M1 y M2 con igual peso temporal; el N total de aguas verdes y purines procede únicamente de M2 mediante Kjeldahl; y la transformación de masa de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado. La corrida del ACV fue regenerada con estos estimadores y se identifica expresamente como **PROVISIONAL M1–M2**. M3 permanece pendiente para completar la integración final según las reglas de la sección 14.

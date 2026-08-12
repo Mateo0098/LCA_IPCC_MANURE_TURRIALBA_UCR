@@ -338,7 +338,7 @@ def add_calculation_framework(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     frameworks = {
         ("A", 1): "Manejo del estiércol",
-        ("A", 2): "Factores experimentales publicados",
+        ("A", 2): "Manejo del estiércol",
         ("A", 3): "Manejo del estiércol",
         ("A", 4): "Suelos gestionados",
         ("B", 1): "Manejo del estiércol",
@@ -751,8 +751,8 @@ def build_document() -> None:
         doc,
         [
             "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla distingue entre el nitrógeno total reportado en porcentaje y la fracción másica empleada en las ecuaciones de nitrógeno. La fracción másica se obtuvo al dividir el porcentaje reportado entre 100.",
-            "A2: Lombricompostaje aparece como una etapa estimada mediante información experimental publicada. Las demás etapas se calculan con ecuaciones IPCC según el sistema de manejo asignado. La Tabla 3 resume los parámetros principales.",
-            "Los factores vinculados con las ecuaciones de emisiones siguen la metodología IPCC, mientras que los factores obtenidos mediante mediciones por unidad de residuo seco utilizados en A2 proceden de Jjagwe et al. (2019).",
+            "A2: Lombricompostaje se calculó con ecuaciones IPCC y la categoría Composting – Passive Windrow. La fracción de lixiviación se estableció en cero como parámetro específico del sistema estudiado, sin alterar el valor genérico de la categoría. La Tabla 3 resume los parámetros principales.",
+            "Los restantes factores de A2 —MCF, EF3 y fracción volatilizada— corresponden a la categoría IPCC seleccionada.",
             "La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados.",
         ],
     )
@@ -763,7 +763,7 @@ def build_document() -> None:
         doc,
         [
             f"Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó {emission_totals_text('A')}. El Escenario B presentó {emission_totals_text('B')}.",
-            "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje reportó CO2 mediante un factor experimental publicado. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
+            "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje fue estimada mediante las vías IPCC de manejo de estiércol. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
             "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
         ],
     )
@@ -1163,8 +1163,7 @@ def write_factor_references_report(
         "- Los factores y las ecuaciones clasificados como IPCC fueron contrastados con su implementación en `scripts/ecuaciones_acv.py` y con las tablas de parámetros del proyecto.",
         "- Los factores de caracterización de calentamiento global se referencian como IMN (2021).",
         "- Los factores de caracterización de eutrofización se referencian como Ecobilan (1999, como se citó en Vallejo, 2004).",
-        "- Los factores medidos por unidad de residuo seco o estiércol precompostado se referencian como Jjagwe et al. (2019).",
-        "- Referencia completa: Jjagwe, J., Komakech, A. J., Karungi, J., Amann, A., Wanyama, J., & Lederer, J. (2019). Assessment of a Cattle Manure Vermicomposting System Using Material Flow Analysis: A Case Study from Uganda. Sustainability, 11(19), 5173. https://doi.org/10.3390/su11195173",
+        "- El parámetro específico de lixiviación de A2 se documenta mediante Vargas Sarmiento (2023) y observación directa del investigador.",
         "- Los factores sin fuente confirmada no recibieron una atribución inventada.",
         "",
         "| Factor | Clasificación | Referencia asignada | Archivo o tabla donde aparece | Justificación | Estado |",
@@ -1178,8 +1177,6 @@ def write_factor_references_report(
             justification = "Factor de caracterización del potencial de calentamiento global."
         elif classification == "Ecobilan (1999) citado en Vallejo (2004)":
             justification = "Factor de caracterización del potencial de eutrofización."
-        elif classification == "Jjagwe et al. (2019)":
-            justification = "Factor medido por kilogramo de residuo en base seca reportado para vermicompostaje de estiércol bovino."
         elif classification == "Supuesto del modelo":
             justification = "Supuesto explícito del modelo; no se presenta como factor bibliográfico."
         elif classification == "Conversión estequiométrica":
@@ -1736,10 +1733,6 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     ipcc_reference_rows = factor_references[
         factor_references["clasificacion_referencia"].astype(str) == "IPCC"
     ]
-    jjagwe_reference_rows = factor_references[
-        factor_references["clasificacion_referencia"].astype(str)
-        == "Jjagwe et al. (2019)"
-    ]
     unresolved_reference_rows = factor_references[
         factor_references["estado_referencia"].astype(str)
         == "Requiere revisión bibliográfica"
@@ -1963,21 +1956,10 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
             ipcc_reference_rows["estado_referencia"].astype(str) == "Resuelto"
         ).all()
     )
-    jjagwe_references_ok = (
-        not jjagwe_reference_rows.empty
-        and (
-            jjagwe_reference_rows["referencia_metodologica"].astype(str)
-            == "Jjagwe et al. (2019)"
-        ).all()
-        and {
-            "Factor medido CO2",
-            "Factor medido CH4",
-            "Factor medido N2O",
-            "co2_kg_por_kg_residuo_seco",
-            "ch4_kg_por_kg_residuo_seco",
-            "n2o_kg_por_kg_residuo_seco",
-        }.issubset(set(jjagwe_reference_rows["factor"].astype(str)))
-    )
+    measured_factor_rows_absent = not factor_references[
+        factor_references["clasificacion_referencia"].astype(str)
+        == "Jjagwe et al. (2019)"
+    ].shape[0]
     unresolved_references_explicit = (
         unresolved_reference_rows.empty
         or unresolved_reference_rows["referencia_metodologica"]
@@ -2677,7 +2659,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "",
         f"- Los factores asociados con ecuaciones IPCC ya no aparecen como pendientes de referencia: {'Sí' if ipcc_references_ok and not pending_references_in_academic_outputs else 'No'}.",
         f"- Los factores IPCC se identifican como IPCC, Ecuaciones IPCC o Metodología IPCC: {'Sí' if ipcc_references_ok else 'No'}.",
-        f"- Los factores medidos relacionados con residuo seco, estiércol precompostado y emisiones de gases de efecto invernadero se referencian como Jjagwe et al. (2019): {'Sí' if jjagwe_references_ok else 'No'}.",
+        f"- La ruta de factores medidos retirada de A2 no aparece en la tabla vigente de factores: {'Sí' if measured_factor_rows_absent else 'No'}.",
         "- No se inventaron referencias para factores cuyo origen no pudo confirmarse: Sí.",
         f"- Los factores todavía pendientes se reportan explícitamente como `Requiere revisión bibliográfica`: {'Sí' if unresolved_references_explicit else 'No'}.",
         f"- No aparecen rutas internas ni `scripts/ecuaciones_acv.py` en los documentos Word finales: {'Sí' if not internal_factor_trace_in_words else 'No: ' + ', '.join(internal_factor_trace_in_words)}.",

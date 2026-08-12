@@ -234,21 +234,21 @@
 ## Validación de factor estequiométrico N a NO₃⁻
 
 - El valor anterior 4,4286 ya no aparece en los documentos Word ni en las tablas académicas finales: Sí.
-- La conversión estequiométrica de N a NO₃⁻ aparece con el valor 4,4268: Sí.
-- La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: Sí.
+- La conversión estequiométrica de N a NO₃⁻ aparece con el valor 4,4268: No.
+- La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: No.
 - No se asignaron citas bibliográficas externas a los factores estequiométricos: Sí.
 - Se recalcularon los resultados relacionados con NO₃⁻: No.
 - Se actualizaron las tablas, figuras y documentos afectados: Sí.
 - El cambio numérico está documentado en `reporte_correccion_factor_estequiometrico_NO3.md`: Sí.
-- No se modificaron factores no relacionados: Sí.
+- No se modificaron factores no relacionados: No.
 - No aparecen rutas internas en los documentos Word finales: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
 ## Validación de referencias de factores de caracterización
 
-- Los factores de calentamiento global de CH₄, N₂O y CO₂ se referencian como `IMN (2021)`: Sí.
-- Los factores de eutrofización de NH₃ y NO₃⁻ se referencian como `Ecobilan (1999, como se citó en Vallejo, 2004)`: Sí.
+- Los factores de calentamiento global de CH₄, N₂O y CO₂ se referencian como `IMN (2021)`: No.
+- Los factores de eutrofización de NH₃ y NO₃⁻ se referencian como `Ecobilan (1999, como se citó en Vallejo, 2004)`: No.
 - Los factores de caracterización ya no aparecen referenciados como IPCC: Sí.
 - Los valores numéricos de los cinco factores de caracterización permanecen en 21, 310, 1, 0,35 y 0,095: Sí.
 - No se modificaron cálculos ni resultados: Sí.
@@ -263,7 +263,7 @@
 
 - Los factores asociados con ecuaciones IPCC ya no aparecen como pendientes de referencia: Sí.
 - Los factores IPCC se identifican como IPCC, Ecuaciones IPCC o Metodología IPCC: Sí.
-- Los factores medidos relacionados con residuo seco, estiércol precompostado y emisiones de gases de efecto invernadero se referencian como Jjagwe et al. (2019): Sí.
+- La ruta de factores medidos retirada de A2 no aparece en la tabla vigente de factores: Sí.
 - No se inventaron referencias para factores cuyo origen no pudo confirmarse: Sí.
 - Los factores todavía pendientes se reportan explícitamente como `Requiere revisión bibliográfica`: Sí.
 - No aparecen rutas internas ni `scripts/ecuaciones_acv.py` en los documentos Word finales: Sí.

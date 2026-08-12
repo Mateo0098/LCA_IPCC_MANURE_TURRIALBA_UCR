@@ -5,7 +5,7 @@
 Este repositorio calcula un Analisis de Ciclo de Vida (ACV) del manejo de
 estiercol bovino en una lecheria. El flujo procesa datos de laboratorio y de
 campo, construye parametros por escenario y etapa, estima emisiones con
-ecuaciones IPCC o factores medidos, calcula impactos ambientales y exporta
+ecuaciones IPCC, calcula impactos ambientales y exporta
 tablas finales para tesis en `outputs/tablas_tesis/`.
 
 ## Documento maestro protegido
@@ -34,7 +34,7 @@ Los datos crudos principales estan en `Academic_documents/`:
   sistema IPCC.
 - `processed/modelo_etapa_overrides.csv`: seleccion de modelo por etapa
   (`ipcc` o `medido`).
-- `processed/factores_emision_medidos.csv`: factores medidos para la etapa A2.
+- `processed/ipcc_factores_manejo_overrides_etapa.csv`: parámetros específicos por escenario y etapa; A2 establece `FracLeachMS = 0` sin modificar la categoría IPCC genérica.
 - `processed/acv_factores_equivalencia.csv`: factores de caracterizacion para
   calentamiento global y eutrofizacion.
 
