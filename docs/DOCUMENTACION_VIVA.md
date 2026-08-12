@@ -39,7 +39,7 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `CHATGPT_CODEX_WORKFLOW.md` | Coordinación Mateo–ChatGPT–Codex | A | Flujo de coordinación | Objetivos, cierre, reportes, Git o transiciones de contexto | Manual | Vigente |
 | `DECISIONES_METODOLOGICAS_TFG.md` | Decisiones científicas aprobadas | A | Investigador | Metodología sustantiva, supuestos, sistemas IPCC o integración estadística aprobada | Manual, con aprobación | Vigente |
 | `README_METODOLOGIA.md` | Explicación técnica detallada del método y pipeline | B | Implementación metodológica | Ingestión, integración, ecuaciones, parámetros, orden de ejecución o salidas | Manual | Potencialmente desactualizado; evaluar integración o reestructuración |
-| `DICCIONARIO_TRAZABILIDAD_VARIABLES.md` | Mapa de variables, fuentes, fórmulas y salidas | B | Capas de datos y cálculo | Variables, unidades, fuentes canónicas, fórmulas o consumidores | Manual | Revisado para la representación IPCC y el parámetro específico de lixiviación de A2 |
+| `DICCIONARIO_TRAZABILIDAD_VARIABLES.md` | Mapa de variables, fuentes, fórmulas y salidas | B | Capas de datos y cálculo | Variables, unidades, fuentes canónicas, fórmulas o consumidores | Manual | Revisado para la representación IPCC, la base de N y el contraste bibliográfico de A2 |
 | `docs/REGLAS_FORMATO_WORD.md` | Especificación de documentos Word | B | Generadores y validación documental | Formato, nomenclatura, captions, ecuaciones o validadores Word | Manual | Vigente |
 | `docs/DOCUMENTACION_VIVA.md` | Índice de responsabilidad documental | A | Gobernanza documental | Se crea, retira, reclasifica o cambia de responsable un documento relevante | Manual | Vigente |
 

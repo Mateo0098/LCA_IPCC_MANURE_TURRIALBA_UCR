@@ -69,7 +69,9 @@ en este orden:
 `ACV_orquestador.py` parte de la integración experimental vigente. En orden,
 genera `processed/acv_parametros_escenario_etapa.csv`, calcula las masas,
 inicializa el resumen de emisiones, ejecuta A1–B2, valida la presencia de las
-seis etapas, calcula impactos y ejecuta el postproceso técnico existente. No
+seis etapas, calcula impactos, genera el contraste bibliográfico derivado de A2
+y ejecuta el postproceso gráfico existente. El contraste no modifica el
+inventario ni los impactos oficiales. No
 ejecuta la ingestión, la integración estadística, los generadores académicos ni
 la validación cruzada final.
 

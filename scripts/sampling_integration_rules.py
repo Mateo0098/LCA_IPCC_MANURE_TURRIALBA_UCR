@@ -33,8 +33,8 @@ for material in SOLID_MATERIALS:
         if material == "estiércol precompostado" and variable == "N total":
             observacion = (
                 "N determinado por el CIA mediante Dumas en muestra secada a 80 °C durante 48 h; "
-                "la base formal final del porcentaje no está especificada. No se aplica conversión "
-                "con la materia seca gravimétrica del TFG."
+                "la integración conserva el porcentaje analítico sin alterarlo. En A2, una capa "
+                "posterior lo convierte a base húmeda con la materia seca gravimétrica del TFG."
             )
         INTEGRATION_RULES.append(
             {
@@ -112,8 +112,8 @@ for variable in ("carbono", "relación C/N"):
             "numero_jornadas_final_esperado": 3,
             "uso_previsto": "solo caracterización; no es parámetro actual del modelo ACV",
             "observacion_metodologica": (
-                "Muestra secada a 80 °C durante 48 h; la base formal final del porcentaje no está especificada. "
-                "No se aplica conversión con la materia seca gravimétrica del TFG."
+                "Muestra secada a 80 °C durante 48 h; la integración conserva el porcentaje analítico. "
+                "La conversión aprobada a base húmeda se aplica después y únicamente para A2."
             ),
             "tipo_regla": "solo_caracterizacion",
         }

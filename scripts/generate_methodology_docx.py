@@ -695,11 +695,13 @@ def build_document() -> None:
 
     doc.add_heading("13. Procesamiento de nitrógeno total", level=2)
     add_paragraphs(doc, [
-        "El nitrógeno total reportado en porcentaje fue convertido a fracción másica antes de emplearse en las ecuaciones de estimación de emisiones. Esta conversión permitió expresar el contenido de nitrógeno en kg N/kg de muestra.",
+        "El nitrógeno total reportado en porcentaje fue convertido a fracción másica antes de emplearse en las ecuaciones de estimación de emisiones. Para el estiércol fresco analizado por LASA mediante Kjeldahl, así como para aguas verdes y purines, se conservó el tratamiento directo sobre la muestra o alícuota analizada, sin multiplicar por materia seca.",
+        "En el precompostado usado en A2, el CIA determinó N por Dumas después de secar la muestra a 80 °C durante 48 h. Este secado fue una preparación analítica distinta de la determinación gravimétrica de materia seca del TFG a 105 °C. El porcentaje integrado de N se interpretó como concentración del material preparado/seco y se convirtió a la base húmeda de la masa de actividad mediante la fracción gravimétrica de materia seca. No se reconstruyeron ni corrigieron posibles pérdidas de N ocurridas durante la preparación CIA.",
         "La masa de nitrógeno asociada a cada flujo se estimó multiplicando la masa del flujo por la fracción másica de nitrógeno correspondiente.",
         "La definición académica de las variables empleadas en esta sección y en las demás ecuaciones se reúne en el Apéndice interno C, Diccionario de variables metodológicas.",
     ])
     add_latex_equation(doc, r"n_{\mathrm{ex,fraction}} = \frac{n_{\mathrm{ex,pct}}}{100}", ["Donde: n_ex,pct = nitrógeno total reportado en porcentaje, %; n_ex,fraction = fracción másica de nitrógeno, kg N/kg muestra."])
+    add_latex_equation(doc, r"N_{\mathrm{fraction,wet,A2}} = \frac{n_{\mathrm{ex,pct,A2}}}{100} \times \frac{MS_{\mathrm{A2}}}{100}", ["Donde: N_fraction,wet,A2 = fracción efectiva de N, kg N/kg de precompostado húmedo; n_ex,pct,A2 = concentración analítica integrada de N del material preparado/seco, %; MS_A2 = materia seca gravimétrica integrada del TFG, % de la masa húmeda."])
     add_latex_equation(doc, r"N_{\mathrm{total}} = m_{\mathrm{flujo}} \times n_{\mathrm{ex,fraction}}", ["Donde: N_total = masa de nitrógeno en el flujo, kg N; m_flujo = masa del flujo correspondiente, kg."])
 
     doc.add_heading("14. Trazabilidad de masa seca mediante conservación de cenizas", level=2)
@@ -750,6 +752,7 @@ def build_document() -> None:
         "En consecuencia, NH₃ y NO₃⁻ se derivaron del conjunto Nₑᵤₜ y no de una correspondencia directa entre Nᴳ y NH₃ o entre Nᴸ y NO₃⁻. Una etapa con Nᴸ igual a cero puede presentar NO₃⁻ equivalente porque una mitad de Nₑᵤₜ se asigna a N asociado a nitrato bajo el supuesto de especiación; este resultado no representa una predicción directa de lixiviación física ni de la especie química final en el ambiente.",
         "Los factores de caracterización empleados para convertir emisiones en indicadores de impacto se presentan en la Tabla 4.",
     ])
+
     add_latex_equation(doc, r"N_G = N_{volatilizado} \times (1 - EF_4)")
     add_latex_equation(doc, r"N_L = N_{lixiviado} \times (1 - EF_5)")
     add_latex_equation(doc, r"N_{eut} = N_G + N_L")
@@ -766,23 +769,38 @@ def build_document() -> None:
     ])
     add_dataframe_table(doc, "Tabla 4. Factores de caracterización para las categorías de impacto.", format_df(characterization_factors(), decimals=4))
 
-    doc.add_heading("20. Supuestos metodológicos", level=2)
+    doc.add_heading("20. Contraste bibliográfico experimental de A2", level=2)
+    add_paragraphs(doc, [
+        "Como apoyo a la discusión, las estimaciones IPCC de A2: Lombricompostaje se compararon con datos experimentales de Jjagwe et al. (2019; DOI: 10.3390/su11195173). Esta comparación se trató exclusivamente como benchmark bibliográfico y no como una segunda metodología de cálculo, un modelo medido ni un inventario oficial alternativo.",
+        "La frontera material común fue la materia seca del estiércol precompostado al ingreso de A2, calculada como la masa húmeda anual de A2 multiplicada por su fracción gravimétrica de materia seca. Para CH4 se utilizó exclusivamente la emisión oficial de A2; para N2O se utilizó únicamente la emisión directa de manejo. Las vías indirectas IPCC se conservaron en el inventario oficial, pero se excluyeron del contraste directo con las mediciones del lecho.",
+        "La referencia experimental adoptada fue 7,6 g CH4/kg de materia seca y 39,43 mg N2O/kg de materia seca. El artículo contiene una inconsistencia interna para N2O: el resumen presenta 3,943 × 10⁻⁵ g/kg, mientras los resultados, la Figura 3 y el potencial de calentamiento global publicado respaldan el orden de decenas de miligramos. La selección de 39,43 mg/kg constituye una resolución explícita de esa discrepancia.",
+        "El indicador complementario de N2O-N directo por N inicial convirtió N2O a N2O-N mediante 28/44. Para la referencia experimental se empleó un TKN inicial de 1,44 % de la materia seca. El contraste climático armonizado incluyó exclusivamente CH4 y N2O directo y aplicó a ambos lados los factores de caracterización vigentes del TFG; no incorporó CO2 experimental ni N2O indirecto IPCC.",
+        "No se construyó eutrofización experimental porque el NH3 no fue detectado, el N atmosférico no quedó completamente especiado y la representación del N potencialmente eutrofizante del TFG no equivale a una especiación experimental. La pérdida atmosférica de N de 18,18 % se utilizó solo como referencia conceptual, sin equipararla numéricamente con la fracción IPCC encaminada a volatilización.",
+        "La comparación armoniza la base material, pero no supone que el sistema experimental de Jjagwe et al. y la operación real modelada en Turrialba sean físicamente idénticos; sus diferencias de diseño y operación se consideran en la discusión de resultados.",
+    ])
+    add_latex_equation(doc, r"m_{\mathrm{MS,A2}} = m_{\mathrm{húmeda,A2}} \times f_{\mathrm{MS,A2}}")
+    add_latex_equation(doc, r"I_{\mathrm{CH_4}} = \frac{m_{\mathrm{CH_4,A2}} \times 10^3}{m_{\mathrm{MS,A2}}}", ["Donde: I_CH4 = intensidad de metano, g CH4/kg de materia seca de entrada."])
+    add_latex_equation(doc, r"I_{\mathrm{N_2O,directo}} = \frac{m_{\mathrm{N_2O,directo,A2}} \times 10^6}{m_{\mathrm{MS,A2}}}", ["Donde: I_N2O,directo = intensidad de óxido nitroso directo, mg N2O/kg de materia seca de entrada."])
+    add_latex_equation(doc, r"F_{\mathrm{N_2O-N/N}} = \frac{m_{\mathrm{N_2O}} \times (28/44)}{m_{\mathrm{N,inicial}}}")
+
+    doc.add_heading("21. Supuestos metodológicos", level=2)
     add_paragraphs(doc, [
         "Los supuestos principales fueron la equivalencia 1 L de agua = 1 kg equivalente, la extrapolación anual de flujos operativos, la adopción conservadora de 7 % del peso vivo/día para estimar el depósito teórico durante la permanencia en sala, la conservación de cenizas para estimar cambios de masa seca durante el precomposteo, la asignación de sistemas de manejo por etapa y el uso de factores de caracterización para las categorías de impacto evaluadas.",
         "Para la eutrofización se incluyó además la adaptación que distribuye por partes iguales el conjunto Nₑᵤₜ entre N asociado a NH₃ y N asociado a NO₃⁻. Esta adaptación representa una convención de inventario del presente TFG y no una medición directa de la especiación ambiental.",
         "Estos supuestos permiten mantener coherencia entre la caracterización de materiales, los flujos del inventario y las vías de emisión empleadas en el ACV.",
     ])
 
-    doc.add_heading("21. Limitaciones metodológicas", level=2)
+    doc.add_heading("22. Limitaciones metodológicas", level=2)
     add_paragraphs(doc, [
         "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. Las conversiones de N₂O-N a N₂O, de N a NH₃ y de N a NO₃⁻ se documentaron como cálculos estequiométricos derivados de relaciones de masa.",
         "La presentación de flujos anuales y masas equivalentes describe la escala operacional del sistema, pero la comparación metodológica entre escenarios se mantiene referida a 1 kg de estiércol fresco.",
     ])
 
-    doc.add_heading("22. Referencias metodológicas incorporadas", level=2)
+    doc.add_heading("23. Referencias metodológicas incorporadas", level=2)
     add_paragraphs(doc, [
         "Sánchez-Romero, C. A., & Brenes-Gamboa, S. (2026). Cuantificación y caracterización de residuos generados durante el ordeño de ganado Jersey. Agronomía Mesoamericana, 37, artículo 6135ky76. https://doi.org/10.15517/6135ky76",
         "Komakech, A. J., Zurbrügg, C., Miito, G. J., Wanyama, J., & Vinnerås, B. (2016). Environmental impact from vermicomposting of organic waste in Kampala, Uganda. Journal of Environmental Management, 181, 395–402. https://doi.org/10.1016/j.jenvman.2016.06.028",
+        "Jjagwe, J., Komakech, A. J., Karungi, J., Amann, A., Wanyama, J., & Lederer, J. (2019). Assessment of a Cattle Manure Vermicomposting System Using Material Flow Analysis: A Case Study from Uganda. Sustainability, 11, 5173. https://doi.org/10.3390/su11195173",
     ])
 
     doc.add_heading("Apéndices internos de metodología", level=1)

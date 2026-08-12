@@ -45,6 +45,7 @@ OUT_DIR = ROOT / "outputs" / "documentos_tfg"
 OUT_DOCX = OUT_DIR / "resultados_desarrollados_tfg.docx"
 PROCESSED_TOTALS = ROOT / "processed" / "acv_impacto_total_por_escenario.csv"
 PROCESSED_STAGE_IMPACTS = ROOT / "processed" / "acv_impacto_por_etapa_escenario.csv"
+PROCESSED_A2_BENCHMARK = ROOT / "processed" / "a2_ipcc_jjagwe_benchmark.csv"
 METHODOLOGY_DOCX = OUT_DIR / "metodologia_desarrollada_tfg.docx"
 README_OUT = OUT_DIR / "README_DOCUMENTOS_GENERADOS.md"
 VALIDATION_OUT = OUT_DIR / "reporte_validacion_documentos.md"
@@ -683,6 +684,34 @@ def results_context() -> dict[str, object]:
     return context
 
 
+def a2_benchmark_summary() -> pd.DataFrame:
+    benchmark = pd.read_csv(PROCESSED_A2_BENCHMARK, encoding="utf-8-sig")
+    expected = {
+        "CH4 por materia seca de entrada",
+        "N2O directo por materia seca de entrada",
+        "N2O-N directo por N inicial",
+        "Contraste armonizado de CH4 y N2O directo",
+    }
+    if set(benchmark["indicador"]) != expected:
+        raise RuntimeError("El contraste bibliográfico de A2 no contiene los cuatro indicadores aprobados.")
+    return benchmark[
+        [
+            "indicador", "valor_ipcc", "valor_experimental", "unidad",
+            "diferencia_absoluta_ipcc_menos_experimental",
+            "razon_ipcc_experimental",
+            "diferencia_porcentual_relativa_experimental",
+        ]
+    ].rename(columns={
+        "indicador": "Indicador",
+        "valor_ipcc": "Estimación IPCC",
+        "valor_experimental": "Referencia experimental",
+        "unidad": "Unidad",
+        "diferencia_absoluta_ipcc_menos_experimental": "Diferencia IPCC menos referencia",
+        "razon_ipcc_experimental": "Razón IPCC/referencia",
+        "diferencia_porcentual_relativa_experimental": "Diferencia relativa a la referencia (%)",
+    })
+
+
 def build_document() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     doc = Document()
@@ -750,7 +779,7 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla distingue entre el nitrógeno total reportado en porcentaje y la fracción másica empleada en las ecuaciones de nitrógeno. La fracción másica se obtuvo al dividir el porcentaje reportado entre 100.",
+            "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla distingue entre el nitrógeno total reportado en porcentaje y la fracción másica efectiva empleada en las ecuaciones. Para A2, esta fracción expresa el N del precompostado sobre masa húmeda e incorpora la materia seca gravimétrica; las demás etapas conservan su tratamiento analítico vigente.",
             "A2: Lombricompostaje se calculó con ecuaciones IPCC y la categoría Composting – Passive Windrow. La fracción de lixiviación se estableció en cero como parámetro específico del sistema estudiado, sin alterar el valor genérico de la categoría. La Tabla 3 resume los parámetros principales.",
             "Los restantes factores de A2 —MCF, EF3 y fracción volatilizada— corresponden a la categoría IPCC seleccionada.",
             "La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados.",
@@ -775,7 +804,7 @@ def build_document() -> None:
         doc,
         [
             f"Los impactos ambientales por etapa mostraron que {context['cg_dominant_b_name']} concentró {fmt(context['cg_dominant_b_percentage'], 2)} % del calentamiento global del Escenario B, con {fmt(context['cg_dominant_b_value'], 6)} kg CO2-eq/año. En el Escenario A, {context['cg_dominant_a_name']} aportó {fmt(context['cg_dominant_a_percentage'], 2)} % del total de esta categoría.",
-            f"Para eutrofización, {context['eu_dominant_b_name']} presentó la mayor contribución del Escenario B, con {fmt(context['eu_dominant_b_percentage'], 2)} % de su total; en el Escenario A, {context['eu_dominant_a_name']} concentró {fmt(context['eu_dominant_a_percentage'], 2)} %. A2: Lombricompostaje registró 0 kg PO4-eq/año porque no presenta emisiones de NH3 ni NO3 en el inventario de esa etapa. La Tabla 5 resume los impactos por etapa; la Figura 5 presenta calentamiento global y la Figura 6 presenta eutrofización.",
+            f"Para eutrofización, {context['eu_dominant_b_name']} presentó la mayor contribución del Escenario B, con {fmt(context['eu_dominant_b_percentage'], 2)} % de su total; en el Escenario A, {context['eu_dominant_a_name']} concentró {fmt(context['eu_dominant_a_percentage'], 2)} %. La Tabla 5 resume los impactos por etapa; la Figura 5 presenta calentamiento global y la Figura 6 presenta eutrofización.",
             f"En B1: Almacenamiento de purines, la lixiviación explícita utilizada para estimar N2O indirecto fue nula. No obstante, bajo el supuesto de especiación adoptado, el conjunto de N potencialmente eutrofizante se distribuyó en partes iguales como N asociado a NH3 y a NO3. Por ello, los {fmt(context['b1_no3'], 6)} kg NO3/año registrados para B1 representan NO3 equivalente derivado de esa asignación y no evidencia de lixiviación física directa.",
             "Los factores de caracterización para calentamiento global se referencian al IMN (2021), mientras que los factores de eutrofización se basan en Ecobilan (1999, como se citó en Vallejo, 2004).",
             "La Tabla R6 del bloque de apéndices internos, Impactos completos por etapa, presenta los resultados desagregados por categoría de impacto.",
@@ -819,6 +848,29 @@ def build_document() -> None:
     )
     add_dataframe_table(doc, "Tabla 7. Comparación de impactos ambientales entre escenarios.", format_df(comparison_summary(), decimals=3, decimals_by_col={"Diferencia porcentual B respecto a A": 2}))
     add_figure(doc, *MAIN_FIGURES[6])
+
+    benchmark = a2_benchmark_summary()
+    benchmark_index = benchmark.set_index("Indicador")
+    ch4 = benchmark_index.loc["CH4 por materia seca de entrada"]
+    n2o = benchmark_index.loc["N2O directo por materia seca de entrada"]
+    n_ratio = benchmark_index.loc["N2O-N directo por N inicial"]
+    climate = benchmark_index.loc["Contraste armonizado de CH4 y N2O directo"]
+    doc.add_heading("8. Contraste experimental bibliográfico de A2", level=2)
+    add_paragraphs(doc, [
+        "Los resultados oficiales de A2: Lombricompostaje se contrastaron con la referencia empírica de Jjagwe et al. (2019) sin sustituir las ecuaciones IPCC ni crear un segundo inventario oficial. La base común fue la materia seca del estiércol precompostado al ingreso de A2.",
+        f"La estimación IPCC de CH4 fue {fmt(ch4['Estimación IPCC'], 6)} g CH4/kg de materia seca, frente a {fmt(ch4['Referencia experimental'], 6)} g CH4/kg de materia seca. La razón IPCC/referencia fue {fmt(ch4['Razón IPCC/referencia'], 6)} y la diferencia relativa fue {fmt(ch4['Diferencia relativa a la referencia (%)'], 2)} %.",
+        f"Para N2O directo, la estimación IPCC fue {fmt(n2o['Estimación IPCC'], 6)} mg N2O/kg de materia seca y la referencia experimental fue {fmt(n2o['Referencia experimental'], 6)} mg N2O/kg de materia seca. La razón fue {fmt(n2o['Razón IPCC/referencia'], 6)}. El N2O indirecto por volatilización permanece en el inventario oficial, pero se excluyó de esta comparación porque no representa una emisión medida físicamente dentro del lecho.",
+        f"Como indicador complementario, la fracción de N inicial emitida como N2O-N directo fue {fmt(n_ratio['Estimación IPCC'], 8)} kg N2O-N/kg N para IPCC y {fmt(n_ratio['Referencia experimental'], 8)} kg N2O-N/kg N para la referencia experimental; la razón fue {fmt(n_ratio['Razón IPCC/referencia'], 6)}. Este resultado apoya la interpretación y no constituye una validación formal del modelo.",
+        f"El contraste armonizado de CH4 + N2O directo, caracterizado con los mismos factores vigentes del TFG, fue {fmt(climate['Estimación IPCC'], 8)} kg CO2-eq/kg de materia seca para IPCC y {fmt(climate['Referencia experimental'], 8)} kg CO2-eq/kg de materia seca para Jjagwe et al. (2019). Este indicador no representa el impacto climático total del sistema: excluye CO2 experimental y N2O indirecto IPCC.",
+        "Las desviaciones no mostraron una dirección uniforme entre especies: la estimación IPCC fue menor para CH4 y mayor para N2O directo. Por ello, el contraste no evidencia un sesgo uniforme del método IPCC en A2 y no sustenta afirmar, de forma global, que este sobreestime, subestime o sea más conservador. La compensación parcial entre el menor CH4 y el mayor N2O directo en el indicador armonizado demuestra que el resultado agregado no sustituye el análisis separado de cada flujo gaseoso.",
+        "Jjagwe et al. (2019) reportaron una pérdida atmosférica de 18,18 % del N inicial y una distribución de 74,55 % en vermicompost y 7,27 % en biomasa de lombrices. Esta pérdida se consideró solo como contraste conceptual: no es equivalente a la fracción IPCC encaminada a volatilización, porque las especies, métodos y fronteras difieren y parte del N atmosférico no cuantificado podría corresponder a N2.",
+        "El estudio de Jjagwe et al. se realizó en Uganda como un sistema experimental con unidades replicadas y empleó la especie Eudrilus eugeniae. El material se mantuvo aproximadamente entre 60 y 70 % de humedad, el proceso se organizó en ciclos cercanos a 12 semanas, el estiércol se incorporó progresivamente y había permanecido alrededor de una semana almacenado bajo sombra antes de ingresar al sistema. En contraste, A2 representa una operación real de lombricompostaje en Turrialba, modelada mediante las ecuaciones IPCC y la categoría disponible Composting – Passive Windrow, con las características propias de su sustrato y condiciones operativas. Estas diferencias de especie, acondicionamiento, alimentación, humedad, duración, ambiente geográfico y escala pueden influir en las emisiones y muestran que la base material armonizada no vuelve físicamente idénticos ambos sistemas.",
+        "Jjagwe et al. determinaron CO2, CH4, NH3 y N2O mediante cámaras estáticas en momentos discretos del proceso, incluidas las semanas 4, 8 y 12. Ese diseño de medición no reproduce necesariamente la variación temporal completa de una operación real. Además, el análisis de flujo de materiales no permitió identificar por completo las especies del N atmosférico; los autores plantearon que parte importante del N no cuantificado como los gases medidos podría corresponder a N2 u otras formas. Estas limitaciones de medición y balance impiden atribuir las divergencias exclusivamente al método IPCC y confirman que el 18,18 % no es una medición equivalente a la fracción IPCC encaminada a volatilización.",
+        "En consecuencia, el benchmark compara una estimación modelada con una referencia experimental externa sobre una base material armonizada, pero no sistemas físicamente idénticos. Los resultados se interpretan como contraste con literatura y no como validación o invalidación de las estimaciones IPCC.",
+        "No se calculó eutrofización experimental. El NH3 no fue detectado durante la campaña, el N atmosférico no quedó completamente especiado y la adaptación del TFG para representar N potencialmente eutrofizante no constituye una especiación experimental equivalente.",
+        "El artículo presenta una inconsistencia interna para N2O: el resumen indica 3,943 × 10⁻⁵ g N2O/kg de materia seca, mientras la sección de resultados y la Figura 3 muestran un orden de decenas de miligramos, coherente además con el potencial de calentamiento global publicado. Para este contraste se adoptó explícitamente 39,43 mg N2O/kg de materia seca.",
+    ])
+    add_dataframe_table(doc, "Tabla 8. Contraste bibliográfico de A2 sobre materia seca de entrada.", format_df(benchmark, decimals=6, decimals_by_col={"Diferencia relativa a la referencia (%)": 2}))
 
     doc.add_heading("Apéndices internos de resultados", level=1)
     add_paragraphs(

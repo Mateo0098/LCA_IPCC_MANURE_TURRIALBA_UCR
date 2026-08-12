@@ -232,7 +232,7 @@ def _report(rows: list[dict]) -> str:
     for row in characterization:
         lines.append(f"- **{row['material']} — {row['variable']}:** {row['promedios_jornada'] or 'sin estimador elegible disponible'}; no es un parámetro actual del modelo ACV.")
     lines += ["", "## Observaciones metodológicas y anomalías", "",
-        "- El N total precompostado se conserva exactamente en la base reportada por el CIA. No se convirtió con la materia seca gravimétrica del TFG.",
+        "- El N total precompostado se conserva sin alterar en la integración. La conversión aprobada a base húmeda se aplica posteriormente y solo en A2 mediante la materia seca gravimétrica del TFG.",
         "- Carbono y relación C/N precompostados se mantienen como caracterización descriptiva.",
         "- La relación C/N precompostada no está disponible como fila independiente en M1; por ello su resumen descriptivo actual contiene únicamente M2.",
         "- No se detectaron duplicados de jornada por material y variable en la fuente.",

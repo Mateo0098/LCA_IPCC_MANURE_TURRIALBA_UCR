@@ -303,11 +303,17 @@ def tabla_04_parametros_modelo_acv() -> Path:
         df[column] = df[f"{column}_override"].combine_first(df[column])
     df["nombre_etapa"] = df.apply(lambda r: _stage_name(r["escenario"], r["etapa"]), axis=1)
     df["n_ex_fraction"] = pd.to_numeric(df["n_ex_pct"], errors="coerce") / 100.0
+    prepared_n = df["transformacion_n_acv"].eq(
+        "multiplicar_por_fraccion_materia_seca_gravimetrica_TFG_105C"
+    )
+    df.loc[prepared_n, "n_ex_fraction"] *= (
+        pd.to_numeric(df.loc[prepared_n, "materia_seca_pct"], errors="coerce") / 100.0
+    )
 
     rows = []
     param_defs = [
         ("n_ex_pct", "Nitrogeno total reportado", "% N total", "fuente_integracion", "Valor de caracterizacion; no usar directamente en ecuaciones de N"),
-        ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg muestra", "fuente_integracion", "Usado como fraccion masica en ecuaciones de N"),
+        ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg masa húmeda", "fuente_integracion", "A2 incorpora la materia seca gravimétrica; las demás etapas conservan la base analítica vigente"),
         ("vs_t_pct", "Solidos volatiles", "% base seca", "fuente_integracion", "Parametro para CH4 en etapas solidas"),
         ("materia_seca_pct", "Materia seca", "% masa húmeda", "fuente_integracion", "Fracción de materia seca usada en etapas sólidas"),
         ("masa_total_kg_eq", "Masa equivalente total", "kg eq/ano", "", "Base de escalamiento por etapa"),
@@ -461,7 +467,7 @@ def tabla_06_emisiones_por_etapa() -> Path:
                 "ecuacion_utilizada": equation,
                 "fuente_factor_emision": source,
                 "masa_total_kg_eq": row.get("masa_total_kg_eq", ""),
-                "observaciones": "n_ex_fraction usado como fraccion masica en ecuaciones de nitrogeno" if substance in {"N2O", "NH3", "NO3"} else "",
+                "observaciones": "Fracción másica efectiva usada en ecuaciones de nitrógeno" if substance in {"N2O", "NH3", "NO3"} else "",
             })
     return _write(pd.DataFrame(rows), "tabla_06_emisiones_por_etapa.csv")
 
@@ -547,7 +553,7 @@ def tabla_09_comparacion_escenarios() -> Path:
             "diferencia_porcentual_B_vs_A": pct,
             "escenario_con_mayor_impacto": "A" if a > b else "B" if b > a else "Iguales",
             "fuente": "processed/acv_impacto_total_por_escenario.csv",
-            "observaciones": "Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno",
+            "observaciones": "Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno",
         })
     return _write(pd.DataFrame(rows), "tabla_09_comparacion_escenarios.csv")
 
@@ -559,7 +565,7 @@ def diccionario_variables() -> Path:
         ("nombre_etapa", "Nombre metodologico oficial de la etapa", "texto", "outputs/tablas_tesis/tabla_01_etapas_escenarios.csv"),
         ("tipo_muestra", "Tratamiento o material representado", "texto", "processed/acv_parametros_escenario_etapa.csv"),
         ("n_ex_pct", "Nitrogeno total reportado en laboratorio", "% N total", "processed/acv_parametros_escenario_etapa.csv"),
-        ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg muestra", "Calculado como n_ex_pct/100"),
+        ("n_ex_fraction", "Nitrógeno total como fracción másica efectiva", "kg N/kg masa húmeda", "A2 incorpora la materia seca gravimétrica; las demás etapas conservan la conversión directa"),
         ("masa_total_kg_eq", "Masa equivalente usada para escalar emisiones", "kg eq/ano", "processed/masa_total_escenario_etapa.csv"),
         ("valor", "Valor numerico de la variable reportada", "depende de unidad", "Tablas finales"),
         ("unidad", "Unidad explicita del valor reportado", "texto", "Tablas finales"),
@@ -602,7 +608,7 @@ def resumen_resultados_para_redaccion() -> Path:
         "",
         "Este documento usa unicamente las tablas finales actuales de `outputs/tablas_tesis/`.",
         "",
-        "El nitrogeno total reportado en porcentaje se expresa en el modelo como `n_ex_fraction = n_ex_pct / 100`.",
+        "El nitrógeno total reportado en porcentaje se expresa como fracción másica. En A2 se aplica además la materia seca gravimétrica para llevar el N del material preparado/seco a base húmeda.",
         "",
         "## Nomenclatura oficial de etapas",
         "",

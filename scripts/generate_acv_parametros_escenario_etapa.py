@@ -26,6 +26,13 @@ REQUIRED_VARIABLES = {
     "purines": ("N total",),
 }
 
+N_BASIS_BY_MATERIAL = {
+    "estiércol precompostado": (
+        "material preparado/seco por CIA a 80 °C durante 48 h",
+        "multiplicar_por_fraccion_materia_seca_gravimetrica_TFG_105C",
+    ),
+}
+
 def load_integration(path: Path) -> Dict[tuple[str, str], Dict[str, str]]:
     if not path.exists():
         raise FileNotFoundError(f"No existe la integración experimental vigente: {path}")
@@ -96,6 +103,10 @@ def build_rows(indexed: Dict[tuple[str, str], Dict[str, str]], source_name: str)
         n_row = selected["N total"]
         vs_row = selected.get("sólidos volátiles")
         dm_row = selected.get("materia seca")
+        n_basis, n_transformation = N_BASIS_BY_MATERIAL.get(
+            material,
+            ("muestra húmeda o alícuota homogénea según método analítico", "ninguna"),
+        )
         rows.append({
             "escenario": escenario,
             "etapa": str(etapa),
@@ -104,6 +115,8 @@ def build_rows(indexed: Dict[tuple[str, str], Dict[str, str]], source_name: str)
             "n_ex_pct": n_row["valor_integrado_provisional"],
             "vs_t_pct": "" if vs_row is None else vs_row["valor_integrado_provisional"],
             "materia_seca_pct": "" if dm_row is None else dm_row["valor_integrado_provisional"],
+            "base_analitica_n_ex": n_basis,
+            "transformacion_n_acv": n_transformation,
             "unidad_n_ex": "% N total",
             "unidad_vs_t": "" if vs_row is None else "% Sólidos volátiles",
             "unidad_materia_seca": "" if dm_row is None else "% Materia seca",

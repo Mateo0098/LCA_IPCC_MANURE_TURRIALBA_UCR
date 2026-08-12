@@ -24,7 +24,11 @@ from ecuaciones_acv import (
     nh3_direct_mm,
     no3_direct_mm,
 )
-from acv_masa_seca import convertir_vs_base_humeda, obtener_fraccion_masa_seca_etapa
+from acv_masa_seca import (
+    convertir_n_material_preparado_a_base_humeda,
+    convertir_vs_base_humeda,
+    obtener_fraccion_masa_seca_etapa,
+)
 from acv_factores_manejo_estiercol import obtener_factores_manejo_ipcc
 
 
@@ -39,8 +43,17 @@ def _build_ipcc_row() -> dict[str, float | int]:
     awms = 1.0
 
     n = 1
-    n_ex_pct = params["n_ex_pct"]  # % N total reportado en laboratorio
-    n_ex_fraction = n_ex_pct / 100.0  # fraccion masica kg N / kg muestra
+    n_ex_pct = params["n_ex_pct"]  # % N del material preparado/seco; se conserva sin alterar
+    expected_transformation = "multiplicar_por_fraccion_materia_seca_gravimetrica_TFG_105C"
+    if params["transformacion_n_acv"] != expected_transformation:
+        raise ValueError(
+            "La base analítica de N de A2 no declara la transformación aprobada "
+            "a masa húmeda"
+        )
+    n_ex_fraction = convertir_n_material_preparado_a_base_humeda(
+        n_ex_pct,
+        dry_fraction,
+    )  # kg N / kg de precompostado húmedo
     nex = n_ex_fraction
     n_cdg = 0.0
     ef3 = float(factores_mms["EF3"])

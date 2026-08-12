@@ -39,6 +39,8 @@ def _cargar_tabla():
                 "n_ex_pct": _to_float(row.get("n_ex_pct")),
                 "vs_t_pct": _to_float(row.get("vs_t_pct")),
                 "materia_seca_pct": _to_float(row.get("materia_seca_pct")),
+                "base_analitica_n_ex": str(row.get("base_analitica_n_ex", "")).strip(),
+                "transformacion_n_acv": str(row.get("transformacion_n_acv", "")).strip(),
                 "fecha_n_ex": str(row.get("fecha_n_ex", "")).strip(),
                 "fecha_vs_t": str(row.get("fecha_vs_t", "")).strip(),
                 "unidad_n_ex": str(row.get("unidad_n_ex", "")).strip(),

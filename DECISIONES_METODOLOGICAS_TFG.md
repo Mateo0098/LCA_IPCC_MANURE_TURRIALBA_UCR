@@ -122,6 +122,33 @@ directa y ausencia de riego operacional regular. En consecuencia, no se modela
 una pérdida de N hacia el ambiente por lixiviación durante A2; esto no equivale
 a afirmar que no exista movimiento de agua dentro del sustrato.
 
+### Contraste bibliográfico experimental de A2
+
+La metodología oficial de A2 continúa siendo el modelo IPCC con la categoría
+`composting_pasive` y `FracLeachMS = 0`. Los datos de Jjagwe et al. (2019;
+DOI 10.3390/su11195173) se utilizan exclusivamente como contraste experimental
+bibliográfico para interpretar A2; no constituyen un modelo `medido`, no
+sustituyen el inventario oficial y no crean un segundo ACV.
+
+La frontera común es la materia seca del estiércol precompostado al ingreso de
+A2, derivada como `masa_humeda_A2 × fraccion_materia_seca_A2`. El contraste
+principal incluye CH₄ y N₂O directo (`N2O_ec2`) por kg de esa materia seca. Las
+vías indirectas de N₂O permanecen en el inventario oficial, pero se excluyen del
+contraste experimental directo. El indicador climático armonizado incluye solo
+CH₄ y N₂O directo y aplica a ambos lados los factores de caracterización
+vigentes del TFG; no se denomina impacto climático total.
+
+Para Jjagwe et al. se adoptan 7,6 g CH₄/kg MS y 39,43 mg N₂O/kg MS. El valor de
+N₂O resuelve explícitamente una inconsistencia interna: el resumen presenta
+`3,943 × 10⁻⁵ g/kg MS`, mientras los resultados, la Figura 3 y el GWP publicado
+respaldan el orden de decenas de mg/kg MS. También se usa TKN inicial de 1,44 %
+MS para el indicador complementario N₂O-N/N inicial. La pérdida atmosférica de
+N de 18,18 % es solo un contraste conceptual y no se equipara con `FracGasMS`.
+
+No se calcula eutrofización experimental: el NH₃ no fue detectado, el balance
+atmosférico no quedó completamente especiado y la adaptación de `N_eut` del TFG
+no representa una especiación experimental equivalente.
+
 ## 11. Estado provisional
 
 La caracterización experimental activa es provisional: las variables sólidas metodológicamente comparables integran M1 y M2 con igual peso temporal; el N total de aguas verdes y purines procede únicamente de M2 mediante Kjeldahl; y la transformación de masa de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado. La corrida del ACV fue regenerada con estos estimadores y se identifica expresamente como **PROVISIONAL M1–M2**. M3 permanece pendiente para completar la integración final según las reglas de la sección 14.
@@ -146,8 +173,10 @@ Las tablas, los gráficos, la metodología, los resultados, las conclusiones y l
 - El CIA no determinó humedad a 105 °C como parte de ese análisis porque no fue solicitada.
 - La humedad y materia seca del TFG proceden de ensayos gravimétricos independientes, con aproximadamente 10 g a 105 °C hasta masa constante o durante el tiempo establecido.
 - El secado CIA a 80 °C es una condición de preparación para N/C; no debe mezclarse con la determinación gravimétrica del TFG a 105 °C.
-- No se debe etiquetar el N/C del precompostado como base fresca ni afirmar automáticamente base seca. La base formal del porcentaje no está especificada explícitamente en los reportes.
-- No deben realizarse conversiones automáticas de N usando la materia seca determinada a 105 °C sin evidencia documental y aprobación metodológica expresa.
+- Para el uso aprobado en A2, el porcentaje de N se interpreta como concentración determinada sobre el material preparado/seco por el CIA. Esta interpretación metodológica no modifica el valor analítico integrado ni se extiende automáticamente al carbono.
+- La fracción efectiva de N sobre la masa húmeda de precompostado se calcula como `N_fraction_wet = (n_ex_pct / 100) × (materia_seca_pct / 100)`, usando la materia seca gravimétrica integrada del TFG.
+- El secado CIA a 80 °C y la determinación gravimétrica del TFG a 105 °C cumplen funciones distintas. La conversión no reconstruye ni corrige retrospectivamente posibles pérdidas de N durante la preparación CIA.
+- El N Kjeldahl M2 del estiércol fresco, determinado directamente sobre una alícuota homogénea sin secado reportado, conserva su tratamiento vigente (`n_ex_pct / 100`). La conversión específica del precompostado tampoco se aplica a aguas verdes ni purines.
 
 ## 14. Integración temporal de jornadas
 

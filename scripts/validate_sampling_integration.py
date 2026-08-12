@@ -99,7 +99,9 @@ def main() -> None:
         incompatible_m3 = {**m3, "metodo": "método incompatible"}
         assert _build_row(rule, [m2, incompatible_m3])["estado_integracion"] == "provisional_M2_pendiente_M3"
     pre_n = indexed[("estiércol precompostado", "N total")]
-    assert "No se aplica conversión" in pre_n["observacion_metodologica"]
+    assert "integración conserva el porcentaje analítico" in pre_n["observacion_metodologica"]
+    assert "En A2" in pre_n["observacion_metodologica"]
+    assert "materia seca gravimétrica del TFG" in pre_n["observacion_metodologica"]
     for row in result:
         if row["estado_integracion"] == "solo_caracterizacion":
             assert "no es parámetro" in row["uso_previsto"]

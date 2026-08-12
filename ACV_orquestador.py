@@ -29,6 +29,7 @@ VALIDACION_EMISIONES = ["scripts/acv_resumen_emisiones_csv.py", "--validate"]
 
 POSTPROCESO = [
     "scripts/compute_acv_impact_equivalents.py",
+    "scripts/generate_a2_jjagwe_benchmark.py",
     "scripts/ACV_graficos_emisiones.py",
 ]
 

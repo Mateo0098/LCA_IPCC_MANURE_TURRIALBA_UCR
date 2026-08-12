@@ -1,0 +1,8 @@
+sustancia_indicador,valor,unidad_original,base,referencia,doi,observacion
+CH4 acumulado,7.6,g CH4/kg MS,residuo en materia seca,"Jjagwe et al. (2019)",10.3390/su11195173,Valor experimental acumulado aprobado para el contraste
+N2O acumulado,39.43,mg N2O/kg MS,residuo en materia seca,"Jjagwe et al. (2019)",10.3390/su11195173,"Valor seleccionado ante inconsistencia interna: el resumen indica 3.943 × 10^-5 g/kg MS, mientras resultados, Figura 3 y GWP publicado respaldan aproximadamente 39.43 mg/kg MS"
+Pérdida atmosférica de N,18.18,% N inicial,balance de flujo de sustancias,"Jjagwe et al. (2019)",10.3390/su11195173,Contraste conceptual; especies y frontera no equivalentes a FracGasMS
+N en vermicompost,74.55,% N inicial,balance de flujo de sustancias,"Jjagwe et al. (2019)",10.3390/su11195173,Distribución reportada de N
+N en biomasa de lombrices,7.27,% N inicial,balance de flujo de sustancias,"Jjagwe et al. (2019)",10.3390/su11195173,Distribución reportada de N
+TKN inicial del estiércol,1.44,% MS,estiércol inicial en materia seca,"Jjagwe et al. (2019)",10.3390/su11195173,Base para derivar N2O-N directo por N inicial
+NH3,no detectado,resultado cualitativo,campaña de medición,"Jjagwe et al. (2019)",10.3390/su11195173,No permite construir inventario experimental equivalente de eutrofización

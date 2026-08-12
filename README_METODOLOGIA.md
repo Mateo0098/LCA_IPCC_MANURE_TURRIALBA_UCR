@@ -99,9 +99,12 @@ Elementar Vario Macro Cube. Los reportes y la metodología no declaran
 inequívocamente si el porcentaje final está en base seca o fresca. El CIA no
 determinó humedad a 105 °C porque no fue solicitada; esa preparación no debe
 confundirse con los ensayos gravimétricos independientes del TFG a 105 °C. La
-capa normalizada registra la condición física de secado y que la base formal
-del porcentaje no fue especificada, sin alterar los valores ni convertirlos con
-la materia seca del TFG.
+capa normalizada registra la condición física de secado sin alterar los valores
+analíticos. Para A2, la decisión metodológica vigente interpreta el N como
+concentración del material preparado/seco y aplica la materia seca gravimétrica
+independiente del TFG para expresarlo sobre la masa húmeda usada como actividad.
+Esta conversión no intenta corregir pérdidas de N durante el secado CIA y no se
+aplica al carbono.
 
 Para N líquido M2, se conservan todos los decimales almacenados por el equipo
 en los archivos CIA y se calculan los resúmenes antes de cualquier formato de
@@ -121,7 +124,8 @@ Las conversiones principales son:
 - Materia seca: `masa_seca / masa_fresca * 100`.
 - Cenizas: `masa_cenizas / masa_seca_calcinacion * 100`.
 - Solidos volatiles: `100 - cenizas`.
-- Nitrogeno total como fraccion masica: `n_ex_fraction = n_ex_pct / 100`.
+- Nitrógeno total de estiércol fresco, aguas verdes y purines como fracción másica: `n_ex_fraction = n_ex_pct / 100`.
+- Nitrógeno efectivo del precompostado en A2 sobre masa húmeda: `N_fraction_wet = (n_ex_pct / 100) * (materia_seca_pct / 100)`.
 - Solidos volatiles en base humeda: `(vs_t_pct / 100) * fraccion_masa_seca`.
 - Flujos anuales: `(promedio / duracion_muestreo_dias) * 365`.
 
@@ -181,8 +185,9 @@ Las emisiones se consolidan en:
 - `processed/ACV_resumen_emisiones.csv`
 
 La tabla contiene emisiones por escenario y etapa para CO2, CH4, N2O, NH3 y
-NO3. Las ecuaciones de N usan `n_ex_fraction` como fraccion masica y no
-`n_ex_pct` directamente.
+NO3. Las ecuaciones de N usan una fracción másica y no `n_ex_pct` directamente.
+En A2 esa fracción incorpora explícitamente la materia seca gravimétrica; las
+demás etapas conservan la conversión directa de porcentaje a fracción.
 
 La tabla final limpia para tesis es:
 
@@ -209,6 +214,21 @@ Tablas finales:
 - `outputs/tablas_tesis/tabla_07_impactos_por_etapa.csv`
 - `outputs/tablas_tesis/tabla_08_impactos_totales_por_escenario.csv`
 - `outputs/tablas_tesis/tabla_09_comparacion_escenarios.csv`
+
+## Contraste bibliográfico de A2
+
+El producto `processed/a2_ipcc_jjagwe_benchmark.csv` es generado por
+`scripts/generate_a2_jjagwe_benchmark.py` como postproceso del inventario
+oficial. Lee los datos bibliográficos mínimos de
+`Academic_documents/references/jjagwe_2019_benchmark.csv`, la masa y materia
+seca activas de A2, `CH4_ec1`, `N2O_ec2` y los factores de caracterización
+vigentes. No modifica emisiones ni impactos oficiales y no activa una ruta
+`medido`.
+
+La base común es la materia seca del precompostado al ingreso de A2. El producto
+compara CH₄, N₂O directo, N₂O-N/N inicial y la contribución armonizada de CH₄ +
+N₂O directo. No calcula eutrofización experimental ni incorpora CO₂
+experimental o N₂O indirecto al indicador armonizado.
 
 ## Archivos finales generados para tesis
 
@@ -267,5 +287,6 @@ Si `processed/` ya esta validado:
   caracterizacion.
 - Validar los nombres descriptivos de etapas en
   `tabla_01_etapas_escenarios.csv`.
-- Mantener `n_ex_pct` como porcentaje reportado y `n_ex_fraction` como fraccion
-  masica usada en ecuaciones de nitrogeno.
+- Mantener `n_ex_pct` como porcentaje analítico reportado. La fracción efectiva
+  de A2 incorpora la materia seca gravimétrica; las demás etapas conservan su
+  tratamiento vigente.

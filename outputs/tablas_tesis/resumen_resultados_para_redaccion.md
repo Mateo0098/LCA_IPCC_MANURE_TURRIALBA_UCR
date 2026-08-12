@@ -2,7 +2,7 @@
 
 Este documento usa unicamente las tablas finales actuales de `outputs/tablas_tesis/`.
 
-El nitrogeno total reportado en porcentaje se expresa en el modelo como `n_ex_fraction = n_ex_pct / 100`.
+El nitrógeno total reportado en porcentaje se expresa como fracción másica. En A2 se aplica además la materia seca gravimétrica para llevar el N del material preparado/seco a base húmeda.
 
 ## Nomenclatura oficial de etapas
 
@@ -33,9 +33,9 @@ B2, correspondiente a la Etapa 2: Aplicación de purines en campo de pastoreo, p
 | Escenario | Sustancia | Emision total anual |
 |---|---|---:|
 | A | CH4 | 139.23463637335524 |
-| A | N2O | 7.59737454401099 |
-| A | NH3 | 84.31379943054523 |
-| A | NO3 | 307.3743872039958 |
+| A | N2O | 4.976344420740896 |
+| A | NH3 | 44.55079034604405 |
+| A | NO3 | 162.41436128553823 |
 | B | CH4 | 389.4643414947861 |
 | B | N2O | 1.7504371342481058 |
 | B | NH3 | 38.93616508636328 |
@@ -48,7 +48,7 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente 
 | Escenario | Etapa | Codigo | Nombre de etapa | Calentamiento global | Eutrofizacion |
 |---|---:|---|---|---:|---:|
 | A | 1 | A1 | Etapa 1: Precomposteo | 1189.6041709349145 | 12.68246985818677 |
-| A | 2 | A2 | Etapa 2: Lombricompostaje | 1121.4601734602961 | 34.90172432286534 |
+| A | 2 | A2 | Etapa 2: Lombricompostaje | 308.9408352465669 | 7.213468681036463 |
 | A | 3 | A3 | Etapa 3: Almacenamiento de aguas verdes | 2832.6458116004305 | 6.616319745709744 |
 | A | 4 | A4 | Etapa 4: Aplicación de aguas verdes en campos de pastoreo | 135.40331648822615 | 4.509882658308575 |
 | B | 1 | B1 | Etapa 1: Almacenamiento de purines | 8503.71352199646 | 19.86245066609851 |
@@ -60,8 +60,8 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominan
 
 | escenario | categoria_impacto | resultado_total | unidad | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- |
-| A | Calentamiento global | 5279.113472483867 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| A | Eutrofizacion | 58.71039658507043 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Calentamiento global | 4466.594134270137 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Eutrofizacion | 31.02214094324156 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 | B | Calentamiento global | 8721.386683007422 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 | B | Eutrofizacion | 27.11249770691752 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 
@@ -69,5 +69,5 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominan
 
 | categoria_impacto | escenario_A | escenario_B | unidad | diferencia_absoluta_B_menos_A | diferencia_porcentual_B_vs_A | escenario_con_mayor_impacto | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Calentamiento global | 5279.113472483867 | 8721.386683007422 | kg CO2-eq/año | 3442.2732105235555 | 65.2055165789785 | B | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
-| Eutrofizacion | 58.71039658507043 | 27.11249770691752 | kg PO4-eq/año | -31.597898878152908 | -53.81993772153806 | A | processed/acv_impacto_total_por_escenario.csv | Comparacion entre escenarios con n_ex_fraction como entrada de nitrogeno |
+| Calentamiento global | 4466.594134270137 | 8721.386683007422 | kg CO2-eq/año | 4254.792548737285 | 95.25809645636268 | B | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |
+| Eutrofizacion | 31.02214094324156 | 27.11249770691752 | kg PO4-eq/año | -3.9096432363240368 | -12.602751188182538 | A | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |

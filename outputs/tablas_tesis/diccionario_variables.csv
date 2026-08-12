@@ -4,7 +4,7 @@ etapa,Numero de etapa dentro del escenario,adimensional,Scripts ACV_Escenario*.p
 nombre_etapa,Nombre metodologico oficial de la etapa,texto,outputs/tablas_tesis/tabla_01_etapas_escenarios.csv
 tipo_muestra,Tratamiento o material representado,texto,processed/acv_parametros_escenario_etapa.csv
 n_ex_pct,Nitrogeno total reportado en laboratorio,% N total,processed/acv_parametros_escenario_etapa.csv
-n_ex_fraction,Nitrogeno total como fraccion masica,kg N/kg muestra,Calculado como n_ex_pct/100
+n_ex_fraction,Nitrógeno total como fracción másica efectiva,kg N/kg masa húmeda,A2 incorpora la materia seca gravimétrica; las demás etapas conservan la conversión directa
 masa_total_kg_eq,Masa equivalente usada para escalar emisiones,kg eq/año,processed/masa_total_escenario_etapa.csv
 valor,Valor numerico de la variable reportada,depende de unidad,Tablas finales
 unidad,Unidad explicita del valor reportado,texto,Tablas finales

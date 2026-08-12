@@ -3,7 +3,9 @@
 - Caracterización experimental contra integración vigente: PASS.
 - Factor fresco→precompostado contra `mass_ratio_integrado`: PASS.
 - Masas contra inventario canónico: PASS.
+- Base de N de A2, fórmula húmeda y exclusión de las demás etapas: PASS.
 - Emisiones contra resumen canónico: PASS.
+- Contraste Jjagwe reproducido, N2O directo aislado y sin ruta medida ni eutrofización experimental: PASS.
 - Impactos por etapa y totales contra salidas canónicas: PASS.
 - Comparación entre escenarios recalculada: PASS.
 - Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.

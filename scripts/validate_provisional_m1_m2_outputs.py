@@ -10,6 +10,7 @@ from pathlib import Path
 from docx import Document
 
 import generate_conclusions_docx as conclusions_generator
+import generate_a2_jjagwe_benchmark as benchmark_generator
 import generate_thesis_graphics as graphics_generator
 
 
@@ -107,6 +108,31 @@ def validate_factor_and_masses() -> None:
             assert close(row["valor"], masses[key]["masa_total_kg_eq"])
 
 
+def validate_a2_nitrogen_basis() -> None:
+    params = {
+        (row["escenario"], row["etapa"]): row
+        for row in read_rows(PROCESSED / "acv_parametros_escenario_etapa.csv")
+    }
+    masses = {
+        (row["escenario"], row["etapa"]): row
+        for row in read_rows(PROCESSED / "masa_total_escenario_etapa.csv")
+    }
+    a2 = params[("A", "2")]
+    integrated_n = next(
+        row for row in read_rows(PROCESSED / "muestreos_integracion_interjornada_provisional.csv")
+        if row["material"] == "estiércol precompostado" and row["variable"] == "N total"
+    )
+    assert close(a2["n_ex_pct"], integrated_n["valor_integrado_provisional"])
+    assert a2["base_analitica_n_ex"] == "material preparado/seco por CIA a 80 °C durante 48 h"
+    assert a2["transformacion_n_acv"] == "multiplicar_por_fraccion_materia_seca_gravimetrica_TFG_105C"
+    effective_fraction = (float(a2["n_ex_pct"]) / 100.0) * (float(a2["materia_seca_pct"]) / 100.0)
+    annual_n = float(masses[("A", "2")]["masa_total_kg_eq"]) * effective_fraction
+    assert effective_fraction > 0.0 and annual_n > 0.0
+    for key, row in params.items():
+        if key != ("A", "2"):
+            assert row["transformacion_n_acv"] == "ninguna"
+
+
 def validate_emissions() -> None:
     raw = {(row["Escenario"], row["Etapa"]): row for row in read_rows(PROCESSED / "ACV_resumen_emisiones.csv")}
     table = read_rows(TABLES / "tabla_06_emisiones_por_etapa.csv")
@@ -122,6 +148,32 @@ def validate_emissions() -> None:
     for key, row in raw.items():
         for substance, source_columns in columns.items():
             assert close(grouped.get((*key, substance), 0.0), finite_sum(row, source_columns))
+
+
+def validate_a2_benchmark() -> None:
+    generated = read_rows(PROCESSED / "a2_ipcc_jjagwe_benchmark.csv")
+    expected = benchmark_generator.build_rows()
+    assert len(generated) == len(expected) == 4
+    for observed, calculated in zip(generated, expected):
+        assert observed.keys() == calculated.keys()
+        for key, value in calculated.items():
+            if isinstance(value, float):
+                assert close(observed[key], value)
+            else:
+                assert observed[key] == value
+    assert all("eutrof" not in row["indicador"].lower() for row in generated)
+    direct = next(row for row in generated if row["indicador"] == "N2O directo por materia seca de entrada")
+    emissions = next(
+        row for row in read_rows(PROCESSED / "ACV_resumen_emisiones.csv")
+        if row["Escenario"] == "A" and row["Etapa"] == "2"
+    )
+    dry_mass = float(direct["masa_seca_entrada_a2_kg_anio"])
+    assert close(direct["valor_ipcc"], float(emissions["N2O_ec2"]) * 1_000_000.0 / dry_mass)
+    assert not close(direct["valor_ipcc"], finite_sum(emissions, ["N2O_ec2", "N2O_ec5", "N2O_ec6"]) * 1_000_000.0 / dry_mass)
+    models = read_rows(PROCESSED / "modelo_etapa_overrides.csv")
+    a2_model = next(row for row in models if row["escenario"] == "A" and row["etapa"] == "2")
+    assert a2_model["modelo"] == "ipcc"
+    assert all(row["modelo"] != "medido" for row in models)
 
 
 def validate_impacts_and_comparison() -> None:
@@ -235,7 +287,9 @@ def validate_graph_sources() -> None:
 def main() -> None:
     validate_characterization()
     validate_factor_and_masses()
+    validate_a2_nitrogen_basis()
     validate_emissions()
+    validate_a2_benchmark()
     validate_impacts_and_comparison()
     validate_documents_and_conclusions()
     validate_graph_sources()
@@ -246,7 +300,9 @@ def main() -> None:
         "- Caracterización experimental contra integración vigente: PASS.\n"
         "- Factor fresco→precompostado contra `mass_ratio_integrado`: PASS.\n"
         "- Masas contra inventario canónico: PASS.\n"
+        "- Base de N de A2, fórmula húmeda y exclusión de las demás etapas: PASS.\n"
         "- Emisiones contra resumen canónico: PASS.\n"
+        "- Contraste Jjagwe reproducido, N2O directo aislado y sin ruta medida ni eutrofización experimental: PASS.\n"
         "- Impactos por etapa y totales contra salidas canónicas: PASS.\n"
         "- Comparación entre escenarios recalculada: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"
