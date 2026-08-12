@@ -47,6 +47,13 @@ sesiones de Codex, una rama puede abarcar varios chats relacionados y una nueva
 sesión de Codex puede continuar sobre la misma rama. Un cambio de rama sí debe
 motivar la evaluación de si conviene iniciar una nueva sesión de Codex.
 
+La unidad de trabajo tampoco se identifica obligatoriamente con ninguno de esos
+niveles: delimita cambios revisables, mientras que el chat conserva continuidad
+intelectual y de supervisión, la rama conserva continuidad versionada y la sesión
+de Codex conserva contexto operativo. Un chat puede contener varias unidades
+estrechamente relacionadas y, si existe una razón contextual, una unidad puede
+continuar entre chats. Cambiar de chat no obliga a cambiar de rama ni de sesión.
+
 ## Objetivos del trabajo
 
 ### Unidad de trabajo y trazabilidad mínima
@@ -82,15 +89,42 @@ sesión nueva, pero iniciar una sesión nueva no obliga a crear otra rama.
 
 ### Objetivo principal del chat
 
-Al comenzar una nueva línea de trabajo, ChatGPT debe identificar y mantener
-claro el objetivo principal del chat. Puede ser, por ejemplo, diagnosticar una
-inconsistencia, actualizar documentación, corregir un componente o validar un
-conjunto coherente de cambios. No se exige una fórmula ni un formulario rígido:
-el objetivo funciona como criterio práctico de seguimiento y cierre.
+ChatGPT debe mantener conscientemente identificado el objetivo principal vigente
+del chat como referencia de continuidad, supervisión y cierre. Ese objetivo no
+necesita estar formulado al inicio: una conversación puede comenzar con hipótesis,
+preguntas, alternativas o ideas descartadas. Cuando la exploración alcance
+suficiente concreción para reconocer una pregunta, decisión, diagnóstico o unidad
+de trabajo perseguible, ChatGPT debe reconocer el objetivo que emergió, sin exigir
+a Mateo una fórmula, un formulario ni una fase rígida.
 
-Si el objetivo cambia de manera significativa, ChatGPT debe evaluar si el nuevo
-trabajo continúa naturalmente en el mismo chat, si conviene abrir otro o si
-también requiere una rama separada.
+Ante una cuestión nueva, ChatGPT debe evaluarla contextualmente respecto del
+objetivo vigente:
+
+- una **continuación directa** es necesaria para completarlo, validarlo,
+  interpretarlo o cerrarlo y continúa normalmente en el mismo chat;
+- un **subproblema** es una parte delimitada del objetivo y depende
+  sustancialmente del contexto desarrollado, por lo que se prefiere mantenerlo;
+- una **consecuencia directa** surge de sus resultados y conviene resolverla antes
+  de cerrar la línea; puede permanecer si conserva continuidad intelectual;
+- un **objetivo independiente** persigue otro resultado, puede desarrollarse
+  sustancialmente sin el contexto activo, abre otra línea o aumentaría el riesgo
+  de confundir decisiones, pendientes o validaciones; en ese caso debe considerar
+  recomendar otro chat antes de mezclar trabajo operativo.
+
+La evaluación no depende de palabras clave ni de un cambio superficial de tema.
+ChatGPT debe valorar si la cuestión necesita las decisiones ya tomadas, comparte
+el resultado y el criterio de cierre, modifica los mismos componentes por la
+misma razón, puede cerrarse independientemente y si el contexto acumulado aporta
+o empieza a introducir supuestos irrelevantes. No rigen equivalencias como «una
+unidad = un chat», «un tema diferente = un chat nuevo» o «un chat = una tarea».
+La exploración puede continuar mientras contribuya a aclarar el mismo problema.
+
+ChatGPT debe reevaluar esta continuidad cuando emerge por primera vez un objetivo
+concreto, Mateo introduce otra cuestión, termina una decisión importante y
+aparece otra, un reporte de Codex abre un problema distinto, se prepara un nuevo
+prompt para Codex y se realiza la revisión de cierre. Si el objetivo vigente fue
+resuelto, validado, abandonado explícitamente o dejó de ser la línea deseada,
+debe reconocer su cierre antes de tratar una cuestión posterior como continuación.
 
 ### Preguntas aclaratorias dinámicas
 
@@ -169,18 +203,23 @@ Mateo + ChatGPT → prompt para Codex → implementación
 ```
 
 1. Mateo y ChatGPT discuten primero la decisión o el cambio.
-2. ChatGPT prepara un prompt concreto para Codex.
-3. Mateo ejecuta ese prompt en Codex.
-4. Codex implementa el alcance y realiza las verificaciones técnicas pertinentes.
-5. Si el prompt lo autoriza expresamente y las verificaciones permiten continuar,
+2. Antes de preparar un prompt sobre una cuestión nueva, ChatGPT comprueba si
+   pertenece al objetivo vigente del chat. Si la continuidad es clara, continúa
+   sin anuncio ni confirmación burocrática; si constituye un objetivo
+   suficientemente independiente, lo señala y considera trasladarlo a otro chat
+   antes de mezclar la nueva unidad con la línea intelectual activa.
+3. ChatGPT prepara un prompt concreto para Codex.
+4. Mateo ejecuta ese prompt en Codex.
+5. Codex implementa el alcance y realiza las verificaciones técnicas pertinentes.
+6. Si el prompt lo autoriza expresamente y las verificaciones permiten continuar,
    Codex crea un checkpoint normal, lo publica sin reescribir la historia y genera
    el reporte solicitado en `.codex_reports/`.
-6. Mateo entrega el reporte a ChatGPT en lugar de copiar largas salidas de terminal.
-7. ChatGPT revisa primero el reporte, selecciona los archivos necesarios y procura
+7. Mateo entrega el reporte a ChatGPT en lugar de copiar largas salidas de terminal.
+8. ChatGPT revisa primero el reporte, selecciona los archivos necesarios y procura
    recuperarlos directamente desde GitHub por repositorio, SHA exacto y ruta.
-8. ChatGPT valida el estado inmutable del checkpoint. Las comprobaciones técnicas
+9. ChatGPT valida el estado inmutable del checkpoint. Las comprobaciones técnicas
    de Codex no sustituyen esta revisión supervisora.
-9. Si hay problemas, ChatGPT evalúa la estrategia de recuperación descrita a
+10. Si hay problemas, ChatGPT evalúa la estrategia de recuperación descrita a
    continuación y prepara un prompt específico; el ciclo produce un nuevo
    checkpoint para otra revisión. Si valida, la unidad puede considerarse validada
    y pasar posteriormente a su revisión de cierre.
@@ -481,11 +520,21 @@ no se reescribe para hacer parecer que el error nunca ocurrió.
 
 ### Nuevo chat de ChatGPT
 
-ChatGPT puede recomendar un nuevo chat cuando el objetivo anterior ya se cerró
-y comienza una línea de trabajo diferente, cuando el contexto acumulado puede
-dificultar el seguimiento o cuando una fase importante se beneficia de una
-conversación limpia. No debe recomendarlo solo por la longitud del chat si el
-objetivo sigue siendo el mismo y el contexto continúa siendo útil.
+ChatGPT puede recomendar un nuevo chat cuando aparece un objetivo suficientemente
+independiente, aunque el anterior todavía no esté cerrado, si separarlos protege
+la claridad de decisiones, pendientes y validaciones. También puede recomendarlo
+cuando el objetivo anterior ya se cerró y comienza otra línea, cuando el contexto
+acumulado dificulta el seguimiento o cuando una fase importante se beneficia de
+una conversación limpia. No debe recomendarlo solo por la longitud del chat, por
+un cambio menor de tema ni por iniciar otra unidad si el objetivo y el contexto
+continúan siendo útiles.
+
+La recomendación corresponde a ChatGPT y Mateo. Codex puede informar una aparente
+discrepancia de alcance, pero no decide cuál es el objetivo del chat, si una
+discusión pertenece a otra línea ni cuándo abrir una conversación. Cambiar de
+chat no implica cambiar de rama: dos objetivos discutidos en chats distintos
+pueden pertenecer naturalmente a la misma rama activa de avance. Tampoco obliga
+a iniciar otra sesión de Codex; esa transición conserva su criterio contextual.
 
 ### Nueva rama Git
 
@@ -576,13 +625,18 @@ prompt.
 
 ## Recomendación de continuidad
 
-Cuando ChatGPT determine que el objetivo principal se completó, debe comunicar
-una recomendación explícita y basada en el estado real: continuar en el mismo
-chat o abrir otro; mantener la rama o crear una nueva; continuar la sesión de
-Codex o iniciar otra; y realizar commit o push antes de avanzar cuando
-corresponda. Si recomienda commit o push, debe incluir el mensaje de commit
-sugerido conforme a la regla anterior. La recomendación se formula después de
-la revisión de cierre, no como una transición automática.
+Cuando ChatGPT determine que el objetivo principal se resolvió, fue validado, se
+abandonó explícitamente o dejó de ser la línea que se desea continuar, debe
+reconocer ese cierre y comunicar una recomendación basada en el estado real:
+continuar en el mismo chat o abrir otro; mantener la rama o crear una nueva;
+continuar la sesión de Codex o iniciar otra; y realizar commit o push antes de
+avanzar cuando corresponda. Si recomienda commit o push, debe incluir el mensaje
+de commit sugerido conforme a la regla anterior. La recomendación se formula
+después de la revisión de cierre, no como una transición automática.
+
+Cerrar el objetivo del chat no integra ni cierra por sí solo la rama, no cierra
+otra unidad abierta ni obliga a iniciar una sesión nueva de Codex. Cada transición
+mantiene el criterio propio descrito en este documento.
 
 ## Separación de responsabilidades documentales
 
