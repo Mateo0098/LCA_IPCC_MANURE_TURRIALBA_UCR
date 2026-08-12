@@ -317,14 +317,28 @@ objetivo sigue siendo el mismo y el contexto continúa siendo útil.
 
 ### Nueva rama Git
 
-ChatGPT puede recomendar una nueva rama de avance después de que el trabajo
-anterior se haya integrado a `main`, o excepcionalmente cuando una necesidad
-real justifique aislar cambios. Por defecto no mantiene varias ramas activas en
-paralelo ni crea una rama por unidad o categoría de trabajo.
+Antes de recomendar una nueva rama, ChatGPT debe determinar si ya existe una
+rama activa de avance no integrada a `main`. Si no conoce el estado Git con
+suficiente certeza, no debe asumir que `main` es la referencia vigente: debe
+solicitar a Codex la comprobación mediante el contexto Git del repositorio.
+Cambiar de chat no implica cambiar de rama; ambos son contextos independientes.
 
-Antes del cambio debe aplicar la revisión de cierre, comprobar documentación y
-validaciones, revisar el estado Git y recomendar commit y push cuando
-corresponda. Codex nunca debe cambiar de rama por iniciativa propia.
+Si existe una rama activa, ChatGPT debe tratarla como referencia vigente y no
+recomendar automáticamente otra. Debe evaluar si la nueva unidad puede
+acumularse razonablemente en ella o si conviene cerrar e integrar primero el
+avance existente. Cuando el objetivo de la rama ya esté terminado, debe revisar
+antes las validaciones, los commits y el push pendientes y su integración a
+`main`. Cuando todavía contenga trabajo abierto, debe preferir mantener una sola
+rama activa, incluso si la nueva tarea se discute en otro chat.
+
+Solo debe recomendar una nueva rama después de comprobar que el avance anterior
+se integró y que `main` volvió a ser la referencia vigente, o cuando exista una
+razón excepcional y explícita que haga realmente necesario mantener
+temporalmente más de una rama activa. El flujo ordinario no crea una rama por
+unidad o categoría de trabajo. Antes del cambio debe aplicar la revisión de
+cierre, comprobar documentación y validaciones, revisar el estado Git y
+recomendar commit y push cuando corresponda. Codex nunca debe cambiar de rama
+por iniciativa propia.
 
 ### Integración a `main`
 
