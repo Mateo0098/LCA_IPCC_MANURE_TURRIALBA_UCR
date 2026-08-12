@@ -58,16 +58,22 @@ el historial Git aportan el contexto suficiente.
 
 Durante la ejecución, el reporte de Codex conecta brevemente el objetivo con la
 rama, el `HEAD` y el estado del working tree. Puede indicar que la unidad inicia
-o continúa trabajo anterior y, si ya existe, señalar el commit que la cierra.
-Esta información facilita la revisión, pero sigue siendo temporal.
+o continúa trabajo anterior y, si existe, identificar el checkpoint publicado
+que queda pendiente de revisión o el commit que consolida su cierre. Esta
+información facilita la revisión, pero sigue siendo temporal.
 
-Una vez validada y autorizada la unidad, uno o varios commits coherentes se
-convierten en sus checkpoints históricos permanentes. Sus mensajes deben
-expresar el propósito real del cambio; Git conserva la evolución sin necesidad
-de ledgers, inventarios manuales de commits, copias de conversaciones ni
-registros de sesiones. Si la unidad todavía no se ha consolidado en un commit,
-permanece explícitamente abierta como trabajo pendiente en la rama y no debe
-presentarse como cerrada.
+Un commit normal publicado en la rama activa puede funcionar como **checkpoint
+reproducible para revisión** antes de que ChatGPT valide la unidad. Representa
+un estado coherente que Codex considera técnicamente preparado para revisión y
+permite recuperarlo desde GitHub mediante rama y SHA. No implica aprobación
+metodológica, científica, documental ni supervisora, no valida la unidad, no la
+cierra y no autoriza su integración a `main`.
+
+Una unidad puede acumular varios checkpoints publicados mientras se corrigen
+observaciones. Sus mensajes deben expresar el propósito real del cambio; Git
+conserva la evolución sin ledgers, inventarios manuales, copias de conversaciones
+ni registros de sesiones. La unidad solo se considera validada después de la
+revisión supervisora satisfactoria de ChatGPT.
 
 Una sesión nueva de Codex puede continuar la misma unidad y rama. No se guardan
 IDs internos de sesión: cuando el cambio de contexto resulte relevante, basta
@@ -157,19 +163,65 @@ una necesidad real.
 ## Flujo general de trabajo
 
 ```text
-Mateo + ChatGPT → prompt para Codex → ejecución por Codex → reporte Markdown
-→ revisión por ChatGPT → solicitud selectiva de archivos → validación
+Mateo + ChatGPT → prompt para Codex → implementación
+→ verificaciones técnicas de Codex → checkpoint commit + push → reporte
+→ ChatGPT recupera archivos desde GitHub → validación de ChatGPT
 ```
 
 1. Mateo y ChatGPT discuten primero la decisión o el cambio.
 2. ChatGPT prepara un prompt concreto para Codex.
 3. Mateo ejecuta ese prompt en Codex.
-4. Codex realiza el trabajo autorizado y crea el reporte solicitado en `.codex_reports/`.
-5. Mateo entrega ese archivo a ChatGPT en lugar de copiar largas salidas de terminal o de Codex al chat.
-6. ChatGPT analiza primero el reporte.
-7. A partir del reporte, ChatGPT solicita únicamente los archivos concretos que necesite inspeccionar para validar el trabajo.
-8. La afirmación de Codex de que una tarea terminó correctamente no sustituye la revisión posterior cuando esta sea necesaria.
-9. ChatGPT aplica la revisión de cierre y recomienda explícitamente cómo continuar.
+4. Codex implementa el alcance y realiza las verificaciones técnicas pertinentes.
+5. Si el prompt lo autoriza expresamente y las verificaciones permiten continuar,
+   Codex crea un checkpoint normal, lo publica sin reescribir la historia y genera
+   el reporte solicitado en `.codex_reports/`.
+6. Mateo entrega el reporte a ChatGPT en lugar de copiar largas salidas de terminal.
+7. ChatGPT revisa primero el reporte, selecciona los archivos necesarios y procura
+   recuperarlos directamente desde GitHub por repositorio, SHA exacto y ruta.
+8. ChatGPT valida el estado inmutable del checkpoint. Las comprobaciones técnicas
+   de Codex no sustituyen esta revisión supervisora.
+9. Si hay problemas, ChatGPT prepara un prompt correctivo y el ciclo produce un
+   nuevo checkpoint en la misma rama; si valida, la unidad puede considerarse
+   validada y pasar posteriormente a su revisión de cierre.
+
+### Codex verifica; ChatGPT valida
+
+La verificación técnica de Codex se limita a comprobaciones mecánicas y
+reproducibles proporcionales al alcance: confirmar la implementación, revisar el
+diff, detectar archivos accidentales, ejecutar `git diff --check`, comprobar
+sintaxis o compilación, ejecutar validadores existentes pertinentes, regenerar
+productos afectados, revisar coherencia básica y excluir `.codex_reports/` y
+temporales del commit. Superar esas verificaciones solo significa que el estado
+está técnicamente preparado para revisión.
+
+La validación de ChatGPT puede evaluar la correspondencia con las decisiones de
+Mateo, la interpretación metodológica, la coherencia científica, el código, la
+documentación, la consistencia entre archivos, las omisiones y la necesidad de
+correcciones. Un checkpoint no queda validado por el solo hecho de que las
+verificaciones técnicas hayan pasado.
+
+Si un validador falla, existe un error conocido, se detecta un cambio accidental,
+aparece un resultado inesperado sin resolver o falta una decisión de Mateo o
+ChatGPT, Codex no crea el checkpoint salvo autorización excepcional y explícita.
+Debe dejar la unidad pendiente y describir el problema en el reporte.
+
+### Recuperación directa para revisión desde GitHub
+
+Cuando el checkpoint esté publicado, el reporte identifica el repositorio
+completo `owner/repository`, la rama, el SHA completo, si fue publicado, el
+resultado de las verificaciones técnicas, la revisión pendiente de ChatGPT y la
+ausencia de autorización para integrar a `main`. También enumera los archivos
+potencialmente relevantes, con ruta, tipo y motivo del cambio, inclusión en el
+checkpoint y posible interés supervisor, sin decidir por ChatGPT cuáles debe
+revisar definitivamente.
+
+ChatGPT revisa primero el reporte y prefiere obtener cada versión desde el SHA
+inmutable, no desde el `HEAD` cambiante de la rama. Solo pide a Mateo una carga
+manual si la versión necesaria no puede recuperarse o inspeccionarse
+adecuadamente mediante GitHub, por ejemplo por tratarse de un binario, un
+artefacto demasiado grande, un archivo no versionado o deliberadamente excluido,
+o por un fallo real de acceso. No solicita archivos manualmente por rutina cuando
+el checkpoint ya contiene una versión accesible.
 
 ### Contexto de rama
 
@@ -296,18 +348,16 @@ le aplican. Una tarea importante no debe considerarse cerrada si el código, el
 pipeline o la metodología cambiaron y la documentación que orienta a Codex
 quedó obsoleta.
 
-### Recomendación Git y prompt operativo para Codex
+### Checkpoint de revisión y prompt operativo para Codex
 
-Cuando la revisión de cierre determine que corresponde realizar un commit, un
-push o ambos, ChatGPT debe indicar con precisión la operación recomendada,
-proponer un mensaje de commit descriptivo cuando corresponda y proporcionar en
-esa misma respuesta un prompt listo para ejecutar en Codex. También debe indicar
-la ruta exacta del reporte `.codex_reports/...md` que Mateo devolverá para la
-revisión posterior.
+Un prompt de implementación preparado por ChatGPT puede autorizar expresamente,
+en una sola instrucción, implementar, verificar técnicamente, crear un checkpoint
+de revisión, publicarlo y generar el reporte. No hace falta un segundo prompt de
+commit y push antes de la primera revisión cuando esa autorización ya existe.
+También puede emitirse después un prompt específico para commit, push o
+integración, según el estado real.
 
-El prompt se adapta al cierre real —commit solamente, commit y push, push de
-commits existentes o integración validada de una rama a `main`— y solicita, en
-la medida aplicable:
+El prompt autorizado solicita, en la medida aplicable:
 
 - comprobar rama, `HEAD`, working tree, upstream y remoto;
 - identificar los archivos de la unidad y detectar cambios accidentales o temporales;
@@ -322,16 +372,18 @@ la medida aplicable:
 El prompt específico preparado por ChatGPT constituye la autorización operativa
 para las acciones Git que describe. Codex no puede ampliarla a otros archivos,
 ramas u operaciones y no realiza commit, push, integración ni cambio de rama por
-iniciativa propia. La recomendación no implica que toda tarea deba terminar
-inmediatamente en un commit.
+iniciativa propia. La autorización de checkpoint no autoriza integración a
+`main` ni permite confundir la verificación de Codex con la validación de
+ChatGPT. La recomendación no implica que toda tarea deba terminar inmediatamente
+en un commit.
 
-No es necesario hacer commit después de cada modificación pequeña. Un commit
-debe representar un checkpoint coherente y suficientemente validado; antes de
-crearlo se ejecutan las validaciones pertinentes al alcance y se confirma qué
-archivos integran realmente la unidad de trabajo.
+No es necesario hacer commit después de cada modificación pequeña. Un checkpoint
+de revisión debe representar un estado coherente y técnicamente verificado;
+antes de crearlo se ejecutan las comprobaciones pertinentes al alcance y se
+confirma qué archivos integran realmente la unidad de trabajo.
 
 El mensaje debe resumir el propósito real del cambio, corresponder al alcance
-efectivamente validado y permitir comprender la intención principal sin revisar
+efectivamente verificado y permitir comprender la intención principal sin revisar
 de inmediato el diff. Debe evitar mensajes genéricos como `update files`,
 `changes`, `fix` o `misc updates`. Puede emplear prefijos breves como `docs:`,
 `fix:`, `feat:`, `refactor:`, `test:` o `chore:` cuando resulten naturales, sin
@@ -348,12 +400,16 @@ Los ejemplos son ilustrativos y no constituyen decisiones metodológicas
 vigentes. Mateo ejecuta el prompt que autoriza el alcance concreto y Codex debe
 respetar literalmente esos límites.
 
-El cierre sigue esta secuencia conceptual:
+El ciclo de revisión sigue esta secuencia conceptual:
 
 ```text
-revisión y validación → recomendación Git + prompt de Codex
-→ ejecución → reporte → revisión de ChatGPT
+checkpoint inicial → revisión de ChatGPT → corrección
+→ nuevo checkpoint → revisión del nuevo SHA → ajuste final
 ```
+
+Por defecto no se emplean `rebase`, `amend` ni `force-push` para ocultar
+checkpoints anteriores. Una excepción requiere instrucción explícita. La
+historia ordinaria conserva la sucesión de correcciones.
 
 ## Criterios de transición
 
@@ -408,6 +464,13 @@ No se impone por defecto `merge`, `squash` ni `rebase + merge`. Mateo y ChatGPT
 pueden escoger la forma apropiada según el historial y las herramientas
 disponibles, siempre que la integración conserve una historia comprensible y
 no incorpore trabajo no validado.
+
+La existencia de checkpoints publicados no obliga a integrar inmediatamente la
+rama. Se distinguen tres estados: el checkpoint de revisión puede publicarse
+antes de la validación de ChatGPT; la unidad queda validada solo tras una revisión
+supervisora satisfactoria; y la integración a `main` ocurre después de la revisión
+de cierre, cuando el avance acumulado sea coherente, validado y apto para
+integración.
 
 Después de confirmar la integración, debe verificarse que `main` contiene los
 cambios esperados; desde entonces, `main` vuelve a ser la referencia vigente

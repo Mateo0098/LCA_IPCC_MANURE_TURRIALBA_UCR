@@ -42,6 +42,16 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 - No hacer commit, push, integración ni cambio de rama por iniciativa propia. Un prompt específico preparado por ChatGPT autoriza únicamente las operaciones Git, los archivos y las ramas que describe; no ampliar ese alcance.
 
+- Un prompt de implementación puede autorizar expresamente a Codex a implementar, realizar verificaciones técnicas, crear y publicar un checkpoint de revisión y generar el reporte, sin requerir un segundo prompt de commit/push. Esta autorización no se presume, no se amplía y nunca autoriza por sí sola la integración a `main`.
+
+- Antes de crear un checkpoint autorizado, revisar el alcance y el diff, detectar archivos accidentales, ejecutar `git diff --check`, aplicar las comprobaciones de sintaxis, validadores, regeneraciones y controles de coherencia pertinentes, y confirmar que `.codex_reports/` y temporales no entren al commit. La selección debe ser proporcional al cambio.
+
+- Si fallan validadores, existen errores conocidos, cambios accidentales, resultados inesperados no resueltos o ambigüedades que requieren decisión de Mateo o ChatGPT, no crear el checkpoint salvo instrucción excepcional y explícita; generar el reporte y dejar la unidad pendiente.
+
+- Un checkpoint publicado solo acredita un estado técnicamente preparado para revisión. No equivale a validación metodológica, científica, documental o supervisora, no cierra automáticamente la unidad y no autoriza integración a `main`. Codex verifica; ChatGPT valida.
+
+- Las correcciones posteriores se realizan normalmente sobre la misma rama activa mediante nuevos commits y nuevos SHA. No usar `rebase`, `amend` ni `force-push` para ocultar checkpoints anteriores salvo instrucción excepcional y explícita.
+
 - Tratar `.codex_reports/` como bandeja temporal. Al comenzar, durante y al cerrar una unidad, evaluar de forma conservadora si pueden eliminarse reportes de unidades ya cerradas. Conservar los necesarios para revisión, validación, cierre Git o decisiones vigentes; ante duda, conservar. No borrar el reporte solicitado por el prompt, no actuar fuera de `.codex_reports/` bajo esta regla y trasladar primero a su fuente responsable cualquier información permanente que solo exista en un reporte.
 
 
@@ -106,6 +116,22 @@ Cuando una tarea genere un reporte, este debe permitir que ChatGPT conozca, como
 - la documentación actualizada;
 - los pendientes y anomalías;
 - cualquier decisión que todavía requiera intervención del investigador.
+
+Cuando la tarea cree un checkpoint, el reporte debe añadir como mínimo:
+
+```markdown
+## Estado del checkpoint
+
+- Repositorio: `owner/repository`
+- Rama: `...`
+- Commit de revisión: `SHA completo`
+- Publicado en remoto: sí / no
+- Validaciones técnicas de Codex: PASS / FAIL / parcial
+- Revisión de ChatGPT: pendiente
+- Integración a `main`: no autorizada
+```
+
+También debe incluir `## Archivos potencialmente relevantes para revisión de ChatGPT`. Para cada archivo modificado, creado, eliminado o generado potencialmente relevante, registrar la ruta exacta, el tipo y motivo del cambio, si está incluido en el checkpoint publicado y si Codex considera que contiene una decisión, implementación o resultado que merece revisión supervisora. Codex facilita la selección, pero no decide definitivamente qué debe revisar ChatGPT.
 
 
 
