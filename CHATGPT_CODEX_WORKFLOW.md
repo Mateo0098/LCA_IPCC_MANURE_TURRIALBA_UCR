@@ -180,9 +180,10 @@ Mateo + ChatGPT → prompt para Codex → implementación
    recuperarlos directamente desde GitHub por repositorio, SHA exacto y ruta.
 8. ChatGPT valida el estado inmutable del checkpoint. Las comprobaciones técnicas
    de Codex no sustituyen esta revisión supervisora.
-9. Si hay problemas, ChatGPT prepara un prompt correctivo y el ciclo produce un
-   nuevo checkpoint en la misma rama; si valida, la unidad puede considerarse
-   validada y pasar posteriormente a su revisión de cierre.
+9. Si hay problemas, ChatGPT evalúa la estrategia de recuperación descrita a
+   continuación y prepara un prompt específico; el ciclo produce un nuevo
+   checkpoint para otra revisión. Si valida, la unidad puede considerarse validada
+   y pasar posteriormente a su revisión de cierre.
 
 ### Codex verifica; ChatGPT valida
 
@@ -204,6 +205,67 @@ Si un validador falla, existe un error conocido, se detecta un cambio accidental
 aparece un resultado inesperado sin resolver o falta una decisión de Mateo o
 ChatGPT, Codex no crea el checkpoint salvo autorización excepcional y explícita.
 Debe dejar la unidad pendiente y describir el problema en el reporte.
+
+### Recuperación ante un checkpoint rechazado
+
+Cuando ChatGPT no valida un checkpoint publicado, debe preferir una corrección
+hacia adelante si el defecto está claramente localizado, la mayor parte del
+cambio continúa siendo válida, pueden identificarse los archivos o cálculos
+afectados, la reparación puede verificarse razonablemente y continuar no propaga
+supuestos incorrectos. Esto comprende, por ejemplo, una ecuación o condición
+puntual, una actualización documental omitida, una etiqueta o redacción
+incorrecta, un producto que deba regenerarse, una validación faltante o un error
+pequeño de implementación con alcance identificable. El flujo ordinario conserva
+el checkpoint rechazado y añade el correctivo para someter el nuevo SHA a revisión.
+
+ChatGPT debe considerar regresar al último estado validado cuando el checkpoint
+rechazado parta de una interpretación metodológica fundamentalmente incorrecta,
+altere varias capas bajo un supuesto equivocado, mezcle cambios independientes
+difíciles de separar, introduzca modificaciones extensas fuera del alcance o deje
+resultados y productos cuya confiabilidad ya no pueda aislarse. También procede
+considerarlo cuando ya no sea claro qué partes siguen siendo correctas o cuando
+corregir encima resulte más riesgoso o costoso que reconstruir desde el último
+estado confiable. Volver atrás es una herramienta legítima de control, no un
+fracaso del flujo, y no existe una preferencia artificial por nunca retroceder.
+
+La decisión debe minimizar el riesgo de propagar errores, la pérdida de trabajo
+válido, el retrabajo, la contaminación metodológica o técnica y la pérdida de
+trazabilidad. Antes de ordenar un regreso, ChatGPT identifica explícitamente el
+último SHA satisfactoriamente validado: no presume que sea el checkpoint
+inmediatamente anterior, `main` ni cualquier commit publicado en la rama. El
+reporte temporal y el historial Git deben permitir distinguir el último estado
+validado conocido, los checkpoints pendientes o rechazados y el estado actual de
+la rama, sin crear un ledger permanente.
+
+ChatGPT elige el mecanismo Git después de evaluar el checkpoint y el historial.
+Según el caso, puede autorizar un commit que restaure explícitamente el estado
+validado, `git revert` de uno o varios checkpoints, recomenzar desde un commit
+validado en la rama activa sin perder trabajo relevante u otra estrategia segura
+y trazable. Por defecto no se usa `reset --hard` sobre historia publicada ni se
+emplean `force-push`, `rebase` o `amend` para borrar la existencia del checkpoint
+rechazado. Una excepción requiere una razón real y autorización explícita de Mateo
+o ChatGPT.
+
+Codex no escoge autónomamente entre corregir hacia adelante y volver atrás. Puede
+advertir que el estado parece ampliamente contaminado o que una reparación local
+sería arriesgada, pero ChatGPT determina la estrategia y prepara un prompt
+específico. Codex ejecuta solo esa estrategia, verifica técnicamente el nuevo
+estado y, si el prompt lo autoriza y las verificaciones pasan, crea y publica un
+nuevo checkpoint. Mateo entrega el reporte y ChatGPT vuelve a validar.
+
+```text
+checkpoint → revisión de ChatGPT → rechazado
+                 ↓
+     ¿problema localizado y estado confiable?
+           ↙                         ↘
+         sí                            no
+corregir hacia adelante       considerar volver al
+                              último estado validado
+           ↘                         ↙
+                 nuevo checkpoint
+                        ↓
+                  nueva revisión
+```
 
 ### Recuperación directa para revisión desde GitHub
 
@@ -400,16 +462,16 @@ Los ejemplos son ilustrativos y no constituyen decisiones metodológicas
 vigentes. Mateo ejecuta el prompt que autoriza el alcance concreto y Codex debe
 respetar literalmente esos límites.
 
-El ciclo de revisión sigue esta secuencia conceptual:
+El ciclo de revisión aplica la estrategia de recuperación definida en el flujo
+general y siempre somete el nuevo estado a otra revisión:
 
 ```text
-checkpoint inicial → revisión de ChatGPT → corrección
-→ nuevo checkpoint → revisión del nuevo SHA → ajuste final
+checkpoint inicial → revisión de ChatGPT → estrategia autorizada
+→ nuevo checkpoint → revisión del nuevo SHA
 ```
 
-Por defecto no se emplean `rebase`, `amend` ni `force-push` para ocultar
-checkpoints anteriores. Una excepción requiere instrucción explícita. La
-historia ordinaria conserva la sucesión de correcciones.
+La historia ordinaria conserva los checkpoints y las acciones de recuperación;
+no se reescribe para hacer parecer que el error nunca ocurrió.
 
 ## Criterios de transición
 

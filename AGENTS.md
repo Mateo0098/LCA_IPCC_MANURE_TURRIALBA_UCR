@@ -50,7 +50,7 @@ El objetivo es generar tablas, figuras y documentos académicos para tesis, no r
 
 - Un checkpoint publicado solo acredita un estado técnicamente preparado para revisión. No equivale a validación metodológica, científica, documental o supervisora, no cierra automáticamente la unidad y no autoriza integración a `main`. Codex verifica; ChatGPT valida.
 
-- Las correcciones posteriores se realizan normalmente sobre la misma rama activa mediante nuevos commits y nuevos SHA. No usar `rebase`, `amend` ni `force-push` para ocultar checkpoints anteriores salvo instrucción excepcional y explícita.
+- Ante un checkpoint rechazado, Codex no decide por sí mismo si corregir hacia adelante o regresar a un estado validado: ejecuta únicamente la estrategia y las operaciones Git especificadas por ChatGPT. Las correcciones se realizan normalmente sobre la misma rama activa mediante nuevos commits y nuevos SHA; no reescribir historia publicada con `reset --hard`, `rebase`, `amend` ni `force-push` salvo razón real y autorización excepcional y explícita de Mateo o ChatGPT.
 
 - Tratar `.codex_reports/` como bandeja temporal. Al comenzar, durante y al cerrar una unidad, evaluar de forma conservadora si pueden eliminarse reportes de unidades ya cerradas. Conservar los necesarios para revisión, validación, cierre Git o decisiones vigentes; ante duda, conservar. No borrar el reporte solicitado por el prompt, no actuar fuera de `.codex_reports/` bajo esta regla y trasladar primero a su fuente responsable cualquier información permanente que solo exista en un reporte.
 
