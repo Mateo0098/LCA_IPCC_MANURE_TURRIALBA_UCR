@@ -208,18 +208,24 @@ Mateo + ChatGPT → prompt para Codex → implementación
    sin anuncio ni confirmación burocrática; si constituye un objetivo
    suficientemente independiente, lo señala y considera trasladarlo a otro chat
    antes de mezclar la nueva unidad con la línea intelectual activa.
-3. ChatGPT prepara un prompt concreto para Codex.
-4. Mateo ejecuta ese prompt en Codex.
-5. Codex implementa el alcance y realiza las verificaciones técnicas pertinentes.
-6. Si el prompt lo autoriza expresamente y las verificaciones permiten continuar,
+3. ChatGPT clasifica el alcance operativo como exclusivamente de solo lectura o
+   con capacidad de modificar archivos. Si puede modificar, resuelve antes el
+   contexto Git conforme a la salvaguarda preimplementación descrita abajo y
+   refleja explícitamente la decisión en el prompt.
+4. ChatGPT prepara un prompt concreto para Codex.
+5. Mateo ejecuta ese prompt en Codex.
+6. Codex verifica las precondiciones Git autorizadas y, solo después de
+   satisfacerlas, implementa el alcance y realiza las comprobaciones técnicas
+   pertinentes.
+7. Si el prompt lo autoriza expresamente y las verificaciones permiten continuar,
    Codex crea un checkpoint normal, lo publica sin reescribir la historia y genera
    el reporte solicitado en `.codex_reports/`.
-7. Mateo entrega el reporte a ChatGPT en lugar de copiar largas salidas de terminal.
-8. ChatGPT revisa primero el reporte, selecciona los archivos necesarios y procura
+8. Mateo entrega el reporte a ChatGPT en lugar de copiar largas salidas de terminal.
+9. ChatGPT revisa primero el reporte, selecciona los archivos necesarios y procura
    recuperarlos directamente desde GitHub por repositorio, SHA exacto y ruta.
-9. ChatGPT valida el estado inmutable del checkpoint. Las comprobaciones técnicas
+10. ChatGPT valida el estado inmutable del checkpoint. Las comprobaciones técnicas
    de Codex no sustituyen esta revisión supervisora.
-10. Si hay problemas, ChatGPT evalúa la estrategia de recuperación descrita a
+11. Si hay problemas, ChatGPT evalúa la estrategia de recuperación descrita a
    continuación y prepara un prompt específico; el ciclo produce un nuevo
    checkpoint para otra revisión. Si valida, la unidad puede considerarse validada
    y pasar posteriormente a su revisión de cierre.
@@ -341,6 +347,44 @@ consultar `main` como fuente vigente de esa tarea. Esta regla evita preparar
 prompts o validar cambios usando código o documentación desactualizados. Si la
 rama inicial y la final difieren, ChatGPT debe tomar en cuenta la explicación
 registrada antes de continuar la coordinación.
+
+#### Salvaguarda antes del primer cambio
+
+Antes de preparar cualquier prompt para Codex que pueda modificar archivos,
+ChatGPT debe distinguir si el alcance es exclusivamente de solo lectura o si
+autoriza escritura, determinar la referencia Git vigente, identificar si existe
+una rama activa de avance no integrada y compatible y resolver cualquier
+transición necesaria. El prompt debe expresar la decisión tomada y ordenar que
+la transición autorizada, cuando corresponda, ocurra antes del primer cambio de
+archivos. Esta comprobación es obligatoria como conducta supervisora, pero no
+requiere un formulario visible ni debe repetirse mecánicamente en cada prompt
+correctivo mientras la rama ya resuelta continúe vigente y compatible.
+
+La salvaguarda se aplica al convertir una discusión o auditoría diagnóstica en
+implementación, al decidir corregir un problema informado por Codex, al comenzar
+una unidad después de una inspección y cuando una tarea inicialmente de solo
+lectura amplía su alcance a escritura. Se integra después de resolver si la
+cuestión pertenece al objetivo vigente del chat: primero se resuelve el alcance
+temático; después se clasifica lectura o escritura; si habrá escritura, se
+resuelve la rama; y solo entonces se prepara el prompt modificador.
+
+La rama utilizada para diagnosticar no determina automáticamente la rama donde
+se implementa. Una auditoría puede realizarse correctamente con `main` como
+checkout y terminar sin transición Git; si después se decide implementar, ese
+cambio de alcance constituye un nuevo punto obligatorio de decisión. ChatGPT no
+debe preparar silenciosamente un prompt que modifique directamente `main` por el
+solo hecho de que el diagnóstico anterior se realizó allí. Una modificación
+directa excepcional sobre `main` requeriría autorización consciente y explícita
+acorde con la gobernanza vigente, no la omisión de decidir la rama.
+
+Si existe una rama activa compatible, ChatGPT prefiere continuar en ella. Si no
+existe y `main` es la referencia vigente, evalúa e indica explícitamente iniciar
+o seleccionar una rama de avance antes de modificar; esa transición puede formar
+parte del mismo prompt de implementación. Si existe una rama activa incompatible,
+aplica la política contextual vigente y no abre silenciosamente una segunda
+línea. Esta salvaguarda obliga a decidir antes de escribir; la sección «Nueva
+rama Git» sigue determinando cómo seleccionar la rama correcta y evita convertir
+cada tarea o unidad en una rama nueva.
 
 ## Reportes temporales de Codex
 
@@ -465,6 +509,9 @@ integración, según el estado real.
 El prompt autorizado solicita, en la medida aplicable:
 
 - comprobar rama, `HEAD`, working tree, upstream y remoto;
+- cuando el alcance permita escritura, confirmar que el contexto de rama ya fue
+  resuelto y ejecutar cualquier transición expresamente autorizada antes del
+  primer cambio de archivos;
 - identificar los archivos de la unidad y detectar cambios accidentales o temporales;
 - ejecutar las validaciones pertinentes;
 - excluir `.codex_reports/` y otros artefactos temporales;

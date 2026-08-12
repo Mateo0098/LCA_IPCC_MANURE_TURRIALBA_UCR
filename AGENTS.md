@@ -66,9 +66,9 @@ Antes de realizar cualquier modificación, Codex debe:
 
 1. Ejecutar `git branch --show-current`.
 2. Registrar la rama activa, el commit `HEAD` y el estado general del working tree al inicio.
-3. Verificar que la rama encontrada corresponda con el contexto autorizado antes de modificar archivos.
+3. Verificar que la rama encontrada corresponda con el contexto autorizado antes de modificar archivos; una rama usada para diagnóstico no se presume autorizada para una implementación posterior.
 4. Si existe una discrepancia material entre la rama encontrada y el contexto autorizado, detener las modificaciones e informarla.
-5. No crear ni cambiar de rama por iniciativa propia; ejecutar únicamente una transición expresamente autorizada por el prompt.
+5. No crear ni cambiar de rama por iniciativa propia; si el prompt autoriza una transición para implementar, ejecutarla y verificarla antes de cualquier escritura, y detener las modificaciones si no puede satisfacerse.
 6. No interpretar una rama histórica conservada como respaldo como fuente vigente ni como línea activa de trabajo.
 
 
