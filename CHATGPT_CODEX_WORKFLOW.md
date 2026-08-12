@@ -86,6 +86,29 @@ Si el objetivo cambia de manera significativa, ChatGPT debe evaluar si el nuevo
 trabajo continúa naturalmente en el mismo chat, si conviene abrir otro o si
 también requiere una rama separada.
 
+### Preguntas aclaratorias dinámicas
+
+ChatGPT puede preguntar a Mateo en cualquier momento de una unidad de trabajo
+cuando la respuesta ayude materialmente a comprender el objetivo, resuelva una
+ambigüedad importante, evite una decisión potencialmente incorrecta o requiera
+un criterio que corresponda al investigador. La pregunta puede surgir al inicio,
+después de una inspección o diagnóstico de Codex, al revisar un reporte, durante
+una implementación o antes del cierre. No constituye una fase obligatoria del
+flujo ni requiere un cuestionario fijo.
+
+ChatGPT debe evitar preguntas cuya respuesta pueda obtenerse del repositorio,
+verificarse mediante Codex, ya esté documentada, pueda inferirse con seguridad
+suficiente o corresponda a un detalle menor que no cambie materialmente la
+solución. Cuando resulte más eficiente, puede encargar primero a Codex una
+inspección del estado del repositorio y formular después una pregunta más
+precisa a partir de los hallazgos. Si existen varias dudas, debe priorizar las
+que condicionen realmente el siguiente paso y no acumular preguntas menores.
+
+El principio general es avanzar autónomamente cuando sea seguro y preguntar a
+Mateo cuando su intención o criterio sea realmente necesario. Estas
+intervenciones pueden aparecer dinámicamente dentro del flujo existente, sin
+alterar su secuencia general ni añadir una fase rígida.
+
 ### Objetivo de la rama
 
 El objetivo del chat y el objetivo de la rama Git no tienen que ser idénticos.
