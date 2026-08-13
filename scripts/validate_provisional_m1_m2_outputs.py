@@ -12,6 +12,7 @@ from docx import Document
 import generate_conclusions_docx as conclusions_generator
 import generate_a2_jjagwe_benchmark as benchmark_generator
 import generate_thesis_graphics as graphics_generator
+from quantitative_comparison import Comparison, dominant
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -200,7 +201,62 @@ def validate_impacts_and_comparison() -> None:
         assert close(row["escenario_A"], a) and close(row["escenario_B"], b)
         assert close(row["diferencia_absoluta_B_menos_A"], b - a)
         assert close(row["diferencia_porcentual_B_vs_A"], (b - a) / a * 100)
-        assert row["escenario_con_mayor_impacto"] == ("B" if b > a else "A")
+        expected_higher = "B" if b > a else "A" if a > b else "Iguales"
+        assert row["escenario_con_mayor_impacto"] == expected_higher
+        expected_unit = "kg CO2-eq/año" if category == "Calentamiento global" else "kg PO4-eq/año"
+        assert row["unidad"] == expected_unit
+        comparison = Comparison("A", a, "B", b, expected_unit)
+        comparison.assert_consistent(
+            difference=float(row["diferencia_absoluta_B_menos_A"]),
+            percentage=float(row["diferencia_porcentual_B_vs_A"]),
+        )
+        comparison.assert_rounding_unambiguous(6)
+
+
+def validate_quantitative_narratives() -> None:
+    results_text, _ = document_text(DOCS / "resultados_desarrollados_tfg.docx")
+    conclusions_text, _ = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
+    totals = {
+        (row["Escenario"], category): float(row[column])
+        for row in read_rows(PROCESSED / "acv_impacto_total_por_escenario.csv")
+        for category, column in {
+            "Calentamiento global": "impacto_calentamiento_global_kg_co2eq",
+            "Eutrofizacion": "impacto_eutrofizacion_kg_po4eq",
+        }.items()
+    }
+    for category, visible_category in (("Calentamiento global", "calentamiento global"), ("Eutrofizacion", "eutrofización")):
+        comparison = Comparison("Escenario A", totals[("A", category)], "Escenario B", totals[("B", category)], "kg/año")
+        assert comparison.higher_label is not None and comparison.lower_label is not None
+        if category == "Calentamiento global":
+            assert f"mayor impacto de {visible_category} en el {comparison.higher_label}" in results_text
+        else:
+            assert f"el {comparison.higher_label} presentó el mayor impacto" in results_text
+        assert f"el {comparison.higher_label} presentó el mayor impacto por unidad funcional" in conclusions_text
+        assert f"el {comparison.lower_label} alcanzó el menor indicador" in conclusions_text or f"para el {comparison.lower_label} bajo" in conclusions_text
+
+    synthetic = Comparison("A", 10.0, "B", 8.0, "kg/año")
+    synthetic.assert_consistent(difference=-2.0, percentage=-20.0)
+    assert synthetic.higher_label == "A" and synthetic.lower_label == "B"
+    try:
+        synthetic.assert_consistent(difference=2.0, percentage=-20.0)
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("No se detectó una diferencia con signo contradictorio.")
+    try:
+        Comparison("A", 1.0004, "B", 1.0003, "kg/año").assert_rounding_unambiguous(3)
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("No se detectó una comparación ambigua por redondeo.")
+    assert dominant({"A1": 1.0, "A2": 2.0}, decimals=3) == ("A2", 2.0)
+    benchmark = {row["indicador"]: row for row in read_rows(PROCESSED / "a2_ipcc_jjagwe_benchmark.csv")}
+    benchmark_directions = []
+    for indicator in ("CH4 por materia seca de entrada", "N2O directo por materia seca de entrada"):
+        row = benchmark[indicator]
+        benchmark_directions.append("menor" if float(row["valor_ipcc"]) < float(row["valor_experimental"]) else "mayor")
+    assert f"estimación IPCC fue {benchmark_directions[0]} para" in results_text
+    assert f"y {benchmark_directions[1]} para" in results_text
 
 
 def validate_documents_and_conclusions() -> None:
@@ -291,6 +347,7 @@ def main() -> None:
     validate_emissions()
     validate_a2_benchmark()
     validate_impacts_and_comparison()
+    validate_quantitative_narratives()
     validate_documents_and_conclusions()
     validate_graph_sources()
     master = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
@@ -305,6 +362,7 @@ def main() -> None:
         "- Contraste Jjagwe reproducido, N2O directo aislado y sin ruta medida ni eutrofización experimental: PASS.\n"
         "- Impactos por etapa y totales contra salidas canónicas: PASS.\n"
         "- Comparación entre escenarios recalculada: PASS.\n"
+        "- Dirección narrativa, signos, porcentajes, unidades, dominancia y ambigüedad por redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"
         "- Cifras documentales verificadas con el redondeo visible: PASS.\n"
         "- Conclusiones cuantitativas reconstruidas desde tablas e impactos: PASS.\n"

@@ -18,6 +18,7 @@ from reference_docx_utils import (  # noqa: E402
     get_reference_docx_path,
     sha256_file,
 )
+from quantitative_comparison import Comparison, dominant  # noqa: E402
 
 
 MASTER = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
@@ -197,9 +198,9 @@ def dominant_stage(
     stages: dict[tuple[str, int, str], float],
     totals: dict[tuple[str, str], float],
 ) -> tuple[str, float, float]:
-    candidates = [(key, value) for key, value in stages.items() if key[0] == scenario and key[2] == category]
-    key, value = max(candidates, key=lambda item: item[1])
-    return OFFICIAL_STAGES[(key[0], key[1])], value, 100 * value / totals[(scenario, category)]
+    candidates = {OFFICIAL_STAGES[(key[0], key[1])]: value for key, value in stages.items() if key[0] == scenario and key[2] == category}
+    stage_name, value = dominant(candidates, decimals=9)
+    return stage_name, value, 100 * value / totals[(scenario, category)]
 
 
 def flow_inventory(reference_flow: float) -> tuple[float, float]:
@@ -247,6 +248,31 @@ def build_conclusions(
     b_cg = dominant_stage("B", "Calentamiento global", stages, totals)
     a_eu = dominant_stage("A", "Eutrofizacion", stages, totals)
     b_eu = dominant_stage("B", "Eutrofizacion", stages, totals)
+    comparisons_by_category = {}
+    units = {
+        "Calentamiento global": "kg CO₂-eq/kg de estiércol fresco manejado",
+        "Eutrofizacion": "kg PO₄-eq/kg de estiércol fresco manejado",
+    }
+    decimals = {"Calentamiento global": 3, "Eutrofizacion": 6}
+    for category in EXPECTED_CATEGORIES:
+        item = Comparison(
+            "Escenario A", normalized_values[("A", category)],
+            "Escenario B", normalized_values[("B", category)], units[category],
+        )
+        annual_item = Comparison(
+            "Escenario A", totals[("A", category)],
+            "Escenario B", totals[("B", category)], units[category].split("/kg")[0] + "/año",
+        )
+        annual_item.assert_consistent(
+            difference=annual_item.difference_right_minus_left,
+            percentage=percentage[category],
+        )
+        if item.higher_label != annual_item.higher_label:
+            raise RuntimeError(f"La normalización invierte la comparación de {category} entre escenarios.")
+        item.assert_rounding_unambiguous(decimals[category])
+        comparisons_by_category[category] = item
+    cg_comparison = comparisons_by_category["Calentamiento global"]
+    eu_comparison = comparisons_by_category["Eutrofizacion"]
     return [
         {
             "id": "C1",
@@ -289,11 +315,11 @@ def build_conclusions(
             "id": "C3",
             "objective": "OE2",
             "text": (
-                "Para calentamiento global, el Escenario B presentó el mayor impacto por unidad funcional: "
-                f"{number(normalized_values[('B', 'Calentamiento global')], 3)} kg CO₂-eq/kg de estiércol fresco manejado, frente a "
-                f"{number(normalized_values[('A', 'Calentamiento global')], 3)} kg CO₂-eq/kg de estiércol fresco manejado en el Escenario A. La diferencia "
-                f"fue de {number(percentage['Calentamiento global'], 2)} % respecto a A, lo que evidenció un menor indicador "
-                "para el Escenario A bajo las condiciones estudiadas."
+                f"Para calentamiento global, el {cg_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
+                f"{number(max(cg_comparison.left, cg_comparison.right), 3)} kg CO₂-eq/kg de estiércol fresco manejado, frente a "
+                f"{number(min(cg_comparison.left, cg_comparison.right), 3)} kg CO₂-eq/kg de estiércol fresco manejado en el {cg_comparison.lower_label}. La diferencia "
+                f"B menos A fue de {number(percentage['Calentamiento global'], 2)} % respecto a A, lo que evidenció un menor indicador "
+                f"para el {cg_comparison.lower_label} bajo las condiciones estudiadas."
             ),
             "evidence": (
                 f"A: {normalized_values[('A', 'Calentamiento global')]:.12f} kg CO₂-eq/kg y "
@@ -308,11 +334,11 @@ def build_conclusions(
             "id": "C4",
             "objective": "OE2",
             "text": (
-                "Para eutrofización, el Escenario B también presentó el mayor impacto por unidad funcional: "
-                f"{number(normalized_values[('B', 'Eutrofizacion')], 6)} kg PO₄-eq/kg de estiércol fresco manejado, en comparación con "
-                f"{number(normalized_values[('A', 'Eutrofizacion')], 6)} kg PO₄-eq/kg de estiércol fresco manejado en el Escenario A. Bajo el supuesto "
-                "de representación del nitrógeno potencialmente eutrofizante adoptado en el estudio, la diferencia de "
-                f"{number(percentage['Eutrofizacion'], 2)} % respecto a A mostró que el Escenario A también alcanzó el menor "
+                f"Para eutrofización, el {eu_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
+                f"{number(max(eu_comparison.left, eu_comparison.right), 6)} kg PO₄-eq/kg de estiércol fresco manejado, en comparación con "
+                f"{number(min(eu_comparison.left, eu_comparison.right), 6)} kg PO₄-eq/kg de estiércol fresco manejado en el {eu_comparison.lower_label}. Bajo el supuesto "
+                "de representación del nitrógeno potencialmente eutrofizante adoptado en el estudio, la diferencia "
+                f"B menos A fue de {number(percentage['Eutrofizacion'], 2)} % respecto a A y mostró que el {eu_comparison.lower_label} alcanzó el menor "
                 "indicador de eutrofización en el sistema evaluado."
             ),
             "evidence": (
@@ -330,12 +356,12 @@ def build_conclusions(
             "text": (
                 "En conjunto, el ACV permitió estimar el desempeño ambiental de las dos alternativas de manejo en la lechería "
                 "estudiada. Bajo la unidad funcional común de 1 kg de estiércol fresco manejado y las condiciones modeladas, "
-                "el Escenario A presentó menores "
-                "indicadores que el Escenario B tanto para calentamiento global como para eutrofización. Este resultado se "
+                f"el {cg_comparison.lower_label} presentó el menor indicador de calentamiento global y el {eu_comparison.lower_label} "
+                "presentó el menor indicador de eutrofización. Este resultado se "
                 "circunscribió al sistema evaluado y no implicó la superioridad universal de una alternativa en otras lecherías "
                 "o condiciones operativas."
             ),
-            "evidence": "B supera a A en ambas categorías con referencia común de 1 kg de estiércol fresco manejado.",
+            "evidence": f"Menor calentamiento global: {cg_comparison.lower_label}; menor eutrofización: {eu_comparison.lower_label}; referencia común de 1 kg de estiércol fresco manejado.",
             "source": "Tablas 7, 8 y 9; metodología desarrollada; objetivos extraídos del master.",
         },
     ]

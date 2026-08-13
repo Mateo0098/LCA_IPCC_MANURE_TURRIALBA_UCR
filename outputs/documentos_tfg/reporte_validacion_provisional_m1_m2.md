@@ -8,6 +8,7 @@
 - Contraste Jjagwe reproducido, N2O directo aislado y sin ruta medida ni eutrofización experimental: PASS.
 - Impactos por etapa y totales contra salidas canónicas: PASS.
 - Comparación entre escenarios recalculada: PASS.
+- Dirección narrativa, signos, porcentajes, unidades, dominancia y ambigüedad por redondeo: PASS.
 - Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.
 - Cifras documentales verificadas con el redondeo visible: PASS.
 - Conclusiones cuantitativas reconstruidas desde tablas e impactos: PASS.

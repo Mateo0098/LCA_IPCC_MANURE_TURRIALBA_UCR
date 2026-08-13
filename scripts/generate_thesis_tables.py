@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 import pandas as pd
 
 from academic_text_utils import clean_academic_label, clean_annual_units
+from quantitative_comparison import dominant
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -595,6 +597,32 @@ def resumen_resultados_para_redaccion() -> Path:
         .pivot(index=["escenario", "etapa", "nombre_etapa"], columns="categoria_impacto", values="resultado_equivalente")
         .reset_index()
     )
+    def stage_label(row: pd.Series) -> str:
+        academic_name = re.sub(r"^Etapa\s+\d+:\s*", "", str(row["nombre_etapa"]))
+        return f"{row['escenario']}{int(row['etapa'])}: {academic_name}"
+
+    mass_candidates = {
+        stage_label(row): float(row["valor"])
+        for _, row in masa.iterrows()
+    }
+    mass_dominant = dominant(mass_candidates, decimals=2)
+    emission_stage = emisiones.groupby(["escenario", "etapa", "nombre_etapa", "sustancia"], as_index=False)["valor"].sum()
+
+    def emission_dominant(substance: str) -> str:
+        subset = emission_stage[emission_stage["sustancia"] == substance]
+        return dominant({
+            stage_label(row): float(row["valor"])
+            for _, row in subset.iterrows()
+        }, decimals=6)[0]
+
+    impact_dominants = {}
+    for scenario in ("A", "B"):
+        for category in ("Calentamiento global", "Eutrofizacion"):
+            subset = impactos_etapa[impactos_etapa["escenario"] == scenario]
+            impact_dominants[(scenario, category)] = dominant({
+                stage_label(row): float(row.get(category, 0.0))
+                for _, row in subset.iterrows()
+            }, decimals=9)[0]
 
     def markdown_table(df: pd.DataFrame) -> str:
         headers = [str(col) for col in df.columns]
@@ -635,8 +663,7 @@ def resumen_resultados_para_redaccion() -> Path:
     lines.extend(
         [
             "",
-            "B2, correspondiente a la Etapa 2: Aplicación de purines en campo de pastoreo, presenta la mayor masa equivalente total. "
-            "En el escenario A, A4 corresponde a la Etapa 4: Aplicación de aguas verdes en campos de pastoreo y domina la masa equivalente.",
+            f"{mass_dominant[0]} presenta la mayor masa equivalente total, con {mass_dominant[1]} kg eq/año.",
             "",
             "## 6.4 Emisiones estimadas por etapa y escenario",
             "",
@@ -649,8 +676,8 @@ def resumen_resultados_para_redaccion() -> Path:
     lines.extend(
         [
             "",
-            "B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente de CH4, NH3 y NO3. "
-            "A1, correspondiente a la Etapa 1: Precomposteo, es la mayor fuente de N2O. "
+            f"{emission_dominant('CH4')} es la mayor fuente de CH4; {emission_dominant('NH3')} de NH3; "
+            f"{emission_dominant('NO3')} de NO3; y {emission_dominant('N2O')} de N2O. "
             "A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.",
             "",
             "## 6.5 Impactos ambientales por etapa",
@@ -668,7 +695,8 @@ def resumen_resultados_para_redaccion() -> Path:
     lines.extend(
         [
             "",
-            "B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominante en calentamiento global y eutrofizacion.",
+            f"En calentamiento global dominan {impact_dominants[('A', 'Calentamiento global')]} en el Escenario A y {impact_dominants[('B', 'Calentamiento global')]} en el Escenario B. "
+            f"En eutrofización dominan {impact_dominants[('A', 'Eutrofizacion')]} en el Escenario A y {impact_dominants[('B', 'Eutrofizacion')]} en el Escenario B.",
             "",
             "## 6.6 Impactos totales por escenario",
             "",

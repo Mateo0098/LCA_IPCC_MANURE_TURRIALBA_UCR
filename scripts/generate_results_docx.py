@@ -28,6 +28,7 @@ from reference_docx_utils import (
     get_reference_docx_path,
     sha256_file,
 )
+from quantitative_comparison import Comparison, dominant
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -649,6 +650,25 @@ def results_context() -> dict[str, object]:
     context["eu_difference"] = float(comparison_index.loc["Eutrofizacion", "diferencia_absoluta_B_menos_A"])
     context["cg_percentage"] = float(comparison_index.loc["Calentamiento global", "diferencia_porcentual_B_vs_A"])
     context["eu_percentage"] = float(comparison_index.loc["Eutrofizacion", "diferencia_porcentual_B_vs_A"])
+    units = comparison.set_index("categoria_impacto")["unidad"]
+    expected_units = {
+        "Calentamiento global": "kg CO2-eq/año",
+        "Eutrofizacion": "kg PO4-eq/año",
+    }
+    for category, expected_unit in expected_units.items():
+        if units.loc[category] != expected_unit:
+            raise RuntimeError(f"Unidad comparativa inesperada para {category}: {units.loc[category]!r}.")
+    for short, category in (("cg", "Calentamiento global"), ("eu", "Eutrofizacion")):
+        comparison_values = Comparison(
+            "Escenario A", float(context[f"{short}_a"]),
+            "Escenario B", float(context[f"{short}_b"]), expected_units[category],
+        )
+        comparison_values.assert_consistent(
+            difference=float(context[f"{short}_difference"]),
+            percentage=float(context[f"{short}_percentage"]),
+        )
+        comparison_values.assert_rounding_unambiguous(6)
+        context[f"{short}_comparison"] = comparison_values
 
     stage_names = {
         ("A", 1): "A1: Precomposteo",
@@ -727,6 +747,28 @@ def build_document() -> None:
     fresh = characterization.loc["Estiércol fresco"]
     precomposted = characterization.loc["Estiércol precompostado"]
     emission_totals = emissions_summary().set_index("Escenario")
+    flows = flow_summary()
+    def stage_label(scenario: str, stage: object, name: object) -> str:
+        academic_name = re.sub(r"^Etapa\s+\d+:\s*", "", str(name))
+        return f"{scenario}{int(stage)}: {academic_name}"
+
+    flow_values = {
+        stage_label(row["Escenario"], row["Etapa"], row["Nombre de etapa"]): float(row["Masa equivalente total (kg eq/año)"])
+        for _, row in flows.iterrows()
+    }
+    largest_flow = dominant(flow_values, decimals=2)
+    smallest_flow = dominant({name: -value for name, value in flow_values.items()}, decimals=2)
+    stage_emissions = apply_official_stage_names(read_csv("tabla_06"))
+
+    def dominant_emission(substance: str) -> str:
+        grouped = stage_emissions[stage_emissions["sustancia"] == substance].groupby(
+            ["escenario", "etapa", "nombre_etapa"], as_index=False
+        )["valor"].sum()
+        candidates = {
+            stage_label(row["escenario"], row["etapa"], row["nombre_etapa"]): float(row["valor"])
+            for _, row in grouped.iterrows()
+        }
+        return dominant(candidates, decimals=6)[0]
 
     def emission_totals_text(scenario: str) -> str:
         substances = (
@@ -750,7 +792,7 @@ def build_document() -> None:
         doc,
         [
             f"La caracterización de las muestras analizadas permitió establecer los parámetros fisicoquímicos usados como entradas del inventario de ciclo de vida. El estiércol fresco presentó un contenido promedio de agua de {fmt(fresh['Humedad (%)'], 2)} % y una materia seca de {fmt(fresh['Materia seca (%)'], 2)} %. El estiércol precompostado presentó un contenido promedio de agua de {fmt(precomposted['Humedad (%)'], 2)} % y una materia seca de {fmt(precomposted['Materia seca (%)'], 2)} %.",
-            f"La fracción de sólidos volátiles fue mayor en el estiércol fresco, con {fmt(fresh['Sólidos volátiles (% base seca)'], 2)} % en base seca, mientras que el estiércol precompostado presentó {fmt(precomposted['Sólidos volátiles (% base seca)'], 2)} %. En contraste, las cenizas fueron mayores en el material precompostado. El nitrógeno total fue de {fmt(fresh['N total (%)'], 3)} % para estiércol fresco y de {fmt(precomposted['N total (%)'], 3)} % para estiércol precompostado.",
+            f"La fracción de sólidos volátiles fue mayor en {'el estiércol fresco' if fresh['Sólidos volátiles (% base seca)'] > precomposted['Sólidos volátiles (% base seca)'] else 'el estiércol precompostado'}, con {fmt(max(fresh['Sólidos volátiles (% base seca)'], precomposted['Sólidos volátiles (% base seca)']), 2)} % en base seca, frente a {fmt(min(fresh['Sólidos volátiles (% base seca)'], precomposted['Sólidos volátiles (% base seca)']), 2)} %. Las cenizas fueron mayores en {'el estiércol fresco' if fresh['Cenizas (% base seca)'] > precomposted['Cenizas (% base seca)'] else 'el material precompostado'}. El nitrógeno total fue de {fmt(fresh['N total (%)'], 3)} % para estiércol fresco y de {fmt(precomposted['N total (%)'], 3)} % para estiércol precompostado.",
             "La Tabla 1 resume los valores de caracterización de las muestras. La Figura 1 presenta humedad y materia seca, mientras que la Figura 2 presenta sólidos volátiles y cenizas.",
             "La Tabla R1 del bloque de apéndices internos, Caracterización completa de muestras, presenta la desagregación de los resultados fisicoquímicos utilizados en esta sección.",
             "Los valores presentados corresponden a la integración provisional M1–M2 para sólidos y al N total Kjeldahl de M2 para aguas verdes y purines. La jornada M3 se incorporará posteriormente para actualizar la caracterización final.",
@@ -765,10 +807,10 @@ def build_document() -> None:
         doc,
         [
             "Estos valores se presentan como flujos anuales estimados del inventario, manteniendo como referencia metodológica la unidad funcional de 1 kg de estiércol fresco manejado. El flujo anual común expresa la escala operacional del inventario y no redefine la unidad funcional.",
-            "Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. B2: Aplicación de purines en campo de pastoreo presentó la mayor masa equivalente total, con 276 851,23 kg eq/año. En el Escenario A, A4: Aplicación de aguas verdes en campos de pastoreo dominó la masa equivalente, con 259 326,13 kg eq/año.",
+            f"Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. {largest_flow[0]} presentó la mayor masa equivalente total, con {fmt(largest_flow[1], 2)} kg eq/año.",
             "La masa equivalente de A4 integra el agua de lavado y 8 753,63 kg/año de estiércol remanente derivados del balance en sala. La masa equivalente de B2 integra agua de lavado y 26 278,73 kg/año de estiércol fresco teóricamente depositado.",
             "En contraste, para estimar las emisiones de manejo en A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se utilizó la masa de estiércol correspondiente, sin sumar el agua de lavado como masa de actividad. El flujo total de agua y estiércol se incorporó en las etapas subsecuentes de aplicación A4 y B2.",
-            "A2: Lombricompostaje presentó la menor masa equivalente. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
+            f"{smallest_flow[0]} presentó la menor masa equivalente. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
             "La Tabla R2 del bloque de apéndices internos, Flujos completos del inventario, contiene la desagregación de los flujos empleados para construir el ICV.",
         ],
     )
@@ -792,7 +834,7 @@ def build_document() -> None:
         doc,
         [
             f"Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó {emission_totals_text('A')}. El Escenario B presentó {emission_totals_text('B')}.",
-            "B1: Almacenamiento de purines presentó la mayor contribución de CH4. A1: Precomposteo presentó la mayor emisión de N2O. A2: Lombricompostaje fue estimada mediante las vías IPCC de manejo de estiércol. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
+            f"{dominant_emission('CH4')} presentó la mayor contribución de CH4. {dominant_emission('N2O')} presentó la mayor emisión de N2O. A2: Lombricompostaje fue estimada mediante las vías IPCC de manejo de estiércol. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
             "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
         ],
     )
@@ -841,8 +883,8 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            f"La comparación bajo la misma unidad funcional mostró un mayor impacto de calentamiento global en el Escenario B. La diferencia B menos A fue de {fmt(context['cg_difference'], 6)} kg CO2-eq/año, equivalente a {fmt(context['cg_percentage'], 2)} % respecto al Escenario A.",
-            f"En eutrofización, el Escenario B superó al Escenario A en {fmt(context['eu_difference'], 6)} kg PO4-eq/año, equivalente a {fmt(context['eu_percentage'], 2)} %. La Tabla 7 resume la comparación y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
+            f"La comparación bajo la misma unidad funcional mostró un mayor impacto de calentamiento global en el {context['cg_comparison'].higher_label}. La diferencia B menos A fue de {fmt(context['cg_difference'], 6)} kg CO2-eq/año, equivalente a {fmt(context['cg_percentage'], 2)} % respecto al Escenario A.",
+            f"En eutrofización, el {context['eu_comparison'].higher_label} presentó el mayor impacto y el {context['eu_comparison'].lower_label} el menor. La diferencia B menos A fue de {fmt(context['eu_difference'], 6)} kg PO4-eq/año, equivalente a {fmt(context['eu_percentage'], 2)} % respecto al Escenario A. La Tabla 7 resume la comparación y la Figura 7 presenta la diferencia porcentual por categoría de impacto.",
             "La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente.",
         ],
     )
@@ -855,6 +897,16 @@ def build_document() -> None:
     n2o = benchmark_index.loc["N2O directo por materia seca de entrada"]
     n_ratio = benchmark_index.loc["N2O-N directo por N inicial"]
     climate = benchmark_index.loc["Contraste armonizado de CH4 y N2O directo"]
+    ch4_relation = Comparison(
+        "referencia experimental", float(ch4["Referencia experimental"]),
+        "estimación IPCC", float(ch4["Estimación IPCC"]), str(ch4["Unidad"]),
+    )
+    n2o_relation = Comparison(
+        "referencia experimental", float(n2o["Referencia experimental"]),
+        "estimación IPCC", float(n2o["Estimación IPCC"]), str(n2o["Unidad"]),
+    )
+    ch4_direction = "menor" if ch4_relation.higher_label == "referencia experimental" else "mayor"
+    n2o_direction = "menor" if n2o_relation.higher_label == "referencia experimental" else "mayor"
     doc.add_heading("8. Contraste experimental bibliográfico de A2", level=2)
     add_paragraphs(doc, [
         "Los resultados oficiales de A2: Lombricompostaje se contrastaron con la referencia empírica de Jjagwe et al. (2019) sin sustituir las ecuaciones IPCC ni crear un segundo inventario oficial. La base común fue la materia seca del estiércol precompostado al ingreso de A2.",
@@ -862,7 +914,7 @@ def build_document() -> None:
         f"Para N2O directo, la estimación IPCC fue {fmt(n2o['Estimación IPCC'], 6)} mg N2O/kg de materia seca y la referencia experimental fue {fmt(n2o['Referencia experimental'], 6)} mg N2O/kg de materia seca. La razón fue {fmt(n2o['Razón IPCC/referencia'], 6)}. El N2O indirecto por volatilización permanece en el inventario oficial, pero se excluyó de esta comparación porque no representa una emisión medida físicamente dentro del lecho.",
         f"Como indicador complementario, la fracción de N inicial emitida como N2O-N directo fue {fmt(n_ratio['Estimación IPCC'], 8)} kg N2O-N/kg N para IPCC y {fmt(n_ratio['Referencia experimental'], 8)} kg N2O-N/kg N para la referencia experimental; la razón fue {fmt(n_ratio['Razón IPCC/referencia'], 6)}. Este resultado apoya la interpretación y no constituye una validación formal del modelo.",
         f"El contraste armonizado de CH4 + N2O directo, caracterizado con los mismos factores vigentes del TFG, fue {fmt(climate['Estimación IPCC'], 8)} kg CO2-eq/kg de materia seca para IPCC y {fmt(climate['Referencia experimental'], 8)} kg CO2-eq/kg de materia seca para Jjagwe et al. (2019). Este indicador no representa el impacto climático total del sistema: excluye CO2 experimental y N2O indirecto IPCC.",
-        "Las desviaciones no mostraron una dirección uniforme entre especies: la estimación IPCC fue menor para CH4 y mayor para N2O directo. Por ello, el contraste no evidencia un sesgo uniforme del método IPCC en A2 y no sustenta afirmar, de forma global, que este sobreestime, subestime o sea más conservador. La compensación parcial entre el menor CH4 y el mayor N2O directo en el indicador armonizado demuestra que el resultado agregado no sustituye el análisis separado de cada flujo gaseoso.",
+        f"Las desviaciones no mostraron una dirección uniforme entre especies: la estimación IPCC fue {ch4_direction} para CH4 y {n2o_direction} para N2O directo. Por ello, el contraste no evidencia un sesgo uniforme del método IPCC en A2 y no sustenta afirmar, de forma global, que este sobreestime, subestime o sea más conservador. La compensación parcial entre el {ch4_direction} CH4 y el {n2o_direction} N2O directo en el indicador armonizado demuestra que el resultado agregado no sustituye el análisis separado de cada flujo gaseoso.",
         "Jjagwe et al. (2019) reportaron una pérdida atmosférica de 18,18 % del N inicial y una distribución de 74,55 % en vermicompost y 7,27 % en biomasa de lombrices. Esta pérdida se consideró solo como contraste conceptual: no es equivalente a la fracción IPCC encaminada a volatilización, porque las especies, métodos y fronteras difieren y parte del N atmosférico no cuantificado podría corresponder a N2.",
         "El estudio de Jjagwe et al. se realizó en Uganda como un sistema experimental con unidades replicadas y empleó la especie Eudrilus eugeniae. El material se mantuvo aproximadamente entre 60 y 70 % de humedad, el proceso se organizó en ciclos cercanos a 12 semanas, el estiércol se incorporó progresivamente y había permanecido alrededor de una semana almacenado bajo sombra antes de ingresar al sistema. En contraste, A2 representa una operación real de lombricompostaje en Turrialba, modelada mediante las ecuaciones IPCC y la categoría disponible Composting – Passive Windrow, con las características propias de su sustrato y condiciones operativas. Estas diferencias de especie, acondicionamiento, alimentación, humedad, duración, ambiente geográfico y escala pueden influir en las emisiones y muestran que la base material armonizada no vuelve físicamente idénticos ambos sistemas.",
         "Jjagwe et al. determinaron CO2, CH4, NH3 y N2O mediante cámaras estáticas en momentos discretos del proceso, incluidas las semanas 4, 8 y 12. Ese diseño de medición no reproduce necesariamente la variación temporal completa de una operación real. Además, el análisis de flujo de materiales no permitió identificar por completo las especies del N atmosférico; los autores plantearon que parte importante del N no cuantificado como los gases medidos podría corresponder a N2 u otras formas. Estas limitaciones de medición y balance impiden atribuir las divergencias exclusivamente al método IPCC y confirman que el 18,18 % no es una medición equivalente a la fracción IPCC encaminada a volatilización.",

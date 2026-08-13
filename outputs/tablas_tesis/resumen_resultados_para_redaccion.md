@@ -26,7 +26,7 @@ El nitrógeno total reportado en porcentaje se expresa como fracción másica. E
 | B | 1 | B1 | Etapa 1: Almacenamiento de purines | 26278.725181 |
 | B | 2 | B2 | Etapa 2: Aplicación de purines en campo de pastoreo | 276851.225181 |
 
-B2, correspondiente a la Etapa 2: Aplicación de purines en campo de pastoreo, presenta la mayor masa equivalente total. En el escenario A, A4 corresponde a la Etapa 4: Aplicación de aguas verdes en campos de pastoreo y domina la masa equivalente.
+B2: Aplicación de purines en campo de pastoreo presenta la mayor masa equivalente total, con 276851.225181 kg eq/año.
 
 ## 6.4 Emisiones estimadas por etapa y escenario
 
@@ -41,7 +41,7 @@ B2, correspondiente a la Etapa 2: Aplicación de purines en campo de pastoreo, p
 | B | NH3 | 38.93616508636328 |
 | B | NO3 | 141.945683438846 |
 
-B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente de CH4, NH3 y NO3. A1, correspondiente a la Etapa 1: Precomposteo, es la mayor fuente de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.
+B1: Almacenamiento de purines es la mayor fuente de CH4; B1: Almacenamiento de purines de NH3; B1: Almacenamiento de purines de NO3; y A1: Precomposteo de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.
 
 ## 6.5 Impactos ambientales por etapa
 
@@ -54,7 +54,7 @@ B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la mayor fuente 
 | B | 1 | B1 | Etapa 1: Almacenamiento de purines | 8503.71352199646 | 19.86245066609851 |
 | B | 2 | B2 | Etapa 2: Aplicación de purines en campo de pastoreo | 217.67316101096097 | 7.2500470408190045 |
 
-B1, correspondiente a la Etapa 1: Almacenamiento de purines, es la etapa dominante en calentamiento global y eutrofizacion.
+En calentamiento global dominan A3: Almacenamiento de aguas verdes en el Escenario A y B1: Almacenamiento de purines en el Escenario B. En eutrofización dominan A1: Precomposteo en el Escenario A y B1: Almacenamiento de purines en el Escenario B.
 
 ## 6.6 Impactos totales por escenario
 

@@ -226,7 +226,16 @@ Cuando se regeneren los documentos, `outputs/documentos_tfg/reporte_validacion_d
 - relación completa entre prosa y apéndices;
 - ecuaciones LaTeX seleccionables y sin imágenes;
 - conservación de valores numéricos, cálculos y resultados;
+- consistencia de dirección, signo, porcentaje, unidad, dominancia y redondeo en comparaciones narrativas;
 - conservación del hash del MASTER antes y después de la generación;
 - numeración interna independiente del MASTER.
 
 Si una validación falla, se debe corregir primero el script generador y volver a ejecutar la validación. El documento MASTER no debe modificarse en ningún caso.
+## 12. Consistencia cuantitativa de la prosa
+
+Las afirmaciones comparativas visibles —mayor, menor, aumento, reducción y
+escenario o etapa dominante— deben derivarse de la misma fuente canónica que sus
+cifras. Las diferencias y porcentajes se recalculan y se valida su signo, unidad
+y dirección. Si el redondeo visible iguala valores internamente distintos, debe
+aumentarse la precisión o redactarse la comparación como indistinguible a esa
+precisión; no se conserva una dirección aparentemente categórica.

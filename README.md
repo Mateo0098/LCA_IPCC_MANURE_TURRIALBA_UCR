@@ -66,6 +66,12 @@ en este orden:
 .venv\Scripts\python.exe scripts\validate_provisional_m1_m2_outputs.py
 ```
 
+La validación cruzada reconstruye también las comparaciones narrativas desde las
+fuentes canónicas: comprueba mayor/menor, signo de B menos A, porcentaje relativo,
+unidad, etapa dominante y ambigüedad causada por el redondeo visible. Los
+generadores deben obtener estas direcciones y porcentajes de los datos, no de
+afirmaciones manuales sobre A o B.
+
 `ACV_orquestador.py` parte de la integración experimental vigente. En orden,
 genera `processed/acv_parametros_escenario_etapa.csv`, calcula las masas,
 inicializa el resumen de emisiones, ejecuta A1–B2, valida la presencia de las
