@@ -186,6 +186,15 @@ main estable → una rama activa de avance → trabajo y validaciones
 → nueva rama de avance cuando corresponda
 ```
 
+`main` no es una *working branch* ordinaria. Puede utilizarse para lectura,
+inspección, comparación, auditoría o diagnóstico, como base para crear una rama
+de avance y como destino de integración de trabajo previamente validado. Por
+omisión no se utiliza para editar código o documentación, regenerar productos
+que queden como cambios del *working tree*, implementar correcciones ni iniciar
+una unidad modificadora. Cualquier modificación directa excepcional sobre
+`main` requiere una decisión deliberada y autorización explícita; nunca resulta
+de omitir la selección de rama.
+
 Después de la integración, `main` vuelve a ser la referencia vigente y el
 siguiente avance relevante puede comenzar desde ese estado actualizado. Las
 ramas anteriores pueden conservarse como respaldo o referencia histórica sin
@@ -360,6 +369,16 @@ archivos. Esta comprobación es obligatoria como conducta supervisora, pero no
 requiere un formulario visible ni debe repetirse mecánicamente en cada prompt
 correctivo mientras la rama ya resuelta continúe vigente y compatible.
 
+Cuando `main` sea la referencia y el *checkout* vigentes y no exista una rama
+activa compatible, el primer prompt que autorice modificaciones debe ordenar,
+antes de implementar: inspeccionar rama, `HEAD` y *working tree*; verificar
+`main`, `origin/main` y su divergencia; detectar ramas locales y remotas no
+integradas; crear o seleccionar explícitamente la rama autorizada por Mateo y
+ChatGPT; verificar la transición; y solo después modificar archivos. Codex no
+elige autónomamente la rama conceptual. Si la transición no puede satisfacerse
+o aparecen cambios locales, divergencias o avance no integrado inesperados, se
+detiene la escritura y se informa el diagnóstico.
+
 La salvaguarda se aplica al convertir una discusión o auditoría diagnóstica en
 implementación, al decidir corregir un problema informado por Codex, al comenzar
 una unidad después de una inspección y cuando una tarea inicialmente de solo
@@ -378,13 +397,15 @@ directa excepcional sobre `main` requeriría autorización consciente y explíci
 acorde con la gobernanza vigente, no la omisión de decidir la rama.
 
 Si existe una rama activa compatible, ChatGPT prefiere continuar en ella. Si no
-existe y `main` es la referencia vigente, evalúa e indica explícitamente iniciar
-o seleccionar una rama de avance antes de modificar; esa transición puede formar
-parte del mismo prompt de implementación. Si existe una rama activa incompatible,
-aplica la política contextual vigente y no abre silenciosamente una segunda
-línea. Esta salvaguarda obliga a decidir antes de escribir; la sección «Nueva
-rama Git» sigue determinando cómo seleccionar la rama correcta y evita convertir
-cada tarea o unidad en una rama nueva.
+existe y `main` es la referencia vigente, debe indicar explícitamente crear o
+seleccionar una rama de avance antes de modificar; esa transición puede formar
+parte del mismo prompt de implementación, pero debe completarse y verificarse
+antes de escribir. Que `main` permanezca como *checkout* tras una auditoría de
+solo lectura no autoriza escritura posterior. Si existe una rama activa
+incompatible, aplica la política contextual vigente y no abre silenciosamente
+una segunda línea. Esta salvaguarda obliga a decidir antes de escribir; la
+sección «Nueva rama Git» sigue determinando cómo seleccionar la rama correcta y
+evita convertir cada tarea o unidad en una rama nueva.
 
 ## Reportes temporales de Codex
 

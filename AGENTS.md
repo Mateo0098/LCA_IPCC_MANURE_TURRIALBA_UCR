@@ -70,6 +70,7 @@ Antes de realizar cualquier modificación, Codex debe:
 4. Si existe una discrepancia material entre la rama encontrada y el contexto autorizado, detener las modificaciones e informarla.
 5. No crear ni cambiar de rama por iniciativa propia; si el prompt autoriza una transición para implementar, ejecutarla y verificarla antes de cualquier escritura, y detener las modificaciones si no puede satisfacerse.
 6. No interpretar una rama histórica conservada como respaldo como fuente vigente ni como línea activa de trabajo.
+7. No iniciar modificaciones ordinarias sobre `main`. Si `main` es el checkout y el prompt autoriza crear o seleccionar una rama de avance, completar y verificar esa transición antes de escribir; si aparecen cambios locales, divergencias o ramas no integradas inesperadas, detenerse e informar sin descartar nada.
 
 
 
