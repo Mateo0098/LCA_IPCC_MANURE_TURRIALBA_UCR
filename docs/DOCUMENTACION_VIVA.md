@@ -70,8 +70,11 @@ el estado vigente:
 
 - `auditoria_alineacion_tfg.md`: vacíos de alineación entre objetivos, resultados
   y conclusiones que requieren seguimiento académico.
-- `auditoria_eutrofizacion_B1.md`: observación científica sobre la representación
-  del nitrógeno potencialmente eutrofizante que requiere criterio del investigador.
+- `auditoria_eutrofizacion_B1.md`: diagnóstico de la implementación histórica
+  del reparto 50/50. La decisión científica quedó resuelta en
+  `DECISIONES_METODOLOGICAS_TFG.md`; el documento se conserva temporalmente
+  como apoyo para la migración técnica pendiente y no describe la metodología
+  objetivo vigente.
 
 Una vez resuelta cada decisión, su resultado permanente debe incorporarse en la
 fuente responsable y la auditoría debe retirarse, sin crear una carpeta histórica

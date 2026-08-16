@@ -32,20 +32,118 @@ El balance derivado produjo aproximadamente 33,31 % de estiércol remanente y 66
 
 ## 5. Balance entre escenarios
 
-En el Escenario A:
+El Escenario A mantiene dos corrientes físicamente separadas:
 
-- 17 525,1 kg/año ingresan primero a A1: Precomposteo;
-- la masa resultante de A1 continúa posteriormente hacia A2: Lombricompostaje;
-- 8 753,625181 kg/año constituyen el remanente estimado incorporado a las aguas verdes;
+- la fracción paleada, correspondiente a 17 525,1 kg/año de estiércol fresco,
+  ingresa a A1: Precomposteo y la masa resultante continúa hacia A2:
+  Lombricompostaje;
+- la fracción no paleada o remanente, correspondiente a 8 753,625181 kg/año,
+  permanece en el piso, se incorpora al agua de lavado y continúa hacia A3:
+  Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de
+  pastoreo;
 - la suma corresponde al flujo común de 26 278,725181 kg/año.
+
+El drenaje producido durante A1 no se representa como un flujo hacia A3. La
+corriente de aguas verdes procede del estiércol no paleado que permanece en el
+piso y se incorpora al lavado.
 
 En el Escenario B, el 100 % del flujo común de 26 278,725181 kg/año ingresa a B1: Almacenamiento de purines. Ambos escenarios representan alternativas para el mismo flujo anual de referencia.
 
-## 6. Representación A3/B1 frente a A4/B2
+## 6. Representación de A1, A3 y B1
+
+### A1: Precomposteo
+
+A1 representa el precomposteo del estiércol paleado durante aproximadamente
+cuatro semanas, equivalentes a unos 28 días. La pila permanece sin volteo
+mecánico y sin aireación forzada. Durante esta etapa existe pérdida de humedad y
+drenaje. El drenaje no dispone de una infraestructura estable de tratamiento y,
+para la frontera del sistema modelado, termina depositándose sobre el suelo
+agrícola o matorral adyacente. La recolección ocasional en recipientes no se
+considera una operación representativa.
+
+Se aprueba `Composting – Passive Windrow` como proxy de la categoría IPCC más
+próxima a estas condiciones. La selección no afirma que el manejo real
+constituya literalmente un windrow. Para vaca lechera se adoptan los siguientes
+factores IPCC:
+
+- MCF = 2,5 % para CH₄;
+- EF3 = 0,005 kg N₂O-N/kg N para N₂O directo;
+- FracGasMS = 0,45 para la contabilidad IPCC del N volatilizado y el N₂O
+  indirecto asociado;
+- FracLeachMS = 0,04 para el N perdido mediante lixiviación o escorrentía.
+
+Estos factores no se multiplican por `28/365` ni por otro ajuste lineal de
+duración. FracGasMS no se utiliza en la metodología objetivo para construir
+artificialmente especies específicas de NH₃ y NOx destinadas a
+eutrofización.
+
+FracLeachMS = 0,04 se interpreta como la fracción de N que abandona el sistema
+de manejo A1 mediante drenaje, lixiviación o escorrentía:
+
+`N_drenaje_A1 = N_manejado_A1 × FracLeachMS`
+
+Ese N no se convierte directamente a NO₃⁻. Debido a que el drenaje termina
+depositándose sobre el suelo agrícola o matorral adyacente, se representa como
+una entrada de N al compartimento suelo. La secuencia física aprobada es:
+
+`N_A1 → FracLeachMS → N_drenaje_A1 → suelo`
+
+Una vez incorporado al suelo, el N del drenaje debe pasar al mismo marco IPCC
+de suelos gestionados que se utiliza para representar otras entradas de N al
+suelo. La secuencia metodológica objetivo es:
+
+`N_drenaje_A1 → entrada de N al suelo → lixiviación/escorrentía IPCC desde suelo → N_lixiviado_suelo → conversión estequiométrica a NO₃⁻ → flujo explícito de NO₃⁻ en el ICV → caracterización posterior mediante ReCiPe`
+
+FracLeachMS y la fracción de lixiviación o escorrentía del modelo IPCC de
+suelos representan fronteras físicas sucesivas y no deben confundirse.
+FracLeachMS determina cuánto N sale del sistema de manejo de estiércol A1 y
+llega al suelo. El parámetro de suelos determina posteriormente qué fracción
+del N ya depositado abandona el suelo por lixiviación o escorrentía. Esta
+secuencia no aplica dos veces una misma pérdida: el NO₃⁻ del ICV se deriva
+únicamente de la segunda pérdida, desde el suelo, y no directamente del 4 % que
+sale de A1.
+
+Esta representación es coherente con la frontera de A4 y B2: en A1 el N llega
+al suelo mediante una descarga incidental de drenaje, mientras que en A4 y B2
+llega mediante la aplicación deliberada de efluentes. Una vez introducido en
+el suelo, la lixiviación o escorrentía se representa mediante el marco IPCC de
+suelos gestionados. Esta equivalencia de frontera no implica que los líquidos
+tengan composición química idéntica ni que el drenaje de A1 haya sido
+caracterizado químicamente.
 
 ### A3 y B1: manejo del estiércol
 
-A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines utilizan las ecuaciones IPCC asociadas con el manejo del estiércol.
+A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se
+representan como almacenamiento `Liquid/Slurry`, no como `Uncovered Anaerobic
+Lagoon`. En ambos casos la condición operativa representativa es una fosa de
+concreto destinada a contener líquidos, bajo una estructura o techo y con
+recepción periódica o continua de nuevas aguas durante el ciclo. No se asume
+una cubierta hermética o estanca a gases. La residencia operacional aproximada
+es de tres días.
+
+Se adopta la zona climática `Tropical Wet`, de acuerdo con la caracterización
+climática documentada para el sitio. Para CH₄ se utiliza MCF = 38 %, valor IPCC
+de un mes para `Liquid/Slurry` en `Tropical Wet`, como proxy conservador de la
+residencia real de unos tres días. Un mes es el menor periodo tabulado por IPCC
+para esta parametrización. El valor de 38 % no se interpreta como una
+estimación del MCF verdadero a tres días y no se escala como `38 % × 3/30` ni
+mediante otra relación lineal.
+
+La revisión de Møller, Sommer y Ahring (2004), VanderZaag et al. (2013),
+VanderZaag (2018) y el Refinamiento 2019 del IPCC, volumen 4, capítulo 10,
+respalda que la temperatura y el tiempo de retención influyen en el MCF y que
+la respuesta temporal no debe simplificarse mediante una proporcionalidad
+lineal. No se identificó una ecuación o un factor validado que proporcione
+directamente un MCF oficial para una residencia de aproximadamente tres días.
+El modelo o spreadsheet publicado por IPCC trabaja con una resolución temporal
+que no ofrece directamente esa parametrización. Por ello se adopta el valor
+tabulado de un mes como proxy conservador, sin cuantificar cuánto menor podría
+ser el MCF real a tres días.
+
+En operación normal no se modela una ruta de infiltración o lixiviación desde
+la fosa contenida. Se establece FracLeachMS = 0 tanto para A3 como para B1. El
+cero expresa la ausencia de esa ruta en la operación normal modelada; no afirma
+que sean físicamente imposibles fugas accidentales.
 
 - En A3, la masa de actividad es la masa de estiércol remanente sometida al sistema de manejo.
 - En B1, la masa de actividad es la totalidad del estiércol teóricamente depositado.
@@ -61,35 +159,42 @@ A4: Aplicación de aguas verdes en campos de pastoreo y B2: Aplicación de purin
 - En A4, el flujo aplicado integra el agua de lavado y el estiércol remanente incorporado a las aguas verdes; se utiliza la caracterización química específica de las aguas verdes.
 - En B2, el flujo aplicado integra el agua de lavado y la totalidad del estiércol incorporado al purín; se utiliza la caracterización química específica del purín.
 
-## 7. Adaptación para eutrofización
+## 7. Arquitectura objetivo del ICV nitrogenado
 
-Las cantidades de nitrógeno se definen de la siguiente manera:
+### Retiro de la adaptación artificial 50/50
 
-- `N_G`: N remanente de la ruta de volatilización después de descontar el N₂O-N indirecto.
-- `N_L`: N remanente de la ruta de lixiviación después de descontar el N₂O-N indirecto.
-- `N_eut = N_G + N_L`: pool de N remanente considerado potencialmente contribuyente a eutrofización.
+Queda retirada como metodología objetivo vigente la adaptación que sumaba
+`N_G + N_L` en un pool `N_eut` y asignaba artificialmente 50 % a N asociado a
+NH₃ y 50 % a N asociado a NO₃⁻. Esa adaptación no pertenece al IPCC y no debe
+utilizarse para construir el nuevo ICV.
 
-El supuesto metodológico del TFG asigna:
+La implementación actual del pipeline puede conservar temporalmente las
+ecuaciones históricas hasta que se ejecute la migración técnica autorizada. Se
+distinguen, por tanto:
 
-- 50 % de `N_eut` a N asociado a NH₃;
-- 50 % de `N_eut` a N asociado a NO₃⁻.
+1. la metodología objetivo aprobada en este documento, que representa rutas y
+   especies reactivas explícitas sin reparto 50/50;
+2. la implementación actual, todavía pendiente de migración y que no debe
+   interpretarse como la decisión metodológica vigente.
 
-Después de esta asignación se aplican las conversiones estequiométricas de N a masa de NH₃ y NO₃⁻.
+Komakech et al. (2016) permanece como antecedente bibliográfico del supuesto
+histórico, pero no valida la construcción integrada `N_eut` ni una especiación
+general del ICV. La adaptación histórica tampoco debe atribuirse al IPCC.
 
-## 8. Uso de Komakech et al. (2016)
+### NH₃ y NOx pendientes de parametrización
 
-Komakech et al. (2016) constituye el antecedente del reparto 50/50. El texto de dicho estudio se refiere al N del estiércol que alcanza cuerpos de agua y asume su transformación en 50 % nitrato y 50 % amoníaco.
+El nuevo ICV debe representar explícitamente las especies nitrogenadas
+reactivas. NH₃ y NOx se resolverán mediante un ledger secuencial de N y TAN,
+apoyado principalmente en EMEP/EEA y en fuentes específicas cuando
+corresponda. La parametrización concreta de NH₃ y NOx para A1 permanece
+pendiente de una unidad posterior de análisis.
 
-La aplicación de ese reparto al pool integrado `N_eut` es una adaptación metodológica propia del presente TFG. No debe atribuirse a Komakech et al. la ecuación completa utilizada en este proyecto, ni debe atribuirse al IPCC la adaptación para eutrofización.
+FracGasMS puede conservar sus funciones propias dentro de la contabilidad IPCC
+necesaria para el N volatilizado y el N₂O indirecto, pero no debe reutilizarse
+automáticamente como estimador específico de NH₃ o NOx para eutrofización. No
+se aprueba todavía ningún factor EMEP concreto para A1.
 
-## 9. Interpretación ambiental del supuesto de eutrofización
-
-- El enfoque considera conservadoramente el N remanente como potencialmente contribuyente a eutrofización.
-- No implica que el 100 % del N volatilizado alcance físicamente cuerpos de agua.
-- NH₃ y NO₃⁻ son representaciones utilizadas para caracterizar el pool `N_eut` dentro del ACV; no constituyen una predicción directa de la especiación química final en el ambiente.
-- La presencia de NO₃⁻ en B1 no implica lixiviación física cuando `N_L = 0`, porque el NO₃⁻ equivalente procede del supuesto de reparto de `N_eut`.
-
-## 10. Decisiones que no deben cambiarse automáticamente
+## 8. Decisiones que no deben cambiarse automáticamente
 
 No deben cambiarse automáticamente:
 
@@ -99,8 +204,9 @@ No deben cambiarse automáticamente:
 - la unidad funcional;
 - el supuesto de 7 %;
 - el balance 66,69/33,31;
-- la adaptación basada en `N_eut`;
-- el reparto 50/50 entre N asociado a NH₃ y N asociado a NO₃⁻.
+- la separación física de las dos corrientes del Escenario A;
+- los proxies y factores IPCC aprobados para A1, A3 y B1;
+- el retiro del reparto 50/50 como metodología objetivo.
 
 Estas decisiones solo deben modificarse por decisión expresa del investigador o como resultado de una revisión académica posterior autorizada.
 
@@ -145,19 +251,20 @@ respaldan el orden de decenas de mg/kg MS. También se usa TKN inicial de 1,44 %
 MS para el indicador complementario N₂O-N/N inicial. La pérdida atmosférica de
 N de 18,18 % es solo un contraste conceptual y no se equipara con `FracGasMS`.
 
-No se calcula eutrofización experimental: el NH₃ no fue detectado, el balance
-atmosférico no quedó completamente especiado y la adaptación de `N_eut` del TFG
-no representa una especiación experimental equivalente.
+No se calcula eutrofización experimental: el NH₃ no fue detectado y el balance
+atmosférico no quedó completamente especiado. El reparto histórico basado en
+`N_eut`, ya retirado como metodología objetivo, tampoco representaba una
+especiación experimental equivalente.
 
-## 11. Estado provisional
+## 9. Estado provisional
 
-La caracterización experimental activa es provisional: las variables sólidas metodológicamente comparables integran M1 y M2 con igual peso temporal; el N total de aguas verdes y purines procede únicamente de M2 mediante Kjeldahl; y la transformación de masa de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado. La corrida del ACV fue regenerada con estos estimadores y se identifica expresamente como **PROVISIONAL M1–M2**. M3 permanece pendiente para completar la integración final según las reglas de la sección 14.
+La caracterización experimental activa es provisional: las variables sólidas metodológicamente comparables integran M1 y M2 con igual peso temporal; el N total de aguas verdes y purines procede únicamente de M2 mediante Kjeldahl; y la transformación de masa de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado. La corrida del ACV fue regenerada con estos estimadores y se identifica expresamente como **PROVISIONAL M1–M2**. M3 permanece pendiente para completar la integración final según las reglas de la sección 12.
 
-## 12. Regla para futuras regeneraciones
+## 10. Regla para futuras regeneraciones
 
 Las tablas, los gráficos, la metodología, los resultados, las conclusiones y la validación cruzada deben corresponder a una misma corrida vigente y conservar estas decisiones. Si se detecta una discrepancia entre los productos generados, la implementación del modelo y este archivo, debe reportarse al investigador antes de modificar cálculos, parámetros, factores, flujos o decisiones metodológicas.
 
-## 13. Aclaraciones CIA sobre reporte de N y preparación de N/C
+## 11. Aclaraciones CIA sobre reporte de N y preparación de N/C
 
 ### Política de precisión y redondeo
 
@@ -178,7 +285,7 @@ Las tablas, los gráficos, la metodología, los resultados, las conclusiones y l
 - El secado CIA a 80 °C y la determinación gravimétrica del TFG a 105 °C cumplen funciones distintas. La conversión no reconstruye ni corrige retrospectivamente posibles pérdidas de N durante la preparación CIA.
 - El N Kjeldahl M2 del estiércol fresco, determinado directamente sobre una alícuota homogénea sin secado reportado, conserva su tratamiento vigente (`n_ex_pct / 100`). La conversión específica del precompostado tampoco se aplica a aguas verdes ni purines.
 
-## 14. Integración temporal de jornadas
+## 12. Integración temporal de jornadas
 
 ### Jerarquía estadística e igual peso temporal
 
