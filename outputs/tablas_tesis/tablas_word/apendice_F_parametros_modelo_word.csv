@@ -1,7 +1,7 @@
 ﻿Escenario,Etapa del sistema,Modelo de estimación,Sistema de manejo asignado,N total reportado (%),Fracción másica de N,MCF,EF3
-A,A1: Precomposteo,ipcc,Sistema de manejo en corral seco,0.5180555555555556,0.0051805555555555,1.5,0.02
+A,A1: Precomposteo,ipcc,Compostaje pasivo,0.5180555555555556,0.0051805555555555,2.5,0.005
 A,A2: Lombricompostaje,ipcc,Compostaje pasivo,2.5041666666666664,0.005175597530653,2.5,0.005
-A,A3: Almacenamiento de aguas verdes,ipcc,Laguna anaerobia descubierta,0.5180555555555556,0.0051805555555555,80.0,0.0
-A,A4: Aplicación de aguas verdes en campos de pastoreo,ipcc,Laguna anaerobia descubierta,0.0092558888888888,9.2558888888888e-05,80.0,0.0
-B,B1: Almacenamiento de purines,ipcc,Laguna anaerobia descubierta,0.5180555555555556,0.0051805555555555,80.0,0.0
-B,B2: Aplicación de purines en campo de pastoreo,ipcc,Laguna anaerobia descubierta,0.0139377777777777,0.0001393777777777,80.0,0.0
+A,A3: Almacenamiento de aguas verdes,ipcc,Almacenamiento líquido sin costra natural,0.5180555555555556,0.0051805555555555,38.0,0.0
+A,A4: Aplicación de aguas verdes en campos de pastoreo,ipcc,Aplicación al suelo de estiércol líquido previamente manejado,0.0092558888888888,9.2558888888888e-05,0.0,0.0
+B,B1: Almacenamiento de purines,ipcc,Almacenamiento líquido sin costra natural,0.5180555555555556,0.0051805555555555,38.0,0.0
+B,B2: Aplicación de purines en campo de pastoreo,ipcc,Aplicación al suelo de estiércol líquido previamente manejado,0.0139377777777777,0.0001393777777777,0.0,0.0

@@ -13,6 +13,7 @@ import pandas as pd
 N2O_COLS = ["N2O_ec14", "N2O_ec2", "N2O_ec5", "N2O_ec6", "N2O_ec16", "N2O_ec18"]
 NH3_COLS = ["NH3_ec12", "NH3_ec20"]
 NO3_COLS = ["NO3_ec13", "NO3_ec21"]
+NOX_COLS = ["NOx_as_NO2"]
 
 PALETTE = {"A": "#2a9d8f", "B": "#e76f51"}
 FIG_BG = "#f4f7fb"
@@ -98,7 +99,7 @@ def load_factors(path: Path) -> dict[str, dict[str, float]]:
 
 def load_emissions(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path)
-    for col in ["CO2_medido", "CH4_ec1"] + N2O_COLS + NH3_COLS + NO3_COLS:
+    for col in ["CO2_medido", "CH4_ec1"] + N2O_COLS + NH3_COLS + NO3_COLS + NOX_COLS:
         if col not in df.columns:
             df[col] = 0.0
         df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
@@ -150,6 +151,7 @@ def compute_impacts(
     out["n2o_total_kg"] = out[N2O_COLS].sum(axis=1)
     out["nh3_total_kg"] = out[NH3_COLS].sum(axis=1)
     out["no3_total_kg"] = out[NO3_COLS].sum(axis=1)
+    out["nox_total_kg_as_no2"] = out[NOX_COLS].sum(axis=1)
     out["co2_total_kg"] = out["CO2_medido"]
     out["ch4_total_kg"] = out["CH4_ec1"]
 
@@ -183,6 +185,7 @@ def compute_impacts(
         "co2_total_kg",
         "nh3_total_kg",
         "no3_total_kg",
+        "nox_total_kg_as_no2",
         "impacto_calentamiento_global_kg_co2eq",
         "impacto_eutrofizacion_kg_po4eq",
         "referencia_funcional_estiercol_fresco_kg",

@@ -395,6 +395,14 @@ Después de regenerar documentos, verificar:
 - El valor activo provisional de N total líquido procede de M2 mediante Kjeldahl. La integración final futura utilizará M2+M3 compatible y excluirá M1.
 - Conservar para cálculo los decimales internos almacenados por el CIA. No interpretarlos como mayor precisión analítica formal y reservar el redondeo para la presentación; no redondear prematuramente.
 
+### Ledger productivo de N total y TAN
+
+- `scripts/reactive_n_ledger.py` es la única implementación productiva de las cadenas A1→A2, A3→A4 y B1→B2.
+- TAN se inicializa como 0,60 del N total únicamente en las fronteras de estiércol fresco y se propaga junto con N total; las mediciones intermedias son benchmarks y no reinicializan el balance.
+- Las especies explícitas NH₃-N y NOx-N alimentan EF4. FracGasMS/FracGASM se conservan solo como benchmark y no generan una segunda masa física.
+- El NO₃⁻ procede únicamente de rutas hídricas justificadas. No reintroducir el reparto histórico 50/50.
+- `scripts/reactive_n_ledger_audit.py` consume el módulo canónico para QA/QC; no debe contener ecuaciones físicas duplicadas.
+
 ### N/C y transformación fresco→precompostado
 
 - No convertir automáticamente los resultados de N/C determinados por Dumas tras preparación a 80 °C durante 48 h usando la materia seca gravimétrica determinada a 105 °C. Son procedimientos separados y la base formal final del porcentaje no fue especificada por el reporte.

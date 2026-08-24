@@ -5,7 +5,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SPEC = importlib.util.spec_from_file_location("reactive_n_ledger_audit", ROOT / "scripts" / "reactive_n_ledger_audit.py")
+sys.path.insert(0, str(ROOT / "scripts"))
+SPEC = importlib.util.spec_from_file_location("reactive_n_ledger", ROOT / "scripts" / "reactive_n_ledger.py")
 MODULE = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = MODULE
 SPEC.loader.exec_module(MODULE)
@@ -34,7 +35,7 @@ class ReactiveNLedgerTests(unittest.TestCase):
         self.assertAlmostEqual(a1.water_n_loss_ipcc_kg, a1.n_total_in_kg * self.p["a1_frac_leach_ms"])
 
     def test_no_proportional_water_partition_exists(self):
-        source = (ROOT / "scripts" / "reactive_n_ledger_audit.py").read_text(encoding="utf-8")
+        source = (ROOT / "scripts" / "reactive_n_ledger.py").read_text(encoding="utf-8")
         self.assertNotIn("tan_water", source)
         self.assertNotIn("organic_water", source)
 
@@ -87,9 +88,14 @@ class ReactiveNLedgerTests(unittest.TestCase):
             self.assertAlmostEqual(row.n2o_n_indirect_vol_kg, (row.nh3_n_app_kg + row.nox_n_app_kg) * self.p["ef4_ipcc"])
 
     def test_no_artificial_fifty_fifty(self):
-        source = (ROOT / "scripts" / "reactive_n_ledger_audit.py").read_text(encoding="utf-8")
-        self.assertNotIn("nh3_direct_mm", source)
-        self.assertNotIn("no3_direct_mm", source)
+        productive_sources = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in (ROOT / "scripts").glob("*.py")
+            if path.name != "generate_methodology_docx.py"
+        )
+        self.assertNotIn("def nh3_direct_mm", productive_sources)
+        self.assertNotIn("def no3_direct_mm", productive_sources)
+        source = (ROOT / "scripts" / "reactive_n_ledger.py").read_text(encoding="utf-8")
         self.assertNotIn("0.5 *", source)
         self.assertNotIn("* 0.5", source)
 
@@ -121,6 +127,33 @@ class ReactiveNLedgerTests(unittest.TestCase):
         for row in self.applications:
             self.assertAlmostEqual(row.n2o_n_direct_soil_kg, row.n_applic_kg * self.p["soil_ef1"])
             self.assertAlmostEqual(row.n_leach_runoff_kg, row.n_applic_kg * self.p["soil_frac_leach"])
+
+    def test_tan_is_initialized_only_at_fresh_boundaries(self):
+        self.assertAlmostEqual(self.m["A1"].tan_in_kg, self.m["A1"].n_total_in_kg * 0.60)
+        self.assertAlmostEqual(self.m["A3"].tan_in_kg, self.m["A3"].n_total_in_kg * 0.60)
+        self.assertAlmostEqual(self.m["B1"].tan_in_kg, self.m["B1"].n_total_in_kg * 0.60)
+        self.assertEqual(self.m["A2"].tan_in_kg, self.m["A1"].tan_out_kg)
+
+    def test_intermediate_measurements_do_not_reset_productive_inputs(self):
+        self.assertNotAlmostEqual(self.m["A2"].n_total_in_kg, self.experimental["A2"])
+        self.assertNotAlmostEqual(self.a["A4"].n_applic_kg, self.experimental["A4"])
+        self.assertNotAlmostEqual(self.a["B2"].n_applic_kg, self.experimental["B2"])
+
+    def test_indirect_n2o_is_not_subtracted_from_nitrate(self):
+        for row in self.applications:
+            self.assertAlmostEqual(row.no3_leach_runoff_kg, row.n_leach_runoff_kg * 62.0 / 14.0)
+
+    def test_productive_emissions_match_ledger(self):
+        rows = MODULE.productive_emission_rows()
+        self.assertAlmostEqual(rows[("A", 1)]["NH3_ec12"], self.m["A1"].nh3_n_kg * 17.0 / 14.0)
+        self.assertAlmostEqual(rows[("A", 4)]["NOx_as_NO2"], self.a["A4"].no2_reported_kg)
+        self.assertAlmostEqual(rows[("B", 2)]["NO3_ec21"], self.a["B2"].no3_leach_runoff_kg)
+
+    def test_fracgas_does_not_create_productive_volatilisation(self):
+        source = (ROOT / "scripts" / "reactive_n_ledger.py").read_text(encoding="utf-8")
+        emission_section = source[source.index("def productive_emission_rows"):]
+        self.assertNotIn("frac_gas_ms_benchmark", emission_section)
+        self.assertNotIn("soil_frac_gas_current", emission_section)
 
 
 if __name__ == "__main__":

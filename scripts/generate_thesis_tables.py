@@ -46,10 +46,11 @@ EMISSION_META = {
     "N2O_ec6": ("N2O", "N2O indirecto por lixiviacion", "kg N2O/ano", "Ecuacion 6", "IPCC, ecuación 6"),
     "N2O_ec16": ("N2O", "N2O indirecto por deposicion atmosferica en suelos", "kg N2O/ano", "Ecuacion 16", "IPCC, ecuación 16"),
     "N2O_ec18": ("N2O", "N2O indirecto por lixiviacion en suelos", "kg N2O/ano", "Ecuacion 18", "IPCC, ecuación 18"),
-    "NH3_ec12": ("NH3", "Amoniaco desde manejo de estiercol", "kg NH3/ano", "Ecuacion 12", "Derivado de N volatilizado/lixiviado; factores IPCC y conversion estequiometrica"),
-    "NH3_ec20": ("NH3", "Amoniaco desde suelos gestionados", "kg NH3/ano", "Ecuacion 20", "Derivado de N en suelos; factores IPCC y conversion estequiometrica"),
-    "NO3_ec13": ("NO3", "Nitrato desde manejo de estiercol", "kg NO3/ano", "Ecuacion 13", "Derivado de N volatilizado/lixiviado; conversion estequiometrica en codigo"),
-    "NO3_ec21": ("NO3", "Nitrato desde suelos gestionados", "kg NO3/ano", "Ecuacion 21", "Derivado de N en suelos; conversion estequiometrica en codigo"),
+    "NH3_ec12": ("NH3", "Amoniaco desde manejo de estiercol", "kg NH3/ano", "Ledger N/TAN", "EMEP/EEA 2023 capítulo 3.B; Komakech et al. (2016) para A2"),
+    "NH3_ec20": ("NH3", "Amoniaco durante aplicacion al suelo", "kg NH3/ano", "Ledger N/TAN", "EMEP/EEA 2023 capítulo 3.B, factor sobre TAN aplicado"),
+    "NOx_as_NO2": ("NOx", "Oxidos de nitrogeno reportados como NO2", "kg NO2/ano", "Ledger N/TAN", "EMEP/EEA 2023 capítulo 3.D, factor sobre N aplicado"),
+    "NO3_ec13": ("NO3", "Nitrato por ruta hidrica de manejo y suelo", "kg NO3/ano", "Ledger N/TAN", "IPCC 2019 capítulo 11 y conversion 62/14"),
+    "NO3_ec21": ("NO3", "Nitrato por lixiviacion o escorrentia desde suelo", "kg NO3/ano", "Ledger N/TAN", "IPCC 2019 capítulo 11 y conversion 62/14"),
 }
 
 IMN_CHARACTERIZATION_REFERENCE = "IMN (2021)"
@@ -61,6 +62,34 @@ STOICHIOMETRIC_FACTOR_LABELS = {
     "FACTOR_N_A_N2O": "Conversión estequiométrica de N₂O-N a N₂O",
     "FACTOR_N_A_NH3": "Conversión estequiométrica de N a NH₃",
     "FACTOR_N_A_NO3": "Conversión estequiométrica de N a NO₃⁻",
+}
+
+LEDGER_FACTOR_LABELS = {
+    "fresh_manure_tan_fraction": "Proporción TAN/N del estiércol fresco",
+    "emep_solid_nh3_n_fraction_tan": "Factor de NH₃-N del manejo sólido",
+    "emep_solid_no_n_fraction_tan": "Factor de NO-N del manejo sólido",
+    "emep_solid_n2_n_fraction_tan": "Factor de N₂-N del manejo sólido",
+    "emep_slurry_nh3_n_fraction_tan": "Factor de NH₃-N del almacenamiento líquido",
+    "emep_slurry_no_n_fraction_tan": "Factor de NO-N del almacenamiento líquido",
+    "emep_slurry_n2_n_fraction_tan": "Factor de N₂-N del almacenamiento líquido",
+    "emep_slurry_mineralisation_fraction": "Fracción de mineralización del N orgánico",
+    "emep_application_nh3_n_fraction_tan": "Factor de NH₃-N durante la aplicación",
+    "emep_soil_no2_fraction_n_applied": "Factor de NOx reportado como NO₂ durante la aplicación",
+    "a1_ef3": "EF3 de A1: Precomposteo",
+    "a2_ef3": "EF3 de A2: Lombricompostaje",
+    "slurry_ef3": "EF3 del almacenamiento líquido sin costra natural",
+    "a1_mcf_pct": "MCF de A1: Precomposteo",
+    "slurry_mcf_pct": "MCF del almacenamiento líquido sin costra natural",
+    "a1_frac_leach_ms": "Fracción de drenaje de A1: Precomposteo",
+    "storage_frac_leach_ms": "Fracción de lixiviación del almacenamiento",
+    "a1_frac_gas_ms_benchmark": "Benchmark FracGasMS de A1",
+    "a2_frac_gas_ms_benchmark": "Benchmark FracGasMS de A2",
+    "slurry_frac_gas_ms_benchmark": "Benchmark FracGasMS del almacenamiento líquido",
+    "ef4_ipcc": "EF4 de deposición atmosférica",
+    "ef5_ipcc": "EF5 de lixiviación y escorrentía",
+    "soil_frac_leach": "Fracción de lixiviación y escorrentía desde suelo",
+    "soil_ef1": "EF1 de N orgánico aplicado al suelo",
+    "komakech_nh3_factor": "Factor de NH₃ de A2: Lombricompostaje",
 }
 
 AUDITED_FACTOR_REFERENCES = {
@@ -83,7 +112,6 @@ AUDITED_FACTOR_REFERENCES = {
     "EF1": ("IPCC, ecuación 14", "IPCC", "Resuelto"),
     "EF4": ("IPCC, ecuaciones 5 y 16", "IPCC", "Resuelto"),
     "EF5": ("IPCC, ecuaciones 6 y 18", "IPCC", "Resuelto"),
-    "frac_gasm": ("IPCC, ecuación 16", "IPCC", "Resuelto"),
     "frac_leach_h": ("IPCC, ecuación 18", "IPCC", "Resuelto"),
     "R_N2_N2O": ("IPCC, ecuación 24", "IPCC", "Resuelto"),
     "FACTOR_N_A_N2O": (
@@ -339,6 +367,7 @@ def tabla_04_parametros_modelo_acv() -> Path:
                 "fuente_dato": row.get(source_col, "") if source_col else "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/ipcc_factores_manejo_overrides_etapa.csv; processed/masa_total_escenario_etapa.csv",
                 "observaciones": obs,
             })
+
     return _write(pd.DataFrame(rows), "tabla_04_parametros_modelo_acv.csv")
 
 
@@ -383,6 +412,33 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "observaciones": row.get("justificacion", ""),
             })
 
+    ledger_parameters = _read_csv("reactive_n_ledger_parameters.csv")
+    for _, row in ledger_parameters.iterrows():
+        if row["parameter"] not in LEDGER_FACTOR_LABELS:
+            continue
+        source = str(row["source_location"])
+        if source.startswith("EMEP/EEA"):
+            classification = "EMEP/EEA (2023)"
+        elif source.startswith("IPCC"):
+            classification = "IPCC"
+        elif source.startswith("Komakech"):
+            classification = "Komakech et al. (2016)"
+        else:
+            classification = "Fuente operativa o supuesto documentado"
+        rows.append({
+            "tipo_factor": "Factor del ledger de N total y TAN",
+            "sistema_o_compuesto": row["scope"],
+            "factor": LEDGER_FACTOR_LABELS[row["parameter"]],
+            "valor": row["value"],
+            "unidad": row["unit"],
+            "fuente_dato": "Parámetros canónicos del ledger de N total y TAN",
+            "referencia_metodologica": source,
+            "clasificacion_referencia": classification,
+            "estado_referencia": "Resuelto",
+            "requiere_revision_bibliografica": "No",
+            "observaciones": row["notes"],
+        })
+
     eq = _read_csv("acv_factores_equivalencia.csv")
     for _, row in eq.iterrows():
         if pd.notna(row.get("equivalente_co2")):
@@ -414,37 +470,25 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
                 "observaciones": "Usado para calcular impacto_eutrofizacion_kg_po4eq",
             })
 
-    hardcoded = OUTPUTS / "tabla_auditoria_factores_hardcodeados.csv"
-    if hardcoded.exists():
-        audit = pd.read_csv(hardcoded)
-        for _, row in audit.iterrows():
-            raw_factor = str(row["factor"])
-            reference, classification, status = AUDITED_FACTOR_REFERENCES.get(
-                raw_factor,
-                (
-                    "Requiere revisión bibliográfica",
-                    "Revisión manual",
-                    "Requiere revisión bibliográfica",
-                ),
-            )
-            rows.append({
-                "tipo_factor": "Parámetro complementario",
-                "sistema_o_compuesto": "",
-                "factor": STOICHIOMETRIC_FACTOR_LABELS.get(
-                    raw_factor,
-                    raw_factor,
-                ),
-                "valor": row["valor"],
-                "unidad": row["unidad"],
-                "fuente_dato": row["script"],
-                "referencia_metodologica": reference,
-                "clasificacion_referencia": classification,
-                "estado_referencia": status,
-                "requiere_revision_bibliografica": (
-                    "Sí" if status == "Requiere revisión bibliográfica" else "No"
-                ),
-                "observaciones": row["observaciones"],
-            })
+    for raw_factor, value, unit in [
+        ("FACTOR_N_A_N2O", 44 / 28, "kg N2O/kg N2O-N"),
+        ("FACTOR_N_A_NH3", 17 / 14, "kg NH3/kg NH3-N"),
+        ("FACTOR_N_A_NO3", 62 / 14, "kg NO3-/kg N"),
+    ]:
+        reference, classification, status = AUDITED_FACTOR_REFERENCES[raw_factor]
+        rows.append({
+            "tipo_factor": "Conversión estequiométrica",
+            "sistema_o_compuesto": "",
+            "factor": STOICHIOMETRIC_FACTOR_LABELS[raw_factor],
+            "valor": value,
+            "unidad": unit,
+            "fuente_dato": "Módulo canónico del ledger de N total y TAN",
+            "referencia_metodologica": reference,
+            "clasificacion_referencia": classification,
+            "estado_referencia": status,
+            "requiere_revision_bibliografica": "No",
+            "observaciones": "Relación exacta entre masas molares.",
+        })
 
     return _write(pd.DataFrame(rows), "tabla_05_factores_emision_y_caracterizacion.csv")
 
@@ -458,6 +502,10 @@ def tabla_06_emisiones_por_etapa() -> Path:
             if pd.isna(value):
                 continue
             substance, name, unit, equation, source = meta
+            if col == "NOx_as_NO2" and int(row["Etapa"]) in ({4} if row["Escenario"] == "A" else {2}):
+                source = "EMEP/EEA 2023 capítulo 3.D, factor sobre N aplicado"
+            elif col == "NOx_as_NO2":
+                source = "EMEP/EEA 2023 capítulo 3.B, factor de manejo sobre TAN"
             rows.append({
                 "escenario": row["Escenario"],
                 "etapa": int(row["Etapa"]),

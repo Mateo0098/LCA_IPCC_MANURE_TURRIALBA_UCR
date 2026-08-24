@@ -22,6 +22,7 @@ ETAPAS = [
 PREPROCESO = [
     "scripts/generate_acv_parametros_escenario_etapa.py",
     "scripts/compute_masa_etapas_escenarios.py",
+    "scripts/reactive_n_ledger.py",
 ]
 
 INICIALIZACION_EMISIONES = ["scripts/acv_resumen_emisiones_csv.py", "--initialize"]

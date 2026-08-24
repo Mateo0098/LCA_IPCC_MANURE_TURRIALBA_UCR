@@ -75,13 +75,14 @@ el estado vigente:
   `DECISIONES_METODOLOGICAS_TFG.md`; el documento se conserva temporalmente
   como apoyo para la migración técnica pendiente y no describe la metodología
   objetivo vigente.
-- `scripts/reactive_n_ledger_audit.py`,
-  `processed/reactive_n_ledger_audit_parameters.csv` y
-  `outputs/auditoria_n_reactivo/`: implementación reproducible de auditoría
-  para las decisiones del ledger de N total y TAN registradas en
-  `DECISIONES_METODOLOGICAS_TFG.md`. Incluye A4/B2 y los benchmarks de masa y
-  concentración, pero aún no se ha promovido al pipeline productivo ni integra
-  caracterización de impactos.
+- `scripts/reactive_n_ledger.py` y
+  `processed/reactive_n_ledger_parameters.csv`: implementación y parámetros
+  responsables del ledger productivo de N total y TAN. El orquestador genera
+  `processed/reactive_n_ledger.csv` antes de ejecutar las seis etapas.
+- `scripts/reactive_n_ledger_audit.py` y `outputs/auditoria_n_reactivo/`:
+  consumidor QA/QC del módulo canónico. Conserva benchmarks de masa,
+  concentración y sensibilidad sin duplicar ecuaciones ni constituir una
+  segunda fuente de verdad.
 
 Una vez resuelta cada decisión, su resultado permanente debe incorporarse en la
 fuente responsable y la auditoría debe retirarse, sin crear una carpeta histórica

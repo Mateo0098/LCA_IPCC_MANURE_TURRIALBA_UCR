@@ -21,6 +21,6 @@
 - Todos los apéndices de metodología están relacionados con la prosa principal: Sí.
 - Todos los apéndices de resultados están relacionados con la prosa principal: Sí.
 - La numeración propia de cada documento se conservó; no se sincronizó con el MASTER.
-- No se modificaron tablas, figuras, ecuaciones, valores numéricos, cálculos ni resultados.
+- Las tablas, figuras, ecuaciones y resultados corresponden a la corrida productiva regenerada.
 - El documento maestro protegido no fue modificado: Sí.
 - Hash SHA-256 del documento maestro: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.

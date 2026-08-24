@@ -5,5 +5,7 @@ composting_invessel,0.5,0.006,0.45,0,Compostaje / precompostado in vessel
 uncovered_anaerobic_lagoon,80,0,0.35,0,Laguna anaerobia descubierta
 aerobic_treatment,0,0.01,0.27,0,Tratamiento aerobio
 liquid_slurry,25,0,0.48,0,Sistema liquido tipo slurry
+liquid_slurry_without_natural_crust,38,0,0.48,0,Liquid/Slurry without natural crust; Tropical Wet; proxy conservador de un mes
+land_application_managed_liquid_slurry,0,0,0,0,La aplicación usa factores de suelos y EMEP del ledger; estos campos MMS no se aplican
 composting_intensive,1.5,0.005,0.5,0.06,windrow_intensive
 composting_pasive,2.5,0.005,0.45,0.04,windrow_pasive

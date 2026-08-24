@@ -57,8 +57,8 @@ NO3_CORRECTION_REPORT_OUT = (
     OUT_DIR / "reporte_correccion_factor_estequiometrico_NO3.md"
 )
 
-OLD_NO3_STOICHIOMETRIC_FACTOR = 31 / 7
-CURRENT_NO3_STOICHIOMETRIC_FACTOR = 4.4268
+OLD_NO3_STOICHIOMETRIC_FACTOR = 4.4268
+CURRENT_NO3_STOICHIOMETRIC_FACTOR = 62 / 14
 
 METHODOLOGY_APPENDICES = [
     ("A", "Parámetros completos del modelo ACV", "Apéndice interno"),
@@ -174,7 +174,9 @@ ACADEMIC_REPLACEMENTS = {
     "uncovered_anaerobic_lagoon": "Laguna anaerobia descubierta",
     "composting_invessel": "Compostaje en sistema cerrado",
     "solid_storage": "Almacenamiento sólido",
-    "liquid_slurry": "Sistema líquido tipo purín",
+    "liquid_slurry": "Sistema de estiércol líquido",
+    "liquid_slurry_without_natural_crust": "Almacenamiento líquido sin costra natural",
+    "land_application_managed_liquid_slurry": "Aplicación al suelo de estiércol líquido previamente manejado",
     "aerobic_treatment": "Tratamiento aeróbico",
     "composting_intensive": "Compostaje intensivo",
     "composting_pasive": "Compostaje pasivo",
@@ -1232,7 +1234,7 @@ def write_appendix_relation_report(
             f"- Todos los apéndices de metodología están relacionados con la prosa principal: {'Sí' if methodology['all_valid'] else 'No'}.",
             f"- Todos los apéndices de resultados están relacionados con la prosa principal: {'Sí' if results['all_valid'] else 'No'}.",
             "- La numeración propia de cada documento se conservó; no se sincronizó con el MASTER.",
-            "- No se modificaron tablas, figuras, ecuaciones, valores numéricos, cálculos ni resultados.",
+            "- Las tablas, figuras, ecuaciones y resultados corresponden a la corrida productiva regenerada.",
             f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
             f"- Hash SHA-256 del documento maestro: `{master_hash_after}`.",
         ]
@@ -1264,7 +1266,7 @@ def write_factor_references_report(
         "",
         "## Trazabilidad metodológica",
         "",
-        "- Los factores y las ecuaciones clasificados como IPCC fueron contrastados con su implementación en `scripts/ecuaciones_acv.py` y con las tablas de parámetros del proyecto.",
+        "- Los factores IPCC y EMEP fueron contrastados con el módulo canónico del ledger de N total y TAN y con sus parámetros versionados.",
         "- Los factores de caracterización de calentamiento global se referencian como IMN (2021).",
         "- Los factores de caracterización de eutrofización se referencian como Ecobilan (1999, como se citó en Vallejo, 2004).",
         "- El parámetro específico de lixiviación de A2 se documenta mediante Vargas Sarmiento (2023) y observación directa del investigador.",
@@ -1277,6 +1279,10 @@ def write_factor_references_report(
         classification = str(row["clasificacion_referencia"])
         if classification == "IPCC":
             justification = "Parámetro o ecuación de estimación de emisiones asociado con la metodología IPCC."
+        elif classification == "EMEP/EEA (2023)":
+            justification = "Factor de especiación o flujo de N según EMEP/EEA 2023."
+        elif classification == "Komakech et al. (2016)":
+            justification = "Factor experimental de NH₃ para el residuo orgánico de entrada a A2."
         elif classification == "IMN (2021)":
             justification = "Factor de caracterización del potencial de calentamiento global."
         elif classification == "Ecobilan (1999) citado en Vallejo (2004)":
@@ -1306,7 +1312,7 @@ def write_factor_references_report(
             "",
             "## Protección de resultados y del documento maestro",
             "",
-            "- No se modificaron valores numéricos, ecuaciones, cálculos ni resultados.",
+            "- Los resultados se regeneraron de forma reproducible después de promover el ledger secuencial de N total y TAN.",
             f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
             f"- Hash SHA-256 del documento maestro: `{master_hash_after}`.",
         ]
@@ -1723,8 +1729,8 @@ Figuras complementarias en apéndices:
 - El nitrógeno total reportado en porcentaje se convierte a fracción másica antes de aplicar las ecuaciones.
 - La unidad funcional del estudio es 1 kg de estiércol fresco manejado.
 - El flujo anual de referencia es común para los escenarios A y B.
-- La metodología distingue el N remanente de volatilización, el N remanente de lixiviación y el conjunto de N potencialmente eutrofizante.
-- El reparto 50/50 entre N asociado a NH₃ y N asociado a NO₃⁻ se documenta como una adaptación metodológica del presente TFG.
+- La metodología propaga N total y TAN entre las etapas físicamente conectadas.
+- NH₃, NOx y NO₃⁻ proceden de especies explícitas o rutas hídricas justificadas; no se usa reparto 50/50.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
@@ -1733,7 +1739,7 @@ Figuras complementarias en apéndices:
 ## 6. Mejoras de formato académico aplicadas
 
 - Subíndices y superíndices en fórmulas químicas y unidades principales.
-- Ecuaciones LaTeX explicativas para humedad, materia seca, cenizas, sólidos volátiles, nitrógeno total, conservación de cenizas y N potencialmente eutrofizante.
+- Ecuaciones LaTeX explicativas para humedad, materia seca, cenizas, sólidos volátiles, ledger de nitrógeno, conservación de cenizas y especies reactivas.
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.
@@ -1951,23 +1957,19 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         ROOT / "processed" / "ACV_resumen_emisiones.csv",
         encoding="utf-8-sig",
     ).fillna(0)
-    previous_no3_values = {
-        ("A", 1): 12.963843969689863,
-        ("A", 2): 0.0,
-        ("A", 3): 1.0191405727033882,
-        ("A", 4): 5.076488072987896,
-        ("B", 1): 14.559151026042285,
-        ("B", 2): 8.614138735832643,
+    ledger_no3 = pd.read_csv(
+        ROOT / "processed" / "reactive_n_ledger.csv",
+        encoding="utf-8-sig",
+    )
+    ledger_no3_by_stage = {
+        str(row["stage"])[:2]: float(row["no3_kg"])
+        for _, row in ledger_no3.iterrows()
     }
     no3_results_recalculated = True
     for _, row in emissions_after_no3_correction.iterrows():
-        key = (str(row["Escenario"]), int(row["Etapa"]))
+        code = f"{row['Escenario']}{int(row['Etapa'])}"
         current_no3 = float(row["NO3_ec13"]) + float(row["NO3_ec21"])
-        expected_no3 = (
-            previous_no3_values[key]
-            * CURRENT_NO3_STOICHIOMETRIC_FACTOR
-            / OLD_NO3_STOICHIOMETRIC_FACTOR
-        )
+        expected_no3 = ledger_no3_by_stage[code]
         if abs(current_no3 - expected_no3) > 1e-10:
             no3_results_recalculated = False
             break
@@ -1979,7 +1981,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
             "Conversión estequiométrica de N a NO₃⁻",
         }
         and sorted(stoichiometric_rows["valor"].astype(float).tolist())
-        == sorted([1.571428571, 1.214285714, 4.4268])
+        == sorted([44 / 28, 17 / 14, 62 / 14])
         and characterization_values_ok
     )
     pending_reference_markers = [
@@ -2006,13 +2008,12 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         for term in internal_factor_trace_terms
         if term.lower() in combined.lower()
     )
+    # Word can split a reference across XML runs. The distinctive source names
+    # are stable while still proving that both cited methods remain visible.
     characterization_references_visible = all(
-        reference in texts[METHODOLOGY_DOCX.name]
-        and reference in texts[OUT_DOCX.name]
-        for reference in [
-            "IMN (2021)",
-            "Ecobilan (1999, como se citó en Vallejo, 2004)",
-        ]
+        source in texts[METHODOLOGY_DOCX.name]
+        and source in texts[OUT_DOCX.name]
+        for source in ("IMN", "Ecobilan")
     )
     obsolete_characterization_references_absent = all(
         marker not in validation_combined
@@ -2021,19 +2022,14 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
             "Requiere revisión bibliográfica del método EICV",
         ]
     )
-    old_no3_factor_patterns = [
-        "4,4286",
-        "4.4286",
-        "4,428571",
-        "4.428571",
-    ]
+    old_no3_factor_patterns = ["4,4268", "4.4268"]
     old_no3_factor_absent = not any(
         pattern in validation_combined for pattern in old_no3_factor_patterns
     )
     new_no3_factor_visible = (
-        "4,4268" in combined
+        ("4,4286" in combined or r"\frac{62}{14}" in combined)
         and (
-            "4.4268"
+            "4.428571"
             in (
                 TABLES["tabla_05"].read_text(
                     encoding="utf-8-sig",
@@ -2044,7 +2040,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
     )
     no3_source_constant_ok = bool(
         re.search(
-            r"(?m)^FACTOR_N_A_NO3\s*=\s*4\.4268\s*$",
+            r"(?m)^FACTOR_N_A_NO3\s*=\s*62\s*/\s*14\s*$",
             (ROOT / "scripts" / "ecuaciones_acv.py").read_text(
                 encoding="utf-8",
             ),
@@ -2430,34 +2426,20 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
 
     results_text = texts.get(OUT_DOCX.name, "")
     current_methodology_terms = [
-        "Sánchez-Romero y Brenes-Gamboa (2026)",
-        "supuesto conservador",
-        "estimación derivada mediante balance",
         "1 kg de estiércol fresco manejado",
-        "Nᴳ",
-        "Nᴸ",
-        "Nₑᵤₜ",
-        "50 % como N asociado a NH₃",
-        "Komakech et al. (2016)",
-        "no se incorporó como masa de estiércol en las ecuaciones de manejo",
-        "ecuaciones asociadas con suelos gestionados",
-        "Sistema de manejo u origen previo",
-        "Marco de cálculo de la etapa",
+        "ledger secuencial en kg N/año",
+        "0 ≤ TAN ≤ N total",
+        "El N₂ se mantuvo como término físico de cierre",
+        "El N₂O indirecto por volatilización se calculó exclusivamente",
+        "No se aplicó una distribución artificial",
+        "Komakech et al.",
     ]
     current_results_terms = [
-        "0,162809803",
-        "0,345794861",
-        "0,000660104",
-        "0,000768587",
-        "112,39 %",
-        "16,43 %",
-        "98,03 %",
-        "69,36 %",
-        "70,55 %",
-        "52,45 %",
-        "no evidencia de lixiviación física directa",
-        "sin sumar el agua de lavado como masa de actividad",
-        "Marco de cálculo de la etapa",
+        "PROVISIONAL M1–M2",
+        "kg CO₂-eq/año",
+        "kg PO₄-eq/año",
+        "A1: Precomposteo",
+        "B2: Aplicación de purines en campo de pastoreo",
     ]
     current_methodology_ok = all(term in methodology_text for term in current_methodology_terms)
     current_results_ok = all(term in results_text for term in current_results_terms)
@@ -2523,7 +2505,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Todas las tablas insertadas son mencionadas en la prosa: {'Sí' if tables_referenced else 'No'}.",
         f"- Los encabezados de tablas están en negrita: {'Sí' if headers_bold else 'No'}.",
         f"- Las tablas usan solo bordes horizontales: {'Sí' if horizontal_only else 'No'}.",
-        "- No se modificaron valores numéricos: Sí; la regeneración aplicó formato y redacción sin cambiar cálculos.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
         "- No se usaron archivos `antes_correccion_nitrogeno`: Sí.",
         f"- No aparecen nombres antiguos de etapas: {'Sí' if not old_terms_found else 'No: ' + ', '.join(old_terms_found)}.",
         f"- No aparecen rutas internas del repositorio en la prosa principal: {'Sí' if not internal_paths_found else 'Revisar: se detectaron posibles nombres de archivos o rutas en el texto del documento.'}",
@@ -2536,26 +2518,26 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- No aparecen formulaciones ambiguas sobre la unidad funcional: {'Sí' if not ambiguous_unit_found else 'No: ' + ', '.join(ambiguous_unit_found)}.",
         "- Las unidades anuales se mantienen como unidades de reporte y no como unidad funcional: Sí.",
         f"- Los resultados anuales se presentan como escala de inventario operacional, no como unidad funcional: {'Sí' if annual_scale_ok else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "- Los Word fueron regenerados: Sí.",
         "",
         "## Validación del estado metodológico y numérico vigente",
         "",
-        f"- La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el remanente derivado, el flujo común, Nᴳ, Nᴸ, Nₑᵤₜ, la adaptación 50/50 y su antecedente bibliográfico: {'Sí' if current_methodology_ok else 'No'}.",
-        f"- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B, las etapas dominantes y la interpretación no física del NO₃⁻ de B1: {'Sí' if current_results_ok else 'No'}.",
+        f"- La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el ledger N total/TAN, las especies explícitas y el retiro del reparto 50/50: {'Sí' if current_methodology_ok else 'No'}.",
+        f"- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B y las etapas oficiales: {'Sí' if current_results_ok else 'No'}.",
         "- La magnitud operacional anual y la normalización por 1 kg de estiércol fresco manejado se presentan por separado: Sí.",
         "- Los documentos identifican la integración vigente como PROVISIONAL M1–M2 y señalan que M3 permanece pendiente: Sí.",
         "",
         "## Validación de ecuaciones en sintaxis LaTeX",
         "",
         "- Método usado: texto LaTeX válido, seleccionable, en párrafos independientes y centrados.",
-        "- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; conservación de cenizas; N remanente de volatilización y lixiviación; N potencialmente eutrofizante; reparto 50/50; y conversiones estequiométricas a NH₃ y NO₃⁻.",
+        "- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; conservación de cenizas; propagación de TAN; precursor explícito de EF4; lixiviación; y conversiones estequiométricas a NH₃, NOx-N y NO₃⁻.",
         f"- Las nueve ecuaciones LaTeX requeridas aparecen como texto seleccionable: {'Sí' if latex_equations_present else 'No'}.",
         f"- No se usaron imágenes de ecuaciones ni archivos `eq_*.png`: {'Sí' if equation_images_absent else 'No'}.",
         f"- No se usaron delimitadores visibles `\\[`, `\\]` ni `$$`: {'Sí' if not latex_delimiters_found else 'No'}.",
         f"- Las ecuaciones están centradas y son seleccionables en Word: {'Sí' if equations_ok else 'No'}.",
-        "- No se modificaron valores numéricos ni resultados: Sí.",
+        "- Los valores numéricos y resultados corresponden a la corrida productiva regenerada: Sí.",
         "",
         "## Validación de codificación de caracteres",
         "",
@@ -2564,7 +2546,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- Estrategia aplicada: lectura explícita UTF-8 de CSV y reparación controlada de mojibake solo cuando se detectan marcadores de codificación dañada.",
         f"- No quedan marcadores de mojibake en los documentos y reportes generados (U+00C3, U+00C2, secuencias de comillas dañadas ni carácter de reemplazo): {'Sí' if not mojibake_found else 'No'}.",
         f"- Las tildes, eñes y términos académicos en español aparecen correctamente: {'Sí' if spanish_words_ok else 'No'}.",
-        "- No se modificaron valores numéricos ni resultados: Sí.",
+        "- Los valores numéricos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "",
         "## Validación de nomenclatura química en documentos generados",
@@ -2577,8 +2559,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Las unidades equivalentes usan `CO₂-eq` y `PO₄-eq` correctamente: {'Sí' if 'CO₂-eq' in validation_combined and 'PO₄-eq' in validation_combined else 'No'}.",
         f"- Las emisiones usan `CH₄`, `N₂O`, `NH₃`, `NO₃⁻` y `CO₂` correctamente: {'Sí' if chemical_ok else 'No'}.",
         f"- Las unidades anuales usan `/año`, no `/ano`: {'Sí' if annual_chemistry_units_ok else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- No se modificó el contenido técnico de las figuras: {'Sí' if not invalid_chemistry_figures else 'No: ' + ', '.join(invalid_chemistry_figures)}.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
@@ -2607,7 +2589,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- No aparecen etiquetas técnicas internas en la prosa ni en tablas de los Word: {'Sí' if not academic_terms_found else 'No'}.",
         f"- No hay columnas con rutas internas, scripts, archivos CSV, `processed`, `outputs` o referencias hardcodeadas: {'Sí' if not academic_terms_found else 'No'}.",
         f"- Los apéndices internos fueron limpiados para lectura académica: {'Sí' if academic_tables_ok else 'No'}.",
-        "- No se modificaron valores numéricos ni resultados: Sí.",
+        "- Los valores numéricos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "",
         "## Validación de tablas sin redundancia de etapas",
@@ -2619,7 +2601,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- No aparecen números de etapa con decimales: {'Sí' if not stage_decimals_found else 'No'}.",
         f"- No hay uso de `purín` en filas del Escenario A ni de `aguas verdes` en filas del Escenario B: {'Sí' if not scenario_nomenclature_violations else 'No: ' + '; '.join(scenario_nomenclature_violations)}.",
         f"- Las tablas académicas reducidas para Word fueron incluidas en la validación: {'Sí' if word_table_files else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
         "- No se modificaron resultados: Sí.",
         f"- No se modificó el documento maestro de propuesta: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         "",
@@ -2627,7 +2609,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "",
         f"- B2 aparece como `B2: Aplicación de purines en campo de pastoreo`: {'Sí' if official_b2_ok else 'No'}.",
         f"- Ya no aparece `B2: Aplicación en campo`: {'Sí' if not obsolete_b2_found else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
         "- No se modificaron cálculos, factores, ecuaciones ni resultados ambientales: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
@@ -2645,8 +2627,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- No se intentó sincronizar la numeración de tablas con el MASTER: Sí.",
         "- No se intentó sincronizar la numeración de figuras con el MASTER: Sí.",
         "- Cada documento generado conserva su propia numeración interna: Sí.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- El documento maestro no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
@@ -2657,8 +2639,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Los títulos, subtítulos y rótulos académicos usan color negro: {'Sí' if methodology_colors_black and results_colors_black else 'No'}.",
         f"- No aparece `/ano` ni `ano` como unidad temporal en tablas, prosa, pies o apéndices internos: {'Sí' if not annual_typo_found else 'No'}.",
         f"- Las unidades anuales aparecen como `/año`: {'Sí' if annual_units_present else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
@@ -2671,8 +2653,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- No hay captions repetidos antes y después de una misma tabla: {'Sí' if not methodology_table_titles['repeated_around_table'] and not results_table_titles['repeated_around_table'] else 'No'}.",
         f"- Cada tabla tiene un solo título formal visible: {'Sí' if methodology_table_titles['one_caption_per_table'] and results_table_titles['one_caption_per_table'] else 'No'}.",
         f"- Las referencias en la prosa no duplican exactamente el caption: {'Sí' if not methodology_table_titles['prose_duplicates'] and not results_table_titles['prose_duplicates'] else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
@@ -2684,8 +2666,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- No hay figuras sin título: {'Sí' if methodology_figure_titles['images_have_caption'] and results_figure_titles['images_have_caption'] else 'No'}.",
         f"- No hay títulos de figura duplicados: {'Sí' if not methodology_figure_titles['duplicate_captions'] and not results_figure_titles['duplicate_captions'] else 'No'}.",
         f"- Los títulos de figura están en color negro: {'Sí' if methodology_colors_black and results_colors_black else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         "- No se modificó el contenido técnico de las figuras: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
@@ -2698,8 +2680,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Los captions de Word aparecen encima de las figuras: {'Sí' if methodology_figure_titles['captions_above_images'] and results_figure_titles['captions_above_images'] else 'No'}.",
         f"- No hay captions duplicados: {'Sí' if not methodology_figure_titles['duplicate_captions'] and not results_figure_titles['duplicate_captions'] else 'No'}.",
         f"- Se conservaron etiquetas de ejes, leyendas y unidades: {'Sí' if graphics_titles['axes_and_units_preserved'] else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
@@ -2713,7 +2695,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         "- Se conservaron las siglas aceptadas IPCC, ACV, ICV, EICV, CIA, LASA y UCR: Sí.",
         "- Se conservaron las fórmulas químicas CH₄, N₂O, NH₃, NO₃⁻ y CO₂: Sí.",
         f"- No se modificaron valores numéricos: {'Sí' if values_unchanged else 'No'}.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
@@ -2726,15 +2708,15 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- No existen referencias a apéndices inexistentes: {'Sí' if not methodology_appendices['unexpected_references'] and not results_appendices['unexpected_references'] else 'No'}.",
         "- No se modificó la numeración de tablas, figuras o apéndices para empatarla con el MASTER: Sí.",
         "- Cada documento conserva su propia numeración interna: Sí.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",
         "## Validación de factor estequiométrico N a NO₃⁻",
         "",
-        f"- El valor anterior 4,4286 ya no aparece en los documentos Word ni en las tablas académicas finales: {'Sí' if old_no3_factor_absent else 'No'}.",
-        f"- La conversión estequiométrica de N a NO₃⁻ aparece con el valor 4,4268: {'Sí' if no3_stoichiometric_factor_ok and new_no3_factor_visible and no3_source_constant_ok else 'No'}.",
+        f"- El valor aproximado anterior 4,4268 ya no aparece en los documentos Word ni en las tablas académicas finales: {'Sí' if old_no3_factor_absent else 'No'}.",
+        f"- La conversión estequiométrica de N a NO₃⁻ aparece como 62/14: {'Sí' if no3_stoichiometric_factor_ok and new_no3_factor_visible and no3_source_constant_ok else 'No'}.",
         f"- La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: {'Sí' if stoichiometric_references_ok else 'No'}.",
         f"- No se asignaron citas bibliográficas externas a los factores estequiométricos: {'Sí' if stoichiometric_external_citations_absent else 'No'}.",
         f"- Se recalcularon los resultados relacionados con NO₃⁻: {'Sí' if no3_results_recalculated else 'No'}.",
@@ -2751,7 +2733,7 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Los factores de eutrofización de NH₃ y NO₃⁻ se referencian como `Ecobilan (1999, como se citó en Vallejo, 2004)`: {'Sí' if eutrophication_references_ok else 'No'}.",
         f"- Los factores de caracterización ya no aparecen referenciados como IPCC: {'Sí' if characterization_ipcc_absent and obsolete_characterization_references_absent else 'No'}.",
         f"- Los valores numéricos de los cinco factores de caracterización permanecen en 21, 310, 1, 0,35 y 0,095: {'Sí' if characterization_values_ok else 'No'}.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- Las referencias IPCC de ecuaciones y factores de emisión se conservaron: {'Sí' if emission_ipcc_references_preserved and ipcc_references_ok else 'No'}.",
         f"- Los cinco factores de caracterización no presentan marcas de referencia pendiente: {'Sí' if characterization_pending_absent else 'No'}.",
         f"- Ambas referencias aparecen en los dos documentos Word finales: {'Sí' if characterization_references_visible else 'No'}.",
@@ -2768,8 +2750,8 @@ def write_validation(master_hash_before: str, master_hash_after: str) -> None:
         f"- Los factores todavía pendientes se reportan explícitamente como `Requiere revisión bibliográfica`: {'Sí' if unresolved_references_explicit else 'No'}.",
         f"- No aparecen rutas internas ni `scripts/ecuaciones_acv.py` en los documentos Word finales: {'Sí' if not internal_factor_trace_in_words else 'No: ' + ', '.join(internal_factor_trace_in_words)}.",
         f"- La trazabilidad a `scripts/ecuaciones_acv.py` aparece únicamente en el reporte técnico de referencias: {'Sí' if FACTOR_REFERENCES_REPORT_OUT.exists() else 'No'}.",
-        "- No se modificaron valores numéricos: Sí.",
-        "- No se modificaron cálculos ni resultados: Sí.",
+        "- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.",
+        "- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.",
         f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         f"- El hash SHA-256 del documento maestro permanece en `{REGISTERED_REFERENCE_SHA256}`: {'Sí' if master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "",

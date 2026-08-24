@@ -151,10 +151,10 @@ La declaracion metodologica de unidad funcional y supuestos esta en:
 
 - `outputs/tablas_tesis/tabla_00_unidad_funcional_y_supuestos.csv`
 
-## Ecuaciones IPCC
+## Ecuaciones productivas
 
-Las funciones de ecuaciones estan en `scripts/ecuaciones_acv.py`. Las etapas se
-calculan en:
+El ledger secuencial de N total y TAN reside exclusivamente en
+`scripts/reactive_n_ledger.py`. Las seis etapas consumen sus resultados mediante:
 
 - `scripts/ACV_EscenarioA_etapa1.py`
 - `scripts/ACV_EscenarioA_etapa2.py`
@@ -163,20 +163,15 @@ calculan en:
 - `scripts/ACV_EscenarioB_etapa1.py`
 - `scripts/ACV_EscenarioB_etapa2.py`
 
-Las ecuaciones aplicadas incluyen:
+El módulo inicializa TAN/N = 0,60 únicamente en estiércol fresco, propaga los
+pools entre etapas, calcula NH₃-N, NOx-N y N₂-N explícitos, aplica una sola vez
+el N₂O directo IPCC y limita el NO₃⁻ a rutas hídricas justificadas. FracGas se
+conserva solo como benchmark y no alimenta EF4. El CH₄ conserva la ecuación IPCC
+general de `scripts/ecuaciones_acv.py`.
 
-- CH4 por manejo de estiercol: `ef_ch4`.
-- N2O directo por manejo de estiercol: `n2o_direct_mm`.
-- N volatilizado y lixiviado: `n_volatilization_mms`, `n_lixiviado_mms`.
-- N2O indirecto por volatilizacion y lixiviacion:
-  `n2o_indirect_volatilization`, `n2o_indirect_leaching`.
-- NH3 y NO3 derivados de rutas de N: `nh3_direct_mm`, `no3_direct_mm`,
-  `nh3_direct_sm`, `no3_direct_sm`.
-- Suelos gestionados: `n2o_n_inputs`, `n2o_atd_n`, `n2o_l_n`.
-
-Los factores hardcodeados pendientes de fuente bibliografica estan auditados en:
-
-- `outputs/tablas_tesis/tabla_auditoria_factores_hardcodeados.csv`
+Los factores, unidades y ubicaciones bibliográficas del ledger residen en
+`processed/reactive_n_ledger_parameters.csv`; su salida física productiva es
+`processed/reactive_n_ledger.csv`.
 
 ## Estimacion de emisiones
 

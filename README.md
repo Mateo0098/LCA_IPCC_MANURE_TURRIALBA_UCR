@@ -74,7 +74,8 @@ afirmaciones manuales sobre A o B.
 
 `ACV_orquestador.py` parte de la integración experimental vigente. En orden,
 genera `processed/acv_parametros_escenario_etapa.csv`, calcula las masas,
-inicializa el resumen de emisiones, ejecuta A1–B2, valida la presencia de las
+construye `processed/reactive_n_ledger.csv`, inicializa el resumen de emisiones,
+ejecuta A1–B2, valida la presencia de las
 seis etapas, calcula impactos, genera el contraste bibliográfico derivado de A2
 y ejecuta el postproceso gráfico existente. El contraste no modifica el
 inventario ni los impactos oficiales. No
@@ -103,6 +104,22 @@ A2 utiliza las ecuaciones IPCC compartidas y la categoría de manejo
 genéricos de esa categoría, excepto `FracLeachMS = 0`, configurado como parámetro
 específico de A2 en `processed/ipcc_factores_manejo_overrides_etapa.csv`. La masa
 de A2 depende del factor integrado de transformación fresco→precompostado.
+Su N total y TAN de entrada proceden exclusivamente de la salida de A1; la
+medición del precompostado se conserva como benchmark y no reinicializa el
+balance.
+
+### Ledger productivo de N total y TAN
+
+`scripts/reactive_n_ledger.py` es la única implementación de las ecuaciones de
+N reactivo para las cadenas independientes A1→A2, A3→A4 y B1→B2. Inicializa TAN
+como 0,60 del N total únicamente en las fronteras de estiércol fresco y propaga
+ambos pools entre etapas. Las pérdidas EMEP de NH₃-N, NOx-N y N₂-N reducen TAN
+y N total; las pérdidas IPCC reducen N total sin asignarse automáticamente a
+TAN. EF4 utiliza las especies volatilizadas explícitas y el NO₃⁻ procede solo de
+rutas hídricas justificadas. Las mediciones intermedias son benchmarks.
+
+`scripts/reactive_n_ledger_audit.py` genera productos de QA/QC consumiendo ese
+mismo módulo; no contiene una implementación alternativa.
 
 ## Configuración manual vigente
 
@@ -124,6 +141,7 @@ debe presentarse como resultado experimental final.
 ## Salidas principales
 
 - `processed/ACV_resumen_emisiones.csv`
+- `processed/reactive_n_ledger.csv`
 - `processed/acv_impacto_por_etapa_escenario.csv`
 - `processed/acv_impacto_total_por_escenario.csv`
 - `outputs/tablas_tesis/`: tablas académicas y versiones para Word.

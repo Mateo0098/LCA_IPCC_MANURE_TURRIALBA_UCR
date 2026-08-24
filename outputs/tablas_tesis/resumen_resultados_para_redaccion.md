@@ -32,42 +32,44 @@ B2: Aplicación de purines en campo de pastoreo presenta la mayor masa equivalen
 
 | Escenario | Sustancia | Emision total anual |
 |---|---|---:|
-| A | CH4 | 139.23463637335524 |
-| A | N2O | 4.976344420740896 |
-| A | NH3 | 44.55079034604405 |
-| A | NO3 | 162.41436128553823 |
-| B | CH4 | 389.4643414947861 |
-| B | N2O | 1.7504371342481058 |
-| B | NH3 | 38.93616508636328 |
-| B | NO3 | 141.945683438846 |
+| A | CH4 | 74.3713097014547 |
+| A | N2O | 2.4897893242667326 |
+| A | NH3 | 44.55007006606425 |
+| A | NO3 | 44.251501666566774 |
+| A | NOx | 3.981753220187405 |
+| B | CH4 | 184.99556221002345 |
+| B | N2O | 2.8463417022458843 |
+| B | NH3 | 69.91143819435695 |
+| B | NO3 | 121.2572835051862 |
+| B | NOx | 4.592074113208644 |
 
-B1: Almacenamiento de purines es la mayor fuente de CH4; B1: Almacenamiento de purines de NH3; B1: Almacenamiento de purines de NO3; y A1: Precomposteo de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.
+B1: Almacenamiento de purines es la mayor fuente de CH4; B2: Aplicación de purines en campo de pastoreo de NH3; B2: Aplicación de purines en campo de pastoreo de NO3; y B2: Aplicación de purines en campo de pastoreo de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.
 
 ## 6.5 Impactos ambientales por etapa
 
 | Escenario | Etapa | Codigo | Nombre de etapa | Calentamiento global | Eutrofizacion |
 |---|---:|---|---|---:|---:|
-| A | 1 | A1 | Etapa 1: Precomposteo | 1189.6041709349145 | 12.68246985818677 |
-| A | 2 | A2 | Etapa 2: Lombricompostaje | 308.9408352465669 | 7.213468681036463 |
-| A | 3 | A3 | Etapa 3: Almacenamiento de aguas verdes | 2832.6458116004305 | 6.616319745709744 |
-| A | 4 | A4 | Etapa 4: Aplicación de aguas verdes en campos de pastoreo | 135.40331648822615 | 4.509882658308575 |
-| B | 1 | B1 | Etapa 1: Almacenamiento de purines | 8503.71352199646 | 19.86245066609851 |
-| B | 2 | B2 | Etapa 2: Aplicación de purines en campo de pastoreo | 217.67316101096097 | 7.2500470408190045 |
+| A | 1 | A1 | Etapa 1: Precomposteo | 518.8557038555156 | 7.775130787114285 |
+| A | 2 | A2 | Etapa 2: Lombricompostaje | 226.76495777803757 | 0.0332862595385599 |
+| A | 3 | A3 | Etapa 3: Almacenamiento de aguas verdes | 1343.5935684386643 | 3.0837076262622776 |
+| A | 4 | A4 | Etapa 4: Aplicación de aguas verdes en campos de pastoreo | 244.4179641810184 | 8.904292508531208 |
+| B | 1 | B1 | Etapa 1: Almacenamiento de purines | 4033.5204455173243 | 9.257410909595611 |
+| B | 2 | B2 | Etapa 2: Aplicación de purines en campo de pastoreo | 733.7522885893924 | 26.731034391422007 |
 
-En calentamiento global dominan A3: Almacenamiento de aguas verdes en el Escenario A y B1: Almacenamiento de purines en el Escenario B. En eutrofización dominan A1: Precomposteo en el Escenario A y B1: Almacenamiento de purines en el Escenario B.
+En calentamiento global dominan A3: Almacenamiento de aguas verdes en el Escenario A y B1: Almacenamiento de purines en el Escenario B. En eutrofización dominan A4: Aplicación de aguas verdes en campos de pastoreo en el Escenario A y B2: Aplicación de purines en campo de pastoreo en el Escenario B.
 
 ## 6.6 Impactos totales por escenario
 
 | escenario | categoria_impacto | resultado_total | unidad | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- |
-| A | Calentamiento global | 4466.594134270137 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| A | Eutrofizacion | 31.02214094324156 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| B | Calentamiento global | 8721.386683007422 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
-| B | Eutrofizacion | 27.11249770691752 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Calentamiento global | 2333.632194253236 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| A | Eutrofizacion | 19.79641718144633 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| B | Calentamiento global | 4767.272734106717 | kg CO2-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
+| B | Eutrofizacion | 35.98844530101762 | kg PO4-eq/año | processed/acv_impacto_total_por_escenario.csv | Suma de impactos por etapa |
 
 ## 6.7 Comparacion entre escenarios
 
 | categoria_impacto | escenario_A | escenario_B | unidad | diferencia_absoluta_B_menos_A | diferencia_porcentual_B_vs_A | escenario_con_mayor_impacto | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Calentamiento global | 4466.594134270137 | 8721.386683007422 | kg CO2-eq/año | 4254.792548737285 | 95.25809645636268 | B | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |
-| Eutrofizacion | 31.02214094324156 | 27.11249770691752 | kg PO4-eq/año | -3.9096432363240368 | -12.602751188182538 | A | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |
+| Calentamiento global | 2333.632194253236 | 4767.272734106717 | kg CO2-eq/año | 2433.6405398534807 | 104.28552305057 | B | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |
+| Eutrofizacion | 19.79641718144633 | 35.98844530101762 | kg PO4-eq/año | 16.19202811957129 | 81.79272022387384 | B | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |

@@ -55,8 +55,8 @@ Figuras complementarias en apéndices:
 - El nitrógeno total reportado en porcentaje se convierte a fracción másica antes de aplicar las ecuaciones.
 - La unidad funcional del estudio es 1 kg de estiércol fresco manejado.
 - El flujo anual de referencia es común para los escenarios A y B.
-- La metodología distingue el N remanente de volatilización, el N remanente de lixiviación y el conjunto de N potencialmente eutrofizante.
-- El reparto 50/50 entre N asociado a NH₃ y N asociado a NO₃⁻ se documenta como una adaptación metodológica del presente TFG.
+- La metodología propaga N total y TAN entre las etapas físicamente conectadas.
+- NH₃, NOx y NO₃⁻ proceden de especies explícitas o rutas hídricas justificadas; no se usa reparto 50/50.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
@@ -65,7 +65,7 @@ Figuras complementarias en apéndices:
 ## 6. Mejoras de formato académico aplicadas
 
 - Subíndices y superíndices en fórmulas químicas y unidades principales.
-- Ecuaciones LaTeX explicativas para humedad, materia seca, cenizas, sólidos volátiles, nitrógeno total, conservación de cenizas y N potencialmente eutrofizante.
+- Ecuaciones LaTeX explicativas para humedad, materia seca, cenizas, sólidos volátiles, ledger de nitrógeno, conservación de cenizas y especies reactivas.
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.

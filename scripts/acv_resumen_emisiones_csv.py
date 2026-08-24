@@ -22,6 +22,7 @@ COLUMNAS = [
     "N2O_ec18",
     "NH3_ec12",
     "NH3_ec20",
+    "NOx_as_NO2",
     "NO3_ec13",
     "NO3_ec21",
 ]
@@ -193,6 +194,33 @@ def exportar_fila(escenario: str, etapa: int, fila: dict[str, Any]) -> None:
 
     with ruta_csv.open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=COLUMNAS)
+        writer.writeheader()
+        writer.writerows(filas)
+
+
+def exportar_fila_absoluta(escenario: str, etapa: int, fila: dict[str, Any]) -> None:
+    """Exporta una fila ya expresada en kg/año, sin un segundo escalado por masa."""
+    base = Path(__file__).resolve().parent.parent
+    masas = _cargar_masas_por_etapa(base)
+    key = (str(escenario).strip().upper(), int(etapa))
+    if key not in masas:
+        raise KeyError(f"Falta masa válida para escenario={key[0]}, etapa={key[1]}")
+    fila_absoluta = dict(fila)
+    fila_absoluta["masa_total_kg_eq"] = masas[key]
+    nueva_fila = _normalizar_fila(fila_absoluta, *key)
+    ruta_csv = _ruta_resumen()
+    if not ruta_csv.exists():
+        raise RuntimeError("El resumen de emisiones no fue inicializado para la corrida vigente.")
+    with ruta_csv.open("r", encoding="utf-8-sig", newline="") as handle:
+        filas = [
+            _normalizar_fila(row, row.get("Escenario", ""), int(row.get("Etapa", 0)))
+            for row in csv.DictReader(handle) if row
+        ]
+    filas = [row for row in filas if (str(row["Escenario"]), int(row["Etapa"])) != key]
+    filas.append(nueva_fila)
+    filas.sort(key=_clave_orden)
+    with ruta_csv.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=COLUMNAS)
         writer.writeheader()
         writer.writerows(filas)
 

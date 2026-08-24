@@ -109,7 +109,9 @@ ACADEMIC_REPLACEMENTS = {
     "uncovered_anaerobic_lagoon": "Laguna anaerobia descubierta",
     "composting_invessel": "Compostaje en sistema cerrado",
     "solid_storage": "Almacenamiento sólido",
-    "liquid_slurry": "Sistema líquido tipo purín",
+    "liquid_slurry": "Sistema de estiércol líquido",
+    "liquid_slurry_without_natural_crust": "Almacenamiento líquido sin costra natural",
+    "land_application_managed_liquid_slurry": "Aplicación al suelo de estiércol líquido previamente manejado",
     "aerobic_treatment": "Tratamiento aeróbico",
     "composting_intensive": "Compostaje intensivo",
     "composting_pasive": "Compostaje pasivo",
@@ -736,8 +738,8 @@ def build_document() -> None:
         "Para representar A2: Lombricompostaje se seleccionó la categoría Composting – Passive Windrow de las Directrices del IPCC, por constituir la aproximación disponible más cercana a las condiciones operativas del sistema estudiado. El proceso se desarrolla con material sólido y no corresponde a un reactor cerrado; tampoco utiliza aireación forzada ni volteo mecánico intensivo diario. La actividad y el desplazamiento de las lombrices, sin embargo, contribuyen a la movilización y aireación no intensiva del sustrato.",
         "En A2 se adoptó una fracción de pérdida de N por lixiviación igual a cero como parámetro específico del sistema, sin alterar el valor genérico de la categoría Composting – Passive Windrow. Vargas Sarmiento (2023), en un ensayo efectuado en el mismo lombricario de la UCR Sede del Atlántico, documentó infraestructura bajo techo y camas construidas completamente con piso y paredes de cemento, sin drenajes; indicó además que la ausencia de drenajes dificultaba el escurrimiento del exceso de agua aplicado durante el riego experimental destinado a mantener la humedad objetivo.",
         "De manera separada, las observaciones directas efectuadas durante las giras de campo del presente TFG confirmaron que las camas se encontraban bajo techo, sin exposición directa a la precipitación, y que la adición regular de agua no constituía una práctica operacional habitual. Con base en la exclusión de lluvia directa, la impermeabilización de las camas, la ausencia de drenaje y la ausencia observada de riego operacional regular, no se modeló una pérdida de N hacia el ambiente por lixiviación durante A2. Este supuesto representa la ausencia de una salida significativa de N por esa vía y no niega que pueda ocurrir movimiento de agua dentro del sustrato.",
-        "Para A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines, las emisiones asociadas con el manejo del estiércol se estimaron a partir de la masa de estiércol sometida al sistema, la caracterización del estiércol fresco y los factores correspondientes al sistema IPCC seleccionado. Aunque durante la operación real estos sistemas contienen agua de lavado, dicho volumen no se incorporó como masa de estiércol en las ecuaciones de manejo.",
-        "El componente líquido se incorporó en las etapas subsecuentes de aplicación en campo, A4: Aplicación de aguas verdes en campos de pastoreo y B2: Aplicación de purines en campo de pastoreo. En estas etapas se representó el flujo total aplicado, integrado por el agua de lavado y la fracción de estiércol correspondiente, y se utilizó la caracterización química específica de las aguas verdes o del purín, según el escenario, en las ecuaciones asociadas con suelos gestionados.",
+        "A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se representaron como almacenamiento de estiércol líquido sin costra natural. Para ambas etapas se utilizó un MCF de 38 % como aproximación conservadora para clima tropical húmedo, EF3 igual a cero y ausencia de lixiviación sistemática. La mineralización previa del 10 % del N orgánico se mantuvo como aproximación EMEP por defecto, sin escalado lineal por la residencia aproximada de tres días; su representatividad temporal constituye una incertidumbre explícita.",
+        "A4: Aplicación de aguas verdes en campos de pastoreo recibió exactamente el N total y el TAN remanentes de A3; B2: Aplicación de purines en campo de pastoreo recibió los pools correspondientes de B1. Ambas etapas representan aplicación al suelo de estiércol líquido previamente manejado y no deposición directa por animales durante pastoreo. Las mediciones intermedias se conservaron como benchmarks experimentales, sin reinicializar el ledger.",
         "A2: Lombricompostaje utilizó las ecuaciones IPCC de manejo del estiércol y los factores genéricos de la categoría Composting – Passive Windrow, excepto la fracción de lixiviación, cuyo valor efectivo de cero se incorporó como parámetro específico del sistema estudiado. Las emisiones de las etapas se estimaron con los factores de manejo y parámetros descritos en la Tabla 3.",
         "Los factores asociados con las ecuaciones de estimación de emisiones se organizaron de acuerdo con la metodología IPCC. En A2 se conservaron los factores de metano, N2O directo y volatilización de la categoría Composting – Passive Windrow; únicamente la fracción de lixiviación se sustituyó mediante el parámetro específico descrito anteriormente.",
         "Los factores de emisión y caracterización empleados en estas estimaciones se detallan en el Apéndice interno B, Factores de emisión y caracterización.",
@@ -745,21 +747,22 @@ def build_document() -> None:
 
     doc.add_heading("18. Estimación de emisiones", level=2)
     add_paragraphs(doc, [
-        "Las emisiones se estimaron por escenario, etapa y sustancia. Las sustancias consideradas fueron CO2, CH4, N2O, NH3 y NO3. Las ecuaciones de nitrógeno utilizaron n_ex,fraction como fracción másica de entrada.",
-        "Las ecuaciones del IPCC permitieron estimar las pérdidas de N por volatilización y lixiviación, así como la fracción de dichas pérdidas transformada en N₂O-N indirecto. Estas ecuaciones no se utilizaron originalmente para calcular eutrofización; por ello, el presente TFG incorporó una adaptación metodológica para representar el N remanente potencialmente contribuyente a esa categoría.",
-        "Se definió Nᴳ como el nitrógeno remanente de la ruta de volatilización después de descontar la fracción transformada en N₂O-N indirecto, y Nᴸ como el nitrógeno remanente de la ruta de lixiviación después del descuento equivalente. El conjunto potencialmente eutrofizante, Nₑᵤₜ, se definió como la suma de Nᴳ y Nᴸ. Las ecuaciones siguientes presentan estas magnitudes mediante subíndices en notación LaTeX.",
-        "Para representar la especiación de Nₑᵤₜ dentro del inventario, se adoptó como supuesto metodológico del presente TFG una distribución de 50 % como N asociado a NH₃ y 50 % como N asociado a NO₃⁻. Esta distribución tomó como antecedente el supuesto empleado por Komakech et al. (2016) para el N del estiércol que alcanza cuerpos de agua, sin atribuir a esos autores la aplicación directa de este reparto al N remanente de las rutas IPCC.",
-        "En consecuencia, NH₃ y NO₃⁻ se derivaron del conjunto Nₑᵤₜ y no de una correspondencia directa entre Nᴳ y NH₃ o entre Nᴸ y NO₃⁻. Una etapa con Nᴸ igual a cero puede presentar NO₃⁻ equivalente porque una mitad de Nₑᵤₜ se asigna a N asociado a nitrato bajo el supuesto de especiación; este resultado no representa una predicción directa de lixiviación física ni de la especie química final en el ambiente.",
+        "Las emisiones se estimaron por escenario, etapa y sustancia mediante un ledger secuencial en kg N/año. El N total constituye el pool físico principal y el nitrógeno amoniacal total (TAN) un subpool, sujeto en todo momento a 0 ≤ TAN ≤ N total. En las fronteras de estiércol fresco se utilizó TAN/N = 0,60 para vaca lechera (EMEP/EEA, 2023).",
+        "Las pérdidas de NH₃-N, NOx-N y N₂-N definidas por EMEP redujeron TAN y N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron N total una sola vez, sin reducir automáticamente TAN. El N₂ se mantuvo como término físico de cierre y no se caracterizó en la evaluación de impactos.",
+        "En A1 se aplicaron los factores EMEP de almacenamiento sólido sobre TAN. El drenaje de A1 redujo el N total y llegó primero al suelo; solamente la fracción posteriormente lixiviada o escurrida desde el suelo originó NO₃⁻. En A2, el NH₃ se calculó con 12,8 g NH₃ por Mg de residuo orgánico de entrada (Komakech et al., 2016), mientras NO y N₂ utilizaron los factores EMEP sólidos como aproximación ante la ausencia de una categoría explícita de lombricompostaje.",
+        "En A3 y B1, la mineralización EMEP aumentó el TAN disponible antes de calcular NH₃-N, NO-N y N₂-N. En A4 y B2, NH₃-N se calculó como 0,55 kg NH₃-N por kg TAN aplicado; el NOx se reportó como NO₂ con 0,04 kg NO₂ por kg N aplicado y se convirtió a NOx-N mediante 14/46 para el balance.",
+        "El N₂O indirecto por volatilización se calculó exclusivamente con las especies explícitas NH₃-N y NOx-N. FracGasMS se conservó solo como benchmark de orden de magnitud y no generó una segunda masa física. El nitrato se originó exclusivamente en rutas hídricas justificadas y el N₂O indirecto asociado no se descontó de la masa de NO₃⁻ inventariada.",
         "Los factores de caracterización empleados para convertir emisiones en indicadores de impacto se presentan en la Tabla 4.",
     ])
 
-    add_latex_equation(doc, r"N_G = N_{volatilizado} \times (1 - EF_4)")
-    add_latex_equation(doc, r"N_L = N_{lixiviado} \times (1 - EF_5)")
-    add_latex_equation(doc, r"N_{eut} = N_G + N_L")
-    add_latex_equation(doc, r"N_{NH_3} = 0,5 \times N_{eut}")
-    add_latex_equation(doc, r"N_{NO_3^-} = 0,5 \times N_{eut}")
+    add_latex_equation(doc, r"TAN_{fresco} = 0{,}60 \times N_{total,fresco}", ["Donde: TAN_fresco = nitrógeno amoniacal total en la frontera fresca, kg N/año; N_total,fresco = nitrógeno total del estiércol fresco, kg N/año."])
+    add_latex_equation(doc, r"N_{precursor,vol} = N_{NH_3} + N_{NO_x}")
+    add_latex_equation(doc, r"N_{N_2O,ind,vol} = N_{precursor,vol} \times EF_4")
+    add_latex_equation(doc, r"N_{lix,esc} = N_{aplicado} \times FracLEACH")
+    add_latex_equation(doc, r"m_{NO_3^-} = N_{lix,esc} \times \frac{62}{14}")
+    add_latex_equation(doc, r"N_{N_2O,ind,lix} = N_{lix,esc} \times EF_5")
     add_latex_equation(doc, r"m_{NH_3} = N_{NH_3} \times \frac{17}{14}")
-    add_latex_equation(doc, r"m_{NO_3^-} = N_{NO_3^-} \times 4,4268")
+    add_latex_equation(doc, r"N_{NO_x} = m_{NO_2} \times \frac{14}{46}")
 
     doc.add_heading("19. Evaluación de impacto de ciclo de vida", level=2)
     add_paragraphs(doc, [
@@ -786,7 +789,7 @@ def build_document() -> None:
     doc.add_heading("21. Supuestos metodológicos", level=2)
     add_paragraphs(doc, [
         "Los supuestos principales fueron la equivalencia 1 L de agua = 1 kg equivalente, la extrapolación anual de flujos operativos, la adopción conservadora de 7 % del peso vivo/día para estimar el depósito teórico durante la permanencia en sala, la conservación de cenizas para estimar cambios de masa seca durante el precomposteo, la asignación de sistemas de manejo por etapa y el uso de factores de caracterización para las categorías de impacto evaluadas.",
-        "Para la eutrofización se incluyó además la adaptación que distribuye por partes iguales el conjunto Nₑᵤₜ entre N asociado a NH₃ y N asociado a NO₃⁻. Esta adaptación representa una convención de inventario del presente TFG y no una medición directa de la especiación ambiental.",
+        "Para el inventario de N reactivo se emplearon especies explícitas y rutas físicas diferenciadas. No se aplicó una distribución artificial por partes iguales entre NH₃ y NO₃⁻.",
         "Estos supuestos permiten mantener coherencia entre la caracterización de materiales, los flujos del inventario y las vías de emisión empleadas en el ACV.",
     ])
 
@@ -801,6 +804,11 @@ def build_document() -> None:
         "Sánchez-Romero, C. A., & Brenes-Gamboa, S. (2026). Cuantificación y caracterización de residuos generados durante el ordeño de ganado Jersey. Agronomía Mesoamericana, 37, artículo 6135ky76. https://doi.org/10.15517/6135ky76",
         "Komakech, A. J., Zurbrügg, C., Miito, G. J., Wanyama, J., & Vinnerås, B. (2016). Environmental impact from vermicomposting of organic waste in Kampala, Uganda. Journal of Environmental Management, 181, 395–402. https://doi.org/10.1016/j.jenvman.2016.06.028",
         "Jjagwe, J., Komakech, A. J., Karungi, J., Amann, A., Wanyama, J., & Lederer, J. (2019). Assessment of a Cattle Manure Vermicomposting System Using Material Flow Analysis: A Case Study from Uganda. Sustainability, 11, 5173. https://doi.org/10.3390/su11195173",
+        "European Environment Agency. (2023). EMEP/EEA air pollutant emission inventory guidebook 2023: Chapter 3.B, Manure management, y Chapter 3.D, Crop production and agricultural soils. Publications Office of the European Union.",
+        "Intergovernmental Panel on Climate Change. (2019). 2019 Refinement to the 2006 IPCC Guidelines for National Greenhouse Gas Inventories, Volume 4, Chapters 10–11. IPCC.",
+        "Møller, H. B., Sommer, S. G., & Ahring, B. K. (2004). Methane productivity of manure, straw and solid fractions of manure. Biomass and Bioenergy, 26, 485–495.",
+        "VanderZaag, A. C., MacDonald, J. D., Evans, L., Vergé, X. P. C., & Desjardins, R. L. (2013). Towards an inventory of methane emissions from manure management that is responsive to changes on Canadian farms. Environmental Research Letters, 8, 035008.",
+        "VanderZaag, A. C. (2018). On the systematic underestimation of methane conversion factors in IPCC guidance. Waste Management. https://doi.org/10.1016/j.wasman.2018.01.037",
     ])
 
     doc.add_heading("Apéndices internos de metodología", level=1)

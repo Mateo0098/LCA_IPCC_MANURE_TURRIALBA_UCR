@@ -19,10 +19,18 @@ Factor IPCC por sistema de manejo,Tratamiento aeróbico,MCF,0.0,%,IPCC
 Factor IPCC por sistema de manejo,Tratamiento aeróbico,EF3,0.01,kg N₂O-N/kg N,IPCC
 Factor IPCC por sistema de manejo,Tratamiento aeróbico,Fraccion volatilizada MMS,0.27,adimensional,IPCC
 Factor IPCC por sistema de manejo,Tratamiento aeróbico,Fraccion lixiviada MMS,0.0,adimensional,IPCC
-Factor IPCC por sistema de manejo,Sistema líquido tipo purín,MCF,25.0,%,IPCC
-Factor IPCC por sistema de manejo,Sistema líquido tipo purín,EF3,0.0,kg N₂O-N/kg N,IPCC
-Factor IPCC por sistema de manejo,Sistema líquido tipo purín,Fraccion volatilizada MMS,0.48,adimensional,IPCC
-Factor IPCC por sistema de manejo,Sistema líquido tipo purín,Fraccion lixiviada MMS,0.0,adimensional,IPCC
+Factor IPCC por sistema de manejo,Sistema de estiércol líquido,MCF,25.0,%,IPCC
+Factor IPCC por sistema de manejo,Sistema de estiércol líquido,EF3,0.0,kg N₂O-N/kg N,IPCC
+Factor IPCC por sistema de manejo,Sistema de estiércol líquido,Fraccion volatilizada MMS,0.48,adimensional,IPCC
+Factor IPCC por sistema de manejo,Sistema de estiércol líquido,Fraccion lixiviada MMS,0.0,adimensional,IPCC
+Factor IPCC por sistema de manejo,Almacenamiento líquido sin costra natural,MCF,38.0,%,IPCC
+Factor IPCC por sistema de manejo,Almacenamiento líquido sin costra natural,EF3,0.0,kg N₂O-N/kg N,IPCC
+Factor IPCC por sistema de manejo,Almacenamiento líquido sin costra natural,Fraccion volatilizada MMS,0.48,adimensional,IPCC
+Factor IPCC por sistema de manejo,Almacenamiento líquido sin costra natural,Fraccion lixiviada MMS,0.0,adimensional,IPCC
+Factor IPCC por sistema de manejo,Aplicación al suelo de estiércol líquido previamente manejado,MCF,0.0,%,IPCC
+Factor IPCC por sistema de manejo,Aplicación al suelo de estiércol líquido previamente manejado,EF3,0.0,kg N₂O-N/kg N,IPCC
+Factor IPCC por sistema de manejo,Aplicación al suelo de estiércol líquido previamente manejado,Fraccion volatilizada MMS,0.0,adimensional,IPCC
+Factor IPCC por sistema de manejo,Aplicación al suelo de estiércol líquido previamente manejado,Fraccion lixiviada MMS,0.0,adimensional,IPCC
 Factor IPCC por sistema de manejo,Compostaje intensivo,MCF,1.5,%,IPCC
 Factor IPCC por sistema de manejo,Compostaje intensivo,EF3,0.005,kg N₂O-N/kg N,IPCC
 Factor IPCC por sistema de manejo,Compostaje intensivo,Fraccion volatilizada MMS,0.5,adimensional,IPCC
@@ -32,8 +40,36 @@ Factor IPCC por sistema de manejo,Compostaje pasivo,EF3,0.005,kg N₂O-N/kg N,IP
 Factor IPCC por sistema de manejo,Compostaje pasivo,Fraccion volatilizada MMS,0.45,adimensional,IPCC
 Factor IPCC por sistema de manejo,Compostaje pasivo,Fraccion lixiviada MMS,0.04,adimensional,IPCC
 Parámetro específico del sistema estudiado,A2: Lombricompostaje,Fracción lixiviada efectiva,0.0,adimensional,Vargas Sarmiento (2023) y observación directa del investigador
+Factor del ledger de N total y TAN,A1;A3;B1,Proporción TAN/N del estiércol fresco,0.6,kg TAN/kg N,EMEP/EEA 2023 Chapter 3.B Table 3-9
+Factor del ledger de N total y TAN,A1,Factor de NH₃-N del manejo sólido,0.32,kg NH₃-N/kg TAN,EMEP/EEA 2023 Chapter 3.B Table 3-9
+Factor del ledger de N total y TAN,A1;A2,Factor de NO-N del manejo sólido,0.01,kg NO-N/kg TAN,EMEP/EEA 2023 Chapter 3.B Table 3-10
+Factor del ledger de N total y TAN,A1;A2,Factor de N₂-N del manejo sólido,0.3,kg N2-N/kg TAN,EMEP/EEA 2023 Chapter 3.B Table 3-10
+Factor del ledger de N total y TAN,A3;B1,Factor de NH₃-N del almacenamiento líquido,0.25,kg NH₃-N/kg TAN,EMEP/EEA 2023 Chapter 3.B Table 3-9
+Factor del ledger de N total y TAN,A3;B1,Factor de NO-N del almacenamiento líquido,0.0001,kg NO-N/kg TAN,EMEP/EEA 2023 Chapter 3.B Table 3-10
+Factor del ledger de N total y TAN,A3;B1,Factor de N₂-N del almacenamiento líquido,0.003,kg N2-N/kg TAN,EMEP/EEA 2023 Chapter 3.B Table 3-10
+Factor del ledger de N total y TAN,A3;B1,Fracción de mineralización del N orgánico,0.1,kg mineralised organic N/kg organic N,EMEP/EEA 2023 Chapter 3.B Step 9 Equation 32
+Factor del ledger de N total y TAN,A4;B2,Factor de NH₃-N durante la aplicación,0.55,kg NH₃-N/kg TAN,EMEP/EEA 2023 Chapter 3.B Table 3-9
+Factor del ledger de N total y TAN,A4;B2,Factor de NOx reportado como NO₂ durante la aplicación,0.04,kg NO2/kg Estiércol N applied,EMEP/EEA 2023 Chapter 3.D Table 3-1 page 14
+Factor del ledger de N total y TAN,A1,EF3 de A1: Precomposteo,0.005,kg N₂O-N/kg N,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.21
+Factor del ledger de N total y TAN,A2,EF3 de A2: Lombricompostaje,0.005,kg N₂O-N/kg N,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.21
+Factor del ledger de N total y TAN,A3;B1,EF3 del almacenamiento líquido sin costra natural,0.0,kg N₂O-N/kg N,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.21
+Factor del ledger de N total y TAN,A1,MCF de A1: Precomposteo,2.5,percent,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.17
+Factor del ledger de N total y TAN,A3;B1,MCF del almacenamiento líquido sin costra natural,38.0,percent,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.17
+Factor del ledger de N total y TAN,A1,Fracción de drenaje de A1: Precomposteo,0.04,kg N drainage/kg N,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22
+Factor del ledger de N total y TAN,A2;A3;B1,Fracción de lixiviación del almacenamiento,0.0,kg N/kg N,Decision record and IPCC Table 10.22
+Factor del ledger de N total y TAN,A1,Benchmark FracGasMS de A1,0.45,kg volatilised N/kg N,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22
+Factor del ledger de N total y TAN,A2,Benchmark FracGasMS de A2,0.45,kg volatilised N/kg N,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22
+Factor del ledger de N total y TAN,A3;B1,Benchmark FracGasMS del almacenamiento líquido,0.48,kg volatilised N/kg N,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22
+Factor del ledger de N total y TAN,all,EF4 de deposición atmosférica,0.014,kg N₂O-N/kg NH₃-N+NOx-N,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.3
+Factor del ledger de N total y TAN,all,EF5 de lixiviación y escorrentía,0.011,kg N₂O-N/kg N leached/runoff,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.3
+Factor del ledger de N total y TAN,A1 drainage;A4;B2,Fracción de lixiviación y escorrentía desde suelo,0.24,kg N leached/runoff/kg N input,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.3
+Factor del ledger de N total y TAN,A4;B2,EF1 de N orgánico aplicado al suelo,0.006,kg N₂O-N/kg Estiércol N applied,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.1
+Factor del ledger de N total y TAN,A2,Factor de NH₃ de A2: Lombricompostaje,12.8,g NH₃/Mg biowaste,Komakech et al. 2016 DOI 10.1016/j.jenvman.2016.06.028
 Factor de caracterizacion,CH₄,Potencial de calentamiento global,21.0,kg CO₂-eq/kg sustancia,IMN (2021)
 Factor de caracterizacion,N₂O,Potencial de calentamiento global,310.0,kg CO₂-eq/kg sustancia,IMN (2021)
 Factor de caracterizacion,NH₃,Potencial de eutrofizacion,0.35,kg PO₄-eq/kg sustancia,"Ecobilan (1999, como se citó en Vallejo, 2004)"
 Factor de caracterizacion,NO₃⁻,Potencial de eutrofizacion,0.095,kg PO₄-eq/kg sustancia,"Ecobilan (1999, como se citó en Vallejo, 2004)"
 Factor de caracterizacion,CO₂,Potencial de calentamiento global,1.0,kg CO₂-eq/kg sustancia,IMN (2021)
+Conversión estequiométrica,,Conversión estequiométrica de N₂O-N a N₂O,1.5714285714285714,kg N₂O/kg N₂O-N,Cálculo estequiométrico
+Conversión estequiométrica,,Conversión estequiométrica de N a NH₃,1.2142857142857142,kg NH₃/kg NH₃-N,Cálculo estequiométrico
+Conversión estequiométrica,,Conversión estequiométrica de N a NO₃⁻,4.428571428571429,kg NO₃⁻/kg N,Cálculo estequiométrico

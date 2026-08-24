@@ -1,5 +1,5 @@
 parameter,value,unit,scope,source_location,notes
-fresh_manure_tan_fraction,0.60,kg TAN/kg N,A1;A3;B1,EMEP/EEA 2023 Chapter 3.B Table 3-9,Dairy cattle default proportion of TAN
+fresh_manure_tan_fraction,0.60,kg TAN/kg N,A1;A3;B1,EMEP/EEA 2023 Chapter 3.B Table 3-9,Dairy cattle default proportion of TAN at fresh-manure boundaries
 emep_solid_nh3_n_fraction_tan,0.32,kg NH3-N/kg TAN,A1,EMEP/EEA 2023 Chapter 3.B Table 3-9,Dairy cattle solid storage proxy
 emep_solid_no_n_fraction_tan,0.0100,kg NO-N/kg TAN,A1;A2,EMEP/EEA 2023 Chapter 3.B Table 3-10,Solid storage proxy; no explicit vermicomposting category
 emep_solid_n2_n_fraction_tan,0.3000,kg N2-N/kg TAN,A1;A2,EMEP/EEA 2023 Chapter 3.B Table 3-10,Internal ledger closure term only

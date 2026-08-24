@@ -192,14 +192,10 @@ Queda retirada como metodología objetivo vigente la adaptación que sumaba
 NH₃ y 50 % a N asociado a NO₃⁻. Esa adaptación no pertenece al IPCC y no debe
 utilizarse para construir el nuevo ICV.
 
-La implementación actual del pipeline puede conservar temporalmente las
-ecuaciones históricas hasta que se ejecute la migración técnica autorizada. Se
-distinguen, por tanto:
-
-1. la metodología objetivo aprobada en este documento, que representa rutas y
-   especies reactivas explícitas sin reparto 50/50;
-2. la implementación actual, todavía pendiente de migración y que no debe
-   interpretarse como la decisión metodológica vigente.
+El pipeline productivo representa rutas y especies reactivas explícitas sin
+reparto 50/50. Las funciones históricas que construían `N_eut` y lo dividían en
+partes iguales fueron retiradas de la ruta ejecutable. El módulo canónico del
+ledger alimenta directamente las seis etapas y el orquestador principal.
 
 Komakech et al. (2016) permanece como antecedente bibliográfico del supuesto
 histórico, pero no valida la construcción integrada `N_eut` ni una especiación

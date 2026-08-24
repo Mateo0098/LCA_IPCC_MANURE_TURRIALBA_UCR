@@ -1,7 +1,7 @@
 escenario,etapa,sistema_manejo,comentario
-A,1,dry_lot,Seleccion por defecto para A1
+A,1,composting_pasive,Precomposteo aproximado mediante Composting - Passive Windrow
 A,2,composting_pasive,Aproximación IPCC al lombricompostaje estudiado
-A,3,uncovered_anaerobic_lagoon,Seleccion por defecto para A3
-A,4,uncovered_anaerobic_lagoon,Seleccion por defecto para A4
-B,1,uncovered_anaerobic_lagoon,Seleccion por defecto para B1
-B,2,uncovered_anaerobic_lagoon,Seleccion por defecto para B2
+A,3,liquid_slurry_without_natural_crust,Almacenamiento líquido sin costra natural documentada
+A,4,land_application_managed_liquid_slurry,Aplicación al suelo de estiércol líquido previamente manejado
+B,1,liquid_slurry_without_natural_crust,Almacenamiento líquido sin costra natural documentada
+B,2,land_application_managed_liquid_slurry,Aplicación al suelo de estiércol líquido previamente manejado

@@ -23,7 +23,7 @@
 - Todas las tablas insertadas son mencionadas en la prosa: Sí.
 - Los encabezados de tablas están en negrita: Sí.
 - Las tablas usan solo bordes horizontales: Sí.
-- No se modificaron valores numéricos: Sí; la regeneración aplicó formato y redacción sin cambiar cálculos.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
 - No se usaron archivos `antes_correccion_nitrogeno`: Sí.
 - No aparecen nombres antiguos de etapas: Sí.
 - No aparecen rutas internas del repositorio en la prosa principal: Sí
@@ -36,26 +36,26 @@
 - No aparecen formulaciones ambiguas sobre la unidad funcional: Sí.
 - Las unidades anuales se mantienen como unidades de reporte y no como unidad funcional: Sí.
 - Los resultados anuales se presentan como escala de inventario operacional, no como unidad funcional: Sí.
-- No se modificaron valores numéricos: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
 - No se modificó el documento maestro de propuesta: Sí.
 - Los Word fueron regenerados: Sí.
 
 ## Validación del estado metodológico y numérico vigente
 
-- La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el remanente derivado, el flujo común, Nᴳ, Nᴸ, Nₑᵤₜ, la adaptación 50/50 y su antecedente bibliográfico: Sí.
-- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B, las etapas dominantes y la interpretación no física del NO₃⁻ de B1: No.
+- La metodología documenta la fuente operativa, el supuesto conservador de 7 %, el ledger N total/TAN, las especies explícitas y el retiro del reparto 50/50: Sí.
+- Los resultados contienen los indicadores anuales y normalizados vigentes, las diferencias A/B y las etapas oficiales: Sí.
 - La magnitud operacional anual y la normalización por 1 kg de estiércol fresco manejado se presentan por separado: Sí.
 - Los documentos identifican la integración vigente como PROVISIONAL M1–M2 y señalan que M3 permanece pendiente: Sí.
 
 ## Validación de ecuaciones en sintaxis LaTeX
 
 - Método usado: texto LaTeX válido, seleccionable, en párrafos independientes y centrados.
-- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; conservación de cenizas; N remanente de volatilización y lixiviación; N potencialmente eutrofizante; reparto 50/50; y conversiones estequiométricas a NH₃ y NO₃⁻.
+- Ecuaciones insertadas: materia seca; humedad; cenizas; sólidos volátiles; conversión de nitrógeno a fracción másica; masa de nitrógeno en el flujo; conservación de cenizas; propagación de TAN; precursor explícito de EF4; lixiviación; y conversiones estequiométricas a NH₃, NOx-N y NO₃⁻.
 - Las nueve ecuaciones LaTeX requeridas aparecen como texto seleccionable: Sí.
 - No se usaron imágenes de ecuaciones ni archivos `eq_*.png`: Sí.
 - No se usaron delimitadores visibles `\[`, `\]` ni `$$`: Sí.
 - Las ecuaciones están centradas y son seleccionables en Word: Sí.
-- No se modificaron valores numéricos ni resultados: Sí.
+- Los valores numéricos y resultados corresponden a la corrida productiva regenerada: Sí.
 
 ## Validación de codificación de caracteres
 
@@ -64,7 +64,7 @@
 - Estrategia aplicada: lectura explícita UTF-8 de CSV y reparación controlada de mojibake solo cuando se detectan marcadores de codificación dañada.
 - No quedan marcadores de mojibake en los documentos y reportes generados (U+00C3, U+00C2, secuencias de comillas dañadas ni carácter de reemplazo): Sí.
 - Las tildes, eñes y términos académicos en español aparecen correctamente: Sí.
-- No se modificaron valores numéricos ni resultados: Sí.
+- Los valores numéricos y resultados corresponden a la corrida productiva regenerada: Sí.
 - No se modificó el documento maestro de propuesta: Sí.
 
 ## Validación de nomenclatura química en documentos generados
@@ -77,8 +77,8 @@
 - Las unidades equivalentes usan `CO₂-eq` y `PO₄-eq` correctamente: Sí.
 - Las emisiones usan `CH₄`, `N₂O`, `NH₃`, `NO₃⁻` y `CO₂` correctamente: Sí.
 - Las unidades anuales usan `/año`, no `/ano`: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - No se modificó el contenido técnico de las figuras: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
@@ -107,7 +107,7 @@
 - No aparecen etiquetas técnicas internas en la prosa ni en tablas de los Word: Sí.
 - No hay columnas con rutas internas, scripts, archivos CSV, `processed`, `outputs` o referencias hardcodeadas: Sí.
 - Los apéndices internos fueron limpiados para lectura académica: Sí.
-- No se modificaron valores numéricos ni resultados: Sí.
+- Los valores numéricos y resultados corresponden a la corrida productiva regenerada: Sí.
 - No se modificó el documento maestro de propuesta: Sí.
 
 ## Validación de tablas sin redundancia de etapas
@@ -119,7 +119,7 @@
 - No aparecen números de etapa con decimales: Sí.
 - No hay uso de `purín` en filas del Escenario A ni de `aguas verdes` en filas del Escenario B: Sí.
 - Las tablas académicas reducidas para Word fueron incluidas en la validación: Sí.
-- No se modificaron valores numéricos: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
 - No se modificaron resultados: Sí.
 - No se modificó el documento maestro de propuesta: Sí.
 
@@ -127,7 +127,7 @@
 
 - B2 aparece como `B2: Aplicación de purines en campo de pastoreo`: Sí.
 - Ya no aparece `B2: Aplicación en campo`: Sí.
-- No se modificaron valores numéricos: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
 - No se modificaron cálculos, factores, ecuaciones ni resultados ambientales: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
@@ -145,8 +145,8 @@
 - No se intentó sincronizar la numeración de tablas con el MASTER: Sí.
 - No se intentó sincronizar la numeración de figuras con el MASTER: Sí.
 - Cada documento generado conserva su propia numeración interna: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - El documento maestro no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
@@ -157,8 +157,8 @@
 - Los títulos, subtítulos y rótulos académicos usan color negro: Sí.
 - No aparece `/ano` ni `ano` como unidad temporal en tablas, prosa, pies o apéndices internos: Sí.
 - Las unidades anuales aparecen como `/año`: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
@@ -171,8 +171,8 @@
 - No hay captions repetidos antes y después de una misma tabla: Sí.
 - Cada tabla tiene un solo título formal visible: Sí.
 - Las referencias en la prosa no duplican exactamente el caption: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
@@ -184,8 +184,8 @@
 - No hay figuras sin título: Sí.
 - No hay títulos de figura duplicados: Sí.
 - Los títulos de figura están en color negro: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - No se modificó el contenido técnico de las figuras: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
@@ -198,8 +198,8 @@
 - Los captions de Word aparecen encima de las figuras: Sí.
 - No hay captions duplicados: Sí.
 - Se conservaron etiquetas de ejes, leyendas y unidades: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
@@ -213,7 +213,7 @@
 - Se conservaron las siglas aceptadas IPCC, ACV, ICV, EICV, CIA, LASA y UCR: Sí.
 - Se conservaron las fórmulas químicas CH₄, N₂O, NH₃, NO₃⁻ y CO₂: Sí.
 - No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
@@ -226,21 +226,21 @@
 - No existen referencias a apéndices inexistentes: Sí.
 - No se modificó la numeración de tablas, figuras o apéndices para empatarla con el MASTER: Sí.
 - Cada documento conserva su propia numeración interna: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
 ## Validación de factor estequiométrico N a NO₃⁻
 
-- El valor anterior 4,4286 ya no aparece en los documentos Word ni en las tablas académicas finales: Sí.
-- La conversión estequiométrica de N a NO₃⁻ aparece con el valor 4,4268: No.
-- La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: No.
+- El valor aproximado anterior 4,4268 ya no aparece en los documentos Word ni en las tablas académicas finales: Sí.
+- La conversión estequiométrica de N a NO₃⁻ aparece como 62/14: Sí.
+- La referencia de los tres factores estequiométricos es `Cálculo estequiométrico`: Sí.
 - No se asignaron citas bibliográficas externas a los factores estequiométricos: Sí.
-- Se recalcularon los resultados relacionados con NO₃⁻: No.
+- Se recalcularon los resultados relacionados con NO₃⁻: Sí.
 - Se actualizaron las tablas, figuras y documentos afectados: Sí.
 - El cambio numérico está documentado en `reporte_correccion_factor_estequiometrico_NO3.md`: Sí.
-- No se modificaron factores no relacionados: No.
+- No se modificaron factores no relacionados: Sí.
 - No aparecen rutas internas en los documentos Word finales: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
@@ -251,7 +251,7 @@
 - Los factores de eutrofización de NH₃ y NO₃⁻ se referencian como `Ecobilan (1999, como se citó en Vallejo, 2004)`: No.
 - Los factores de caracterización ya no aparecen referenciados como IPCC: Sí.
 - Los valores numéricos de los cinco factores de caracterización permanecen en 21, 310, 1, 0,35 y 0,095: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - Las referencias IPCC de ecuaciones y factores de emisión se conservaron: Sí.
 - Los cinco factores de caracterización no presentan marcas de referencia pendiente: Sí.
 - Ambas referencias aparecen en los dos documentos Word finales: Sí.
@@ -268,8 +268,8 @@
 - Los factores todavía pendientes se reportan explícitamente como `Requiere revisión bibliográfica`: Sí.
 - No aparecen rutas internas ni `scripts/ecuaciones_acv.py` en los documentos Word finales: Sí.
 - La trazabilidad a `scripts/ecuaciones_acv.py` aparece únicamente en el reporte técnico de referencias: Sí.
-- No se modificaron valores numéricos: Sí.
-- No se modificaron cálculos ni resultados: Sí.
+- Los valores numéricos corresponden a la corrida productiva regenerada: Sí.
+- Los cálculos y resultados corresponden a la corrida productiva regenerada: Sí.
 - El documento maestro protegido no fue modificado: Sí.
 - El hash SHA-256 del documento maestro permanece en `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`: Sí.
 
