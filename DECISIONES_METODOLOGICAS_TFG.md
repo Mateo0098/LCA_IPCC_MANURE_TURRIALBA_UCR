@@ -68,14 +68,14 @@ factores IPCC:
 
 - MCF = 2,5 % para CH₄;
 - EF3 = 0,005 kg N₂O-N/kg N para N₂O directo;
-- FracGasMS = 0,45 para la contabilidad IPCC del N volatilizado y el N₂O
-  indirecto asociado;
+- FracGasMS = 0,45 únicamente como benchmark IPCC y control QA/QC de orden de
+  magnitud;
 - FracLeachMS = 0,04 para el N perdido mediante lixiviación o escorrentía.
 
 Estos factores no se multiplican por `28/365` ni por otro ajuste lineal de
-duración. FracGasMS no se utiliza en la metodología objetivo para construir
-artificialmente especies específicas de NH₃ y NOx destinadas a
-eutrofización.
+duración. FracGasMS no genera una segunda masa física de volatilización ni se
+utiliza para calcular el N₂O indirecto objetivo. El precursor de EF4 es
+exclusivamente `NH₃-N_explícito + NOx-N_explícito`.
 
 FracLeachMS = 0,04 se interpreta como la fracción de N que abandona el sistema
 de manejo A1 mediante drenaje, lixiviación o escorrentía:
@@ -149,9 +149,10 @@ que sean físicamente imposibles fugas accidentales.
 Para el ledger de N/TAN se utiliza EF3 = 0, correspondiente a
 `Liquid/Slurry without natural crust`. El modelo EMEP mineraliza antes del
 almacenamiento el 10 % del N orgánico (`fmin = 0,10`) y calcula las pérdidas de
-NH₃-N, NO-N y N₂-N sobre el TAN disponible. `fmin` se conserva como aproximación
-por defecto ante la falta de datos específicos para tres días y no se escala
-linealmente por tiempo; esta limitación debe acompañar los resultados.
+NH₃-N, NO-N y N₂-N sobre el TAN disponible. Se aprueba mantener `fmin = 0,10`
+como aproximación EMEP por defecto y no escalarlo linealmente por los tres días.
+La decisión metodológica está cerrada; la incertidumbre sobre su
+representatividad para una residencia tan corta debe acompañar los resultados.
 
 - En A3, la masa de actividad es la masa de estiércol remanente sometida al sistema de manejo.
 - En B1, la masa de actividad es la totalidad del estiércol teóricamente depositado.
@@ -233,7 +234,8 @@ no se representan como lixiviación sistemática.
 
 FracGasMS se conserva exclusivamente como benchmark IPCC y control de orden de
 magnitud. El `FracGas_modelado` se calcula como `(NH₃-N + NOx-N) / N_total_in`;
-no se fuerza coincidencia y FracGasMS no es el precursor principal de EF4.
+no se fuerza coincidencia. EF4 utiliza exclusivamente el precursor explícito
+`NH₃-N + NOx-N`; FracGasMS no se utiliza para calcular el N₂O indirecto objetivo.
 
 Las concentraciones experimentales de precompostado, aguas verdes y purines se
 mantienen como benchmarks independientes. Para A4/B2 se calcula además una
