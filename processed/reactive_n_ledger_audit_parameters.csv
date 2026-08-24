@@ -1,0 +1,29 @@
+parameter,value,unit,scope,source_location,notes
+fresh_manure_tan_fraction,0.60,kg TAN/kg N,A1;A3;B1,EMEP/EEA 2023 Chapter 3.B Table 3-9,Dairy cattle default proportion of TAN
+emep_solid_nh3_n_fraction_tan,0.32,kg NH3-N/kg TAN,A1,EMEP/EEA 2023 Chapter 3.B Table 3-9,Dairy cattle solid storage proxy
+emep_solid_no_n_fraction_tan,0.0100,kg NO-N/kg TAN,A1;A2,EMEP/EEA 2023 Chapter 3.B Table 3-10,Solid storage proxy; no explicit vermicomposting category
+emep_solid_n2_n_fraction_tan,0.3000,kg N2-N/kg TAN,A1;A2,EMEP/EEA 2023 Chapter 3.B Table 3-10,Internal ledger closure term only
+emep_slurry_nh3_n_fraction_tan,0.25,kg NH3-N/kg TAN,A3;B1,EMEP/EEA 2023 Chapter 3.B Table 3-9,Dairy cattle slurry storage proxy
+emep_slurry_no_n_fraction_tan,0.0001,kg NO-N/kg TAN,A3;B1,EMEP/EEA 2023 Chapter 3.B Table 3-10,Slurry storage proxy
+emep_slurry_n2_n_fraction_tan,0.0030,kg N2-N/kg TAN,A3;B1,EMEP/EEA 2023 Chapter 3.B Table 3-10,Internal ledger closure term only
+emep_slurry_mineralisation_fraction,0.10,kg mineralised organic N/kg organic N,A3;B1,EMEP/EEA 2023 Chapter 3.B Step 9 Equation 32,Default fmin used before slurry storage emissions
+emep_application_nh3_n_fraction_tan,0.55,kg NH3-N/kg TAN,A4;B2,EMEP/EEA 2023 Chapter 3.B Table 3-9,Dairy cattle slurry land application
+emep_soil_no2_fraction_n_applied,0.04,kg NO2/kg manure N applied,A4;B2,EMEP/EEA 2023 Chapter 3.D Table 3-1 page 14,NFR 3Da2a; NO is reported as NOx after conversion to NO2
+a1_ef3,0.005,kg N2O-N/kg N,A1,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.21,Composting passive windrow
+a2_ef3,0.005,kg N2O-N/kg N,A2,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.21,Composting passive windrow proxy
+slurry_ef3,0.0,kg N2O-N/kg N,A3;B1,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.21,Liquid/slurry without natural crust cover
+a1_mcf_pct,2.5,percent,A1,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.17,Passive windrow; no time scaling
+slurry_mcf_pct,38,percent,A3;B1,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.17,Tropical Wet one-month conservative proxy; no time scaling
+a1_frac_leach_ms,0.04,kg N drainage/kg N,A1,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22,Drainage reaches soil before soil leaching/runoff
+storage_frac_leach_ms,0.0,kg N/kg N,A2;A3;B1,Decision record and IPCC Table 10.22,No modelled storage leaching route
+a1_frac_gas_ms_benchmark,0.45,kg volatilised N/kg N,A1,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22,QA/QC benchmark only
+a2_frac_gas_ms_benchmark,0.45,kg volatilised N/kg N,A2,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22,QA/QC benchmark only
+slurry_frac_gas_ms_benchmark,0.48,kg volatilised N/kg N,A3;B1,IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22,Liquid/slurry without natural crust; QA/QC only
+ef4_ipcc,0.014,kg N2O-N/kg NH3-N+NOx-N,all,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.3,Wet-climate disaggregated factor
+ef5_ipcc,0.011,kg N2O-N/kg N leached/runoff,all,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.3,Aggregated factor
+soil_frac_leach,0.24,kg N leached/runoff/kg N input,A1 drainage;A4;B2,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.3,Aggregated fraction; used only after N reaches soil
+soil_frac_gas_current,0.21,kg volatilised N/kg N input,A4;B2 current comparison,Current project managed-soil parameter,Historical diagnostic comparison only; not used by target ledger
+soil_ef1,0.006,kg N2O-N/kg manure N applied,A4;B2,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.1,Other N inputs in wet climates; base is N applied
+komakech_nh3_factor,12.8,g NH3/Mg biowaste,A2,Komakech et al. 2016 DOI 10.1016/j.jenvman.2016.06.028,Measured vermicompost-unit factor on biowaste input basis
+gwp_ch4,21,kg CO2-eq/kg CH4,climate comparison,processed/acv_factores_equivalencia.csv,Current TFG characterization factor
+gwp_n2o,310,kg CO2-eq/kg N2O,climate comparison,processed/acv_factores_equivalencia.csv,Current TFG characterization factor

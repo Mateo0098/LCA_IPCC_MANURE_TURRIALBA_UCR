@@ -114,12 +114,13 @@ caracterizado químicamente.
 ### A3 y B1: manejo del estiércol
 
 A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se
-representan como almacenamiento `Liquid/Slurry`, no como `Uncovered Anaerobic
-Lagoon`. En ambos casos la condición operativa representativa es una fosa de
-concreto destinada a contener líquidos, bajo una estructura o techo y con
-recepción periódica o continua de nuevas aguas durante el ciclo. No se asume
-una cubierta hermética o estanca a gases. La residencia operacional aproximada
-es de tres días.
+representan como `Liquid/Slurry without natural crust`, no como `Uncovered
+Anaerobic Lagoon`. En ambos casos la condición operativa representativa es una
+tanqueta de concreto destinada a contener líquidos, bajo una estructura o
+techo y con recepción periódica o continua de nuevas aguas durante el ciclo.
+La superficie no tiene una cubierta directa ni un sellado hermético, no se
+agita y no se documentó una costra natural. Predominan condiciones anaerobias.
+La residencia operacional aproximada es de tres días.
 
 Se adopta la zona climática `Tropical Wet`, de acuerdo con la caracterización
 climática documentada para el sitio. Para CH₄ se utiliza MCF = 38 %, valor IPCC
@@ -145,6 +146,13 @@ la fosa contenida. Se establece FracLeachMS = 0 tanto para A3 como para B1. El
 cero expresa la ausencia de esa ruta en la operación normal modelada; no afirma
 que sean físicamente imposibles fugas accidentales.
 
+Para el ledger de N/TAN se utiliza EF3 = 0, correspondiente a
+`Liquid/Slurry without natural crust`. El modelo EMEP mineraliza antes del
+almacenamiento el 10 % del N orgánico (`fmin = 0,10`) y calcula las pérdidas de
+NH₃-N, NO-N y N₂-N sobre el TAN disponible. `fmin` se conserva como aproximación
+por defecto ante la falta de datos específicos para tres días y no se escala
+linealmente por tiempo; esta limitación debe acompañar los resultados.
+
 - En A3, la masa de actividad es la masa de estiércol remanente sometida al sistema de manejo.
 - En B1, la masa de actividad es la totalidad del estiércol teóricamente depositado.
 - En ambas etapas se utiliza la caracterización química del estiércol fresco y los factores del sistema IPCC seleccionado.
@@ -154,10 +162,25 @@ El agua existe físicamente en los sistemas de almacenamiento. Su exclusión sig
 
 ### A4 y B2: aplicación del efluente al suelo
 
-A4: Aplicación de aguas verdes en campos de pastoreo y B2: Aplicación de purines en campo de pastoreo son etapas subsecuentes de aplicación del efluente al suelo y utilizan las ecuaciones asociadas con suelos gestionados según la implementación vigente.
+A4: Aplicación de aguas verdes en campos de pastoreo y B2: Aplicación de
+purines en campo de pastoreo representan la aplicación al suelo de estiércol
+líquido previamente manejado. No representan excretas depositadas directamente
+por animales durante el pastoreo. A4 recibe exactamente el N total y el TAN que
+salen de A3; B2 recibe exactamente los que salen de B1. Las mediciones de aguas
+verdes y purines se conservan como benchmarks y no reinicializan esos pools.
 
-- En A4, el flujo aplicado integra el agua de lavado y el estiércol remanente incorporado a las aguas verdes; se utiliza la caracterización química específica de las aguas verdes.
-- En B2, el flujo aplicado integra el agua de lavado y la totalidad del estiércol incorporado al purín; se utiliza la caracterización química específica del purín.
+La volatilización de NH₃ durante la aplicación utiliza el factor EMEP/EEA Tier
+2 para `dairy cattle slurry`, 0,55 kg NH₃-N/kg TAN aplicado. El NOx utiliza el
+factor Tier 1 de EMEP/EEA para N aplicado en fertilizante, estiércol y excretas:
+0,04 kg NO₂/kg N aplicado; para el ledger se convierte a N mediante 14/46. El
+precursor del N₂O indirecto por volatilización es exclusivamente la suma de
+NH₃-N y NOx-N explícitos.
+
+El N₂O directo y la lixiviación/escorrentía del suelo se calculan con el marco
+IPCC del capítulo 11 y conservan como base el N de estiércol aplicado, no el N
+remanente después de la volatilización. El N realmente lixiviado o escurrido se
+convierte a NO₃⁻ mediante 62/14; el N₂O indirecto derivado mediante EF5 no se
+descuenta después de esa masa de NO₃⁻.
 
 ## 7. Arquitectura objetivo del ICV nitrogenado
 
@@ -181,18 +204,43 @@ Komakech et al. (2016) permanece como antecedente bibliográfico del supuesto
 histórico, pero no valida la construcción integrada `N_eut` ni una especiación
 general del ICV. La adaptación histórica tampoco debe atribuirse al IPCC.
 
-### NH₃ y NOx pendientes de parametrización
+### Ledger secuencial de N total y TAN
 
-El nuevo ICV debe representar explícitamente las especies nitrogenadas
-reactivas. NH₃ y NOx se resolverán mediante un ledger secuencial de N y TAN,
-apoyado principalmente en EMEP/EEA y en fuentes específicas cuando
-corresponda. La parametrización concreta de NH₃ y NOx para A1 permanece
-pendiente de una unidad posterior de análisis.
+El N total es el ledger físico principal. El TAN es un subpool contable dentro
+del N total requerido por EMEP. En la frontera de estiércol fresco se establece
+`TAN/N = 0,60`, valor para vaca lechera de EMEP/EEA 2023. En todo momento debe
+cumplirse `0 ≤ TAN ≤ N_total`; A2, A4 y B2 reciben ambos pools de la etapa
+anterior y nunca se reinicializan con mediciones intermedias.
 
-FracGasMS puede conservar sus funciones propias dentro de la contabilidad IPCC
-necesaria para el N volatilizado y el N₂O indirecto, pero no debe reutilizarse
-automáticamente como estimador específico de NH₃ o NOx para eutrofización. No
-se aprueba todavía ningún factor EMEP concreto para A1.
+Las pérdidas EMEP definidas sobre TAN —NH₃-N, NO-N y N₂-N— reducen a la vez TAN
+y N total. Las pérdidas IPCC definidas sobre N total reducen N total, pero no
+TAN automáticamente si la fuente no asigna la pérdida a ese pool. Por tanto,
+el N₂O-N directo IPCC y el drenaje de A1 se descuentan una sola vez de N total,
+sin partición proporcional ni descuento automático de TAN. N₂ permanece como
+pérdida física central del ledger, aunque no se caracteriza en LCIA.
+
+En A1 se aplican sobre TAN los factores EMEP de almacenamiento sólido: 0,32 kg
+NH₃-N/kg TAN, 0,010 kg NO-N/kg TAN y 0,300 kg N₂-N/kg TAN. En A2 el NH₃ procede
+de Komakech et al. (2016), 12,8 g NH₃/Mg de residuo orgánico de entrada, y NO y
+N₂ utilizan provisionalmente los factores EMEP sólidos porque EMEP no contiene
+una categoría explícita de lombricompostaje. El N₂O directo de A1 y A2 se
+calcula una sola vez con EF3 IPCC = 0,005 kg N₂O-N/kg N total de entrada.
+
+En A3 y B1, tras la mineralización EMEP, se aplican sobre TAN disponible los
+factores `slurry`: 0,25 kg NH₃-N/kg TAN, 0,0001 kg NO-N/kg TAN y 0,003 kg
+N₂-N/kg TAN. EF3 y FracLeachMS son cero. Fugas, reboses y pérdidas accidentales
+no se representan como lixiviación sistemática.
+
+FracGasMS se conserva exclusivamente como benchmark IPCC y control de orden de
+magnitud. El `FracGas_modelado` se calcula como `(NH₃-N + NOx-N) / N_total_in`;
+no se fuerza coincidencia y FracGasMS no es el precursor principal de EF4.
+
+Las concentraciones experimentales de precompostado, aguas verdes y purines se
+mantienen como benchmarks independientes. Para A4/B2 se calcula además una
+concentración teórica diluida como `N_propagado / masa_total_mezcla`, usando los
+flujos anuales de estiércol y agua de lavado. Es una comparación diagnóstica de
+plausibilidad química, no una validación estricta de M2, porque no reconstruye
+la dilución, lluvia, animales, residencia ni posibles reboses del día muestreado.
 
 ## 8. Decisiones que no deben cambiarse automáticamente
 
