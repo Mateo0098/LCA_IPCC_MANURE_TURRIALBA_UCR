@@ -302,6 +302,10 @@ atmosférico no quedó completamente especiado. El reparto histórico basado en
 `N_eut`, ya retirado como metodología objetivo, tampoco representaba una
 especiación experimental equivalente.
 
+### N retornado en A4/B2
+
+En la aplicación al suelo, `N_returned_EMEP = N_applic - NH3-N_application` representa exclusivamente el N que EMEP considera retornado al suelo después de la volatilización de NH3. NOx-N, N2O-N directo y lixiviación/escorrentía no se descuentan de esta variable. El ledger mantiene por separado `N_soil_remaining`, una cantidad contable para el cierre físico después de NH3-N, NOx-N, N2O-N directo y N lixiviado/escorrentía; esta segunda variable no es una definición oficial EMEP ni IPCC y no reemplaza N aplicado como base de EF1 o FracLEACH.
+
 ## 9. Estado provisional
 
 La caracterización experimental activa es provisional: las variables sólidas metodológicamente comparables integran M1 y M2 con igual peso temporal; el N total de aguas verdes y purines procede únicamente de M2 mediante Kjeldahl; y la transformación de masa de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado. La corrida del ACV fue regenerada con estos estimadores y se identifica expresamente como **PROVISIONAL M1–M2**. M3 permanece pendiente para completar la integración final según las reglas de la sección 12.

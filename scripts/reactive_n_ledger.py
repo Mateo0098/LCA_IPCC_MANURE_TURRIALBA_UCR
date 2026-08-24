@@ -95,7 +95,7 @@ class ApplicationRow:
     no3_leach_runoff_kg: float
     n2o_n_indirect_leach_kg: float
     n2o_indirect_leach_kg: float
-    n_returned_after_atmospheric_losses_kg: float
+    n_returned_emep_kg: float
     tan_after_application_kg: float
     soil_n_remaining_after_direct_losses_kg: float
     mass_balance_residual_kg: float
@@ -154,19 +154,25 @@ def _soil_application(chain: str, stage: str, n_applic: float, tan_applic: float
     indirect_vol_n = precursor * p["ef4_ipcc"]
     leach_n = n_applic * p["soil_frac_leach"]
     indirect_leach_n = leach_n * p["ef5_ipcc"]
-    # N_returned es contable y conserva la base N_applic para EF1 y leaching.
-    n_returned = n_applic - nh3_n - nox_n - direct_n
+    # EMEP mreturned_N descuenta únicamente el NH3-N de aplicación. Las demás
+    # rutas conservan N_applic como base y se reflejan solo en el cierre físico.
+    n_returned_emep = n_applic - nh3_n
     tan_after = tan_applic - nh3_n
-    soil_remaining = n_returned - leach_n
+    soil_remaining = n_applic - nh3_n - nox_n - direct_n - leach_n
     residual = n_applic - (nh3_n + nox_n + direct_n + leach_n + soil_remaining)
-    if min(n_returned, tan_after, soil_remaining) < -TOLERANCE or tan_after > n_returned + TOLERANCE:
+    if (
+        min(n_returned_emep, tan_after, soil_remaining) < -TOLERANCE
+        or tan_after > n_returned_emep + TOLERANCE
+        or n_returned_emep > n_applic + TOLERANCE
+        or soil_remaining > n_returned_emep + TOLERANCE
+    ):
         raise ValueError(f"Balance de aplicación inválido en {stage}")
     return ApplicationRow(
         chain, stage, n_applic, tan_applic, nh3_n, nh3_n * KG_N_TO_NH3,
         no2, nox_n, direct_n, direct_n * KG_N_TO_N2O, precursor,
         indirect_vol_n, indirect_vol_n * KG_N_TO_N2O, leach_n,
         leach_n * KG_N_TO_NO3, indirect_leach_n,
-        indirect_leach_n * KG_N_TO_N2O, n_returned, tan_after,
+        indirect_leach_n * KG_N_TO_N2O, n_returned_emep, tan_after,
         soil_remaining, residual,
     )
 
@@ -341,7 +347,9 @@ def productive_ledger_rows(
             "n_leach_runoff_kg": row.soil_leach_runoff_n_kg,
             "n2o_n_indirect_leach_kg": row.n2o_n_indirect_leach_kg,
             "no3_kg": row.no3_from_soil_leach_kg,
-            "n_total_out_or_soil_kg": row.n_total_out_kg,
+            "n_total_out_kg": row.n_total_out_kg,
+            "n_returned_emep_kg": "",
+            "soil_n_remaining_after_direct_losses_kg": "",
             "tan_out_kg": row.tan_out_kg,
             "mass_balance_residual_kg": row.mass_balance_residual_kg,
         })
@@ -360,7 +368,9 @@ def productive_ledger_rows(
             "n_leach_runoff_kg": row.n_leach_runoff_kg,
             "n2o_n_indirect_leach_kg": row.n2o_n_indirect_leach_kg,
             "no3_kg": row.no3_leach_runoff_kg,
-            "n_total_out_or_soil_kg": row.soil_n_remaining_after_direct_losses_kg,
+            "n_total_out_kg": "",
+            "n_returned_emep_kg": row.n_returned_emep_kg,
+            "soil_n_remaining_after_direct_losses_kg": row.soil_n_remaining_after_direct_losses_kg,
             "tan_out_kg": row.tan_after_application_kg,
             "mass_balance_residual_kg": row.mass_balance_residual_kg,
         })
@@ -441,7 +451,9 @@ def validate(management: list[ManagementRow], applications: list[ApplicationRow]
         assert abs(row.mass_balance_residual_kg) <= TOLERANCE
         assert abs(row.n2o_n_indirect_vol_kg - (row.nh3_n_kg + row.no_n_kg) * p["ef4_ipcc"]) <= TOLERANCE
     for row in applications:
-        assert 0.0 <= row.tan_after_application_kg <= row.n_returned_after_atmospheric_losses_kg + TOLERANCE
+        assert 0.0 <= row.tan_after_application_kg <= row.n_returned_emep_kg + TOLERANCE
+        assert row.n_returned_emep_kg <= row.n_applic_kg + TOLERANCE
+        assert row.soil_n_remaining_after_direct_losses_kg <= row.n_returned_emep_kg + TOLERANCE
         assert abs(row.mass_balance_residual_kg) <= TOLERANCE
         assert abs(row.n2o_n_indirect_vol_kg - (row.nh3_n_app_kg + row.nox_n_app_kg) * p["ef4_ipcc"]) <= TOLERANCE
     by_m = {row.stage[:2]: row for row in management}

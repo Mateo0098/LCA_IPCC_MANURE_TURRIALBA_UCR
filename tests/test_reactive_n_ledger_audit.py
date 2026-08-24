@@ -49,7 +49,7 @@ class ReactiveNLedgerTests(unittest.TestCase):
         for row in self.management:
             self.assertLessEqual(row.tan_out_kg, row.n_total_out_kg)
         for row in self.applications:
-            self.assertLessEqual(row.tan_after_application_kg, row.n_returned_after_atmospheric_losses_kg)
+            self.assertLessEqual(row.tan_after_application_kg, row.n_returned_emep_kg)
 
     def test_direct_n2o_is_debited_once(self):
         for row in self.management:
@@ -75,6 +75,20 @@ class ReactiveNLedgerTests(unittest.TestCase):
     def test_application_nh3_uses_tan_and_055(self):
         for row in self.applications:
             self.assertAlmostEqual(row.nh3_n_app_kg, row.tan_applic_kg * 0.55)
+
+    def test_emep_returned_n_only_subtracts_application_nh3(self):
+        for row in self.applications:
+            self.assertAlmostEqual(row.n_returned_emep_kg, row.n_applic_kg - row.nh3_n_app_kg)
+            self.assertNotAlmostEqual(row.n_returned_emep_kg, row.n_applic_kg - row.nh3_n_app_kg - row.nox_n_app_kg)
+            self.assertNotAlmostEqual(row.n_returned_emep_kg, row.n_applic_kg - row.nh3_n_app_kg - row.n2o_n_direct_soil_kg)
+            self.assertNotAlmostEqual(row.n_returned_emep_kg, row.n_applic_kg - row.nh3_n_app_kg - row.n_leach_runoff_kg)
+
+    def test_soil_remaining_closes_explicit_direct_losses(self):
+        for row in self.applications:
+            expected = row.n_applic_kg - row.nh3_n_app_kg - row.nox_n_app_kg - row.n2o_n_direct_soil_kg - row.n_leach_runoff_kg
+            self.assertAlmostEqual(row.soil_n_remaining_after_direct_losses_kg, expected)
+            self.assertAlmostEqual(row.tan_after_application_kg, row.tan_applic_kg - row.nh3_n_app_kg)
+            self.assertLessEqual(row.tan_after_application_kg, row.n_returned_emep_kg)
 
     def test_application_nox_uses_official_total_n_basis(self):
         for row in self.applications:

@@ -78,7 +78,9 @@ el estado vigente:
 - `scripts/reactive_n_ledger.py` y
   `processed/reactive_n_ledger_parameters.csv`: implementación y parámetros
   responsables del ledger productivo de N total y TAN. El orquestador genera
-  `processed/reactive_n_ledger.csv` antes de ejecutar las seis etapas.
+  `processed/reactive_n_ledger.csv` antes de ejecutar las seis etapas. En A4/B2
+  distingue el N retornado según EMEP (N aplicado menos NH3-N) del N residual
+  contable del suelo después de todas las pérdidas directas modeladas.
 - `scripts/reactive_n_ledger_audit.py` y `outputs/auditoria_n_reactivo/`:
   consumidor QA/QC del módulo canónico. Conserva benchmarks de masa,
   concentración y sensibilidad sin duplicar ecuaciones ni constituir una
