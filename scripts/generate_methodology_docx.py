@@ -150,10 +150,8 @@ HEADER_REPLACEMENTS = {
 
 CHEMICAL_REPLACEMENTS = [
     ("kg CO2-eq/año", "kg CO\u2082-eq/año"),
-    ("kg PO4-eq/año", "kg PO\u2084-eq/año"),
     ("kg N2O-N/kg N", "kg N\u2082O-N/kg N"),
     ("CO2-eq", "CO\u2082-eq"),
-    ("PO4-eq", "PO\u2084-eq"),
     ("N2O-N", "N\u2082O-N"),
     ("NH3-N", "NH\u2083-N"),
     ("NO3-N", "NO\u2083-N"),
@@ -615,7 +613,7 @@ def build_document() -> None:
     doc.add_heading("1. Enfoque metodológico general del ACV", level=2)
     add_paragraphs(doc, [
         "El estudio se desarrolló como un Análisis de Ciclo de Vida aplicado al manejo del estiércol bovino en una lechería especializada de Turrialba, Costa Rica. El procedimiento metodológico comprendió la definición de meta y alcance, la construcción del Inventario de Ciclo de Vida, la estimación de emisiones por etapa y la conversión de dichas emisiones a indicadores de impacto ambiental.",
-        "El enfoque permitió comparar dos alternativas de manejo bajo una misma unidad funcional, manteniendo la trazabilidad entre las mediciones de laboratorio, los flujos del inventario y las ecuaciones de estimación de emisiones. Las categorías de impacto consideradas fueron calentamiento global y eutrofización.",
+        "El enfoque permitió comparar dos alternativas de manejo bajo una misma unidad funcional, manteniendo la trazabilidad entre mediciones, flujos y ecuaciones. Environmental Footprint 3.1 se aplicó a cambio climático, eutrofización terrestre y eutrofización marina de las emisiones directas.",
     ])
 
     doc.add_heading("2. Sitio de estudio", level=2)
@@ -660,8 +658,8 @@ def build_document() -> None:
     add_paragraphs(doc, [
         "Los datos de entrada del ICV estuvieron compuestos por información primaria de laboratorio, registros operativos de la lechería y factores de emisión seleccionados de fuentes bibliográficas. Se consideraron cuatro tipos principales de materiales: estiércol fresco, estiércol precompostado, aguas verdes y purines.",
         "El estiércol fresco constituyó el flujo de referencia del sistema y fue caracterizado mediante humedad, materia seca, cenizas, sólidos volátiles y nitrógeno total. El estiércol precompostado permitió representar la transformación de la fracción sólida durante el proceso de lombricompostaje.",
-        "Las aguas verdes correspondieron al efluente generado durante el lavado de las áreas de manejo animal y fueron consideradas en el Escenario A para las etapas de almacenamiento y aplicación. Los purines representaron la mezcla líquida de estiércol, orina, agua de lavado y otros residuos arrastrados, considerada en el Escenario B para almacenamiento y aplicación directa en campo.",
-        "Para cada flujo se organizaron las variables necesarias para estimar emisiones de CH4, N2O, NH3 y NO3, así como los impactos asociados a calentamiento global y eutrofización. Los resultados de la caracterización fisicoquímica de los materiales analizados se resumen en la Tabla 1.",
+        "El agua de lavado procede principalmente de lluvia captada y almacenada en un reservorio existente. La bomba impulsa esta agua para lavar el piso; el agua se incorpora a las aguas verdes del escenario A o al purín del escenario B. No se modelaron agua potable de red ni cargas municipales de potabilización y distribución. La captación, el reservorio y su infraestructura existente permanecieron fuera de la frontera.",
+        "Para cada flujo se organizaron las variables necesarias para estimar CH₄, N₂O, NH₃, NOx y NO₃⁻, junto con electricidad y diésel. Los resultados de la caracterización fisicoquímica se resumen en la Tabla 1.",
         f"Los parámetros operativos publicados para la misma lechería fueron: peso vivo promedio de {fmt(context['peso_vivo_promedio'], 1)} kg/animal, población media de {fmt(context['poblacion_media'], 0)} vacas en ordeño, permanencia aproximada de {fmt(context['permanencia_sala'], 1)} h/día, recolección de {fmt(context['estiercol_recolectado_animal'], 1)} kg de estiércol fresco/animal, total recolectado de {fmt(context['estiercol_recolectado_anual'], 1)} kg/año y consumo de agua de lavado de {fmt(context['agua_lavado_diaria'], 1)} L/día (Sánchez-Romero y Brenes-Gamboa, 2026). El consumo anual derivado fue {fmt(context['agua_lavado_anual'], 1)} L/año.",
         f"El valor de {fmt(context['estiercol_recolectado_anual'], 1)} kg/año representa el estiércol efectivamente recolectado durante las actividades de ordeño estudiadas; no corresponde a la excreción fisiológica total diaria de los animales.",
     ])
@@ -767,9 +765,11 @@ def build_document() -> None:
 
     doc.add_heading("19. Evaluación de impacto de ciclo de vida", level=2)
     add_paragraphs(doc, [
-        "La evaluación de impacto convirtió las emisiones estimadas en resultados equivalentes mediante factores de caracterización. Las categorías consideradas fueron calentamiento global, expresado como kg CO2-eq/año, y eutrofización, expresada como kg PO4-eq/año. La unidad de eutrofización se expresa como equivalente de fosfato y se relaciona con el ion PO4.",
-        "Para la categoría de calentamiento global se emplearon los potenciales reportados por el IMN (2021), expresados en kg CO2-eq/kg de sustancia emitida. Para la categoría de eutrofización se utilizaron factores expresados en kg PO4-eq/kg, con base en Ecobilan (1999, como se citó en Vallejo, 2004).",
+        "La evaluación de impacto aplicó Environmental Footprint 3.1 a las emisiones directas. El cambio climático se expresó en kg CO₂-eq, la eutrofización terrestre en mol N-eq y la eutrofización marina en kg N-eq; estas categorías no se sumaron entre sí.",
+        "El CH₄ del manejo se representó como metano biogénico y el inventario de N₂O se confirmó en kg N₂O, no N₂O-N. NH₃ y NOx como NO₂ se asignaron al aire; NO₃⁻ se asignó a agua dulce como receptor continental final. Los factores proceden de la tabla oficial EF 3.1 de la Comisión Europea y el JRC.",
         "Los impactos se calcularon primero por etapa y posteriormente se agregaron por escenario. La comparación entre escenarios se realizó con diferencias absolutas y porcentuales entre el Escenario A y el Escenario B.",
+        "La bomba Aermotor de 1,5 kW mecánicos se modeló con eficiencia media supuesta de 80 %, 7 min por lavado y dos lavados cada tres días, resultando 53,23 kWh/año en A3 y B1. El tractor Massey Ferguson 6711 con cañón, operado en 540E, se modeló durante 30 min cada tres días y con 3 L diésel/h, resultando 182,50 L/año en A4 y B2. Los escenarios son alternativos y estos consumos no se dividieron entre ellos.",
+        "Electricidad y diésel permanecen inventariados sin impactos de fondo. Su caracterización se incorporará posteriormente mediante SimaPro y ecoinvent dentro del mismo pipeline; el cañón no recibe energía independiente y el agua pluvial no se añade de nuevo en las etapas de aplicación.",
     ])
     add_dataframe_table(doc, "Tabla 4. Factores de caracterización para las categorías de impacto.", format_df(characterization_factors(), decimals=4))
 

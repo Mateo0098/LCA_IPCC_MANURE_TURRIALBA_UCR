@@ -11,4 +11,4 @@ unidad,Unidad explicita del valor reportado,texto,Tablas finales
 fuente_dato,Archivo o fuente de origen del valor,texto,Tablas finales
 observaciones,Notas metodologicas o advertencias de uso,texto,Tablas finales
 factor_caracterizacion,Factor para convertir emisiones a equivalentes,kg equivalente/kg sustancia,processed/acv_factores_equivalencia.csv
-resultado_equivalente,Resultado de impacto ambiental por sustancia,kg CO2-eq/año o kg PO4-eq/año,tabla_07_impactos_por_etapa.csv
+resultado_equivalente,Resultado de impacto ambiental por sustancia,"kg CO2-eq/año, mol N-eq/año o kg N-eq/año",tabla_07_impactos_por_etapa.csv

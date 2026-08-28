@@ -1,0 +1,11 @@
+parametro,valor,unidad,tipo_dato,fuente,alcance,observaciones
+model_year_days,365,días/año,Supuesto del estudio,Nota de campo anonimizada,A3; A4; B1; B2,Año de modelado
+pump_mechanical_power_kw,1.5,kW,Observado en placa,Placa Aermotor 20HBP200-01,A3; B1,Potencia mecánica nominal
+pump_motor_efficiency,0.80,adimensional,Supuesto del estudio,Nota de campo anonimizada,A3; B1,Eficiencia promedio adoptada
+pump_wash_minutes,7,min/lavado,Dato primario de campo,Comunicación personal 2026-08-25,A3; B1,Duración aproximada
+pump_washes_per_cycle,2,lavados,Dato primario de campo,Comunicación personal 2026-08-25,A3; B1,Dos lavados por ciclo
+pump_cycle_days,3,días,Dato primario de campo,Comunicación personal 2026-08-25,A3; B1,Frecuencia aproximada
+tractor_diesel_l_per_hour,3,L/h,Supuesto del estudio,Nota de campo anonimizada,A4; B2,Consumo conservador a bajo régimen
+tractor_operation_minutes,30,min/operación,Supuesto operativo acordado,Comunicación personal 2026-08-25,A4; B2,Operación total por vaciado
+tractor_cycle_days,3,días,Dato primario de campo,Comunicación personal 2026-08-25,A4; B2,Vaciado cada tres días
+

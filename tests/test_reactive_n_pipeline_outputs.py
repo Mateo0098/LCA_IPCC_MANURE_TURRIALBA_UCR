@@ -53,14 +53,15 @@ class ReactiveNPipelineOutputTests(unittest.TestCase):
 
     def test_total_impacts_match_promotion_checkpoint(self):
         expected = {
-            "A": (2333.632194253236, 19.79641718144633),
-            "B": (4767.272734106717, 35.98844530101762),
+            "A": (2687.737847464095, 617.0517125078838, 15.648347825374902),
+            "B": (5771.93146438376, 961.269308200257, 35.62231521609108),
         }
         rows = read_rows(ROOT / "processed" / "acv_impacto_total_por_escenario.csv")
         actual = {row["Escenario"]: row for row in rows}
-        for scenario, (gwp, eutrophication) in expected.items():
+        for scenario, (gwp, terrestrial, marine) in expected.items():
             self.assertAlmostEqual(float(actual[scenario]["impacto_calentamiento_global_kg_co2eq"]), gwp, places=12)
-            self.assertAlmostEqual(float(actual[scenario]["impacto_eutrofizacion_kg_po4eq"]), eutrophication, places=12)
+            self.assertAlmostEqual(float(actual[scenario]["impacto_eutrofizacion_terrestre_mol_neq"]), terrestrial, places=12)
+            self.assertAlmostEqual(float(actual[scenario]["impacto_eutrofizacion_marina_kg_neq"]), marine, places=12)
 
     def test_stage_scripts_only_consume_canonical_ledger(self):
         for path in (ROOT / "scripts").glob("ACV_Escenario*_etapa*.py"):

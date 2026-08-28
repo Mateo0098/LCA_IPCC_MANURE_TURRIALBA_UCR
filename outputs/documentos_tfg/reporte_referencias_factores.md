@@ -3,8 +3,7 @@
 ## Trazabilidad metodológica
 
 - Los factores IPCC y EMEP fueron contrastados con el módulo canónico del ledger de N total y TAN y con sus parámetros versionados.
-- Los factores de caracterización de calentamiento global se referencian como IMN (2021).
-- Los factores de caracterización de eutrofización se referencian como Ecobilan (1999, como se citó en Vallejo, 2004).
+- Los factores de caracterización corresponden a Environmental Footprint 3.1 de la Comisión Europea y el JRC.
 - El parámetro específico de lixiviación de A2 se documenta mediante Vargas Sarmiento (2023) y observación directa del investigador.
 - Los factores sin fuente confirmada no recibieron una atribución inventada.
 
@@ -23,9 +22,10 @@
 | Factor de N₂-N del manejo sólido | EMEP/EEA (2023) | EMEP/EEA 2023 Chapter 3.B Table 3-10 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de especiación o flujo de N según EMEP/EEA 2023. | Resuelto |
 | Fracción de mineralización del N orgánico | EMEP/EEA (2023) | EMEP/EEA 2023 Chapter 3.B Step 9 Equation 32 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de especiación o flujo de N según EMEP/EEA 2023. | Resuelto |
 | Proporción TAN/N del estiércol fresco | EMEP/EEA (2023) | EMEP/EEA 2023 Chapter 3.B Table 3-9 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de especiación o flujo de N según EMEP/EEA 2023. | Resuelto |
-| Potencial de eutrofizacion | Ecobilan (1999) citado en Vallejo (2004) | Ecobilan (1999, como se citó en Vallejo, 2004) | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de caracterización del potencial de eutrofización. | Resuelto |
+| Cambio climático | Environmental Footprint 3.1 | Comisión Europea, JRC (2023), Environmental Footprint 3.1 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de caracterización EF 3.1 por especie y compartimento. | Resuelto |
+| Eutrofización marina | Environmental Footprint 3.1 | Comisión Europea, JRC (2023), Environmental Footprint 3.1 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de caracterización EF 3.1 por especie y compartimento. | Resuelto |
+| Eutrofización terrestre | Environmental Footprint 3.1 | Comisión Europea, JRC (2023), Environmental Footprint 3.1 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de caracterización EF 3.1 por especie y compartimento. | Resuelto |
 | Fracción de lixiviación del almacenamiento | Fuente operativa o supuesto documentado | Decision record and IPCC Table 10.22 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | El origen no pudo confirmarse sin introducir una referencia no sustentada. | Resuelto |
-| Potencial de calentamiento global | IMN (2021) | IMN (2021) | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor de caracterización del potencial de calentamiento global. | Resuelto |
 | Benchmark FracGasMS de A1 | IPCC | IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Parámetro o ecuación de estimación de emisiones asociado con la metodología IPCC. | Resuelto |
 | Benchmark FracGasMS de A2 | IPCC | IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Parámetro o ecuación de estimación de emisiones asociado con la metodología IPCC. | Resuelto |
 | Benchmark FracGasMS del almacenamiento líquido | IPCC | IPCC 2019 Refinement Volume 4 Chapter 10 Table 10.22 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Parámetro o ecuación de estimación de emisiones asociado con la metodología IPCC. | Resuelto |

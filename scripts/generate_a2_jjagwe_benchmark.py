@@ -64,7 +64,7 @@ def build_rows() -> list[dict[str, str | float]]:
     params = one(read_rows(PARAMS), escenario="A", etapa="2")
     mass = one(read_rows(MASSES), escenario="A", etapa="2")
     emissions = one(read_rows(EMISSIONS), Escenario="A", Etapa="2")
-    factors = {row["compuesto"]: row for row in read_rows(FACTORS)}
+    factors = {(row["especie_quimica"], row["categoria_impacto"]): row for row in read_rows(FACTORS)}
     wet_mass = number(mass, "masa_total_kg_eq")
     dry_fraction = number(params, "materia_seca_pct") / 100.0
     dry_mass = wet_mass * dry_fraction
@@ -78,8 +78,8 @@ def build_rows() -> list[dict[str, str | float]]:
     n2o_exp = number(literature["N2O acumulado"], "valor")
     ipcc_n_ratio = (n2o_direct_kg * 28.0 / 44.0) / initial_n
     exp_n_ratio = (n2o_exp / 1_000_000.0 * 28.0 / 44.0) / (number(literature["TKN inicial del estiércol"], "valor") / 100.0)
-    cf_ch4 = number(factors["CH4"], "equivalente_co2")
-    cf_n2o = number(factors["N2O"], "equivalente_co2")
+    cf_ch4 = number(factors[("CH4", "Cambio climático")], "factor")
+    cf_n2o = number(factors[("N2O", "Cambio climático")], "factor")
     climate_ipcc = ch4_ipcc / 1000.0 * cf_ch4 + n2o_ipcc / 1_000_000.0 * cf_n2o
     climate_exp = ch4_exp / 1000.0 * cf_ch4 + n2o_exp / 1_000_000.0 * cf_n2o
     return [

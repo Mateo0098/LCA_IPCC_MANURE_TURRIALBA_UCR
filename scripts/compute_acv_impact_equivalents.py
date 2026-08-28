@@ -78,22 +78,20 @@ def annotate_bars(ax: plt.Axes) -> None:
         )
 
 
-def load_factors(path: Path) -> dict[str, dict[str, float]]:
+def load_factors(path: Path) -> dict[tuple[str, str], dict[str, object]]:
     df = pd.read_csv(path)
-    required = {"compuesto", "equivalente_co2", "equivalente_po4"}
+    required = {"especie_quimica", "compartimento", "categoria_impacto", "factor", "unidad_factor"}
     missing = required - set(df.columns)
     if missing:
         raise ValueError(f"Faltan columnas en factores: {sorted(missing)}")
 
-    out: dict[str, dict[str, float]] = {}
+    out: dict[tuple[str, str], dict[str, object]] = {}
     for _, row in df.iterrows():
-        compuesto = str(row["compuesto"]).strip().upper()
-        if not compuesto:
-            continue
-        out[compuesto] = {
-            "co2": float(row["equivalente_co2"]) if pd.notna(row["equivalente_co2"]) else 0.0,
-            "po4": float(row["equivalente_po4"]) if pd.notna(row["equivalente_po4"]) else 0.0,
-        }
+        key = (str(row["especie_quimica"]).strip(), str(row["categoria_impacto"]).strip())
+        if key in out:
+            raise ValueError(f"Factor EF 3.1 duplicado: {key}")
+        out[key] = {"factor": float(row["factor"]), "unidad": str(row["unidad_factor"]),
+                    "compartimento": str(row["compartimento"])}
     return out
 
 
@@ -144,7 +142,7 @@ def resolve_emissions_path(base: Path) -> Path:
 
 def compute_impacts(
     df: pd.DataFrame,
-    factors: dict[str, dict[str, float]],
+    factors: dict[tuple[str, str], dict[str, object]],
     functional_reference_kg: float,
 ) -> pd.DataFrame:
     out = df.copy()
@@ -155,27 +153,28 @@ def compute_impacts(
     out["co2_total_kg"] = out["CO2_medido"]
     out["ch4_total_kg"] = out["CH4_ec1"]
 
-    f_ch4_co2 = factors.get("CH4", {}).get("co2", 0.0)
-    f_n2o_co2 = factors.get("N2O", {}).get("co2", 0.0)
-    f_co2_co2 = factors.get("CO2", {}).get("co2", 0.0)
-    f_nh3_po4 = factors.get("NH3", {}).get("po4", 0.0)
-    f_no3_po4 = factors.get("NO3", {}).get("po4", 0.0)
+    def factor(species: str, category: str) -> float:
+        return float(factors[(species, category)]["factor"])
 
     out["impacto_calentamiento_global_kg_co2eq"] = (
-        out["ch4_total_kg"] * f_ch4_co2
-        + out["n2o_total_kg"] * f_n2o_co2
-        + out["co2_total_kg"] * f_co2_co2
+        out["ch4_total_kg"] * factor("CH4", "Cambio climático")
+        + out["n2o_total_kg"] * factor("N2O", "Cambio climático")
     )
-    out["impacto_eutrofizacion_kg_po4eq"] = (
-        out["nh3_total_kg"] * f_nh3_po4 + out["no3_total_kg"] * f_no3_po4
+    out["impacto_eutrofizacion_terrestre_mol_neq"] = (
+        out["nh3_total_kg"] * factor("NH3", "Eutrofización terrestre")
+        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "Eutrofización terrestre")
+    )
+    out["impacto_eutrofizacion_marina_kg_neq"] = (
+        out["nh3_total_kg"] * factor("NH3", "Eutrofización marina")
+        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "Eutrofización marina")
+        + out["no3_total_kg"] * factor("NO3", "Eutrofización marina")
     )
     out["referencia_funcional_estiercol_fresco_kg"] = functional_reference_kg
     out["impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"] = (
         out["impacto_calentamiento_global_kg_co2eq"] / functional_reference_kg
     )
-    out["impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco"] = (
-        out["impacto_eutrofizacion_kg_po4eq"] / functional_reference_kg
-    )
+    out["impacto_eutrofizacion_terrestre_mol_neq_por_kg_estiercol_fresco"] = out["impacto_eutrofizacion_terrestre_mol_neq"] / functional_reference_kg
+    out["impacto_eutrofizacion_marina_kg_neq_por_kg_estiercol_fresco"] = out["impacto_eutrofizacion_marina_kg_neq"] / functional_reference_kg
 
     cols = [
         "Escenario",
@@ -187,10 +186,12 @@ def compute_impacts(
         "no3_total_kg",
         "nox_total_kg_as_no2",
         "impacto_calentamiento_global_kg_co2eq",
-        "impacto_eutrofizacion_kg_po4eq",
+        "impacto_eutrofizacion_terrestre_mol_neq",
+        "impacto_eutrofizacion_marina_kg_neq",
         "referencia_funcional_estiercol_fresco_kg",
         "impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco",
-        "impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco",
+        "impacto_eutrofizacion_terrestre_mol_neq_por_kg_estiercol_fresco",
+        "impacto_eutrofizacion_marina_kg_neq_por_kg_estiercol_fresco",
     ]
     return out[cols].sort_values(["Escenario", "Etapa"]).reset_index(drop=True)
 
@@ -308,7 +309,7 @@ def main() -> None:
 
     totals = (
         impact_stage.groupby("Escenario", as_index=False)[
-            ["impacto_calentamiento_global_kg_co2eq", "impacto_eutrofizacion_kg_po4eq"]
+            ["impacto_calentamiento_global_kg_co2eq", "impacto_eutrofizacion_terrestre_mol_neq", "impacto_eutrofizacion_marina_kg_neq"]
         ]
         .sum()
         .sort_values("Escenario")
@@ -317,9 +318,8 @@ def main() -> None:
     totals["impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"] = (
         totals["impacto_calentamiento_global_kg_co2eq"] / functional_reference_kg
     )
-    totals["impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco"] = (
-        totals["impacto_eutrofizacion_kg_po4eq"] / functional_reference_kg
-    )
+    totals["impacto_eutrofizacion_terrestre_mol_neq_por_kg_estiercol_fresco"] = totals["impacto_eutrofizacion_terrestre_mol_neq"] / functional_reference_kg
+    totals["impacto_eutrofizacion_marina_kg_neq_por_kg_estiercol_fresco"] = totals["impacto_eutrofizacion_marina_kg_neq"] / functional_reference_kg
     totals_out = processed / "acv_impacto_total_por_escenario.csv"
     totals.to_csv(totals_out, index=False, encoding="utf-8-sig")
 
@@ -332,11 +332,14 @@ def main() -> None:
     )
     plot_by_stage(
         impact_stage,
-        "impacto_eutrofizacion_kg_po4eq",
-        r"Impacto de Eutrofizacion (PO$_4^{3-}$-eq) por Etapa y Escenario",
-        r"kg PO$_4^{3-}$",
-        graphics_dir / "ACV_impacto_eutrofizacion",
+        "impacto_eutrofizacion_terrestre_mol_neq",
+        "Eutrofización terrestre EF 3.1 por etapa y escenario",
+        "mol N-eq",
+        graphics_dir / "ACV_impacto_eutrofizacion_terrestre",
     )
+    plot_by_stage(impact_stage, "impacto_eutrofizacion_marina_kg_neq",
+                  "Eutrofización marina EF 3.1 por etapa y escenario", "kg N-eq",
+                  graphics_dir / "ACV_impacto_eutrofizacion_marina")
     plot_total_by_scenario(
         totals,
         "impacto_calentamiento_global_kg_co2eq",
@@ -346,21 +349,22 @@ def main() -> None:
     )
     plot_total_by_scenario(
         totals,
-        "impacto_eutrofizacion_kg_po4eq",
-        r"Impacto Total de Eutrofizacion (PO$_4^{3-}$-eq) por Escenario",
-        r"kg PO$_4^{3-}$",
-        graphics_dir / "ACV_impacto_total_eutrofizacion_por_escenario",
+        "impacto_eutrofizacion_terrestre_mol_neq",
+        "Eutrofización terrestre total EF 3.1 por escenario", "mol N-eq",
+        graphics_dir / "ACV_impacto_total_eutrofizacion_terrestre_por_escenario",
     )
+    plot_total_by_scenario(totals, "impacto_eutrofizacion_marina_kg_neq",
+                           "Eutrofización marina total EF 3.1 por escenario", "kg N-eq",
+                           graphics_dir / "ACV_impacto_total_eutrofizacion_marina_por_escenario")
 
     print(f"Factores: {factors_path}")
     print(f"Tabla etapa/escenario: {stage_out}")
     print(f"Tabla total escenario: {totals_out}")
     print(f"Graficos: {graphics_dir / 'ACV_impacto_calentamiento_global'}(.png/.pdf)")
-    print(f"Graficos: {graphics_dir / 'ACV_impacto_eutrofizacion'}(.png/.pdf)")
+    print(f"Gráficos EF 3.1 actualizados en: {graphics_dir}")
     print(
         f"Graficos: {graphics_dir / 'ACV_impacto_total_calentamiento_global_por_escenario'}(.png/.pdf)"
     )
-    print(f"Graficos: {graphics_dir / 'ACV_impacto_total_eutrofizacion_por_escenario'}(.png/.pdf)")
 
 
 if __name__ == "__main__":

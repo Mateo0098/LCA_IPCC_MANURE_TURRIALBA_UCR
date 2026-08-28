@@ -53,10 +53,7 @@ EMISSION_META = {
     "NO3_ec21": ("NO3", "Nitrato por lixiviacion o escorrentia desde suelo", "kg NO3/ano", "Ledger N/TAN", "IPCC 2019 capítulo 11 y conversion 62/14"),
 }
 
-IMN_CHARACTERIZATION_REFERENCE = "IMN (2021)"
-EUTROPHICATION_CHARACTERIZATION_REFERENCE = (
-    "Ecobilan (1999, como se citó en Vallejo, 2004)"
-)
+EF31_REFERENCE = "Comisión Europea, JRC (2023), Environmental Footprint 3.1"
 STOICHIOMETRIC_REFERENCE = "Cálculo estequiométrico"
 STOICHIOMETRIC_FACTOR_LABELS = {
     "FACTOR_N_A_N2O": "Conversión estequiométrica de N₂O-N a N₂O",
@@ -127,26 +124,6 @@ AUDITED_FACTOR_REFERENCES = {
     "FACTOR_N_A_NO3": (
         STOICHIOMETRIC_REFERENCE,
         "Conversión estequiométrica",
-        "Resuelto",
-    ),
-    "CH_4_eq": (
-        IMN_CHARACTERIZATION_REFERENCE,
-        "IMN (2021)",
-        "Resuelto",
-    ),
-    "N_2_O_eq": (
-        IMN_CHARACTERIZATION_REFERENCE,
-        "IMN (2021)",
-        "Resuelto",
-    ),
-    "NH_3_eq": (
-        EUTROPHICATION_CHARACTERIZATION_REFERENCE,
-        "Ecobilan (1999) citado en Vallejo (2004)",
-        "Resuelto",
-    ),
-    "NO_3_eq": (
-        EUTROPHICATION_CHARACTERIZATION_REFERENCE,
-        "Ecobilan (1999) citado en Vallejo (2004)",
         "Resuelto",
     ),
 }
@@ -367,6 +344,15 @@ def tabla_04_parametros_modelo_acv() -> Path:
                 "fuente_dato": row.get(source_col, "") if source_col else "processed/ipcc_sistemas_manejo_estiercol_factores.csv; processed/ipcc_factores_manejo_overrides_etapa.csv; processed/masa_total_escenario_etapa.csv",
                 "observaciones": obs,
             })
+    resources = _read_csv("acv_inventario_recursos_operativos.csv")
+    for _, row in resources.iterrows():
+        rows.append({
+            "escenario": row["escenario"], "etapa": int(row["etapa"]),
+            "nombre_etapa": _stage_name(row["escenario"], row["etapa"]),
+            "flujo": row["flujo"], "valor": row["cantidad_anual"], "unidad": row["unidad"],
+            "fuente": row["procedencia"], "formula_origen": "Parámetros operativos canónicos",
+            "observaciones": row["estado_lcia_actual"],
+        })
 
     return _write(pd.DataFrame(rows), "tabla_04_parametros_modelo_acv.csv")
 
@@ -441,34 +427,14 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
 
     eq = _read_csv("acv_factores_equivalencia.csv")
     for _, row in eq.iterrows():
-        if pd.notna(row.get("equivalente_co2")):
-            rows.append({
-                "tipo_factor": "Factor de caracterizacion",
-                "sistema_o_compuesto": row["compuesto"],
-                "factor": "Potencial de calentamiento global",
-                "valor": row["equivalente_co2"],
-                "unidad": "kg CO2-eq/kg sustancia",
-                "fuente_dato": "processed/acv_factores_equivalencia.csv",
-                "referencia_metodologica": IMN_CHARACTERIZATION_REFERENCE,
-                "clasificacion_referencia": "IMN (2021)",
-                "estado_referencia": "Resuelto",
-                "requiere_revision_bibliografica": "No",
-                "observaciones": "Usado para calcular impacto_calentamiento_global_kg_co2eq",
-            })
-        if pd.notna(row.get("equivalente_po4")):
-            rows.append({
-                "tipo_factor": "Factor de caracterizacion",
-                "sistema_o_compuesto": row["compuesto"],
-                "factor": "Potencial de eutrofizacion",
-                "valor": row["equivalente_po4"],
-                "unidad": "kg PO4-eq/kg sustancia",
-                "fuente_dato": "processed/acv_factores_equivalencia.csv",
-                "referencia_metodologica": EUTROPHICATION_CHARACTERIZATION_REFERENCE,
-                "clasificacion_referencia": "Ecobilan (1999) citado en Vallejo (2004)",
-                "estado_referencia": "Resuelto",
-                "requiere_revision_bibliografica": "No",
-                "observaciones": "Usado para calcular impacto_eutrofizacion_kg_po4eq",
-            })
+        rows.append({"tipo_factor": "Factor de caracterización EF 3.1",
+                     "sistema_o_compuesto": f"{row['especie_quimica']} — {row['compartimento']}",
+                     "factor": row["categoria_impacto"], "valor": row["factor"],
+                     "unidad": row["unidad_factor"], "fuente_dato": "Tabla canónica EF 3.1",
+                     "referencia_metodologica": EF31_REFERENCE,
+                     "clasificacion_referencia": "Environmental Footprint 3.1",
+                     "estado_referencia": "Resuelto", "requiere_revision_bibliografica": "No",
+                     "observaciones": row["observaciones"]})
 
     for raw_factor, value, unit in [
         ("FACTOR_N_A_N2O", 44 / 28, "kg N2O/kg N2O-N"),
@@ -524,19 +490,22 @@ def tabla_06_emisiones_por_etapa() -> Path:
 
 def tabla_07_impactos_por_etapa() -> Path:
     impacts = _read_csv("acv_impacto_por_etapa_escenario.csv")
-    factors = _read_csv("acv_factores_equivalencia.csv").set_index("compuesto")
+    factors = _read_csv("acv_factores_equivalencia.csv")
     rows = []
     impact_defs = [
-        ("ch4_total_kg", "CH4", "Calentamiento global", "equivalente_co2", "kg CO2-eq"),
-        ("n2o_total_kg", "N2O", "Calentamiento global", "equivalente_co2", "kg CO2-eq"),
-        ("co2_total_kg", "CO2", "Calentamiento global", "equivalente_co2", "kg CO2-eq"),
-        ("nh3_total_kg", "NH3", "Eutrofizacion", "equivalente_po4", "kg PO4-eq"),
-        ("no3_total_kg", "NO3", "Eutrofizacion", "equivalente_po4", "kg PO4-eq"),
+        ("ch4_total_kg", "CH4", "Cambio climático", "kg CO2-eq"),
+        ("n2o_total_kg", "N2O", "Cambio climático", "kg CO2-eq"),
+        ("nh3_total_kg", "NH3", "Eutrofización terrestre", "mol N-eq"),
+        ("nox_total_kg_as_no2", "NOx as NO2", "Eutrofización terrestre", "mol N-eq"),
+        ("nh3_total_kg", "NH3", "Eutrofización marina", "kg N-eq"),
+        ("nox_total_kg_as_no2", "NOx as NO2", "Eutrofización marina", "kg N-eq"),
+        ("no3_total_kg", "NO3", "Eutrofización marina", "kg N-eq"),
     ]
     for _, row in impacts.iterrows():
-        for emission_col, substance, category, factor_col, eq_unit in impact_defs:
+        for emission_col, substance, category, eq_unit in impact_defs:
             emission = pd.to_numeric(row.get(emission_col), errors="coerce")
-            factor = pd.to_numeric(factors.loc[substance, factor_col], errors="coerce") if substance in factors.index else pd.NA
+            match = factors[(factors["especie_quimica"] == substance) & (factors["categoria_impacto"] == category)]
+            factor = pd.to_numeric(match.iloc[0]["factor"], errors="coerce") if len(match) == 1 else pd.NA
             if pd.isna(emission) or pd.isna(factor):
                 continue
             rows.append({
@@ -548,10 +517,10 @@ def tabla_07_impactos_por_etapa() -> Path:
                 "emision": emission,
                 "unidad_emision": emission_col.replace("_total_kg", "").upper().replace("CO2", "kg CO2").replace("CH4", "kg CH4").replace("N2O", "kg N2O").replace("NH3", "kg NH3").replace("NO3", "kg NO3"),
                 "factor_caracterizacion": factor,
-                "unidad_factor": "kg CO2-eq/kg sustancia" if factor_col == "equivalente_co2" else "kg PO4-eq/kg sustancia",
+                "unidad_factor": match.iloc[0]["unidad_factor"],
                 "resultado_equivalente": emission * factor,
                 "unidad_equivalente": eq_unit + "/ano",
-                "fuente_factor": "processed/acv_factores_equivalencia.csv",
+                "fuente_factor": "Environmental Footprint 3.1, JRC",
                 "observaciones": "",
             })
     return _write(pd.DataFrame(rows), "tabla_07_impactos_por_etapa.csv")
@@ -564,7 +533,7 @@ def tabla_08_impactos_totales_por_escenario() -> Path:
         rows.extend([
             {
                 "escenario": row["Escenario"],
-                "categoria_impacto": "Calentamiento global",
+                "categoria_impacto": "Cambio climático",
                 "resultado_total": row["impacto_calentamiento_global_kg_co2eq"],
                 "unidad": "kg CO2-eq/ano",
                 "fuente": "processed/acv_impacto_total_por_escenario.csv",
@@ -572,12 +541,15 @@ def tabla_08_impactos_totales_por_escenario() -> Path:
             },
             {
                 "escenario": row["Escenario"],
-                "categoria_impacto": "Eutrofizacion",
-                "resultado_total": row["impacto_eutrofizacion_kg_po4eq"],
-                "unidad": "kg PO4-eq/ano",
+                "categoria_impacto": "Eutrofización terrestre",
+                "resultado_total": row["impacto_eutrofizacion_terrestre_mol_neq"],
+                "unidad": "mol N-eq/año",
                 "fuente": "processed/acv_impacto_total_por_escenario.csv",
                 "observaciones": "Suma de impactos por etapa",
             },
+            {"escenario": row["Escenario"], "categoria_impacto": "Eutrofización marina",
+             "resultado_total": row["impacto_eutrofizacion_marina_kg_neq"], "unidad": "kg N-eq/año",
+             "fuente": "processed/acv_impacto_total_por_escenario.csv", "observaciones": "Suma de impactos por etapa"},
         ])
     return _write(pd.DataFrame(rows), "tabla_08_impactos_totales_por_escenario.csv")
 
@@ -586,8 +558,9 @@ def tabla_09_comparacion_escenarios() -> Path:
     totals = _read_csv("acv_impacto_total_por_escenario.csv").set_index("Escenario")
     rows = []
     defs = [
-        ("Calentamiento global", "impacto_calentamiento_global_kg_co2eq", "kg CO2-eq/ano"),
-        ("Eutrofizacion", "impacto_eutrofizacion_kg_po4eq", "kg PO4-eq/ano"),
+        ("Cambio climático", "impacto_calentamiento_global_kg_co2eq", "kg CO2-eq/año"),
+        ("Eutrofización terrestre", "impacto_eutrofizacion_terrestre_mol_neq", "mol N-eq/año"),
+        ("Eutrofización marina", "impacto_eutrofizacion_marina_kg_neq", "kg N-eq/año"),
     ]
     for category, col, unit in defs:
         a = float(totals.loc["A", col])
@@ -622,7 +595,7 @@ def diccionario_variables() -> Path:
         ("fuente_dato", "Archivo o fuente de origen del valor", "texto", "Tablas finales"),
         ("observaciones", "Notas metodologicas o advertencias de uso", "texto", "Tablas finales"),
         ("factor_caracterizacion", "Factor para convertir emisiones a equivalentes", "kg equivalente/kg sustancia", "processed/acv_factores_equivalencia.csv"),
-        ("resultado_equivalente", "Resultado de impacto ambiental por sustancia", "kg CO2-eq/ano o kg PO4-eq/ano", "tabla_07_impactos_por_etapa.csv"),
+        ("resultado_equivalente", "Resultado de impacto ambiental por sustancia", "kg CO2-eq/año, mol N-eq/año o kg N-eq/año", "tabla_07_impactos_por_etapa.csv"),
     ]
     df = pd.DataFrame(rows, columns=["variable", "definicion", "unidad", "fuente_o_calculo"])
     return _write(df, "diccionario_variables.csv")
@@ -665,7 +638,7 @@ def resumen_resultados_para_redaccion() -> Path:
 
     impact_dominants = {}
     for scenario in ("A", "B"):
-        for category in ("Calentamiento global", "Eutrofizacion"):
+        for category in ("Cambio climático", "Eutrofización terrestre", "Eutrofización marina"):
             subset = impactos_etapa[impactos_etapa["escenario"] == scenario]
             impact_dominants[(scenario, category)] = dominant({
                 stage_label(row): float(row.get(category, 0.0))
@@ -730,21 +703,21 @@ def resumen_resultados_para_redaccion() -> Path:
             "",
             "## 6.5 Impactos ambientales por etapa",
             "",
-            "| Escenario | Etapa | Codigo | Nombre de etapa | Calentamiento global | Eutrofizacion |",
-            "|---|---:|---|---|---:|---:|",
+            "| Escenario | Etapa | Codigo | Nombre de etapa | Cambio climático | Eutrofización terrestre | Eutrofización marina |",
+            "|---|---:|---|---|---:|---:|---:|",
         ]
     )
     for _, row in impactos_etapa.sort_values(["escenario", "etapa"]).iterrows():
         code = f"{row['escenario']}{int(row['etapa'])}"
         lines.append(
             f"| {row['escenario']} | {int(row['etapa'])} | {code} | {row['nombre_etapa']} | "
-            f"{row.get('Calentamiento global', 0)} | {row.get('Eutrofizacion', 0)} |"
+            f"{row.get('Cambio climático', 0)} | {row.get('Eutrofización terrestre', 0)} | {row.get('Eutrofización marina', 0)} |"
         )
     lines.extend(
         [
             "",
-            f"En calentamiento global dominan {impact_dominants[('A', 'Calentamiento global')]} en el Escenario A y {impact_dominants[('B', 'Calentamiento global')]} en el Escenario B. "
-            f"En eutrofización dominan {impact_dominants[('A', 'Eutrofizacion')]} en el Escenario A y {impact_dominants[('B', 'Eutrofizacion')]} en el Escenario B.",
+            f"En cambio climático dominan {impact_dominants[('A', 'Cambio climático')]} en el Escenario A y {impact_dominants[('B', 'Cambio climático')]} en el Escenario B. "
+            f"En eutrofización terrestre dominan {impact_dominants[('A', 'Eutrofización terrestre')]} y {impact_dominants[('B', 'Eutrofización terrestre')]}; en eutrofización marina dominan {impact_dominants[('A', 'Eutrofización marina')]} y {impact_dominants[('B', 'Eutrofización marina')]}.",
             "",
             "## 6.6 Impactos totales por escenario",
             "",

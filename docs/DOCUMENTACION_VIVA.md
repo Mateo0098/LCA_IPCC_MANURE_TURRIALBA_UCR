@@ -70,11 +70,6 @@ el estado vigente:
 
 - `auditoria_alineacion_tfg.md`: vacíos de alineación entre objetivos, resultados
   y conclusiones que requieren seguimiento académico.
-- `auditoria_eutrofizacion_B1.md`: diagnóstico de la implementación histórica
-  del reparto 50/50. La decisión científica quedó resuelta en
-  `DECISIONES_METODOLOGICAS_TFG.md`; el documento se conserva temporalmente
-  como apoyo para la migración técnica pendiente y no describe la metodología
-  objetivo vigente.
 - `scripts/reactive_n_ledger.py` y
   `processed/reactive_n_ledger_parameters.csv`: implementación y parámetros
   responsables del ledger productivo de N total y TAN. El orquestador genera

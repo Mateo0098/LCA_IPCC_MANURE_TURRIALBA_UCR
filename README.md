@@ -1,5 +1,18 @@
 # Pipeline del ACV
 
+## Caracterización e inventario operativo vigentes
+
+El pipeline canónico caracteriza las emisiones directas mediante Environmental
+Footprint 3.1 en cambio climático, eutrofización terrestre y eutrofización
+marina. La electricidad de bombeo y el diésel del tractor se calculan como
+flujos físicos foreground y permanecen pendientes de procesos de fondo. La
+salida neutral `processed/acv_foreground_intercambio.csv` prepara la futura
+integración con SimaPro sin seleccionar todavía datasets de ecoinvent.
+
+Python conserva la fuente de verdad del inventario y la normalización. Cuando
+se integren resultados de SimaPro, no se sumarán nuevamente los impactos
+directos si el total importado ya los contiene.
+
 ## Objetivo
 
 Este proyecto calcula emisiones e impactos de análisis de ciclo de vida (ACV)

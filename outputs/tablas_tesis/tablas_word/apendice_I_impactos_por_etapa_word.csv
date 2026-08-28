@@ -1,7 +1,7 @@
-﻿Escenario,Calentamiento global,Eutrofización,Etapa del sistema
-A,518.8557038555156,7.775130787114285,A1: Precomposteo
-A,226.76495777803757,0.0332862595385599,A2: Lombricompostaje
-A,1343.5935684386643,3.0837076262622776,A3: Almacenamiento de aguas verdes
-A,244.4179641810184,8.904292508531208,A4: Aplicación de aguas verdes en campos de pastoreo
-B,4033.5204455173243,9.257410909595611,B1: Almacenamiento de purines
-B,733.7522885893924,26.731034391422007,B2: Aplicación de purines en campo de pastoreo
+﻿Escenario,Cambio climático,Eutrofización marina,Eutrofización terrestre,Etapa del sistema
+A,525.971196842475,3.515944771802143,292.74403973078574,A1: Precomposteo
+A,239.09634368577974,0.26636338333224296,4.102215167300438,A2: Lombricompostaje
+A,1707.424809447395,0.8142841467529305,118.71931473552537,A3: Almacenamiento de aguas verdes
+A,215.24549748844524,11.051755523487586,201.48614287427233,A4: Aplicación de aguas verdes en campos de pastoreo
+B,5125.756061851811,2.444512858308245,356.40002640084657,B1: Almacenamiento de purines
+B,646.1754025319487,33.17780235778284,604.8692817994104,B2: Aplicación de purines en campo de pastoreo

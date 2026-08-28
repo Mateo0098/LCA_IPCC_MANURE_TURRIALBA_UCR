@@ -1,6 +1,8 @@
-compuesto,equivalente_co2,equivalente_po4
-CH4,21,
-N2O,310,
-NH3,,0.35
-NO3,,0.095
-CO2,1,
+flujo_elemental,especie_quimica,compartimento,categoria_impacto,factor,unidad_factor,metodo,version,fuente_oficial,observaciones
+Methane biogenic,CH4,air unspecified,Cambio climático,27,kg CO2-eq/kg CH4,Environmental Footprint,3.1,JRC130796 y EF-LCIAMethod_CF(EF-v3.1).xlsx,Metano biogénico procedente del manejo del estiércol
+Nitrous oxide,N2O,air unspecified,Cambio climático,273,kg CO2-eq/kg N2O,Environmental Footprint,3.1,JRC130796 y EF-LCIAMethod_CF(EF-v3.1).xlsx,El inventario está expresado como N2O y no N2O-N
+Ammonia,NH3,air unspecified,Eutrofización terrestre,13.47,mol N-eq/kg NH3,Environmental Footprint,3.1,EF-LCIAMethod_CF(EF-v3.1).xlsx,Amoniaco expresado como NH3
+Ammonia,NH3,air unspecified,Eutrofización marina,0.092,kg N-eq/kg NH3,Environmental Footprint,3.1,EF-LCIAMethod_CF(EF-v3.1).xlsx,Amoniaco expresado como NH3
+Nitrogen oxides,NOx as NO2,air unspecified,Eutrofización terrestre,4.26,mol N-eq/kg NOx as NO2,Environmental Footprint,3.1,EF-LCIAMethod_CF(EF-v3.1).xlsx,NOx en base másica equivalente a NO2
+Nitrogen oxides,NOx as NO2,air unspecified,Eutrofización marina,0.389,kg N-eq/kg NOx as NO2,Environmental Footprint,3.1,EF-LCIAMethod_CF(EF-v3.1).xlsx,NOx en base másica equivalente a NO2
+Nitrate,NO3,fresh water,Eutrofización marina,0.226,kg N-eq/kg NO3,Environmental Footprint,3.1,EF-LCIAMethod_CF(EF-v3.1).xlsx,Receptor continental final adoptado para lixiviación y escorrentía

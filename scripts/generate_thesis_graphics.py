@@ -412,8 +412,9 @@ def plot_emissions(readme: list[dict[str, str]]) -> None:
 def plot_impacts_by_stage(readme: list[dict[str, str]]) -> None:
     df = read_table("impactos_etapa")
     specs = [
-        ("Calentamiento global", "fig_11_impactos_calentamiento_global_etapa"),
-        ("Eutrofizacion", "fig_12_impactos_eutrofizacion_etapa"),
+        ("Cambio climático", "fig_11_impactos_cambio_climatico_etapa"),
+        ("Eutrofización terrestre", "fig_12_impactos_eutrofizacion_terrestre_etapa"),
+        ("Eutrofización marina", "fig_13_impactos_eutrofizacion_marina_etapa"),
     ]
     for category, filename in specs:
         subset = df[df["categoria_impacto"] == category].copy()
@@ -452,13 +453,18 @@ def plot_scenario_comparison(readme: list[dict[str, str]]) -> None:
     comparisons = read_table("comparacion")
     specs = [
         (
-            "Calentamiento global",
-            "fig_13_comparacion_total_calentamiento_global",
+            "Cambio climático",
+            "fig_14_comparacion_total_cambio_climatico",
             "Resultados: comparacion de escenarios",
         ),
         (
-            "Eutrofizacion",
-            "fig_14_comparacion_total_eutrofizacion",
+            "Eutrofización terrestre",
+            "fig_15_comparacion_total_eutrofizacion_terrestre",
+            "Resultados: comparacion de escenarios",
+        ),
+        (
+            "Eutrofización marina",
+            "fig_16_comparacion_total_eutrofizacion_marina",
             "Resultados: comparacion de escenarios",
         ),
     ]
@@ -491,12 +497,12 @@ def plot_scenario_comparison(readme: list[dict[str, str]]) -> None:
         x_col="categoria_impacto",
         value_col="diferencia_porcentual_B_vs_A",
         ylabel="Diferencia B respecto a A (%)",
-        filename="fig_15_comparacion_diferencia_porcentual",
+        filename="fig_17_comparacion_diferencia_porcentual",
         x_width=18,
     )
     readme.append(
         {
-            "archivo": "fig_15_comparacion_diferencia_porcentual",
+            "archivo": "fig_17_comparacion_diferencia_porcentual",
             "tabla": TABLES["comparacion"],
             "muestra": "Diferencia porcentual del escenario B respecto al A por categoria de impacto.",
             "seccion": "Resultados: comparacion de escenarios",

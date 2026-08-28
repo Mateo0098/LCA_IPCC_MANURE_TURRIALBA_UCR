@@ -35,7 +35,7 @@ GENERAL_PREFIX = "Desarrollar un Análisis de Ciclo de Vida"
 OE1_PREFIX = "Realizar el inventario para el Análisis de Ciclo de Vida"
 OE2_PREFIX = "Evaluar el impacto ambiental del estiércol bovino"
 EXPECTED_SCENARIOS = {"A", "B"}
-EXPECTED_CATEGORIES = {"Calentamiento global", "Eutrofizacion"}
+EXPECTED_CATEGORIES = {"Cambio climático", "Eutrofización terrestre", "Eutrofización marina"}
 PROVISIONAL_LABEL = "PROVISIONAL M1–M2"
 
 OFFICIAL_STAGES = {
@@ -130,13 +130,17 @@ def processed_indicators(
     references: dict[str, float] = {}
     normalized_values: dict[tuple[str, str], float] = {}
     columns = {
-        "Calentamiento global": (
+        "Cambio climático": (
             "impacto_calentamiento_global_kg_co2eq",
             "impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco",
         ),
-        "Eutrofizacion": (
-            "impacto_eutrofizacion_kg_po4eq",
-            "impacto_eutrofizacion_kg_po4eq_por_kg_estiercol_fresco",
+        "Eutrofización terrestre": (
+            "impacto_eutrofizacion_terrestre_mol_neq",
+            "impacto_eutrofizacion_terrestre_mol_neq_por_kg_estiercol_fresco",
+        ),
+        "Eutrofización marina": (
+            "impacto_eutrofizacion_marina_kg_neq",
+            "impacto_eutrofizacion_marina_kg_neq_por_kg_estiercol_fresco",
         ),
     }
     for row in rows:
@@ -244,16 +248,17 @@ def build_conclusions(
     collected_fraction: float,
     remainder_fraction: float,
 ) -> list[dict[str, str]]:
-    a_cg = dominant_stage("A", "Calentamiento global", stages, totals)
-    b_cg = dominant_stage("B", "Calentamiento global", stages, totals)
-    a_eu = dominant_stage("A", "Eutrofizacion", stages, totals)
-    b_eu = dominant_stage("B", "Eutrofizacion", stages, totals)
+    a_cg = dominant_stage("A", "Cambio climático", stages, totals)
+    b_cg = dominant_stage("B", "Cambio climático", stages, totals)
+    a_eu = dominant_stage("A", "Eutrofización marina", stages, totals)
+    b_eu = dominant_stage("B", "Eutrofización marina", stages, totals)
     comparisons_by_category = {}
     units = {
-        "Calentamiento global": "kg CO₂-eq/kg de estiércol fresco manejado",
-        "Eutrofizacion": "kg PO₄-eq/kg de estiércol fresco manejado",
+        "Cambio climático": "kg CO₂-eq/kg de estiércol fresco manejado",
+        "Eutrofización terrestre": "mol N-eq/kg de estiércol fresco manejado",
+        "Eutrofización marina": "kg N-eq/kg de estiércol fresco manejado",
     }
-    decimals = {"Calentamiento global": 3, "Eutrofizacion": 6}
+    decimals = {"Cambio climático": 3, "Eutrofización terrestre": 6, "Eutrofización marina": 6}
     for category in EXPECTED_CATEGORIES:
         item = Comparison(
             "Escenario A", normalized_values[("A", category)],
@@ -271,8 +276,8 @@ def build_conclusions(
             raise RuntimeError(f"La normalización invierte la comparación de {category} entre escenarios.")
         item.assert_rounding_unambiguous(decimals[category])
         comparisons_by_category[category] = item
-    cg_comparison = comparisons_by_category["Calentamiento global"]
-    eu_comparison = comparisons_by_category["Eutrofizacion"]
+    cg_comparison = comparisons_by_category["Cambio climático"]
+    eu_comparison = comparisons_by_category["Eutrofización marina"]
     return [
         {
             "id": "C1",
@@ -284,7 +289,7 @@ def build_conclusions(
                 "posteriormente, la masa resultante continuó hacia A2: Lombricompostaje, mientras que "
                 f"{number(100 * remainder_fraction, 2)} % se incorporó a las aguas verdes. En el Escenario B, el "
                 "100 % ingresó al sistema de purines. De este modo, el inventario caracterizó las trayectorias de manejo y "
-                "los flujos asociados a cada alternativa estudiada."
+                "los flujos asociados a cada alternativa estudiada. El inventario incorporó además 53,23 kWh/año de electricidad en A3 o B1 y 182,50 L/año de diésel en A4 o B2; sus procesos de fondo permanecen pendientes."
             ),
             "evidence": (
                 f"Flujo común: {reference_flow:.9f} kg/año; fracción recolectada de A: {collected_fraction:.12f}; "
@@ -318,15 +323,15 @@ def build_conclusions(
                 f"Para calentamiento global, el {cg_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
                 f"{number(max(cg_comparison.left, cg_comparison.right), 3)} kg CO₂-eq/kg de estiércol fresco manejado, frente a "
                 f"{number(min(cg_comparison.left, cg_comparison.right), 3)} kg CO₂-eq/kg de estiércol fresco manejado en el {cg_comparison.lower_label}. La diferencia "
-                f"B menos A fue de {number(percentage['Calentamiento global'], 2)} % respecto a A, lo que evidenció un menor indicador "
+                f"B menos A fue de {number(percentage['Cambio climático'], 2)} % respecto a A, lo que evidenció un menor indicador "
                 f"para el {cg_comparison.lower_label} bajo las condiciones estudiadas."
             ),
             "evidence": (
-                f"A: {normalized_values[('A', 'Calentamiento global')]:.12f} kg CO₂-eq/kg y "
-                f"{totals[('A', 'Calentamiento global')]:.12f} kg CO₂-eq/año; B: "
-                f"{normalized_values[('B', 'Calentamiento global')]:.12f} kg CO₂-eq/kg y "
-                f"{totals[('B', 'Calentamiento global')]:.12f} kg CO₂-eq/año; B − A: "
-                f"{percentage['Calentamiento global']:.12f} %."
+                f"A: {normalized_values[('A', 'Cambio climático')]:.12f} kg CO₂-eq/kg y "
+                f"{totals[('A', 'Cambio climático')]:.12f} kg CO₂-eq/año; B: "
+                f"{normalized_values[('B', 'Cambio climático')]:.12f} kg CO₂-eq/kg y "
+                f"{totals[('B', 'Cambio climático')]:.12f} kg CO₂-eq/año; B − A: "
+                f"{percentage['Cambio climático']:.12f} %."
             ),
             "source": "Tablas 8 y 9 de impactos totales y comparación de escenarios.",
         },
@@ -334,19 +339,17 @@ def build_conclusions(
             "id": "C4",
             "objective": "OE2",
             "text": (
-                f"Para eutrofización, el {eu_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
-                f"{number(max(eu_comparison.left, eu_comparison.right), 6)} kg PO₄-eq/kg de estiércol fresco manejado, en comparación con "
-                f"{number(min(eu_comparison.left, eu_comparison.right), 6)} kg PO₄-eq/kg de estiércol fresco manejado en el {eu_comparison.lower_label}. Bajo el supuesto "
-                "de representación del nitrógeno potencialmente eutrofizante adoptado en el estudio, la diferencia "
-                f"B menos A fue de {number(percentage['Eutrofizacion'], 2)} % respecto a A y mostró que el {eu_comparison.lower_label} alcanzó el menor "
-                "indicador de eutrofización en el sistema evaluado."
+                f"Para eutrofización marina EF 3.1, el {eu_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
+                f"{number(max(eu_comparison.left, eu_comparison.right), 6)} kg N-eq/kg de estiércol fresco manejado, frente a "
+                f"{number(min(eu_comparison.left, eu_comparison.right), 6)} kg N-eq/kg en el {eu_comparison.lower_label}. La diferencia "
+                f"B menos A fue de {number(percentage['Eutrofización marina'], 2)} % respecto a A. La eutrofización terrestre se evaluó separadamente en mol N-eq."
             ),
             "evidence": (
-                f"A: {normalized_values[('A', 'Eutrofizacion')]:.12f} kg PO₄-eq/kg y "
-                f"{totals[('A', 'Eutrofizacion')]:.12f} kg PO₄-eq/año; B: "
-                f"{normalized_values[('B', 'Eutrofizacion')]:.12f} kg PO₄-eq/kg y "
-                f"{totals[('B', 'Eutrofizacion')]:.12f} kg PO₄-eq/año; B − A: "
-                f"{percentage['Eutrofizacion']:.12f} %."
+                f"A: {normalized_values[('A', 'Eutrofización marina')]:.12f} kg N-eq/kg y "
+                f"{totals[('A', 'Eutrofización marina')]:.12f} kg N-eq/año; B: "
+                f"{normalized_values[('B', 'Eutrofización marina')]:.12f} kg N-eq/kg y "
+                f"{totals[('B', 'Eutrofización marina')]:.12f} kg N-eq/año; B − A: "
+                f"{percentage['Eutrofización marina']:.12f} %."
             ),
             "source": "Tablas 8 y 9 de impactos totales y comparación de escenarios.",
         },
@@ -357,7 +360,7 @@ def build_conclusions(
                 "En conjunto, el ACV permitió estimar el desempeño ambiental de las dos alternativas de manejo en la lechería "
                 "estudiada. Bajo la unidad funcional común de 1 kg de estiércol fresco manejado y las condiciones modeladas, "
                 f"el {cg_comparison.lower_label} presentó el menor indicador de calentamiento global y el {eu_comparison.lower_label} "
-                "presentó el menor indicador de eutrofización. Este resultado se "
+                "presentó el menor indicador de eutrofización marina. Environmental Footprint 3.1 caracterizó las emisiones directas; la eutrofización terrestre se mantuvo separada en mol N-eq. Este resultado se "
                 "circunscribió al sistema evaluado y no implicó la superioridad universal de una alternativa en otras lecherías "
                 "o condiciones operativas."
             ),
@@ -470,9 +473,10 @@ def validate_outputs(conclusions: list[dict[str, str]]) -> None:
     unit_denominator = "kg de estiércol fresco manejado"
     if any(unit_denominator not in by_id[item] for item in ["C3", "C4"]):
         raise RuntimeError("C3 y C4 deben expresar el denominador completo de la unidad funcional.")
-    eutrophication_caution = "supuesto de representación del nitrógeno potencialmente eutrofizante"
-    if any(eutrophication_caution not in by_id[item] for item in ["C2", "C4"]):
-        raise RuntimeError("C2 y C4 deben conservar la cautela metodológica sobre eutrofización.")
+    if "kg PO₄-eq" in visible or "kg PO4-eq" in visible:
+        raise RuntimeError("Las conclusiones conservan una unidad histórica de eutrofización.")
+    if "kg N-eq" not in by_id["C4"] or "mol N-eq" not in by_id["C4"]:
+        raise RuntimeError("C4 debe distinguir eutrofización marina y terrestre EF 3.1.")
     if re.search(r"B1.{0,160}lixiviación física|lixiviación física.{0,160}B1", visible, flags=re.IGNORECASE | re.DOTALL):
         raise RuntimeError("Las conclusiones no deben atribuir la eutrofización de B1 a lixiviación física.")
     clauses = re.split(r"[.;]", visible)

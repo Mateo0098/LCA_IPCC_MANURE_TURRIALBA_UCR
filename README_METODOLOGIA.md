@@ -35,8 +35,20 @@ Los datos crudos principales estan en `Academic_documents/`:
 - `processed/modelo_etapa_overrides.csv`: seleccion de modelo por etapa
   (`ipcc` o `medido`).
 - `processed/ipcc_factores_manejo_overrides_etapa.csv`: parámetros específicos por escenario y etapa; A2 establece `FracLeachMS = 0` sin modificar la categoría IPCC genérica.
-- `processed/acv_factores_equivalencia.csv`: factores de caracterizacion para
-  calentamiento global y eutrofizacion.
+- `processed/acv_factores_equivalencia.csv`: factores Environmental Footprint
+  3.1 por especie, compartimento y categoría.
+- `processed/acv_parametros_operativos.csv`: parámetros de bomba, lavado,
+  tractor y frecuencia anual.
+- `processed/acv_inventario_recursos_operativos.csv`: electricidad y diésel
+  foreground anualizados y normalizados.
+- `processed/acv_foreground_intercambio.csv`: intercambio neutral para la
+  futura integración con SimaPro.
+
+La caracterización activa de emisiones directas usa EF 3.1: cambio climático
+en kg CO₂-eq, eutrofización terrestre en mol N-eq y eutrofización marina en kg
+N-eq. Electricidad y diésel permanecen inventariados sin factores de impacto de
+fondo. El agua de lavado es pluvial; la captación y el reservorio existentes se
+encuentran fuera de la frontera.
 
 ## Procesamiento de laboratorio
 

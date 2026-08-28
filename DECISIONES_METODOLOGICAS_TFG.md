@@ -92,7 +92,26 @@ Una vez incorporado al suelo, el N del drenaje debe pasar al mismo marco IPCC
 de suelos gestionados que se utiliza para representar otras entradas de N al
 suelo. La secuencia metodológica objetivo es:
 
-`N_drenaje_A1 → entrada de N al suelo → lixiviación/escorrentía IPCC desde suelo → N_lixiviado_suelo → conversión estequiométrica a NO₃⁻ → flujo explícito de NO₃⁻ en el ICV → caracterización posterior mediante ReCiPe`
+`N_drenaje_A1 → entrada de N al suelo → lixiviación/escorrentía IPCC desde suelo → N_lixiviado_suelo → conversión estequiométrica a NO₃⁻ → flujo explícito de NO₃⁻ en el ICV → caracterización EF 3.1`
+
+## 15. Caracterización EF 3.1 e inventario operativo
+
+Environmental Footprint 3.1 es el único método activo de caracterización de las
+emisiones directas del modelo. Se aplican cambio climático (kg CO₂-eq),
+eutrofización terrestre (mol N-eq) y eutrofización marina (kg N-eq). CH₄ se
+representa como biogénico; N₂O como masa molecular; NH₃ y NOx como NO₂ se
+asignan al aire; NO₃⁻ se asigna a agua dulce como receptor continental final.
+
+El agua de lavado es pluvial y se almacena en un reservorio existente. No recibe
+cargas municipales y no se duplica al pasar de almacenamiento a aplicación. La
+bomba consume 53,2292 kWh/año en A3 o B1. El tractor y cañón consumen 182,50 L
+diésel/año en A4 o B2; el cañón no recibe energía independiente. Los procesos
+de fondo de electricidad y diésel permanecen pendientes.
+
+Python es la fuente de verdad del foreground, ledger, normalización y control
+EF 3.1 de emisiones directas. SimaPro caracterizará posteriormente el inventario
+completo y sus resultados se reimportarán al mismo pipeline. El total de SimaPro
+no se sumará a los impactos directos de Python si ya los contiene.
 
 FracLeachMS y la fracción de lixiviación o escorrentía del modelo IPCC de
 suelos representan fronteras físicas sucesivas y no deben confundirse.

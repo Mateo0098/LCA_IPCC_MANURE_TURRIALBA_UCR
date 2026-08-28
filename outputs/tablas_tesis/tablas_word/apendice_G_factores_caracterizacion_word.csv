@@ -65,11 +65,13 @@ Factor del ledger de N total y TAN,all,EF5 de lixiviación y escorrentía,0.011,
 Factor del ledger de N total y TAN,A1 drainage;A4;B2,Fracción de lixiviación y escorrentía desde suelo,0.24,kg N leached/runoff/kg N input,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.3
 Factor del ledger de N total y TAN,A4;B2,EF1 de N orgánico aplicado al suelo,0.006,kg N₂O-N/kg Estiércol N applied,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.1
 Factor del ledger de N total y TAN,A2,Factor de NH₃ de A2: Lombricompostaje,12.8,g NH₃/Mg biowaste,Komakech et al. 2016 DOI 10.1016/j.jenvman.2016.06.028
-Factor de caracterizacion,CH₄,Potencial de calentamiento global,21.0,kg CO₂-eq/kg sustancia,IMN (2021)
-Factor de caracterizacion,N₂O,Potencial de calentamiento global,310.0,kg CO₂-eq/kg sustancia,IMN (2021)
-Factor de caracterizacion,NH₃,Potencial de eutrofizacion,0.35,kg PO₄-eq/kg sustancia,"Ecobilan (1999, como se citó en Vallejo, 2004)"
-Factor de caracterizacion,NO₃⁻,Potencial de eutrofizacion,0.095,kg PO₄-eq/kg sustancia,"Ecobilan (1999, como se citó en Vallejo, 2004)"
-Factor de caracterizacion,CO₂,Potencial de calentamiento global,1.0,kg CO₂-eq/kg sustancia,IMN (2021)
+Factor de caracterización EF 3.1,CH₄ — air unspecified,Cambio climático,27.0,kg CO₂-eq/kg CH₄,"Comisión Europea, JRC (2023), Environmental Footprint 3.1"
+Factor de caracterización EF 3.1,N₂O — air unspecified,Cambio climático,273.0,kg CO₂-eq/kg N₂O,"Comisión Europea, JRC (2023), Environmental Footprint 3.1"
+Factor de caracterización EF 3.1,NH₃ — air unspecified,Eutrofización terrestre,13.47,mol N-eq/kg NH₃,"Comisión Europea, JRC (2023), Environmental Footprint 3.1"
+Factor de caracterización EF 3.1,NH₃ — air unspecified,Eutrofización marina,0.092,kg N-eq/kg NH₃,"Comisión Europea, JRC (2023), Environmental Footprint 3.1"
+Factor de caracterización EF 3.1,NOx as NO2 — air unspecified,Eutrofización terrestre,4.26,mol N-eq/kg NOx as NO2,"Comisión Europea, JRC (2023), Environmental Footprint 3.1"
+Factor de caracterización EF 3.1,NOx as NO2 — air unspecified,Eutrofización marina,0.389,kg N-eq/kg NOx as NO2,"Comisión Europea, JRC (2023), Environmental Footprint 3.1"
+Factor de caracterización EF 3.1,NO₃⁻ — fresh water,Eutrofización marina,0.226,kg N-eq/kg NO₃⁻,"Comisión Europea, JRC (2023), Environmental Footprint 3.1"
 Conversión estequiométrica,,Conversión estequiométrica de N₂O-N a N₂O,1.5714285714285714,kg N₂O/kg N₂O-N,Cálculo estequiométrico
 Conversión estequiométrica,,Conversión estequiométrica de N a NH₃,1.2142857142857142,kg NH₃/kg NH₃-N,Cálculo estequiométrico
 Conversión estequiométrica,,Conversión estequiométrica de N a NO₃⁻,4.428571428571429,kg NO₃⁻/kg N,Cálculo estequiométrico

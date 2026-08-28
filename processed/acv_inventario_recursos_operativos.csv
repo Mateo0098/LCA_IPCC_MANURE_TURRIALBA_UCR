@@ -1,0 +1,5 @@
+﻿escenario,etapa,flujo,cantidad_anual,unidad,procedencia,referencia_funcional_estiercol_fresco_kg,estado_lcia_actual,dataset_background_pendiente,cantidad_por_unidad_funcional,unidad_por_unidad_funcional
+A,3,Electricidad,53.22916666666667,kWh/año,Bombeo de agua pluvial para lavado,26278.725181,Inventariado; proceso de fondo pendiente,Sí,0.0020255612211033864,kWh/kg de estiércol fresco
+A,4,Diésel,182.5,L/año,Tractor y cañón durante la aplicación,26278.725181,Inventariado; proceso de fondo pendiente,Sí,0.006944781329497324,L/kg de estiércol fresco
+B,1,Electricidad,53.22916666666667,kWh/año,Bombeo de agua pluvial para lavado,26278.725181,Inventariado; proceso de fondo pendiente,Sí,0.0020255612211033864,kWh/kg de estiércol fresco
+B,2,Diésel,182.5,L/año,Tractor y cañón durante la aplicación,26278.725181,Inventariado; proceso de fondo pendiente,Sí,0.006944781329497324,L/kg de estiércol fresco

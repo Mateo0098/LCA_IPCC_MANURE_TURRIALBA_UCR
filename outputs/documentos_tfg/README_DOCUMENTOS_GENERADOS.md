@@ -9,7 +9,6 @@
 - `reporte_formato_master.md`
 - `reporte_relacion_apendices.md`
 - `reporte_referencias_factores.md`
-- `reporte_correccion_factor_estequiometrico_NO3.md`
 
 ## 2. Scripts usados
 
@@ -35,9 +34,9 @@ Figuras principales:
 - `fig_02_caracterizacion_solidos_volatiles_cenizas.png`
 - `fig_04_flujos_masa_equivalente_total.png`
 - `fig_06_emisiones_ch4.png`
-- `fig_11_impactos_calentamiento_global_etapa.png`
-- `fig_12_impactos_eutrofizacion_etapa.png`
-- `fig_15_comparacion_diferencia_porcentual.png`
+- `fig_11_impactos_cambio_climatico_etapa.png`
+- `fig_12_impactos_eutrofizacion_terrestre_etapa.png`
+- `fig_17_comparacion_diferencia_porcentual.png`
 
 Figuras complementarias en apéndices:
 
@@ -47,8 +46,8 @@ Figuras complementarias en apéndices:
 - `fig_08_emisiones_nh3.png`
 - `fig_09_emisiones_no3.png`
 - `fig_10_emisiones_co2.png`
-- `fig_13_comparacion_total_calentamiento_global.png`
-- `fig_14_comparacion_total_eutrofizacion.png`
+- `fig_14_comparacion_total_cambio_climatico.png`
+- `fig_16_comparacion_total_eutrofizacion_marina.png`
 
 ## 5. Confirmaciones
 

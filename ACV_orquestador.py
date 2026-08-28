@@ -22,6 +22,7 @@ ETAPAS = [
 PREPROCESO = [
     "scripts/generate_acv_parametros_escenario_etapa.py",
     "scripts/compute_masa_etapas_escenarios.py",
+    "scripts/compute_operational_inventory.py",
     "scripts/reactive_n_ledger.py",
 ]
 
@@ -30,6 +31,7 @@ VALIDACION_EMISIONES = ["scripts/acv_resumen_emisiones_csv.py", "--validate"]
 
 POSTPROCESO = [
     "scripts/compute_acv_impact_equivalents.py",
+    "scripts/generate_foreground_inventory.py",
     "scripts/generate_a2_jjagwe_benchmark.py",
     "scripts/ACV_graficos_emisiones.py",
 ]
