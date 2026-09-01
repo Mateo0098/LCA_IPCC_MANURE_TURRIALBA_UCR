@@ -178,6 +178,181 @@ def validate_a2_benchmark() -> None:
     assert all(row["modelo"] != "medido" for row in models)
 
 
+IMPACT_COLUMNS = {
+    "Cambio climático": ("impacto_calentamiento_global_kg_co2eq", "kg CO2-eq/año"),
+    "Eutrofización terrestre": ("impacto_eutrofizacion_terrestre_mol_neq", "mol N-eq/año"),
+    "Eutrofización marina": ("impacto_eutrofizacion_marina_kg_neq", "kg N-eq/año"),
+}
+
+
+def validate_impacts_and_comparison() -> None:
+    stage_source = {
+        (row["Escenario"], row["Etapa"]): row
+        for row in read_rows(PROCESSED / "acv_impacto_por_etapa_escenario.csv")
+    }
+    stage_table = read_rows(TABLES / "tabla_07_impactos_por_etapa.csv")
+    grouped: dict[tuple[str, str, str], float] = {}
+    units: dict[tuple[str, str, str], set[str]] = {}
+    for row in stage_table:
+        key = (row["escenario"], row["etapa"], row["categoria_impacto"])
+        grouped[key] = grouped.get(key, 0.0) + float(row["resultado_equivalente"])
+        units.setdefault(key, set()).add(row["unidad_equivalente"])
+    for key, row in stage_source.items():
+        for category, (column, expected_unit) in IMPACT_COLUMNS.items():
+            assert close(grouped[(*key, category)], row[column])
+            assert units[(*key, category)] == {expected_unit}
+
+    totals_source = {
+        (row["Escenario"], category): float(row[column])
+        for row in read_rows(PROCESSED / "acv_impacto_total_por_escenario.csv")
+        for category, (column, _) in IMPACT_COLUMNS.items()
+    }
+    totals_table = {
+        (row["escenario"], row["categoria_impacto"]): float(row["resultado_total"])
+        for row in read_rows(TABLES / "tabla_08_impactos_totales_por_escenario.csv")
+    }
+    assert totals_source.keys() == totals_table.keys()
+    assert all(close(totals_source[key], totals_table[key]) for key in totals_source)
+    comparison_rows = read_rows(TABLES / "tabla_09_comparacion_escenarios.csv")
+    assert {row["categoria_impacto"] for row in comparison_rows} == set(IMPACT_COLUMNS)
+    for row in comparison_rows:
+        category = row["categoria_impacto"]
+        expected_unit = IMPACT_COLUMNS[category][1]
+        a, b = totals_source[("A", category)], totals_source[("B", category)]
+        assert close(row["escenario_A"], a) and close(row["escenario_B"], b)
+        assert close(row["diferencia_absoluta_B_menos_A"], b - a)
+        assert close(row["diferencia_porcentual_B_vs_A"], (b - a) / a * 100.0)
+        assert row["escenario_con_mayor_impacto"] == ("B" if b > a else "A" if a > b else "Iguales")
+        assert row["unidad"] == expected_unit
+        comparison = Comparison("A", a, "B", b, expected_unit)
+        comparison.assert_consistent(
+            difference=float(row["diferencia_absoluta_B_menos_A"]),
+            percentage=float(row["diferencia_porcentual_B_vs_A"]),
+        )
+        comparison.assert_rounding_unambiguous(6)
+
+
+def validate_quantitative_narratives() -> None:
+    results_text, _ = document_text(DOCS / "resultados_desarrollados_tfg.docx")
+    conclusions_text, _ = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
+    totals = {
+        (row["Escenario"], category): float(row[column])
+        for row in read_rows(PROCESSED / "acv_impacto_total_por_escenario.csv")
+        for category, (column, _) in IMPACT_COLUMNS.items()
+    }
+    narrative_terms = {
+        "Cambio climático": "calentamiento global",
+        "Eutrofización terrestre": "eutrofización terrestre",
+        "Eutrofización marina": "eutrofización marina",
+    }
+    for category, (_, unit) in IMPACT_COLUMNS.items():
+        comparison = Comparison(
+            "Escenario A", totals[("A", category)], "Escenario B", totals[("B", category)], unit
+        )
+        assert comparison.higher_label and comparison.lower_label
+        visible_term = narrative_terms[category]
+        assert visible_term in results_text.lower() and visible_term in conclusions_text.lower()
+        if category == "Cambio climático":
+            assert f"mayor impacto de calentamiento global en el {comparison.higher_label}" in results_text
+        else:
+            assert f"En {visible_term}, el {comparison.higher_label} presentó el mayor impacto" in results_text
+        assert comparison.higher_label in conclusions_text
+
+    synthetic = Comparison("A", 10.0, "B", 8.0, "kg/año")
+    synthetic.assert_consistent(difference=-2.0, percentage=-20.0)
+    assert synthetic.higher_label == "A" and synthetic.lower_label == "B"
+    try:
+        synthetic.assert_consistent(difference=2.0, percentage=-20.0)
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("No se detectó una diferencia con signo contradictorio.")
+    try:
+        Comparison("A", 1.0004, "B", 1.0003, "kg/año").assert_rounding_unambiguous(3)
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("No se detectó una comparación ambigua por redondeo.")
+    assert dominant({"A1": 1.0, "A2": 2.0}, decimals=3) == ("A2", 2.0)
+
+
+def validate_documents_and_conclusions() -> None:
+    methodology_text, methodology_header = document_text(DOCS / "metodologia_desarrollada_tfg.docx")
+    results_text, results_header = document_text(DOCS / "resultados_desarrollados_tfg.docx")
+    conclusions_text, conclusions_header = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
+    for body, header in (
+        (methodology_text, methodology_header),
+        (results_text, results_header),
+        (conclusions_text, conclusions_header),
+    ):
+        assert LABEL in body and LABEL in header and "M3" in body
+        assert "PO4-eq" not in body and "kg PO₄" not in body
+
+    for visible in ("EF 3.1", "53,23 kWh/año", "182,50 L/año"):
+        assert visible in methodology_text
+    assert "30 min" in methodology_text and "no medida instrumentalmente" in methodology_text
+
+    characterization = read_rows(TABLES / "tabla_02_caracterizacion_muestras.csv")
+    required = [
+        row for row in characterization
+        if (row["tipo_muestra"], row["variable"]) in {
+            ("Estiércol fresco", "Nitrogeno total"), ("Estiércol fresco", "Materia seca"),
+            ("Estiércol fresco", "Solidos volatiles"), ("Estiércol precompostado", "Materia seca"),
+            ("Aguas verdes", "Nitrogeno total"), ("Purines", "Nitrogeno total"),
+        }
+    ]
+    assert len(required) == 6
+    assert all(fmt_es(float(row["valor"]), 3) in methodology_text for row in required)
+    assert all(fmt_es(float(row["valor"]), 3) in results_text for row in required)
+
+    totals = read_rows(PROCESSED / "acv_impacto_total_por_escenario.csv")
+    for row in totals:
+        for column, _ in IMPACT_COLUMNS.values():
+            assert fmt_es(float(row[column]), 6) in results_text
+
+    totals_dict = conclusions_generator.impact_totals()
+    percentages = conclusions_generator.comparisons(totals_dict)
+    reference, normalized = conclusions_generator.processed_indicators(totals_dict)
+    collected, remainder = conclusions_generator.flow_inventory(reference)
+    stages = conclusions_generator.stage_totals()
+    expected = conclusions_generator.build_conclusions(
+        totals_dict, normalized, percentages, stages, reference, collected, remainder
+    )
+    assert all(item["text"] in conclusions_text for item in expected)
+
+
+def validate_graph_sources_and_freshness() -> None:
+    source = (ROOT / "scripts" / "generate_thesis_graphics.py").read_text(encoding="utf-8")
+    assert 'TABLE_DIR = BASE_DIR / "outputs" / "tablas_tesis"' in source
+    assert "processed/" not in source and "CIA_samples" not in source
+    graphics = sorted(GRAPHICS.glob("fig_*.png")) + sorted(GRAPHICS.glob("fig_*.svg"))
+    assert len(graphics) == 34
+    manifest = (GRAPHICS / "README_GRAFICOS.md").read_text(encoding="utf-8")
+    assert all(path.name in manifest for path in graphics)
+    for table in ("tabla_07_impactos_por_etapa.csv", "tabla_08_impactos_totales_por_escenario.csv", "tabla_09_comparacion_escenarios.csv"):
+        assert table in manifest
+    newest_table = max((TABLES / name).stat().st_mtime_ns for name in (
+        "tabla_07_impactos_por_etapa.csv", "tabla_08_impactos_totales_por_escenario.csv",
+        "tabla_09_comparacion_escenarios.csv",
+    ))
+    impact_graphics = [path for path in graphics if int(path.name.split("_")[1]) >= 11]
+    assert all(path.stat().st_mtime_ns >= newest_table for path in impact_graphics)
+    newest_graphic = max(path.stat().st_mtime_ns for path in impact_graphics)
+    assert (GRAPHICS / "README_GRAFICOS.md").stat().st_mtime_ns >= newest_graphic
+    for document in (
+        DOCS / "metodologia_desarrollada_tfg.docx",
+        DOCS / "resultados_desarrollados_tfg.docx",
+        DOCS / "conclusiones_desarrolladas_tfg.docx",
+    ):
+        assert document.stat().st_mtime_ns >= newest_graphic
+
+    samples = graphics_generator.read_table("muestras")
+    for variables in (["Humedad", "Materia seca"], ["Solidos volatiles", "Cenizas"]):
+        series = graphics_generator.characterization_series(samples, variables)
+        assert set(series["variable"]) == set(variables)
+        assert series["valor"].notna().all() and not series.empty
+
+
 def main() -> None:
     validate_characterization()
     validate_factor_and_masses()
@@ -185,6 +360,10 @@ def main() -> None:
     validate_emissions()
     validate_a2_benchmark()
     ef31_validator.main()
+    validate_impacts_and_comparison()
+    validate_quantitative_narratives()
+    validate_documents_and_conclusions()
+    validate_graph_sources_and_freshness()
     master = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
     master_hash = hashlib.sha256(master.read_bytes()).hexdigest().upper()
     REPORT.write_text(
@@ -198,8 +377,12 @@ def main() -> None:
         "- EF 3.1, casos unitarios, impactos y unidades: PASS.\n"
         "- Electricidad, diésel y normalización por unidad funcional: PASS.\n"
         "- Exportación foreground y controles de doble conteo: PASS.\n"
+        "- Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.\n"
+        "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"
         "- Cifras documentales verificadas con el redondeo visible: PASS.\n"
+        "- Conclusiones reconstruidas desde fuentes canónicas: PASS.\n"
+        "- Gráficos, manifiestos y vigencia relativa de productos: PASS.\n"
         "- Productos académicos regenerados desde las fuentes canónicas: PASS.\n"
         f"- SHA-256 del MASTER verificado: `{master_hash}`.\n",
         encoding="utf-8",

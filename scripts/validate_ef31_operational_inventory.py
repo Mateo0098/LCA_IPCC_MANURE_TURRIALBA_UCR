@@ -7,7 +7,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from compute_acv_impact_equivalents import compute_impacts, load_emissions, load_factors
+from compute_acv_impact_equivalents import (
+    EXPECTED_FACTOR_METADATA,
+    compute_impacts,
+    load_emissions,
+    load_factors,
+    load_functional_reference,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,17 +27,22 @@ def close(a: float, b: float) -> bool:
 def main() -> None:
     factors = load_factors(P / "acv_factores_equivalencia.csv")
     expected = {
-        ("CH4", "Cambio climático"): 27.0, ("N2O", "Cambio climático"): 273.0,
-        ("NH3", "Eutrofización terrestre"): 13.47,
-        ("NH3", "Eutrofización marina"): 0.092,
-        ("NOx as NO2", "Eutrofización terrestre"): 4.26,
-        ("NOx as NO2", "Eutrofización marina"): 0.389,
-        ("NO3", "Eutrofización marina"): 0.226,
+        ("CH4", "air unspecified", "Cambio climático"): 27.0,
+        ("N2O", "air unspecified", "Cambio climático"): 273.0,
+        ("NH3", "air unspecified", "Eutrofización terrestre"): 13.47,
+        ("NH3", "air unspecified", "Eutrofización marina"): 0.092,
+        ("NOx as NO2", "air unspecified", "Eutrofización terrestre"): 4.26,
+        ("NOx as NO2", "air unspecified", "Eutrofización marina"): 0.389,
+        ("NO3", "fresh water", "Eutrofización marina"): 0.226,
     }
     assert {key: float(value["factor"]) for key, value in factors.items()} == expected
+    assert all(value["unidad"] == EXPECTED_FACTOR_METADATA[key] for key, value in factors.items())
+    assert all(value["metodo"] == "Environmental Footprint" for value in factors.values())
+    assert all(value["version"] == "3.1" for value in factors.values())
 
     emissions = load_emissions(P / "ACV_resumen_emisiones.csv")
-    reference = float(pd.read_csv(P / "masa_total_escenario_etapa.csv")["flujo_referencia_anual_kg"].iloc[0])
+    reference = load_functional_reference(P / "masa_total_escenario_etapa.csv")
+    assert close(reference, 26278.725181)
     calculated = compute_impacts(emissions, factors, reference)
     stored = pd.read_csv(P / "acv_impacto_por_etapa_escenario.csv")
     pd.testing.assert_frame_equal(calculated, stored, check_exact=False, rtol=1e-12, atol=1e-12)

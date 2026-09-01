@@ -78,20 +78,50 @@ def annotate_bars(ax: plt.Axes) -> None:
         )
 
 
-def load_factors(path: Path) -> dict[tuple[str, str], dict[str, object]]:
+EXPECTED_FACTOR_METADATA = {
+    ("CH4", "air unspecified", "Cambio climático"): "kg CO2-eq/kg CH4",
+    ("N2O", "air unspecified", "Cambio climático"): "kg CO2-eq/kg N2O",
+    ("NH3", "air unspecified", "Eutrofización terrestre"): "mol N-eq/kg NH3",
+    ("NH3", "air unspecified", "Eutrofización marina"): "kg N-eq/kg NH3",
+    ("NOx as NO2", "air unspecified", "Eutrofización terrestre"): "mol N-eq/kg NOx as NO2",
+    ("NOx as NO2", "air unspecified", "Eutrofización marina"): "kg N-eq/kg NOx as NO2",
+    ("NO3", "fresh water", "Eutrofización marina"): "kg N-eq/kg NO3",
+}
+
+
+def load_factors(path: Path) -> dict[tuple[str, str, str], dict[str, object]]:
     df = pd.read_csv(path)
-    required = {"especie_quimica", "compartimento", "categoria_impacto", "factor", "unidad_factor"}
+    required = {
+        "especie_quimica", "compartimento", "categoria_impacto", "factor",
+        "unidad_factor", "metodo", "version",
+    }
     missing = required - set(df.columns)
     if missing:
         raise ValueError(f"Faltan columnas en factores: {sorted(missing)}")
 
-    out: dict[tuple[str, str], dict[str, object]] = {}
+    out: dict[tuple[str, str, str], dict[str, object]] = {}
     for _, row in df.iterrows():
-        key = (str(row["especie_quimica"]).strip(), str(row["categoria_impacto"]).strip())
+        key = (
+            str(row["especie_quimica"]).strip(),
+            str(row["compartimento"]).strip(),
+            str(row["categoria_impacto"]).strip(),
+        )
         if key in out:
             raise ValueError(f"Factor EF 3.1 duplicado: {key}")
-        out[key] = {"factor": float(row["factor"]), "unidad": str(row["unidad_factor"]),
-                    "compartimento": str(row["compartimento"])}
+        if key not in EXPECTED_FACTOR_METADATA:
+            raise ValueError(f"Combinación especie–compartimento–categoría no admitida por EF 3.1: {key}")
+        unit = str(row["unidad_factor"]).strip()
+        if unit != EXPECTED_FACTOR_METADATA[key]:
+            raise ValueError(f"Unidad de factor incompatible para {key}: {unit}")
+        method = str(row["metodo"]).strip()
+        version = str(row["version"]).strip()
+        if method != "Environmental Footprint" or version != "3.1":
+            raise ValueError(f"Método o versión incompatible para {key}: {method} {version}")
+        out[key] = {"factor": float(row["factor"]), "unidad": unit,
+                    "compartimento": key[1], "metodo": method, "version": version}
+    if set(out) != set(EXPECTED_FACTOR_METADATA):
+        missing = set(EXPECTED_FACTOR_METADATA) - set(out)
+        raise ValueError(f"Conjunto incompleto de factores EF 3.1; faltan: {sorted(missing)}")
     return out
 
 
@@ -142,7 +172,7 @@ def resolve_emissions_path(base: Path) -> Path:
 
 def compute_impacts(
     df: pd.DataFrame,
-    factors: dict[tuple[str, str], dict[str, object]],
+    factors: dict[tuple[str, str, str], dict[str, object]],
     functional_reference_kg: float,
 ) -> pd.DataFrame:
     out = df.copy()
@@ -153,21 +183,21 @@ def compute_impacts(
     out["co2_total_kg"] = out["CO2_medido"]
     out["ch4_total_kg"] = out["CH4_ec1"]
 
-    def factor(species: str, category: str) -> float:
-        return float(factors[(species, category)]["factor"])
+    def factor(species: str, compartment: str, category: str) -> float:
+        return float(factors[(species, compartment, category)]["factor"])
 
     out["impacto_calentamiento_global_kg_co2eq"] = (
-        out["ch4_total_kg"] * factor("CH4", "Cambio climático")
-        + out["n2o_total_kg"] * factor("N2O", "Cambio climático")
+        out["ch4_total_kg"] * factor("CH4", "air unspecified", "Cambio climático")
+        + out["n2o_total_kg"] * factor("N2O", "air unspecified", "Cambio climático")
     )
     out["impacto_eutrofizacion_terrestre_mol_neq"] = (
-        out["nh3_total_kg"] * factor("NH3", "Eutrofización terrestre")
-        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "Eutrofización terrestre")
+        out["nh3_total_kg"] * factor("NH3", "air unspecified", "Eutrofización terrestre")
+        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "air unspecified", "Eutrofización terrestre")
     )
     out["impacto_eutrofizacion_marina_kg_neq"] = (
-        out["nh3_total_kg"] * factor("NH3", "Eutrofización marina")
-        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "Eutrofización marina")
-        + out["no3_total_kg"] * factor("NO3", "Eutrofización marina")
+        out["nh3_total_kg"] * factor("NH3", "air unspecified", "Eutrofización marina")
+        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "air unspecified", "Eutrofización marina")
+        + out["no3_total_kg"] * factor("NO3", "fresh water", "Eutrofización marina")
     )
     out["referencia_funcional_estiercol_fresco_kg"] = functional_reference_kg
     out["impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"] = (

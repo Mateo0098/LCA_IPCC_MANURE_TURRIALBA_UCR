@@ -654,17 +654,20 @@ def results_context() -> dict[str, object]:
     comparison_index = comparison.set_index("categoria_impacto")
     context["cg_difference"] = float(comparison_index.loc["Cambio climático", "diferencia_absoluta_B_menos_A"])
     context["eu_difference"] = float(comparison_index.loc["Eutrofización marina", "diferencia_absoluta_B_menos_A"])
+    context["et_difference"] = float(comparison_index.loc["Eutrofización terrestre", "diferencia_absoluta_B_menos_A"])
     context["cg_percentage"] = float(comparison_index.loc["Cambio climático", "diferencia_porcentual_B_vs_A"])
     context["eu_percentage"] = float(comparison_index.loc["Eutrofización marina", "diferencia_porcentual_B_vs_A"])
+    context["et_percentage"] = float(comparison_index.loc["Eutrofización terrestre", "diferencia_porcentual_B_vs_A"])
     units = comparison.set_index("categoria_impacto")["unidad"]
     expected_units = {
         "Cambio climático": "kg CO2-eq/año",
+        "Eutrofización terrestre": "mol N-eq/año",
         "Eutrofización marina": "kg N-eq/año",
     }
     for category, expected_unit in expected_units.items():
         if units.loc[category] != expected_unit:
             raise RuntimeError(f"Unidad comparativa inesperada para {category}: {units.loc[category]!r}.")
-    for short, category in (("cg", "Cambio climático"), ("eu", "Eutrofización marina")):
+    for short, category in (("cg", "Cambio climático"), ("et", "Eutrofización terrestre"), ("eu", "Eutrofización marina")):
         comparison_values = Comparison(
             "Escenario A", float(context[f"{short}_a"]),
             "Escenario B", float(context[f"{short}_b"]), expected_units[category],
@@ -891,6 +894,7 @@ def build_document() -> None:
         doc,
         [
             f"La comparación bajo la misma unidad funcional mostró un mayor impacto de calentamiento global en el {context['cg_comparison'].higher_label}. La diferencia B menos A fue de {fmt(context['cg_difference'], 6)} kg CO2-eq/año, equivalente a {fmt(context['cg_percentage'], 2)} % respecto al Escenario A.",
+            f"En eutrofización terrestre, el {context['et_comparison'].higher_label} presentó el mayor impacto y el {context['et_comparison'].lower_label} el menor. La diferencia B menos A fue de {fmt(context['et_difference'], 6)} mol N-eq/año, equivalente a {fmt(context['et_percentage'], 2)} % respecto al Escenario A.",
             f"En eutrofización marina, el {context['eu_comparison'].higher_label} presentó el mayor impacto y el {context['eu_comparison'].lower_label} el menor. La diferencia B menos A fue de {fmt(context['eu_difference'], 6)} kg N-eq/año, equivalente a {fmt(context['eu_percentage'], 2)} % respecto al Escenario A. La comparación conserva cada categoría EF 3.1 en su propia unidad.",
             "La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente.",
         ],

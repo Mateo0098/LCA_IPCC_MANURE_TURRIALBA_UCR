@@ -277,6 +277,7 @@ def build_conclusions(
         item.assert_rounding_unambiguous(decimals[category])
         comparisons_by_category[category] = item
     cg_comparison = comparisons_by_category["Cambio climático"]
+    terrestrial_comparison = comparisons_by_category["Eutrofización terrestre"]
     eu_comparison = comparisons_by_category["Eutrofización marina"]
     return [
         {
@@ -342,7 +343,12 @@ def build_conclusions(
                 f"Para eutrofización marina EF 3.1, el {eu_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
                 f"{number(max(eu_comparison.left, eu_comparison.right), 6)} kg N-eq/kg de estiércol fresco manejado, frente a "
                 f"{number(min(eu_comparison.left, eu_comparison.right), 6)} kg N-eq/kg en el {eu_comparison.lower_label}. La diferencia "
-                f"B menos A fue de {number(percentage['Eutrofización marina'], 2)} % respecto a A. La eutrofización terrestre se evaluó separadamente en mol N-eq."
+                f"B menos A fue de {number(percentage['Eutrofización marina'], 2)} % respecto a A. Para eutrofización terrestre, "
+                f"el {terrestrial_comparison.higher_label} también presentó el mayor impacto por unidad funcional: "
+                f"{number(max(terrestrial_comparison.left, terrestrial_comparison.right), 6)} mol N-eq/kg de estiércol fresco manejado, "
+                f"frente a {number(min(terrestrial_comparison.left, terrestrial_comparison.right), 6)} mol N-eq/kg en el "
+                f"{terrestrial_comparison.lower_label}; la diferencia B menos A fue de "
+                f"{number(percentage['Eutrofización terrestre'], 2)} % respecto a A."
             ),
             "evidence": (
                 f"A: {normalized_values[('A', 'Eutrofización marina')]:.12f} kg N-eq/kg y "
@@ -350,6 +356,9 @@ def build_conclusions(
                 f"{normalized_values[('B', 'Eutrofización marina')]:.12f} kg N-eq/kg y "
                 f"{totals[('B', 'Eutrofización marina')]:.12f} kg N-eq/año; B − A: "
                 f"{percentage['Eutrofización marina']:.12f} %."
+                f" Eutrofización terrestre A: {normalized_values[('A', 'Eutrofización terrestre')]:.12f} mol N-eq/kg; "
+                f"B: {normalized_values[('B', 'Eutrofización terrestre')]:.12f} mol N-eq/kg; B − A: "
+                f"{percentage['Eutrofización terrestre']:.12f} %."
             ),
             "source": "Tablas 8 y 9 de impactos totales y comparación de escenarios.",
         },
@@ -360,11 +369,12 @@ def build_conclusions(
                 "En conjunto, el ACV permitió estimar el desempeño ambiental de las dos alternativas de manejo en la lechería "
                 "estudiada. Bajo la unidad funcional común de 1 kg de estiércol fresco manejado y las condiciones modeladas, "
                 f"el {cg_comparison.lower_label} presentó el menor indicador de calentamiento global y el {eu_comparison.lower_label} "
-                "presentó el menor indicador de eutrofización marina. Environmental Footprint 3.1 caracterizó las emisiones directas; la eutrofización terrestre se mantuvo separada en mol N-eq. Este resultado se "
+                f"presentó el menor indicador de eutrofización marina; el {terrestrial_comparison.lower_label} presentó asimismo "
+                "el menor indicador de eutrofización terrestre, expresado separadamente en mol N-eq. Environmental Footprint 3.1 caracterizó las emisiones directas. Este resultado se "
                 "circunscribió al sistema evaluado y no implicó la superioridad universal de una alternativa en otras lecherías "
                 "o condiciones operativas."
             ),
-            "evidence": f"Menor calentamiento global: {cg_comparison.lower_label}; menor eutrofización: {eu_comparison.lower_label}; referencia común de 1 kg de estiércol fresco manejado.",
+            "evidence": f"Menor calentamiento global: {cg_comparison.lower_label}; menor eutrofización marina: {eu_comparison.lower_label}; menor eutrofización terrestre: {terrestrial_comparison.lower_label}; referencia común de 1 kg de estiércol fresco manejado.",
             "source": "Tablas 7, 8 y 9; metodología desarrollada; objetivos extraídos del master.",
         },
     ]

@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from compute_acv_impact_equivalents import load_functional_reference
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PARAMETERS = ROOT / "processed" / "acv_parametros_operativos.csv"
@@ -32,11 +34,7 @@ def load_parameters() -> dict[str, float]:
 
 
 def functional_reference() -> float:
-    mass = pd.read_csv(MASSES)
-    refs = pd.to_numeric(mass["flujo_referencia_anual_kg"], errors="raise").unique()
-    if len(refs) != 1 or refs[0] <= 0:
-        raise ValueError("La referencia funcional anual debe ser única y positiva.")
-    return float(refs[0])
+    return load_functional_reference(MASSES)
 
 
 def build_inventory(parameters: dict[str, float], reference_kg: float) -> pd.DataFrame:
@@ -90,4 +88,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

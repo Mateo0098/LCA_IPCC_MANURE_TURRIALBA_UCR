@@ -20,7 +20,8 @@ campo y fotografías de las placas de los equipos recopiladas el 25 de agosto de
 - La tanqueta se vacía cada tres días.
 - La aplicación se realiza mediante un tractor Massey Ferguson 6711 y un cañón
   acoplado, operado en modo 540E sin necesidad de accionar el acelerador.
-- Para el modelo se adopta una duración total de 30 min de tractor por vaciado.
+- Los operarios comunicaron una duración total aproximada de 30 min de tractor por
+  vaciado. Se clasifica como dato primario de campo, no como medición instrumentada.
 - El mismo sistema de tractor y cañón se utiliza en A4 y B2.
 - El cañón obtiene su energía del tractor y no constituye una entrada energética
   independiente.
@@ -51,4 +52,3 @@ audios. Los volúmenes y balances de agua vigentes se conservan. La captación y
 el reservorio existentes permanecen fuera de la frontera; se incluye la
 electricidad de bombeo. Para el tractor no se añaden transporte externo,
 desplazamientos, carga o ralentí adicionales a los 30 min acordados.
-

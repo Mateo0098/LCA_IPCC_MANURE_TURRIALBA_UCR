@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from compute_acv_impact_equivalents import load_functional_reference
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "processed"
@@ -36,7 +38,7 @@ EMISSIONS = {
 
 def main() -> None:
     emissions = pd.read_csv(PROCESSED / "ACV_resumen_emisiones.csv")
-    reference = float(pd.read_csv(PROCESSED / "masa_total_escenario_etapa.csv")["flujo_referencia_anual_kg"].iloc[0])
+    reference = load_functional_reference(PROCESSED / "masa_total_escenario_etapa.csv")
     rows: list[dict[str, object]] = []
     for _, row in emissions.iterrows():
         scenario, stage = str(row["Escenario"]), int(row["Etapa"])
