@@ -5,9 +5,11 @@ from __future__ import annotations
 import csv
 import hashlib
 import math
+import tempfile
 from pathlib import Path
 
 from docx import Document
+from PIL import Image
 
 import generate_conclusions_docx as conclusions_generator
 import generate_a2_jjagwe_benchmark as benchmark_generator
@@ -393,30 +395,63 @@ def validate_documents_and_conclusions() -> None:
     assert all(item["text"] in conclusions_text for item in expected)
 
 
-def validate_graph_sources_and_freshness() -> None:
+HISTORICAL_GRAPH_STEMS = {
+    "fig_11_impactos_calentamiento_global_etapa",
+    "fig_12_impactos_eutrofizacion_etapa",
+    "fig_13_comparacion_total_calentamiento_global",
+    "fig_14_comparacion_total_eutrofizacion",
+    "fig_15_comparacion_diferencia_porcentual",
+}
+
+
+def graph_files(directory: Path) -> set[str]:
+    return {
+        path.name for pattern in ("fig_*.png", "fig_*.svg")
+        for path in directory.glob(pattern)
+    }
+
+
+def compare_graphics_snapshot(actual_dir: Path, expected_dir: Path) -> None:
+    actual = graph_files(actual_dir)
+    expected = graph_files(expected_dir)
+    historical = {
+        name for name in actual
+        if Path(name).stem in HISTORICAL_GRAPH_STEMS
+    }
+    assert not historical, f"Persisten gráficos históricos prohibidos: {sorted(historical)}"
+    assert actual == expected, (
+        f"Conjunto gráfico distinto del generado; faltan={sorted(expected - actual)}, "
+        f"sobran={sorted(actual - expected)}"
+    )
+    for name in sorted(expected):
+        actual_path = actual_dir / name
+        expected_path = expected_dir / name
+        if actual_path.suffix.lower() == ".png":
+            with Image.open(actual_path) as actual_image, Image.open(expected_path) as expected_image:
+                assert actual_image.size == expected_image.size, f"Dimensiones PNG distintas: {name}"
+                assert actual_image.mode == expected_image.mode, f"Modo de color PNG distinto: {name}"
+                assert actual_image.tobytes() == expected_image.tobytes(), f"Píxeles PNG distintos: {name}"
+        else:
+            assert actual_path.read_bytes() == expected_path.read_bytes(), f"SVG distinto: {name}"
+    assert (actual_dir / "README_GRAFICOS.md").read_bytes() == (
+        expected_dir / "README_GRAFICOS.md"
+    ).read_bytes(), "El manifiesto gráfico no corresponde a la regeneración canónica."
+
+
+def validate_graph_sources_and_freshness(graphics_dir: Path = GRAPHICS) -> None:
     source = (ROOT / "scripts" / "generate_thesis_graphics.py").read_text(encoding="utf-8")
     assert 'TABLE_DIR = BASE_DIR / "outputs" / "tablas_tesis"' in source
     assert "processed/" not in source and "CIA_samples" not in source
-    graphics = sorted(GRAPHICS.glob("fig_*.png")) + sorted(GRAPHICS.glob("fig_*.svg"))
+    with tempfile.TemporaryDirectory(prefix="tfg_graphics_validation_") as folder:
+        regenerated = Path(folder)
+        graphics_generator.main(output_dir=regenerated, table_dir=TABLES)
+        compare_graphics_snapshot(graphics_dir, regenerated)
+    graphics = sorted(graphics_dir.glob("fig_*.png")) + sorted(graphics_dir.glob("fig_*.svg"))
     assert len(graphics) == 34
-    manifest = (GRAPHICS / "README_GRAFICOS.md").read_text(encoding="utf-8")
+    manifest = (graphics_dir / "README_GRAFICOS.md").read_text(encoding="utf-8")
     assert all(path.name in manifest for path in graphics)
     for table in ("tabla_07_impactos_por_etapa.csv", "tabla_08_impactos_totales_por_escenario.csv", "tabla_09_comparacion_escenarios.csv"):
         assert table in manifest
-    newest_table = max((TABLES / name).stat().st_mtime_ns for name in (
-        "tabla_07_impactos_por_etapa.csv", "tabla_08_impactos_totales_por_escenario.csv",
-        "tabla_09_comparacion_escenarios.csv",
-    ))
-    impact_graphics = [path for path in graphics if int(path.name.split("_")[1]) >= 11]
-    assert all(path.stat().st_mtime_ns >= newest_table for path in impact_graphics)
-    newest_graphic = max(path.stat().st_mtime_ns for path in impact_graphics)
-    assert (GRAPHICS / "README_GRAFICOS.md").stat().st_mtime_ns >= newest_graphic
-    for document in (
-        DOCS / "metodologia_desarrollada_tfg.docx",
-        DOCS / "resultados_desarrollados_tfg.docx",
-        DOCS / "conclusiones_desarrolladas_tfg.docx",
-    ):
-        assert document.stat().st_mtime_ns >= newest_graphic
 
     samples = graphics_generator.read_table("muestras")
     for variables in (["Humedad", "Materia seca"], ["Solidos volatiles", "Cenizas"]):

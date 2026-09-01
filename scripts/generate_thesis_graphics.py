@@ -530,7 +530,14 @@ def write_readme(rows: list[dict[str, str]]) -> None:
     (OUT_DIR / "README_GRAFICOS.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def main() -> None:
+def main(output_dir: Path | None = None, table_dir: Path | None = None) -> None:
+    global OUT_DIR, TABLE_DIR
+    original_output_dir = OUT_DIR
+    original_table_dir = TABLE_DIR
+    if output_dir is not None:
+        OUT_DIR = Path(output_dir)
+    if table_dir is not None:
+        TABLE_DIR = Path(table_dir)
     plt.rcParams.update(
         {
             "font.family": "DejaVu Sans",
@@ -544,13 +551,17 @@ def main() -> None:
         }
     )
 
-    readme_rows: list[dict[str, str]] = []
-    plot_sample_characterization(readme_rows)
-    plot_inventory_flows(readme_rows)
-    plot_emissions(readme_rows)
-    plot_impacts_by_stage(readme_rows)
-    plot_scenario_comparison(readme_rows)
-    write_readme(readme_rows)
+    try:
+        readme_rows: list[dict[str, str]] = []
+        plot_sample_characterization(readme_rows)
+        plot_inventory_flows(readme_rows)
+        plot_emissions(readme_rows)
+        plot_impacts_by_stage(readme_rows)
+        plot_scenario_comparison(readme_rows)
+        write_readme(readme_rows)
+    finally:
+        OUT_DIR = original_output_dir
+        TABLE_DIR = original_table_dir
 
 
 if __name__ == "__main__":
