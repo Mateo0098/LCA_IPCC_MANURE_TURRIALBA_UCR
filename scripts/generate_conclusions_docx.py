@@ -250,6 +250,8 @@ def build_conclusions(
 ) -> list[dict[str, str]]:
     a_cg = dominant_stage("A", "Cambio climático", stages, totals)
     b_cg = dominant_stage("B", "Cambio climático", stages, totals)
+    a_et = dominant_stage("A", "Eutrofización terrestre", stages, totals)
+    b_et = dominant_stage("B", "Eutrofización terrestre", stages, totals)
     a_eu = dominant_stage("A", "Eutrofización marina", stages, totals)
     b_eu = dominant_stage("B", "Eutrofización marina", stages, totals)
     comparisons_by_category = {}
@@ -305,17 +307,22 @@ def build_conclusions(
                 "Las cargas ambientales se concentraron en etapas específicas, que variaron según el escenario y la categoría. "
                 "En calentamiento global, "
                 f"{a_cg[0]} aportó {number(a_cg[2], 2)} % del total del Escenario A y {b_cg[0]} aportó "
-                f"{number(b_cg[2], 2)} % del total del Escenario B. Para eutrofización, las mayores contribuciones "
-                f"correspondieron a {a_eu[0]} ({number(a_eu[2], 2)} % del total de A) y {b_eu[0]} "
-                f"({number(b_eu[2], 2)} % del total de B), considerando el supuesto de representación del nitrógeno "
-                "potencialmente eutrofizante adoptado en el estudio. La evaluación por etapa identificó así patrones de "
+                f"{number(b_cg[2], 2)} % del total del Escenario B. En eutrofización terrestre, "
+                f"{a_et[0]} aportó {number(a_et[2], 2)} % del total del Escenario A y {b_et[0]} aportó "
+                f"{number(b_et[2], 2)} % del total del Escenario B. En eutrofización marina, "
+                f"{a_eu[0]} aportó {number(a_eu[2], 2)} % del total del Escenario A y {b_eu[0]} aportó "
+                f"{number(b_eu[2], 2)} % del total del Escenario B. La evaluación por etapa identificó así patrones de "
                 "concentración diferenciados entre las alternativas estudiadas."
             ),
             "evidence": (
-                f"CG: {a_cg[0]} = {a_cg[1]:.9f}; {b_cg[0]} = {b_cg[1]:.9f}. "
-                f"Eutrofización: {a_eu[0]} = {a_eu[1]:.9f}; {b_eu[0]} = {b_eu[1]:.9f}."
+                f"Cambio climático: {a_cg[0]} = {a_cg[1]:.9f} ({a_cg[2]:.9f} %); "
+                f"{b_cg[0]} = {b_cg[1]:.9f} ({b_cg[2]:.9f} %). "
+                f"Eutrofización terrestre: {a_et[0]} = {a_et[1]:.9f} ({a_et[2]:.9f} %); "
+                f"{b_et[0]} = {b_et[1]:.9f} ({b_et[2]:.9f} %). "
+                f"Eutrofización marina: {a_eu[0]} = {a_eu[1]:.9f} ({a_eu[2]:.9f} %); "
+                f"{b_eu[0]} = {b_eu[1]:.9f} ({b_eu[2]:.9f} %)."
             ),
-            "source": "Tabla 7 de impactos por etapa y Tabla 8 de impactos totales.",
+            "source": "Tabla 7 de impactos por etapa y Tabla 8 de impactos totales por escenario.",
         },
         {
             "id": "C3",

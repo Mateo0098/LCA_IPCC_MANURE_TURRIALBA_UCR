@@ -65,7 +65,7 @@ finales en `outputs/tablas_tesis/`.
 | Variable en codigo | Nombre recomendado para la tesis | Definicion | Unidad | Fuente del dato | Formula usada | Script donde se calcula | Archivo de salida donde aparece | Seccion de tesis |
 |---|---|---|---|---|---|---|---|---|
 | `factor` EF 3.1 | Factor por especie, compartimento y categoría | Convierte emisiones directas al indicador EF 3.1 correspondiente. | Según categoría | Comisión Europea/JRC, tabla oficial EF 3.1 | Valor tabulado por flujo elemental | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_factores_equivalencia.csv` | Cambio climático y eutrofización |
-| `impacto_calentamiento_global_kg_co2eq` | Potencial de calentamiento global | Resultado equivalente de CH4, N2O y CO2 expresado como CO2-eq. | kg CO2-eq/ano | `processed/ACV_resumen_emisiones.csv`; `processed/acv_factores_equivalencia.csv` | `CH4 * factor_CH4 + N2O * factor_N2O + CO2 * factor_CO2` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv`; `processed/acv_impacto_total_por_escenario.csv`; graficos en `graphics_results/` | Evaluacion de impacto ambiental: potencial de calentamiento global |
+| `impacto_calentamiento_global_kg_co2eq` | Potencial de calentamiento global | Resultado directo EF 3.1 de CH₄ biogénico y N₂O. El CO₂ biogénico medido permanece registrado como `co2_total_kg` en el inventario, pero no se caracteriza en este cálculo directo vigente. | kg CO₂-eq/año | `processed/ACV_resumen_emisiones.csv`; `processed/acv_factores_equivalencia.csv` | `ch4_total_kg × factor("CH4", "air unspecified", "Cambio climático") + n2o_total_kg × factor("N2O", "air unspecified", "Cambio climático")` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv`; `processed/acv_impacto_total_por_escenario.csv`; gráficos en `graphics_results/` | Evaluación de impacto ambiental: cambio climático |
 | `impacto_eutrofizacion_terrestre_mol_neq` | Eutrofización terrestre | NH₃ y NOx atmosféricos caracterizados mediante EF 3.1. | mol N-eq/año | Inventario explícito y factores EF 3.1 | NH₃×13,47 + NOx×4,26 | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario | Categoría independiente |
 | `impacto_eutrofizacion_marina_kg_neq` | Eutrofización marina | NH₃, NOx y NO₃⁻ a agua dulce caracterizados mediante EF 3.1. | kg N-eq/año | Inventario explícito y factores EF 3.1 | NH₃×0,092 + NOx×0,389 + NO₃⁻×0,226 | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario | NO₃⁻ ya está en masa molecular |
 | Inventario operativo | Electricidad y diésel foreground | Consumos físicos anualizados y normalizados. Los 30 min por vaciado son una duración aproximada comunicada por operarios, no una medición instrumentada; el consumo de 3 L/h es un supuesto del estudio. | kWh/año; L/año | Nota de campo, placa, comunicación personal y supuestos identificados | Ecuaciones parametrizadas | `scripts/compute_operational_inventory.py` | Inventario operativo y exportación foreground | Impactos de fondo pendientes |
@@ -76,11 +76,6 @@ finales en `outputs/tablas_tesis/`.
 
 ## Alertas de trazabilidad para revisar antes de cierre de tesis
 
-- La unidad funcional se infiere de `masa_total_kg_eq`, pero no existe todavia
-  una tabla formal que declare la unidad funcional del estudio.
-- `n_ex_pct` se usa directamente como entrada en ecuaciones IPCC. El nombre y la
-  unidad indican porcentaje de N total; conviene verificar si debe convertirse a
-  fraccion o masa de N antes de presentar resultados finales.
 - `VS_T` se calcula y usa internamente, pero no queda exportado en ninguna tabla
   de auditoria.
 - Las variables intermedias `N_volatilization_MMS`, `N_leaching_MMS`, `N_G_mm`,

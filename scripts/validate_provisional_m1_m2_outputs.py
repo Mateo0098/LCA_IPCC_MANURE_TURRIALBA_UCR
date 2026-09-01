@@ -184,6 +184,71 @@ IMPACT_COLUMNS = {
     "Eutrofización marina": ("impacto_eutrofizacion_marina_kg_neq", "kg N-eq/año"),
 }
 
+STAGE_LABELS = {
+    ("A", "1"): "A1: Precomposteo",
+    ("A", "2"): "A2: Lombricompostaje",
+    ("A", "3"): "A3: Almacenamiento de aguas verdes",
+    ("A", "4"): "A4: Aplicación de aguas verdes en campos de pastoreo",
+    ("B", "1"): "B1: Almacenamiento de purines",
+    ("B", "2"): "B2: Aplicación de purines en campo de pastoreo",
+}
+
+
+def canonical_stage_dominants(
+    table_path: Path = TABLES / "tabla_07_impactos_por_etapa.csv",
+) -> dict[tuple[str, str], tuple[str, float]]:
+    grouped: dict[tuple[str, str, str], float] = {}
+    for row in read_rows(table_path):
+        key = (row["escenario"], row["categoria_impacto"], row["etapa"])
+        grouped[key] = grouped.get(key, 0.0) + float(row["resultado_equivalente"])
+    result: dict[tuple[str, str], tuple[str, float]] = {}
+    for scenario in ("A", "B"):
+        for category in IMPACT_COLUMNS:
+            values = {
+                stage: value for (current_scenario, current_category, stage), value in grouped.items()
+                if current_scenario == scenario and current_category == category
+            }
+            assert values and sum(values.values()) > 0.0
+            maximum = max(values.values())
+            winners = [stage for stage, value in values.items() if close(value, maximum)]
+            assert len(winners) == 1, f"Dominancia ambigua para {scenario}, {category}: {winners}"
+            stage = winners[0]
+            result[(scenario, category)] = (
+                STAGE_LABELS[(scenario, stage)],
+                100.0 * maximum / sum(values.values()),
+            )
+    return result
+
+
+def validate_c2_semantics(
+    c2_text: str,
+    table_path: Path = TABLES / "tabla_07_impactos_por_etapa.csv",
+) -> None:
+    lower = c2_text.lower()
+    assert "eutrofización terrestre" in lower, "C2 omite eutrofización terrestre."
+    assert "eutrofización marina" in lower, "C2 omite eutrofización marina."
+    assert "nitrógeno potencialmente eutrofizante" not in lower, "C2 conserva la frase histórica."
+    assert "para eutrofización," not in lower, "C2 presenta genéricamente una categoría específica."
+    markers = {
+        "Cambio climático": "En calentamiento global,",
+        "Eutrofización terrestre": "En eutrofización terrestre,",
+        "Eutrofización marina": "En eutrofización marina,",
+    }
+    positions = {category: c2_text.find(marker) for category, marker in markers.items()}
+    assert all(position >= 0 for position in positions.values()), "C2 no separa las tres categorías."
+    ordered = sorted(positions.items(), key=lambda item: item[1])
+    segments: dict[str, str] = {}
+    for index, (category, start) in enumerate(ordered):
+        end = ordered[index + 1][1] if index + 1 < len(ordered) else len(c2_text)
+        segments[category] = c2_text[start:end]
+    dominants = canonical_stage_dominants(table_path)
+    for category, segment in segments.items():
+        for scenario in ("A", "B"):
+            stage, percentage = dominants[(scenario, category)]
+            visible_percentage = f"{percentage:.2f}".replace(".", ",")
+            expected = f"{stage} aportó {visible_percentage} % del total del Escenario {scenario}"
+            assert expected in segment, f"Dominancia incorrecta en C2 para {scenario}, {category}: {expected}"
+
 
 def validate_impacts_and_comparison() -> None:
     stage_source = {
@@ -280,6 +345,13 @@ def validate_documents_and_conclusions() -> None:
     methodology_text, methodology_header = document_text(DOCS / "metodologia_desarrollada_tfg.docx")
     results_text, results_header = document_text(DOCS / "resultados_desarrollados_tfg.docx")
     conclusions_text, conclusions_header = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
+    conclusion_document = Document(DOCS / "conclusiones_desarrolladas_tfg.docx")
+    c2_candidates = [
+        paragraph.text for paragraph in conclusion_document.paragraphs
+        if paragraph.text.startswith("Las cargas ambientales se concentraron")
+    ]
+    assert len(c2_candidates) == 1
+    validate_c2_semantics(c2_candidates[0])
     for body, header in (
         (methodology_text, methodology_header),
         (results_text, results_header),
