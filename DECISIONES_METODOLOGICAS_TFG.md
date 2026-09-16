@@ -98,20 +98,62 @@ suelo. La secuencia metodológica objetivo es:
 
 Environmental Footprint 3.1 es el único método activo de caracterización de las
 emisiones directas del modelo. Se aplican cambio climático (kg CO₂-eq),
-eutrofización terrestre (mol N-eq) y eutrofización marina (kg N-eq). CH₄ se
+eutrofización terrestre (mol N-eq) y eutrofización marina (kg N-eq). El CH₄ del manejo se
 representa como biogénico; N₂O como masa molecular; NH₃ y NOx como NO₂ se
 asignan al aire; NO₃⁻ se asigna a agua dulce como receptor continental final.
 
 El agua de lavado es pluvial y se almacena en un reservorio existente. No recibe
-cargas municipales y no se duplica al pasar de almacenamiento a aplicación. La
-bomba consume 53,2292 kWh/año en A3 o B1. El tractor y cañón consumen 182,50 L
-diésel/año en A4 o B2; el cañón no recibe energía independiente. Los procesos
-de fondo de electricidad y diésel permanecen pendientes.
+cargas municipales ni se duplica al pasar a aplicación. La bomba conserva
+53,22916666666667 kWh/año en A3 o B1 y el tractor con cañón conserva
+182,5 L/año en A4 o B2; el cañón no recibe energía independiente. Los escenarios
+son alternativas completas. El patrón observado/comunicado el 25-08-2026 se
+anualiza a 365 días; no es una medición instrumental continua de un año calendario.
 
-Python es la fuente de verdad del foreground, ledger, normalización y control
-EF 3.1 de emisiones directas. SimaPro caracterizará posteriormente el inventario
-completo y sus resultados se reimportarán al mismo pipeline. El total de SimaPro
-no se sumará a los impactos directos de Python si ya los contiene.
+### Tratamiento aprobado de recursos energéticos mediante IMN
+
+La fuente primaria es `Academic_documents/references/FactoresEmision-GEI-2026.pdf`.
+Se preserva la discrepancia editorial: portada 16.ª edición, 2026; páginas
+interiores 15a edición / 2025. Los factores y metadatos residen únicamente en
+`processed/acv_factores_imn_recursos_operativos.csv`, incluyendo páginas,
+categorías, unidades originales, incertidumbres y hash del PDF. ND no significa cero.
+
+- Electricidad: factor de **consumo 2025 = 0,0415 kg CO₂-eq/kWh** (p. 4), último
+  año disponible en esta copia, como proxy temporal explícito de operación
+  representativa observada en 2026. No se afirma actividad en 2025 ni se usa el
+  factor de generación 2024. El agregado no se descompone en gases ni se armoniza
+  artificialmente con los GWP de EF 3.1.
+- Diésel: CO₂ general por combustible **2,613 kg/L** (p. 3); CH₄ **0,382 g/L**
+  (p. 3) y N₂O **0,02442 g/L** (p. 4), categoría **Residencial y agrícola/Diésel**.
+  Esta última es un proxy sectorial aprobado para la operación agrícola del
+  Massey Ferguson 6711 con toma de fuerza 540E y cañón. No implica una categoría
+  literal «tractor agrícola» en el IMN. Transporte terrestre sin catalizador se
+  descarta para el modelo principal: el transporte vial no está en la frontera
+  y no se acreditó la condición sin catalizador. No se implementa sensibilidad.
+- Ruta del diésel: litros → kg CO₂ fósil, kg CH₄ fósil y kg N₂O molecular → EF 3.1.
+  Los factores físicos en g/L se dividen entre 1000 para obtener kg. Se aplican
+  CF de CO₂ fósil=1, CH₄ fósil=29,8 y N₂O=273. CH₄ biogénico del manejo conserva
+  27. La identidad del flujo elemental evita mezclar orígenes con igual fórmula.
+  CO₂ fósil y CH₄ fósil se verifican en JRC130796, sección 3.1, tabla 3, p. 9
+  (https://publications.jrc.ec.europa.eu/repository/bitstream/JRC130796/JRC130796_01.pdf).
+  No se utilizan los GWP IMN 1/28/265 para caracterizar el diésel canónico.
+
+El total climático suma tres contribuciones disjuntas: manejo EF 3.1,
+electricidad agregada IMN y diésel físico IMN caracterizado con EF 3.1. Se conserva
+el subtotal del manejo y se muestra además el subtotal energético y la
+normalización por la misma unidad funcional. No se duplica N₂O ni se añaden
+NOx, NH₃, SO₂, partículas u otras categorías energéticas sin fuente y decisión.
+
+La electricidad atribuye al consumo emisiones de generación externa a la finca;
+la frontera no significa «solo emisiones dentro de la finca». Se excluye el
+modelado completo mediante ecoinvent de extracción/producción de combustible,
+refinación, infraestructura y transporte/distribución aguas arriba, así como
+las cadenas completas de fondo eléctrico. No se añaden créditos ni cargas de
+etapas posteriores a A2 mediante esta decisión.
+
+Python sigue siendo la fuente de verdad del inventario, cálculo y normalización.
+SimaPro queda como herramienta opcional de verificación independiente/QA-QC de
+la caracterización EF 3.1 de emisiones elementales, sin reimportación obligatoria
+de un total y sin caracterizar como CO₂ elemental la electricidad IMN agregada.
 
 FracLeachMS y la fracción de lixiviación o escorrentía del modelo IPCC de
 suelos representan fronteras físicas sucesivas y no deben confundirse.

@@ -32,6 +32,8 @@ STAGE_SHORT_NAMES = {
     ("B", 2): "Aplicación de purines en campo de pastoreo",
 }
 
+ELEMENTARY_FLOW_LABELS = {'Methane biogenic': 'Metano biogénico del manejo', 'Nitrous oxide': 'Óxido nitroso', 'Ammonia': 'Amoniaco', 'Nitrogen oxides': 'Óxidos de nitrógeno como NO2', 'Nitrate': 'Nitrato', 'Carbon dioxide (fossil)': 'Dióxido de carbono fósil', 'Methane (fossil)': 'Metano fósil'}
+
 SCENARIO_NAMES = {
     "A": "Lombricompostaje y aplicación de aguas verdes",
     "B": "Aplicación directa de purines en campo",
@@ -159,6 +161,11 @@ def _write(df: pd.DataFrame, name: str) -> Path:
         )
     cleaned.to_csv(path, index=False, encoding="utf-8-sig")
     return path
+
+
+def tabla_00_unidad_funcional_y_supuestos() -> Path:
+    rows = [{'tipo': 'unidad_funcional', 'nombre': 'Unidad funcional', 'valor': '1', 'unidad': 'kg de estiércol fresco', 'descripcion': 'Un kilogramo de estiércol fresco manejado; el flujo anual común solo define la escala operacional.', 'fuente': 'Propuesta de TFG', 'observaciones': 'Base funcional para la comparación de los escenarios A y B.'}, {'tipo': 'supuesto', 'nombre': 'Equivalencia agua-masa', 'valor': '1', 'unidad': 'kg/L', 'descripcion': 'El modelo trata 1 L de agua como 1 kg equivalente para construir masa_total_kg_eq.', 'fuente': 'scripts/compute_masa_etapas_escenarios.py; processed/masa_total_escenario_etapa.csv', 'observaciones': 'Supuesto necesario para combinar agua_l y boniga_kg.'}, {'tipo': 'supuesto', 'nombre': 'Periodo de extrapolacion de agua y boniga', 'valor': '365', 'unidad': 'dias/año', 'descripcion': 'Los promedios del muestreo se convierten a flujo anual multiplicando el flujo diario por 365.', 'fuente': 'scripts/compute_agua_boniga_stats.py', 'observaciones': 'La duracion base del muestreo es 3.5 dias.'}, {'tipo': 'supuesto', 'nombre': 'Duracion del muestreo de agua y boniga', 'valor': '3.5', 'unidad': 'dias', 'descripcion': 'Periodo usado para convertir el promedio observado en flujo diario.', 'fuente': 'scripts/compute_agua_boniga_stats.py; processed/agua_boniga_estadistica_descriptiva.csv', 'observaciones': 'Debe justificarse con el diseno de muestreo.'}, {'tipo': 'supuesto', 'nombre': 'Conservacion de cenizas para precompostaje', 'valor': 'aplicado', 'unidad': 'adimensional', 'descripcion': 'La perdida de masa fresco a precompostado se estima usando cenizas como trazador conservativo.', 'fuente': 'scripts/compute_sample_parameters.py; processed/volatile_solids_mass_loss_fresh_to_precomposted.csv', 'observaciones': 'Supuesto clave para factor_restante_a2.'}, {'tipo': 'supuesto', 'nombre': 'Asignacion de sistemas IPCC por etapa', 'valor': 'aplicado', 'unidad': 'adimensional', 'descripcion': 'Cada escenario/etapa se asigna a un sistema de manejo de estiercol IPCC.', 'fuente': 'processed/ipcc_sistema_manejo_por_etapa.csv', 'observaciones': 'Debe justificarse por etapa.'}, {'tipo': 'supuesto', 'nombre': 'Fraccion de estiercol manejado por sistema AWMS', 'valor': '1', 'unidad': 'adimensional', 'descripcion': 'Los scripts de escenario usan AWMS igual a 1.0 o 1 para las ecuaciones aplicadas.', 'fuente': 'scripts/ACV_EscenarioA_etapa1.py; scripts/ACV_EscenarioA_etapa2.py; scripts/ACV_EscenarioA_etapa3.py; scripts/ACV_EscenarioB_etapa1.py', 'observaciones': 'Pendiente documentar si toda la masa pasa por el sistema asignado.'}, {'tipo': 'supuesto', 'nombre': 'Modelo IPCC para A2', 'valor': 'IPCC', 'unidad': 'modelo', 'descripcion': 'La etapa A2 usa las ecuaciones IPCC y Composting – Passive Windrow.', 'fuente': 'processed/modelo_etapa_overrides.csv; processed/ipcc_sistema_manejo_por_etapa.csv; scripts/ACV_EscenarioA_etapa2.py', 'observaciones': 'FracLeachMS igual a cero se configura separadamente como parámetro específico de A2.'}, {'tipo': 'supuesto', 'nombre': 'Fracción de lixiviación específica de A2', 'valor': '0', 'unidad': 'adimensional', 'descripcion': 'No se modeló una pérdida de N hacia el ambiente por lixiviación durante A2.', 'fuente': 'processed/ipcc_factores_manejo_overrides_etapa.csv; Vargas Sarmiento (2023); observación directa del investigador', 'observaciones': 'No modifica el valor genérico de Composting – Passive Windrow.'}, {'tipo': 'advertencia', 'nombre': 'Unidad de n_ex_pct', 'valor': '% N total', 'unidad': 'porcentaje', 'descripcion': 'n_ex_pct proviene de mean_n_percentage y representa porcentaje de nitrogeno total, no masa de N.', 'fuente': 'processed/CIA_samples_table_v6_treatment_summary.csv; processed/acv_parametros_escenario_etapa.csv', 'observaciones': 'Revisar antes de usar emisiones de N en tesis.'}, {'tipo': 'metodo', 'nombre': 'Caracterización de emisiones y recursos energéticos', 'valor': 'EF 3.1 e IMN', 'unidad': 'método de EICV', 'descripcion': 'Emisiones elementales del manejo y de combustión caracterizadas con EF 3.1; electricidad agregada IMN.', 'fuente': 'processed/acv_factores_equivalencia.csv; DECISIONES_METODOLOGICAS_TFG.md', 'observaciones': 'Total climático combinado; sin cadenas de fondo ecoinvent. SimaPro es verificación independiente opcional.'}, {'tipo': 'supuesto', 'nombre': 'Período operativo representativo', 'valor': '2026', 'unidad': 'año de observación', 'descripcion': 'Patrón observado el 25 de agosto de 2026, anualizado a 365 días; no medición continua anual.', 'fuente': 'Nota de campo del 25-08-2026', 'observaciones': 'Consumos conservados; escenarios alternativos.'}, {'tipo': 'supuesto', 'nombre': 'Proxy temporal eléctrico', 'valor': '2025', 'unidad': 'año del factor de consumo', 'descripcion': 'Último factor de consumo disponible en IMN; no representa actividad ocurrida en 2025.', 'fuente': 'IMN, portada 16.ª edición 2026; interiores 15a edición / 2025, p. 4', 'observaciones': '0,0415 kg CO2-eq/kWh; no usar generación 2024 ni desagregar gases.'}, {'tipo': 'supuesto', 'nombre': 'Proxy sectorial del tractor', 'valor': 'Residencial y agrícola/Diésel', 'unidad': 'categoría IMN', 'descripcion': 'Operación agrícola con toma de fuerza 540E; transporte vial excluido.', 'fuente': 'IMN, pp. 3–4; decisión metodológica del TFG', 'observaciones': 'No existe categoría literal tractor; emisiones físicas caracterizadas con EF 3.1.'}]
+    return _write(pd.DataFrame(rows), "tabla_00_unidad_funcional_y_supuestos.csv")
 
 
 def tabla_01_etapas_escenarios() -> Path:
@@ -428,13 +435,22 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
     eq = _read_csv("acv_factores_equivalencia.csv")
     for _, row in eq.iterrows():
         rows.append({"tipo_factor": "Factor de caracterización EF 3.1",
-                     "sistema_o_compuesto": f"{row['especie_quimica']} — {row['compartimento']}",
+                     "sistema_o_compuesto": ELEMENTARY_FLOW_LABELS[row["flujo_elemental"]],
                      "factor": row["categoria_impacto"], "valor": row["factor"],
                      "unidad": row["unidad_factor"], "fuente_dato": "Tabla canónica EF 3.1",
                      "referencia_metodologica": EF31_REFERENCE,
                      "clasificacion_referencia": "Environmental Footprint 3.1",
                      "estado_referencia": "Resuelto", "requiere_revision_bibliografica": "No",
                      "observaciones": row["observaciones"]})
+
+    imn = pd.read_csv(PROCESSED / "acv_factores_imn_recursos_operativos.csv", keep_default_na=False)
+    for _, row in imn.iterrows():
+        rows.append({"tipo_factor": "Factor IMN por actividad", "sistema_o_compuesto": row["recurso"] + ": " + row["especie_indicador"],
+                     "factor": row["categoria_imn"], "valor": row["valor"], "unidad": row["unidad_original"],
+                     "fuente_dato": row["ruta_fuente"],
+                     "referencia_metodologica": f"IMN, portada {row['edicion_portada']}; interiores {row['edicion_interior']}, p. {row['pagina']}, {row['seccion']}",
+                     "clasificacion_referencia": "Instituto Meteorológico Nacional", "estado_referencia": "Resuelto",
+                     "requiere_revision_bibliografica": "No", "observaciones": row["observaciones"]})
 
     for raw_factor, value, unit in [
         ("FACTOR_N_A_N2O", 44 / 28, "kg N2O/kg N2O-N"),
@@ -485,6 +501,14 @@ def tabla_06_emisiones_por_etapa() -> Path:
                 "masa_total_kg_eq": row.get("masa_total_kg_eq", ""),
                 "observaciones": "Fracción másica efectiva usada en ecuaciones de nitrógeno" if substance in {"N2O", "NH3", "NO3"} else "",
             })
+    resources = _read_csv("acv_inventario_recursos_operativos.csv")
+    for row in resources[resources["flujo"].eq("Diésel")].itertuples():
+        for column, species in [("co2_fosil_diesel_kg", "CO2 fósil (diésel)"), ("ch4_fosil_diesel_kg", "CH4 fósil (diésel)"), ("n2o_combustion_diesel_kg", "N2O (diésel)")]:
+            rows.append({"escenario": row.escenario, "etapa": int(row.etapa), "nombre_etapa": _stage_name(row.escenario, row.etapa),
+                         "sustancia": species, "emision": "Combustión de diésel del tractor", "valor": getattr(row, column),
+                         "unidad": "kg/año", "ecuacion_utilizada": "Consumo anual por factor físico IMN; conversión explícita de g a kg",
+                         "fuente_factor_emision": "IMN, pp. 3–4", "masa_total_kg_eq": "",
+                         "observaciones": "Emisión operativa separada del manejo del estiércol; N2O molecular"})
     return _write(pd.DataFrame(rows), "tabla_06_emisiones_por_etapa.csv")
 
 
@@ -504,7 +528,8 @@ def tabla_07_impactos_por_etapa() -> Path:
     for _, row in impacts.iterrows():
         for emission_col, substance, category, eq_unit in impact_defs:
             emission = pd.to_numeric(row.get(emission_col), errors="coerce")
-            match = factors[(factors["especie_quimica"] == substance) & (factors["categoria_impacto"] == category)]
+            flow = {"CH4": "Methane biogenic", "N2O": "Nitrous oxide", "NH3": "Ammonia", "NOx as NO2": "Nitrogen oxides", "NO3": "Nitrate"}[substance]
+            match = factors[(factors["flujo_elemental"] == flow) & (factors["categoria_impacto"] == category)]
             factor = pd.to_numeric(match.iloc[0]["factor"], errors="coerce") if len(match) == 1 else pd.NA
             if pd.isna(emission) or pd.isna(factor):
                 continue
@@ -523,6 +548,20 @@ def tabla_07_impactos_por_etapa() -> Path:
                 "fuente_factor": "Environmental Footprint 3.1, JRC",
                 "observaciones": "",
             })
+    for _, row in impacts.iterrows():
+        for column, substance, flow in [("co2_fosil_diesel_kg", "CO2 fósil (diésel)", "Carbon dioxide (fossil)"),
+                                         ("ch4_fosil_diesel_kg", "CH4 fósil (diésel)", "Methane (fossil)"),
+                                         ("n2o_combustion_diesel_kg", "N2O (diésel)", "Nitrous oxide")]:
+            cf = factors[(factors["flujo_elemental"] == flow) & factors["categoria_impacto"].eq("Cambio climático")].iloc[0]
+            rows.append({"escenario": row["Escenario"], "etapa": int(row["Etapa"]), "nombre_etapa": _stage_name(row["Escenario"], row["Etapa"]),
+                         "categoria_impacto": "Cambio climático", "sustancia": substance, "emision": row[column], "unidad_emision": "kg/año",
+                         "factor_caracterizacion": cf["factor"], "unidad_factor": cf["unidad_factor"],
+                         "resultado_equivalente": row[column] * cf["factor"], "unidad_equivalente": "kg CO2-eq/año",
+                         "fuente_factor": "Emisión física IMN; caracterización EF 3.1", "observaciones": "Combustión de diésel"})
+        rows.append({"escenario": row["Escenario"], "etapa": int(row["Etapa"]), "nombre_etapa": _stage_name(row["Escenario"], row["Etapa"]),
+                     "categoria_impacto": "Cambio climático", "sustancia": "Electricidad operativa (IMN)", "emision": "", "unidad_emision": "no aplica",
+                     "factor_caracterizacion": "", "unidad_factor": "no aplica", "resultado_equivalente": row["clima_electricidad_imn_kg_co2eq"],
+                     "unidad_equivalente": "kg CO2-eq/año", "fuente_factor": "IMN: consumo 2025", "observaciones": "Resultado agregado; no emisión elemental"})
     return _write(pd.DataFrame(rows), "tabla_07_impactos_por_etapa.csv")
 
 
@@ -537,7 +576,8 @@ def tabla_08_impactos_totales_por_escenario() -> Path:
                 "resultado_total": row["impacto_calentamiento_global_kg_co2eq"],
                 "unidad": "kg CO2-eq/ano",
                 "fuente": "processed/acv_impacto_total_por_escenario.csv",
-                "observaciones": "Suma de impactos por etapa",
+                "observaciones": "Suma por etapa; clima combinado IMN y EF 3.1",
+                **{c: row[c] for c in ["clima_manejo_ef31_kg_co2eq", "clima_electricidad_imn_kg_co2eq", "clima_diesel_ef31_kg_co2eq", "clima_recursos_operativos_kg_co2eq"]},
             },
             {
                 "escenario": row["Escenario"],
@@ -894,6 +934,7 @@ def tablas_academicas_para_word() -> Path:
 
 def main() -> None:
     writers = [
+        tabla_00_unidad_funcional_y_supuestos,
         tabla_01_etapas_escenarios,
         tabla_02_caracterizacion_muestras,
         tabla_03_flujos_icv,

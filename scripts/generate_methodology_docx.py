@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from pathlib import Path
 
@@ -535,7 +535,7 @@ def characterization_factors() -> pd.DataFrame:
         if col in factors.columns
     ]
     out = factors[cols].copy()
-    out = out[out["sistema_o_compuesto"].isin(["CH4", "N2O", "CO2", "NH3", "NO3"])].drop_duplicates()
+    out = out.loc[factors["tipo_factor"].isin(["Factor de caracterización EF 3.1", "Factor IMN por actividad"])].drop_duplicates()
     return out.rename(
         columns={
             "sistema_o_compuesto": "Sustancia",
@@ -769,9 +769,15 @@ def build_document() -> None:
         "El CH₄ del manejo se representó como metano biogénico y el inventario de N₂O se confirmó en kg N₂O, no N₂O-N. NH₃ y NOx como NO₂ se asignaron al aire; NO₃⁻ se asignó a agua dulce como receptor continental final. Los factores proceden de la tabla oficial EF 3.1 de la Comisión Europea y el JRC.",
         "Los impactos se calcularon primero por etapa y posteriormente se agregaron por escenario. La comparación entre escenarios se realizó con diferencias absolutas y porcentuales entre el Escenario A y el Escenario B.",
         "La bomba Aermotor de 1,5 kW mecánicos se modeló con eficiencia media supuesta de 80 %, 7 min por lavado y dos lavados cada tres días, resultando 53,23 kWh/año en A3 y B1. Para el tractor Massey Ferguson 6711 con cañón, operado en 540E, los operarios comunicaron una duración aproximada de 30 min por vaciado, no medida instrumentalmente; el consumo de 3 L diésel/h fue un supuesto del estudio. El resultado fue 182,50 L/año en A4 y B2. Los escenarios son alternativos y estos consumos no se dividieron entre ellos.",
-        "Electricidad y diésel permanecen inventariados sin impactos de fondo. Su caracterización se incorporará posteriormente mediante SimaPro y ecoinvent dentro del mismo pipeline; el cañón no recibe energía independiente y el agua pluvial no se añade de nuevo en las etapas de aplicación.",
+        "El patrón operativo observado el 25 de agosto de 2026 se anualizó a 365 días; no constituye una medición instrumental anual continua. Para electricidad se utilizó el factor IMN de consumo de 2025, 0,0415 kg CO₂-eq/kWh, como proxy temporal del último año disponible; no se utilizó el factor de generación de 2024. La electricidad permanece agregada en CO₂-eq, sin desagregación física ni armonización artificial de potenciales de calentamiento global.",
+        "El diésel empleó 2,613 kg CO₂/L, 0,382 g CH₄/L y 0,02442 g N₂O/L del IMN. Para CH₄ y N₂O se adoptó Residencial y agrícola/Diésel como proxy sectorial de la operación agrícola con toma de fuerza 540E, no como categoría literal de tractor. Se descartó transporte terrestre sin catalizador porque el transporte vial está fuera de la frontera y no se acreditó esa condición del motor. Las masas se convirtieron a kg y se caracterizaron con EF 3.1: CO₂ fósil = 1, CH₄ fósil = 29,8 y N₂O = 273; el CH₄ biogénico del manejo conserva 27. No se usaron los GWP IMN 1/28/265 para el diésel.",
+        "El cambio climático total suma manejo del estiércol, electricidad y combustión de diésel, con factores IMN para recursos energéticos y caracterización EF 3.1 de emisiones elementales. La electricidad atribuye emisiones de generación externa al consumo; no se modelan cadenas completas de producción, refinación, infraestructura y suministro mediante ecoinvent. SimaPro es únicamente una herramienta opcional de verificación independiente de las emisiones elementales EF 3.1. El cañón no recibe energía adicional ni el agua pluvial tratamiento municipal.",
+        "La fuente IMN presenta 16.ª edición, 2026 en portada y 15a edición / 2025 en páginas interiores; se conserva esta discrepancia editorial (IMN, pp. 3–4).",
     ])
-    add_dataframe_table(doc, "Tabla 4. Factores de caracterización para las categorías de impacto.", format_df(characterization_factors(), decimals=4))
+    add_latex_equation(doc, r"CC_{total}=CC_{manejo}+CC_{electricidad}+CC_{diesel}")
+    add_latex_equation(doc, r"CC_{electricidad}=E_{kWh} \times FE_{IMN,consumo,2025}")
+    add_latex_equation(doc, r"CC_{diesel}=m_{CO_2,fosil} \times 1 + m_{CH_4,fosil} \times 29{,}8 + m_{N_2O,combustion} \times 273")
+    add_dataframe_table(doc, "Tabla 4. Factores de emisión IMN y caracterización EF 3.1.", format_df(characterization_factors(), decimals=4))
 
     doc.add_heading("20. Contraste bibliográfico experimental de A2", level=2)
     add_paragraphs(doc, [
@@ -801,6 +807,7 @@ def build_document() -> None:
     ])
 
     doc.add_heading("23. Referencias metodológicas incorporadas", level=2)
+    add_paragraphs(doc, ["Instituto Meteorológico Nacional. (2026, según portada). Factores de emisión de gases de efecto invernadero. 16.ª edición; las páginas interiores indican 15a edición / 2025. San José, Costa Rica. Secciones de energía, pp. 3–4."])
     add_paragraphs(doc, [
         "Sánchez-Romero, C. A., & Brenes-Gamboa, S. (2026). Cuantificación y caracterización de residuos generados durante el ordeño de ganado Jersey. Agronomía Mesoamericana, 37, artículo 6135ky76. https://doi.org/10.15517/6135ky76",
         "Komakech, A. J., Zurbrügg, C., Miito, G. J., Wanyama, J., & Vinnerås, B. (2016). Environmental impact from vermicomposting of organic waste in Kampala, Uganda. Journal of Environmental Management, 181, 395–402. https://doi.org/10.1016/j.jenvman.2016.06.028",

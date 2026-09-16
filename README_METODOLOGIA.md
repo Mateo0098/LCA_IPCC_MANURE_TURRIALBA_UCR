@@ -36,19 +36,39 @@ Los datos crudos principales estan en `Academic_documents/`:
   (`ipcc` o `medido`).
 - `processed/ipcc_factores_manejo_overrides_etapa.csv`: parámetros específicos por escenario y etapa; A2 establece `FracLeachMS = 0` sin modificar la categoría IPCC genérica.
 - `processed/acv_factores_equivalencia.csv`: factores Environmental Footprint
-  3.1 por especie, compartimento y categoría.
+  3.1 por identidad de flujo elemental, compartimento y categoría (origen fósil/biogénico explícito).
 - `processed/acv_parametros_operativos.csv`: parámetros de bomba, lavado,
   tractor y frecuencia anual.
 - `processed/acv_inventario_recursos_operativos.csv`: electricidad y diésel
   foreground anualizados y normalizados.
 - `processed/acv_foreground_intercambio.csv`: intercambio neutral para la
-  futura integración con SimaPro.
+  inspección del inventario y verificación externa opcional, sin importación obligatoria de resultados.
 
 La caracterización activa de emisiones directas usa EF 3.1: cambio climático
 en kg CO₂-eq, eutrofización terrestre en mol N-eq y eutrofización marina en kg
-N-eq. Electricidad y diésel permanecen inventariados sin factores de impacto de
-fondo. El agua de lavado es pluvial; la captación y el reservorio existentes se
+N-eq. La electricidad se evalúa con IMN de consumo 2025 (0,0415 kg CO₂-eq/kWh),
+proxy temporal para el patrón operativo observado el 25-08-2026 y anualizado
+a 365 días. El diésel usa factores físicos IMN y caracterización EF 3.1 de
+CO₂ fósil, CH₄ fósil y N₂O molecular. La categoría residencial y agrícola es un
+proxy sectorial aprobado, no una categoría literal de tractor. La selección y
+su justificación se detallan en la sección 15 de `DECISIONES_METODOLOGICAS_TFG.md`.
+No se incorporan cadenas completas ecoinvent; SimaPro es QA/QC independiente
+opcional. El total climático combinado conserva la electricidad agregada IMN. El agua de lavado es pluvial; la captación y el reservorio existentes se
 encuentran fuera de la frontera.
+
+### Factores y resultados operativos
+
+La fuente manual de factores de emisión por actividad es
+`processed/acv_factores_imn_recursos_operativos.csv`, separada de los CF EF 3.1.
+Conserva edición de portada/interiores, unidades originales, selección, año,
+página, incertidumbres y hash. `scripts/imn_operational_factors.py` valida y
+convierte factores físicos, invocado por el generador operativo existente.
+La LCIA consume este inventario, caracteriza solo las masas del diésel con EF
+y agrega electricidad una sola vez. Las salidas existentes por etapa y escenario
+incluyen `clima_manejo_ef31_kg_co2eq`, `clima_electricidad_imn_kg_co2eq`,
+`clima_diesel_ef31_kg_co2eq` y `clima_recursos_operativos_kg_co2eq`;
+`impacto_calentamiento_global_kg_co2eq` es ahora el total combinado.
+Las masas físicas quedan también en el inventario operativo y su exportación.
 
 ## Procesamiento de laboratorio
 

@@ -41,3 +41,27 @@ B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Eutrofización terrestr
 B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Eutrofización marina,NH3,43.461692738369486,kg NH3,0.092,kg N-eq/kg NH3,3.9984757319299926,kg N-eq/año,"Environmental Footprint 3.1, JRC",
 B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Eutrofización marina,NOx as NO2,4.563446153420987,NOX_AS_NO2,0.389,kg N-eq/kg NOx as NO2,1.7751805536807639,kg N-eq/año,"Environmental Footprint 3.1, JRC",
 B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Eutrofización marina,NO3,121.2572835051862,kg NO3,0.226,kg N-eq/kg NO3,27.404146072172082,kg N-eq/año,"Environmental Footprint 3.1, JRC",
+A,1,Etapa 1: Precomposteo,Cambio climático,CO2 fósil (diésel),0.0,kg/año,1.0,kg CO2-eq/kg CO2,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,1,Etapa 1: Precomposteo,Cambio climático,CH4 fósil (diésel),0.0,kg/año,29.8,kg CO2-eq/kg CH4,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,1,Etapa 1: Precomposteo,Cambio climático,N2O (diésel),0.0,kg/año,273.0,kg CO2-eq/kg N2O,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,1,Etapa 1: Precomposteo,Cambio climático,Electricidad operativa (IMN),,no aplica,,no aplica,0.0,kg CO2-eq/año,IMN: consumo 2025,Resultado agregado; no emisión elemental
+A,2,Etapa 2: Lombricompostaje,Cambio climático,CO2 fósil (diésel),0.0,kg/año,1.0,kg CO2-eq/kg CO2,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,2,Etapa 2: Lombricompostaje,Cambio climático,CH4 fósil (diésel),0.0,kg/año,29.8,kg CO2-eq/kg CH4,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,2,Etapa 2: Lombricompostaje,Cambio climático,N2O (diésel),0.0,kg/año,273.0,kg CO2-eq/kg N2O,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,2,Etapa 2: Lombricompostaje,Cambio climático,Electricidad operativa (IMN),,no aplica,,no aplica,0.0,kg CO2-eq/año,IMN: consumo 2025,Resultado agregado; no emisión elemental
+A,3,Etapa 3: Almacenamiento de aguas verdes,Cambio climático,CO2 fósil (diésel),0.0,kg/año,1.0,kg CO2-eq/kg CO2,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,3,Etapa 3: Almacenamiento de aguas verdes,Cambio climático,CH4 fósil (diésel),0.0,kg/año,29.8,kg CO2-eq/kg CH4,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,3,Etapa 3: Almacenamiento de aguas verdes,Cambio climático,N2O (diésel),0.0,kg/año,273.0,kg CO2-eq/kg N2O,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,3,Etapa 3: Almacenamiento de aguas verdes,Cambio climático,Electricidad operativa (IMN),,no aplica,,no aplica,2.209010416666667,kg CO2-eq/año,IMN: consumo 2025,Resultado agregado; no emisión elemental
+A,4,Etapa 4: Aplicación de aguas verdes en campos de pastoreo,Cambio climático,CO2 fósil (diésel),476.8725,kg/año,1.0,kg CO2-eq/kg CO2,476.8725,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,4,Etapa 4: Aplicación de aguas verdes en campos de pastoreo,Cambio climático,CH4 fósil (diésel),0.069715,kg/año,29.8,kg CO2-eq/kg CH4,2.077507,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,4,Etapa 4: Aplicación de aguas verdes en campos de pastoreo,Cambio climático,N2O (diésel),0.0044566499999999,kg/año,273.0,kg CO2-eq/kg N2O,1.2166654499999727,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+A,4,Etapa 4: Aplicación de aguas verdes en campos de pastoreo,Cambio climático,Electricidad operativa (IMN),,no aplica,,no aplica,0.0,kg CO2-eq/año,IMN: consumo 2025,Resultado agregado; no emisión elemental
+B,1,Etapa 1: Almacenamiento de purines,Cambio climático,CO2 fósil (diésel),0.0,kg/año,1.0,kg CO2-eq/kg CO2,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+B,1,Etapa 1: Almacenamiento de purines,Cambio climático,CH4 fósil (diésel),0.0,kg/año,29.8,kg CO2-eq/kg CH4,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+B,1,Etapa 1: Almacenamiento de purines,Cambio climático,N2O (diésel),0.0,kg/año,273.0,kg CO2-eq/kg N2O,0.0,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+B,1,Etapa 1: Almacenamiento de purines,Cambio climático,Electricidad operativa (IMN),,no aplica,,no aplica,2.209010416666667,kg CO2-eq/año,IMN: consumo 2025,Resultado agregado; no emisión elemental
+B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Cambio climático,CO2 fósil (diésel),476.8725,kg/año,1.0,kg CO2-eq/kg CO2,476.8725,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Cambio climático,CH4 fósil (diésel),0.069715,kg/año,29.8,kg CO2-eq/kg CH4,2.077507,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Cambio climático,N2O (diésel),0.0044566499999999,kg/año,273.0,kg CO2-eq/kg N2O,1.2166654499999727,kg CO2-eq/año,Emisión física IMN; caracterización EF 3.1,Combustión de diésel
+B,2,Etapa 2: Aplicación de purines en campo de pastoreo,Cambio climático,Electricidad operativa (IMN),,no aplica,,no aplica,0.0,kg CO2-eq/año,IMN: consumo 2025,Resultado agregado; no emisión elemental

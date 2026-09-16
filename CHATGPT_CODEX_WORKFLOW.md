@@ -211,6 +211,28 @@ Mateo + ChatGPT → prompt para Codex → implementación
 → ChatGPT recupera archivos desde GitHub → validación de ChatGPT
 ```
 
+### Selección proporcional de modelo y reasoning
+
+Al preparar un prompt, ChatGPT evalúa contextualmente la dificultad, ambigüedad,
+riesgo, autonomía requerida, volumen de trabajo y coste o consumo esperado. Cuando
+resulte relevante, indica el modelo de Codex y el nivel de *reasoning*
+recomendados, priorizando capacidad suficiente con consumo proporcional. Esta es
+una decisión operativa contextual, no una clasificación rígida de tareas.
+
+Como orientación no vinculante, Luna sirve para tareas mecánicas, pequeñas,
+localizadas y muy bien especificadas; Terra es la opción habitual para
+inspección, implementación y validación ordinarias; Sol se reserva para
+problemas técnicos, arquitectónicos o de implementación especialmente complejos;
+y Astra es excepcional, cuando la dificultad, ambigüedad o autonomía requerida
+justifican claramente su mayor consumo.
+
+Una unidad no queda ligada a un modelo: ChatGPT puede recomendar subir o bajar de
+modelo y de *reasoning* entre sesiones o subproblemas. Normalmente no se fija un
+modelo único de forma permanente en `config.toml`. Para trabajo extenso, ChatGPT
+debe considerar dividirlo en bloques revisables cuando ello reduzca consumo de
+contexto o riesgo de alcanzar límites de uso sin fragmentar artificialmente el
+objetivo.
+
 1. Mateo y ChatGPT discuten primero la decisión o el cambio.
 2. Antes de preparar un prompt sobre una cuestión nueva, ChatGPT comprueba si
    pertenece al objetivo vigente del chat. Si la continuidad es clara, continúa

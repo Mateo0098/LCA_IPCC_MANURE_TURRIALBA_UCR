@@ -4,7 +4,7 @@
 - Categorías y unidades EF 3.1 visibles: Sí.
 - Ausencia de unidades históricas activas: Sí.
 - Ausencia de etiquetas internas prohibidas: Sí.
-- Electricidad y diésel se presentan como inventario físico pendiente de procesos de fondo: Sí.
+- Electricidad IMN agregada y combustión de diésel IMN–EF 3.1: incluidas, sin procesos de fondo pendientes.
 - Agua de lavado descrita como pluvial, sin carga de potabilización municipal: Sí.
 - El cañón no recibe una entrada energética independiente: Sí.
 - Documento maestro protegido sin cambios: Sí.

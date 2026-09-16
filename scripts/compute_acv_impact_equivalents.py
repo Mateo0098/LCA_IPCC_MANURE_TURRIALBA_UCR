@@ -78,21 +78,28 @@ def annotate_bars(ax: plt.Axes) -> None:
         )
 
 
+CLIMATE_COMPONENTS = [
+    "clima_manejo_ef31_kg_co2eq", "clima_electricidad_imn_kg_co2eq",
+    "clima_diesel_ef31_kg_co2eq", "clima_recursos_operativos_kg_co2eq",
+]
+
 EXPECTED_FACTOR_METADATA = {
-    ("CH4", "air unspecified", "Cambio climático"): "kg CO2-eq/kg CH4",
-    ("N2O", "air unspecified", "Cambio climático"): "kg CO2-eq/kg N2O",
-    ("NH3", "air unspecified", "Eutrofización terrestre"): "mol N-eq/kg NH3",
-    ("NH3", "air unspecified", "Eutrofización marina"): "kg N-eq/kg NH3",
-    ("NOx as NO2", "air unspecified", "Eutrofización terrestre"): "mol N-eq/kg NOx as NO2",
-    ("NOx as NO2", "air unspecified", "Eutrofización marina"): "kg N-eq/kg NOx as NO2",
-    ("NO3", "fresh water", "Eutrofización marina"): "kg N-eq/kg NO3",
+    ("Carbon dioxide (fossil)", "air unspecified", "Cambio climático"): "kg CO2-eq/kg CO2",
+    ("Methane (fossil)", "air unspecified", "Cambio climático"): "kg CO2-eq/kg CH4",
+    ("Methane biogenic", "air unspecified", "Cambio climático"): "kg CO2-eq/kg CH4",
+    ("Nitrous oxide", "air unspecified", "Cambio climático"): "kg CO2-eq/kg N2O",
+    ("Ammonia", "air unspecified", "Eutrofización terrestre"): "mol N-eq/kg NH3",
+    ("Ammonia", "air unspecified", "Eutrofización marina"): "kg N-eq/kg NH3",
+    ("Nitrogen oxides", "air unspecified", "Eutrofización terrestre"): "mol N-eq/kg NOx as NO2",
+    ("Nitrogen oxides", "air unspecified", "Eutrofización marina"): "kg N-eq/kg NOx as NO2",
+    ("Nitrate", "fresh water", "Eutrofización marina"): "kg N-eq/kg NO3",
 }
 
 
 def load_factors(path: Path) -> dict[tuple[str, str, str], dict[str, object]]:
     df = pd.read_csv(path)
     required = {
-        "especie_quimica", "compartimento", "categoria_impacto", "factor",
+        "flujo_elemental", "especie_quimica", "compartimento", "categoria_impacto", "factor",
         "unidad_factor", "metodo", "version",
     }
     missing = required - set(df.columns)
@@ -102,17 +109,21 @@ def load_factors(path: Path) -> dict[tuple[str, str, str], dict[str, object]]:
     out: dict[tuple[str, str, str], dict[str, object]] = {}
     for _, row in df.iterrows():
         key = (
-            str(row["especie_quimica"]).strip(),
+            str(row["flujo_elemental"]).strip(),
             str(row["compartimento"]).strip(),
             str(row["categoria_impacto"]).strip(),
         )
         if key in out:
             raise ValueError(f"Factor EF 3.1 duplicado: {key}")
         if key not in EXPECTED_FACTOR_METADATA:
-            raise ValueError(f"Combinación especie–compartimento–categoría no admitida por EF 3.1: {key}")
+            raise ValueError(f"Combinación flujo–compartimento–categoría no admitida por EF 3.1: {key}")
         unit = str(row["unidad_factor"]).strip()
         if unit != EXPECTED_FACTOR_METADATA[key]:
             raise ValueError(f"Unidad de factor incompatible para {key}: {unit}")
+        if unit.split("/kg ")[-1] != str(row["especie_quimica"]).strip():
+            raise ValueError(f"Especie incompatible con la identidad del flujo: {key}")
+        if not np.isfinite(float(row["factor"])) or float(row["factor"]) < 0:
+            raise ValueError(f"Factor no finito o negativo: {key}")
         method = str(row["metodo"]).strip()
         version = str(row["version"]).strip()
         if method != "Environmental Footprint" or version != "3.1":
@@ -174,6 +185,7 @@ def compute_impacts(
     df: pd.DataFrame,
     factors: dict[tuple[str, str, str], dict[str, object]],
     functional_reference_kg: float,
+    resources: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     out = df.copy()
     out["n2o_total_kg"] = out[N2O_COLS].sum(axis=1)
@@ -187,18 +199,48 @@ def compute_impacts(
         return float(factors[(species, compartment, category)]["factor"])
 
     out["impacto_calentamiento_global_kg_co2eq"] = (
-        out["ch4_total_kg"] * factor("CH4", "air unspecified", "Cambio climático")
-        + out["n2o_total_kg"] * factor("N2O", "air unspecified", "Cambio climático")
+        out["ch4_total_kg"] * factor("Methane biogenic", "air unspecified", "Cambio climático")
+        + out["n2o_total_kg"] * factor("Nitrous oxide", "air unspecified", "Cambio climático")
     )
     out["impacto_eutrofizacion_terrestre_mol_neq"] = (
-        out["nh3_total_kg"] * factor("NH3", "air unspecified", "Eutrofización terrestre")
-        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "air unspecified", "Eutrofización terrestre")
+        out["nh3_total_kg"] * factor("Ammonia", "air unspecified", "Eutrofización terrestre")
+        + out["nox_total_kg_as_no2"] * factor("Nitrogen oxides", "air unspecified", "Eutrofización terrestre")
     )
     out["impacto_eutrofizacion_marina_kg_neq"] = (
-        out["nh3_total_kg"] * factor("NH3", "air unspecified", "Eutrofización marina")
-        + out["nox_total_kg_as_no2"] * factor("NOx as NO2", "air unspecified", "Eutrofización marina")
-        + out["no3_total_kg"] * factor("NO3", "fresh water", "Eutrofización marina")
+        out["nh3_total_kg"] * factor("Ammonia", "air unspecified", "Eutrofización marina")
+        + out["nox_total_kg_as_no2"] * factor("Nitrogen oxides", "air unspecified", "Eutrofización marina")
+        + out["no3_total_kg"] * factor("Nitrate", "fresh water", "Eutrofización marina")
     )
+    # Conservar el manejo y sumar contribuciones disjuntas, sin GWP IMN del diésel.
+    out["clima_manejo_ef31_kg_co2eq"] = out["impacto_calentamiento_global_kg_co2eq"]
+    operational_columns = ["co2_fosil_diesel_kg", "ch4_fosil_diesel_kg", "n2o_combustion_diesel_kg", "clima_electricidad_imn_kg_co2eq"]
+    for column in operational_columns:
+        out[column] = 0.0
+    if resources is not None:
+        expected = {("A", 3, "Electricidad"), ("B", 1, "Electricidad"), ("A", 4, "Diésel"), ("B", 2, "Diésel")}
+        keys = list(zip(resources["escenario"], resources["etapa"].astype(int), resources["flujo"]))
+        if len(keys) != len(set(keys)) or set(keys) != expected:
+            raise ValueError("Asignación operativa incompleta o duplicada.")
+        for row in resources.to_dict("records"):
+            if abs(float(row["referencia_funcional_estiercol_fresco_kg"]) - functional_reference_kg) > 1e-6:
+                raise ValueError("Referencia funcional operativa incompatible.")
+            mask = out["Escenario"].eq(row["escenario"]) & out["Etapa"].eq(int(row["etapa"]))
+            if mask.sum() != 1:
+                raise ValueError("Etapa operativa ausente o duplicada en emisiones.")
+            for column in operational_columns:
+                value = float(row[column])
+                if not np.isfinite(value) or value < 0:
+                    raise ValueError(f"Resultado operativo inválido: {column}")
+                out.loc[mask, column] += value
+    out["clima_diesel_ef31_kg_co2eq"] = (
+        out["co2_fosil_diesel_kg"] * factor("Carbon dioxide (fossil)", "air unspecified", "Cambio climático")
+        + out["ch4_fosil_diesel_kg"] * factor("Methane (fossil)", "air unspecified", "Cambio climático")
+        + out["n2o_combustion_diesel_kg"] * factor("Nitrous oxide", "air unspecified", "Cambio climático")
+    )
+    out["clima_recursos_operativos_kg_co2eq"] = out["clima_electricidad_imn_kg_co2eq"] + out["clima_diesel_ef31_kg_co2eq"]
+    out["impacto_calentamiento_global_kg_co2eq"] = out["clima_manejo_ef31_kg_co2eq"] + out["clima_recursos_operativos_kg_co2eq"]
+    for column in CLIMATE_COMPONENTS:
+        out[column + "_por_kg_estiercol_fresco"] = out[column] / functional_reference_kg
     out["referencia_funcional_estiercol_fresco_kg"] = functional_reference_kg
     out["impacto_calentamiento_global_kg_co2eq_por_kg_estiercol_fresco"] = (
         out["impacto_calentamiento_global_kg_co2eq"] / functional_reference_kg
@@ -223,6 +265,7 @@ def compute_impacts(
         "impacto_eutrofizacion_terrestre_mol_neq_por_kg_estiercol_fresco",
         "impacto_eutrofizacion_marina_kg_neq_por_kg_estiercol_fresco",
     ]
+    cols += operational_columns[:3] + CLIMATE_COMPONENTS + [c + "_por_kg_estiercol_fresco" for c in CLIMATE_COMPONENTS]
     return out[cols].sort_values(["Escenario", "Etapa"]).reset_index(drop=True)
 
 
@@ -332,14 +375,15 @@ def main() -> None:
     factors = load_factors(factors_path)
     functional_reference_kg = load_functional_reference(mass_path)
     emissions = load_emissions(emissions_path)
-    impact_stage = compute_impacts(emissions, factors, functional_reference_kg)
+    resources = pd.read_csv(processed / "acv_inventario_recursos_operativos.csv")
+    impact_stage = compute_impacts(emissions, factors, functional_reference_kg, resources)
 
     stage_out = processed / "acv_impacto_por_etapa_escenario.csv"
     impact_stage.to_csv(stage_out, index=False, encoding="utf-8-sig")
 
     totals = (
         impact_stage.groupby("Escenario", as_index=False)[
-            ["impacto_calentamiento_global_kg_co2eq", "impacto_eutrofizacion_terrestre_mol_neq", "impacto_eutrofizacion_marina_kg_neq"]
+            ["impacto_calentamiento_global_kg_co2eq", "impacto_eutrofizacion_terrestre_mol_neq", "impacto_eutrofizacion_marina_kg_neq", *CLIMATE_COMPONENTS, "co2_fosil_diesel_kg", "ch4_fosil_diesel_kg", "n2o_combustion_diesel_kg"]
         ]
         .sum()
         .sort_values("Escenario")
@@ -350,6 +394,8 @@ def main() -> None:
     )
     totals["impacto_eutrofizacion_terrestre_mol_neq_por_kg_estiercol_fresco"] = totals["impacto_eutrofizacion_terrestre_mol_neq"] / functional_reference_kg
     totals["impacto_eutrofizacion_marina_kg_neq_por_kg_estiercol_fresco"] = totals["impacto_eutrofizacion_marina_kg_neq"] / functional_reference_kg
+    for column in CLIMATE_COMPONENTS:
+        totals[column + "_por_kg_estiercol_fresco"] = totals[column] / functional_reference_kg
     totals_out = processed / "acv_impacto_total_por_escenario.csv"
     totals.to_csv(totals_out, index=False, encoding="utf-8-sig")
 

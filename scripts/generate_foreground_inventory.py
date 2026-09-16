@@ -1,4 +1,4 @@
-"""Exporta el foreground neutral para la futura integración con SimaPro."""
+"""Exporta entradas, emisiones y contribución eléctrica sin doble caracterización."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ def main() -> None:
                          "compartimento": compartment, "procedencia": column,
                          "condicion_caracterizacion": "Caracterizado en Python mediante EF 3.1",
                          "dataset_background_pendiente": "No",
-                         "observaciones_doble_conteo": "No duplicar si SimaPro incluye esta emisión elemental."})
+                         "observaciones_doble_conteo": "Emisión del manejo ya caracterizada; verificación externa opcional, no sumar otro total."})
     resources = pd.read_csv(PROCESSED / "acv_inventario_recursos_operativos.csv")
     for row in resources.itertuples():
         note = ("El cañón usa la energía del tractor; no añadir energía ni combustión separada."
@@ -63,8 +63,32 @@ def main() -> None:
                      "cantidad_anual": row.cantidad_anual, "unidad": row.unidad,
                      "cantidad_por_unidad_funcional": row.cantidad_por_unidad_funcional,
                      "especie_quimica": "", "compartimento": "tecnosfera",
-                     "procedencia": row.procedencia, "condicion_caracterizacion": "Pendiente de proceso de fondo en SimaPro",
-                     "dataset_background_pendiente": "Sí", "observaciones_doble_conteo": note})
+                     "procedencia": row.procedencia, "condicion_caracterizacion": row.estado_lcia_actual,
+                     "dataset_background_pendiente": "No", "observaciones_doble_conteo": note})
+        if row.flujo == "Diésel":
+            for column, flow, species in (
+                ("co2_fosil_diesel_kg", "Dióxido de carbono fósil", "CO2"),
+                ("ch4_fosil_diesel_kg", "Metano fósil", "CH4"),
+                ("n2o_combustion_diesel_kg", "Óxido nitroso de combustión", "N2O"),
+            ):
+                value = float(getattr(row, column))
+                rows.append({"escenario": row.escenario, "etapa": STAGES[(row.escenario, int(row.etapa))],
+                             "nombre_flujo": flow, "tipo_flujo": "emisión directa", "cantidad_anual": value,
+                             "unidad": "kg/año", "cantidad_por_unidad_funcional": value / reference,
+                             "especie_quimica": species, "compartimento": "air unspecified",
+                             "procedencia": column, "condicion_caracterizacion": "Emisión física IMN caracterizada con EF 3.1",
+                             "dataset_background_pendiente": "No",
+                             "observaciones_doble_conteo": "Combustión de diésel ya incluida; no sumar GWP IMN ni otra combustión del cañón."})
+        else:
+            value = float(row.clima_electricidad_imn_kg_co2eq)
+            rows.append({"escenario": row.escenario, "etapa": STAGES[(row.escenario, int(row.etapa))],
+                         "nombre_flujo": "Contribución climática de electricidad IMN", "tipo_flujo": "resultado agregado",
+                         "cantidad_anual": value, "unidad": "kg CO2-eq/año",
+                         "cantidad_por_unidad_funcional": value / reference,
+                         "especie_quimica": "", "compartimento": "no aplica",
+                         "procedencia": row.factores_imn, "condicion_caracterizacion": "Consumo 2025; proxy temporal de operación 2026",
+                         "dataset_background_pendiente": "No",
+                         "observaciones_doble_conteo": "No es CO2 elemental; no caracterizar de nuevo con EF ni añadir generación eléctrica separada."})
     for scenario, storage, application, liquid in (("A", 3, 4, "aguas verdes"), ("B", 1, 2, "purín")):
         rows.append({"escenario": scenario, "etapa": STAGES[(scenario, storage)],
                      "nombre_flujo": f"Transferencia de {liquid} hacia aplicación", "tipo_flujo": "transferencia",

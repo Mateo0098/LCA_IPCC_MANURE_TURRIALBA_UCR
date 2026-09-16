@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from compute_acv_impact_equivalents import load_functional_reference
+from imn_operational_factors import add_operational_emissions, load_imn_factors
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,8 +51,8 @@ def build_inventory(parameters: dict[str, float], reference_kg: float) -> pd.Dat
 
     common = {
         "referencia_funcional_estiercol_fresco_kg": reference_kg,
-        "estado_lcia_actual": "Inventariado; proceso de fondo pendiente",
-        "dataset_background_pendiente": "Sí",
+        "periodo_representativo": "Patrón operativo observado el 2026-08-25 y anualizado a 365 días",
+        "dataset_background_pendiente": "No",
     }
     rows = [
         {"escenario": "A", "etapa": 3, "flujo": "Electricidad", "cantidad_anual": electricity,
@@ -80,7 +81,9 @@ def validate(df: pd.DataFrame) -> None:
 
 
 def main() -> None:
-    inventory = build_inventory(load_parameters(), functional_reference())
+    inventory = add_operational_emissions(
+        build_inventory(load_parameters(), functional_reference()), load_imn_factors()
+    )
     validate(inventory)
     inventory.to_csv(OUTPUT, index=False, encoding="utf-8-sig")
     print(f"Inventario operativo: {OUTPUT.relative_to(ROOT)}")

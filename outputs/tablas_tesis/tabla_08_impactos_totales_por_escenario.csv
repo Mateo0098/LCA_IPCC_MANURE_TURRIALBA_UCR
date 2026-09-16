@@ -1,7 +1,7 @@
-﻿escenario,categoria_impacto,resultado_total,unidad,fuente,observaciones
-A,Cambio climático,2687.737847464095,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-A,Eutrofización terrestre,617.0517125078838,mol N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-A,Eutrofización marina,15.648347825374902,kg N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-B,Cambio climático,5771.93146438376,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-B,Eutrofización terrestre,961.269308200257,mol N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
-B,Eutrofización marina,35.62231521609108,kg N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa
+﻿escenario,categoria_impacto,resultado_total,unidad,fuente,observaciones,clima_manejo_ef31_kg_co2eq,clima_electricidad_imn_kg_co2eq,clima_diesel_ef31_kg_co2eq,clima_recursos_operativos_kg_co2eq
+A,Cambio climático,3170.113530330761,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma por etapa; clima combinado IMN y EF 3.1,2687.737847464095,2.209010416666667,480.16667245,482.3756828666667
+A,Eutrofización terrestre,617.0517125078838,mol N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa,,,,
+A,Eutrofización marina,15.648347825374902,kg N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa,,,,
+B,Cambio climático,6254.307147250426,kg CO2-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma por etapa; clima combinado IMN y EF 3.1,5771.93146438376,2.209010416666667,480.16667245,482.3756828666667
+B,Eutrofización terrestre,961.269308200257,mol N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa,,,,
+B,Eutrofización marina,35.62231521609108,kg N-eq/año,processed/acv_impacto_total_por_escenario.csv,Suma de impactos por etapa,,,,

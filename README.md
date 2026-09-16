@@ -2,16 +2,25 @@
 
 ## Caracterización e inventario operativo vigentes
 
-El pipeline canónico caracteriza las emisiones directas mediante Environmental
-Footprint 3.1 en cambio climático, eutrofización terrestre y eutrofización
-marina. La electricidad de bombeo y el diésel del tractor se calculan como
-flujos físicos foreground y permanecen pendientes de procesos de fondo. La
-salida neutral `processed/acv_foreground_intercambio.csv` prepara la futura
-integración con SimaPro sin seleccionar todavía datasets de ecoinvent.
+El pipeline Python caracteriza las emisiones elementales del manejo y de
+combustión de diésel mediante Environmental Footprint 3.1. La electricidad usa
+el factor agregado IMN de consumo 2025 como proxy temporal para el patrón
+operativo observado en 2026 y anualizado a 365 días. El total climático combina
+el manejo, la electricidad y el diésel; no es un resultado exclusivamente EF 3.1.
 
-Python conserva la fuente de verdad del inventario y la normalización. Cuando
-se integren resultados de SimaPro, no se sumarán nuevamente los impactos
-directos si el total importado ya los contiene.
+`processed/acv_factores_imn_recursos_operativos.csv` contiene factores nacionales
+por actividad; `processed/acv_factores_equivalencia.csv` conserva exclusivamente
+factores EF 3.1, identificados por flujo elemental, compartimento y categoría.
+El inventario operativo conserva las masas de CO₂ fósil, CH₄ fósil y N₂O de
+combustión. Los resultados por etapa y escenario mantienen subtotales separados
+de manejo, electricidad, diésel y recursos energéticos, además del total.
+
+No se modelan cadenas completas de fondo mediante ecoinvent. SimaPro es una
+herramienta opcional de verificación independiente de la caracterización de
+emisiones elementales; no es dependencia del pipeline ni proveedor obligatorio
+de un total a reimportar. La electricidad agregada IMN no se caracteriza de nuevo.
+La selección temporal y sectorial se documenta en la sección 15 de
+`DECISIONES_METODOLOGICAS_TFG.md`.
 
 ## Objetivo
 
@@ -87,7 +96,7 @@ afirmaciones manuales sobre A o B.
 
 `ACV_orquestador.py` parte de la integración experimental vigente. En orden,
 genera `processed/acv_parametros_escenario_etapa.csv`, calcula las masas,
-construye `processed/reactive_n_ledger.csv`, inicializa el resumen de emisiones,
+anualiza recursos y genera masas de combustión con IMN, construye `processed/reactive_n_ledger.csv`, inicializa el resumen de emisiones,
 ejecuta A1–B2, valida la presencia de las
 seis etapas, calcula impactos, genera el contraste bibliográfico derivado de A2
 y ejecuta el postproceso gráfico existente. El contraste no modifica el
@@ -143,6 +152,9 @@ Estas tablas se mantienen manualmente y no sustituyen las capas experimentales:
 - `processed/ipcc_sistema_manejo_por_etapa.csv`: asignación de sistemas IPCC por etapa.
 - `processed/ipcc_factores_manejo_overrides_etapa.csv`: excepciones específicas por escenario y etapa sin alterar factores genéricos.
 - `processed/masa_total_factor_overrides.csv`: ajustes controlados de masa por etapa.
+
+Los factores energéticos se verifican con `scripts/validate_ef31_operational_inventory.py`
+y `tests/test_ef31_operational_inventory.py`; la validación integral los incluye.
 
 ## Incorporación futura de M3
 

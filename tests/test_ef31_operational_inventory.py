@@ -18,6 +18,9 @@ from compute_acv_impact_equivalents import (  # noqa: E402
 from compute_operational_inventory import (  # noqa: E402
     build_inventory, functional_reference, load_parameters,
 )
+from imn_operational_factors import (  # noqa: E402
+    add_operational_emissions, load_imn_factors, FACTOR_PATH,
+)
 
 
 class EF31OperationalInventoryTests(unittest.TestCase):
@@ -66,6 +69,13 @@ class EF31OperationalInventoryTests(unittest.TestCase):
             self.assertEqual(data["unidad"], EXPECTED_FACTOR_METADATA[key])
             self.assertEqual(data["metodo"], "Environmental Footprint")
             self.assertEqual(data["version"], "3.1")
+        table = pd.read_csv(self.factor_path)
+        fossil_notes = table.loc[
+            table["flujo_elemental"].isin(["Carbon dioxide (fossil)", "Methane (fossil)"]),
+            "observaciones",
+        ]
+        self.assertTrue(fossil_notes.str.contains("combustión de diésel", regex=False).all())
+        self.assertFalse(fossil_notes.str.contains("?", regex=False).any())
 
     def _assert_invalid_factor_table(self, column: str, value: str) -> None:
         table = pd.read_csv(self.factor_path)
@@ -111,6 +121,67 @@ class EF31OperationalInventoryTests(unittest.TestCase):
         self.assertEqual(values[("A", 4, "Diésel")], 182.5)
         self.assertEqual(values[("A", 4, "Diésel")], values[("B", 2, "Diésel")])
         self.assertFalse(any("cañón" in flow.lower() for _, _, flow in values))
+
+    def operational_case(self):
+        resources = add_operational_emissions(
+            build_inventory(load_parameters(), 26278.725181), load_imn_factors())
+        rows = [dict(self.base, Escenario=s, Etapa=e) for s,e in
+                [("A",1),("A",2),("A",3),("A",4),("B",1),("B",2)]]
+        return pd.DataFrame(rows), resources
+
+    def test_energy_sanity_checks_and_no_double_count(self):
+        emissions, resources = self.operational_case()
+        result = compute_impacts(emissions, self.factors, 26278.725181, resources)
+        for scenario, group in result.groupby("Escenario"):
+            for col, expected in {
+                "co2_fosil_diesel_kg": 476.8725, "ch4_fosil_diesel_kg": 0.069715,
+                "n2o_combustion_diesel_kg": 0.00445665,
+                "clima_electricidad_imn_kg_co2eq": 2.209010416666667,
+                "clima_diesel_ef31_kg_co2eq": 480.16667245,
+                "impacto_calentamiento_global_kg_co2eq": 482.3756828666667,
+            }.items():
+                self.assertAlmostEqual(group[col].sum(), expected, places=10)
+            self.assertEqual(group["clima_manejo_ef31_kg_co2eq"].sum(), 0)
+            self.assertEqual(group["n2o_total_kg"].sum(), 0)
+            self.assertEqual(group["impacto_eutrofizacion_marina_kg_neq"].sum(), 0)
+            self.assertEqual(group["impacto_eutrofizacion_terrestre_mol_neq"].sum(), 0)
+        self.assertAlmostEqual(self.factors[("Methane (fossil)", "air unspecified", "Cambio climático")]["factor"], 29.8)
+        self.assertAlmostEqual(self.factors[("Methane biogenic", "air unspecified", "Cambio climático")]["factor"], 27)
+
+    def test_duplicate_operational_rows_fail(self):
+        emissions, resources = self.operational_case()
+        with self.assertRaises(ValueError):
+            compute_impacts(emissions, self.factors, 26278.725181, pd.concat([resources, resources.iloc[:1]]))
+
+    def test_imn_wrong_selection_units_year_and_hash_fail(self):
+        for column, value in [("categoria_imn", "Generación de electricidad"),
+                              ("ano_representado", "2024"), ("unidad_original", "kg CO2/L"),
+                              ("estado_seleccion", "Pendiente"), ("sha256_fuente", "0" * 64)]:
+            table = pd.read_csv(FACTOR_PATH, keep_default_na=False, dtype=str)
+            table.loc[0, column] = value
+            with self.subTest(column=column), tempfile.TemporaryDirectory() as folder:
+                path = Path(folder) / "factors.csv"
+                table.to_csv(path, index=False, encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    load_imn_factors(path)
+
+    def test_imn_transport_category_rejected(self):
+        table = pd.read_csv(FACTOR_PATH, keep_default_na=False, dtype=str)
+        table.loc[table["especie_indicador"].eq("CH4"), "categoria_imn"] = "Transporte terrestre/diesel/sin catalizador"
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "factors.csv"
+            table.to_csv(path, index=False, encoding="utf-8")
+            with self.assertRaises(ValueError):
+                load_imn_factors(path)
+
+    def test_fossil_formula_cannot_replace_flow_identity(self):
+        table = pd.read_csv(self.factor_path)
+        table.loc[table["flujo_elemental"].eq("Methane (fossil)"), "flujo_elemental"] = "Methane biogenic"
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "factors.csv"
+            table.to_csv(path, index=False, encoding="utf-8")
+            with self.assertRaises(ValueError):
+                load_factors(path)
 
 
 if __name__ == "__main__":

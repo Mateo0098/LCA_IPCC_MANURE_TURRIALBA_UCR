@@ -100,3 +100,15 @@ ChatGPT identifica el conjunto documental afectado durante la revisión de
 cierre. Codex inspecciona los documentos indicados en el prompt, comprueba sus
 referencias inmediatas y reporta cualquier documento adicional que resulte
 afectado o potencialmente obsoleto.
+
+## Responsabilidades de recursos operativos IMN
+
+La sección 15 de `DECISIONES_METODOLOGICAS_TFG.md` gobierna la selección temporal
+y sectorial. `processed/acv_factores_imn_recursos_operativos.csv` es la fuente
+manual de factores nacionales por actividad; la tabla EF sigue siendo exclusiva
+de caracterización. `scripts/imn_operational_factors.py` valida metadatos y
+convierte emisiones físicas dentro del generador operativo existente. LCIA,
+tablas, gráficos y documentos consumen sus salidas; no hay otro pipeline.
+Al cambiar esta capa se revisan README, metodología, diccionario, generadores
+académicos, validación EF/IMN y validación integral. La tabla de supuestos 00
+queda a cargo de `scripts/generate_thesis_tables.py`; no se mantiene manualmente.

@@ -292,7 +292,7 @@ def build_conclusions(
                 "posteriormente, la masa resultante continuó hacia A2: Lombricompostaje, mientras que "
                 f"{number(100 * remainder_fraction, 2)} % se incorporó a las aguas verdes. En el Escenario B, el "
                 "100 % ingresó al sistema de purines. De este modo, el inventario caracterizó las trayectorias de manejo y "
-                "los flujos asociados a cada alternativa estudiada. El inventario incorporó además 53,23 kWh/año de electricidad en A3 o B1 y 182,50 L/año de diésel en A4 o B2; sus procesos de fondo permanecen pendientes."
+                "los flujos asociados a cada alternativa estudiada. El inventario incorporó además 53,23 kWh/año de electricidad en A3 o B1 y 182,50 L/año de diésel en A4 o B2; la electricidad se evaluó mediante el factor IMN agregado de consumo 2025, proxy temporal de la operación observada en 2026, y las emisiones físicas IMN del diésel se caracterizaron con EF 3.1. El total climático combina ambos aportes con el manejo del estiércol, sin cadenas de fondo ecoinvent."
             ),
             "evidence": (
                 f"Flujo común: {reference_flow:.9f} kg/año; fracción recolectada de A: {collected_fraction:.12f}; "

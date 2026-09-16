@@ -402,7 +402,7 @@ def plot_emissions(readme: list[dict[str, str]]) -> None:
             {
                 "archivo": filename,
                 "tabla": TABLES["emisiones"],
-                "muestra": f"Emisiones anuales de {substance} por etapa y escenario.",
+                "muestra": f"Emisiones anuales del manejo del estiércol de {substance} por etapa y escenario; combustión de diésel separada en el inventario.",
                 "seccion": "Resultados: emisiones por etapa",
                 "apendice": "Apendice de emisiones",
             }
@@ -441,7 +441,8 @@ def plot_impacts_by_stage(readme: list[dict[str, str]]) -> None:
             {
                 "archivo": filename,
                 "tabla": TABLES["impactos_etapa"],
-                "muestra": f"Impacto de {category.lower()} agregado por etapa y escenario.",
+                "muestra": ("Cambio climático total con electricidad IMN agregada y emisiones elementales EF 3.1 por etapa y escenario."
+                            if category == "Cambio climático" else f"Impacto de {category.lower()} agregado por etapa y escenario."),
                 "seccion": "Resultados: impactos ambientales por etapa",
                 "apendice": "Apendice de impactos ambientales",
             }
@@ -485,7 +486,8 @@ def plot_scenario_comparison(readme: list[dict[str, str]]) -> None:
             {
                 "archivo": filename,
                 "tabla": TABLES["impactos_totales"],
-                "muestra": f"Comparacion del impacto total de {category.lower()} entre A y B.",
+                "muestra": ("Comparación del cambio climático total combinado IMN y EF 3.1 entre A y B."
+                            if category == "Cambio climático" else f"Comparacion del impacto total de {category.lower()} entre A y B."),
                 "seccion": section,
                 "apendice": "Apendice de comparacion de escenarios",
             }

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import re
 import zipfile
@@ -97,7 +97,7 @@ MAIN_FIGURES = [
     ("fig_02_caracterizacion_solidos_volatiles_cenizas.png", "Figura 2. Sólidos volátiles y cenizas por tipo de muestra."),
     ("fig_04_flujos_masa_equivalente_total.png", "Figura 3. Masa equivalente total por etapa y escenario."),
     ("fig_06_emisiones_ch4.png", "Figura 4. Emisiones anuales de CH4 por etapa y escenario."),
-    ("fig_11_impactos_cambio_climatico_etapa.png", "Figura 5. Cambio climático EF 3.1 por etapa y escenario."),
+    ("fig_11_impactos_cambio_climatico_etapa.png", "Figura 5. Cambio climático total por etapa y escenario (IMN y EF 3.1)."),
     ("fig_12_impactos_eutrofizacion_terrestre_etapa.png", "Figura 6. Eutrofización terrestre EF 3.1 por etapa y escenario."),
     ("fig_17_comparacion_diferencia_porcentual.png", "Figura 7. Diferencia porcentual del Escenario B respecto al Escenario A por categoría de impacto."),
 ]
@@ -606,6 +606,17 @@ def total_impact_summary() -> pd.DataFrame:
     )
 
 
+def operational_climate_paragraphs() -> list[str]:
+    totals = pd.read_csv(PROCESSED_TOTALS, encoding="utf-8-sig")
+    return [
+        f"En el Escenario {r.Escenario}, el impacto climático del manejo fue de {fmt(r.clima_manejo_ef31_kg_co2eq, 6)} kg CO₂-eq/año; "
+        f"la electricidad operativa aportó {fmt(r.clima_electricidad_imn_kg_co2eq, 6)} y la combustión de diésel {fmt(r.clima_diesel_ef31_kg_co2eq, 6)} kg CO₂-eq/año. "
+        f"La contribución energética conjunta fue de {fmt(r.clima_recursos_operativos_kg_co2eq, 6)} kg CO₂-eq/año, equivalente a "
+        f"{fmt(r.clima_recursos_operativos_kg_co2eq_por_kg_estiercol_fresco, 9)} kg CO₂-eq/kg de estiércol fresco manejado."
+        for r in totals.itertuples()
+    ]
+
+
 def comparison_summary() -> pd.DataFrame:
     t09 = read_csv("tabla_09")
     out = t09[
@@ -844,7 +855,7 @@ def build_document() -> None:
         [
             f"Las emisiones consolidadas muestran diferencias entre escenarios y sustancias. El Escenario A presentó {emission_totals_text('A')}. El Escenario B presentó {emission_totals_text('B')}.",
             f"{dominant_emission('CH4')} presentó la mayor contribución de CH4. {dominant_emission('N2O')} presentó la mayor emisión de N2O. A2: Lombricompostaje fue estimada mediante las vías IPCC de manejo de estiércol. La Tabla 4 resume las emisiones anuales por escenario y sustancia, y la Figura 4 presenta las emisiones de CH4 por etapa.",
-            "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
+            "La Tabla R5 del bloque de apéndices internos, Emisiones completas por etapa, presenta la desagregación por sustancia, escenario y etapa e identifica por separado CO₂ fósil, CH₄ fósil y N₂O de combustión del diésel. La Tabla 4 y las figuras de emisiones conservan exclusivamente las emisiones del manejo del estiércol. Además, el Apéndice R9, Figuras complementarias, reúne las representaciones gráficas que respaldan la interpretación de la caracterización, los flujos, las emisiones y la comparación de escenarios.",
         ],
     )
     add_dataframe_table(doc, "Tabla 4. Emisiones anuales por escenario y sustancia.", format_df(emissions_summary()))
@@ -858,7 +869,7 @@ def build_document() -> None:
             f"Para eutrofización marina, {context['eu_dominant_b_name']} presentó la mayor contribución del Escenario B, con {fmt(context['eu_dominant_b_percentage'], 2)} % de su total; en el Escenario A, {context['eu_dominant_a_name']} concentró {fmt(context['eu_dominant_a_percentage'], 2)} %. La tabla de impactos por etapa presenta separadamente cambio climático, eutrofización terrestre y eutrofización marina.",
             f"En B1: Almacenamiento de purines, la lixiviación explícita utilizada para estimar N₂O indirecto y NO₃⁻ fue nula. La eutrofización terrestre y marina de esta etapa procede de las emisiones atmosféricas explícitas de NH₃ y NOx del ledger.",
             "La caracterización de las emisiones directas se realizó con Environmental Footprint 3.1: cambio climático en kg CO₂-eq, eutrofización terrestre en mol N-eq y eutrofización marina en kg N-eq.",
-            "Los consumos de electricidad y diésel están incorporados al inventario físico, pero sus procesos de fondo serán caracterizados posteriormente mediante SimaPro y ecoinvent dentro del mismo pipeline canónico.",
+            "Los consumos operativos se incorporaron mediante factores IMN: electricidad agregada de consumo 2025, como proxy temporal del patrón observado en 2026, y emisiones físicas de diésel caracterizadas con EF 3.1. El total climático combina estas contribuciones con las del manejo; no corresponde exclusivamente a EF 3.1. No se modelaron cadenas completas de suministro mediante ecoinvent.",
             "La Tabla R6 del bloque de apéndices internos, Impactos completos por etapa, presenta los resultados desagregados por categoría de impacto.",
         ],
     )
@@ -867,6 +878,7 @@ def build_document() -> None:
     add_figure(doc, *MAIN_FIGURES[5])
 
     doc.add_heading("6. Impactos totales por escenario", level=2)
+    add_paragraphs(doc, operational_climate_paragraphs())
     add_paragraphs(
         doc,
         [
@@ -1293,6 +1305,8 @@ def write_factor_references_report(
             justification = "Factor experimental de NH₃ para el residuo orgánico de entrada a A2."
         elif classification == "Environmental Footprint 3.1":
             justification = "Factor de caracterización EF 3.1 por especie y compartimento."
+        elif classification == "Instituto Meteorológico Nacional":
+            justification = "Factor nacional por actividad; electricidad de consumo 2025 y emisiones físicas de combustión, pp. 3–4; discrepancia editorial conservada."
         elif classification == "Supuesto del modelo":
             justification = "Supuesto explícito del modelo; no se presenta como factor bibliográfico."
         elif classification == "Conversión estequiométrica":
@@ -1663,7 +1677,7 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         f"- Categorías y unidades EF 3.1 visibles: {'Sí' if all(x in combined for x in ['kg CO₂-eq', 'mol N-eq', 'kg N-eq']) else 'No'}.",
         f"- Ausencia de unidades históricas activas: {'Sí' if not any(x in combined for x in forbidden[:2]) else 'No'}.",
         f"- Ausencia de etiquetas internas prohibidas: {'Sí' if not any(x in combined for x in forbidden[2:]) else 'No'}.",
-        "- Electricidad y diésel se presentan como inventario físico pendiente de procesos de fondo: Sí.",
+        "- Electricidad IMN agregada y combustión de diésel IMN–EF 3.1: incluidas, sin procesos de fondo pendientes.",
         "- Agua de lavado descrita como pluvial, sin carga de potabilización municipal: Sí.",
         "- El cañón no recibe una entrada energética independiente: Sí.",
         f"- Documento maestro protegido sin cambios: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",

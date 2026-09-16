@@ -4,6 +4,10 @@ import re
 
 
 ACADEMIC_LABELS = {
+    "clima_manejo_ef31_kg_co2eq": "Manejo del estiércol, EF 3.1 (kg CO₂-eq/año)",
+    "clima_electricidad_imn_kg_co2eq": "Electricidad, IMN (kg CO₂-eq/año)",
+    "clima_diesel_ef31_kg_co2eq": "Diésel, IMN y EF 3.1 (kg CO₂-eq/año)",
+    "clima_recursos_operativos_kg_co2eq": "Recursos energéticos (kg CO₂-eq/año)",
     "B2: Aplicación en campo": "B2: Aplicación de purines en campo de pastoreo",
     "uncovered anaerobic lagoon": "Laguna anaerobia descubierta",
     "dry_lot": "Sistema de manejo en corral seco",

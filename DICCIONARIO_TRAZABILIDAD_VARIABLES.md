@@ -64,13 +64,13 @@ finales en `outputs/tablas_tesis/`.
 
 | Variable en codigo | Nombre recomendado para la tesis | Definicion | Unidad | Fuente del dato | Formula usada | Script donde se calcula | Archivo de salida donde aparece | Seccion de tesis |
 |---|---|---|---|---|---|---|---|---|
-| `factor` EF 3.1 | Factor por especie, compartimento y categoría | Convierte emisiones directas al indicador EF 3.1 correspondiente. | Según categoría | Comisión Europea/JRC, tabla oficial EF 3.1 | Valor tabulado por flujo elemental | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_factores_equivalencia.csv` | Cambio climático y eutrofización |
-| `impacto_calentamiento_global_kg_co2eq` | Potencial de calentamiento global | Resultado directo EF 3.1 de CH₄ biogénico y N₂O. El CO₂ biogénico medido permanece registrado como `co2_total_kg` en el inventario, pero no se caracteriza en este cálculo directo vigente. | kg CO₂-eq/año | `processed/ACV_resumen_emisiones.csv`; `processed/acv_factores_equivalencia.csv` | `ch4_total_kg × factor("CH4", "air unspecified", "Cambio climático") + n2o_total_kg × factor("N2O", "air unspecified", "Cambio climático")` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv`; `processed/acv_impacto_total_por_escenario.csv`; gráficos en `graphics_results/` | Evaluación de impacto ambiental: cambio climático |
+| `factor` EF 3.1 | Factor por identidad de flujo elemental, compartimento y categoría | Convierte emisiones directas al indicador EF 3.1 correspondiente. | Según categoría | Comisión Europea/JRC, tabla oficial EF 3.1 | Valor tabulado por flujo elemental | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_factores_equivalencia.csv` | Cambio climático y eutrofización |
+| `impacto_calentamiento_global_kg_co2eq` | Cambio climático total del escenario | Total combinado IMN–EF; electricidad agregada y emisiones elementales caracterizadas. | kg CO₂-eq/año | Inventarios de manejo y recursos; factores IMN y EF separados | manejo + electricidad + diésel | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario, gráficos | Cambio climático total |
 | `impacto_eutrofizacion_terrestre_mol_neq` | Eutrofización terrestre | NH₃ y NOx atmosféricos caracterizados mediante EF 3.1. | mol N-eq/año | Inventario explícito y factores EF 3.1 | NH₃×13,47 + NOx×4,26 | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario | Categoría independiente |
 | `impacto_eutrofizacion_marina_kg_neq` | Eutrofización marina | NH₃, NOx y NO₃⁻ a agua dulce caracterizados mediante EF 3.1. | kg N-eq/año | Inventario explícito y factores EF 3.1 | NH₃×0,092 + NOx×0,389 + NO₃⁻×0,226 | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario | NO₃⁻ ya está en masa molecular |
-| Inventario operativo | Electricidad y diésel foreground | Consumos físicos anualizados y normalizados. Los 30 min por vaciado son una duración aproximada comunicada por operarios, no una medición instrumentada; el consumo de 3 L/h es un supuesto del estudio. | kWh/año; L/año | Nota de campo, placa, comunicación personal y supuestos identificados | Ecuaciones parametrizadas | `scripts/compute_operational_inventory.py` | Inventario operativo y exportación foreground | Impactos de fondo pendientes |
-| `ch4_total_kg` | CH4 total por etapa para impacto | Total de CH4 usado en la categoria de calentamiento global. | kg CH4/ano | `processed/ACV_resumen_emisiones.csv` | `CH4_ec1` convertido a numerico | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
-| `n2o_total_kg` | N2O total por etapa para impacto | Suma de columnas de N2O directo e indirecto. | kg N2O/ano | `processed/ACV_resumen_emisiones.csv` | `N2O_ec14 + N2O_ec2 + N2O_ec5 + N2O_ec6 + N2O_ec16 + N2O_ec18` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
+| Inventario operativo | Electricidad y diésel foreground | Consumos físicos anualizados y normalizados. Los 30 min por vaciado son una duración aproximada comunicada por operarios, no una medición instrumentada; el consumo de 3 L/h es un supuesto del estudio. | kWh/año; L/año | Nota de campo, placa, comunicación personal y supuestos identificados | Ecuaciones parametrizadas | `scripts/compute_operational_inventory.py` | Inventario operativo y exportación foreground | Tratamiento climático IMN y EF 3.1 |
+| `ch4_total_kg` | CH4 total por etapa para impacto | CH4 biogénico del manejo; excluye el CH4 fósil de diésel. | kg CH4/ano | `processed/ACV_resumen_emisiones.csv` | `CH4_ec1` convertido a numerico | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
+| `n2o_total_kg` | N2O total por etapa para impacto | Suma de N2O del manejo directo e indirecto; excluye combustión. | kg N2O/ano | `processed/ACV_resumen_emisiones.csv` | `N2O_ec14 + N2O_ec2 + N2O_ec5 + N2O_ec6 + N2O_ec16 + N2O_ec18` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
 | `nh3_total_kg` | NH3 total por etapa para impacto | Suma de columnas de NH3 desde manejo de estiercol y suelos gestionados. | kg NH3/ano | `processed/ACV_resumen_emisiones.csv` | `NH3_ec12 + NH3_ec20` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
 | `no3_total_kg` | NO3 total por etapa para impacto | Suma de columnas de NO3 desde manejo de estiercol y suelos gestionados. | kg NO3/ano | `processed/ACV_resumen_emisiones.csv` | `NO3_ec13 + NO3_ec21` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
 
@@ -84,3 +84,21 @@ finales en `outputs/tablas_tesis/`.
   `EF4`, `EF5`) deben tener referencia bibliografica explicita en tablas finales.
 - Los factores de caracterización activos pertenecen a Environmental Footprint
   3.1 y se parametrizan por especie, compartimento y categoría.
+
+## Desglose climático operativo IMN–EF 3.1
+
+| Variable | Significado y cálculo | Fuente responsable |
+|---|---|---|
+| `clima_manejo_ef31_kg_co2eq` | Subtotal previo del manejo: CH₄ biogénico × 27 + N₂O del manejo × 273 | LCIA; resumen de emisiones del manejo |
+| `clima_electricidad_imn_kg_co2eq` | kWh × factor IMN consumo 2025; resultado agregado, no flujo elemental | Inventario operativo; tabla canónica IMN |
+| `co2_fosil_diesel_kg` | L × 2,613 kg/L | Inventario operativo; IMN p. 3 |
+| `ch4_fosil_diesel_kg` | L × 0,382 g/L ÷ 1000 | Inventario operativo; IMN p. 3, proxy agrícola |
+| `n2o_combustion_diesel_kg` | L × 0,02442 g/L ÷ 1000; N₂O molecular | Inventario operativo; IMN p. 4, proxy agrícola |
+| `clima_diesel_ef31_kg_co2eq` | CO₂ fósil × 1 + CH₄ fósil × 29,8 + N₂O combustión × 273 | LCIA; factores EF 3.1 por identidad elemental |
+| `clima_recursos_operativos_kg_co2eq` | Electricidad + diésel, contribuciones disjuntas | LCIA |
+
+Los cuatro subtotales se conservan por etapa y escenario y con sufijo
+`_por_kg_estiercol_fresco` para normalización. La observación operativa de 2026
+anualizada no equivale a un año instrumental; 2025 es proxy del factor eléctrico.
+La selección, frontera y discrepancia editorial IMN se rigen por la sección 15
+de `DECISIONES_METODOLOGICAS_TFG.md`.
