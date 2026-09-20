@@ -105,10 +105,10 @@ La aclaración del CIA suministrada por el investigador establece expresamente: 
 
 En consecuencia:
 
-- el porcentaje de N del precompostado se interpreta sobre la muestra seca o preparada por CIA después de 80 °C durante 48 h;
+- para el TFG, el porcentaje de N del precompostado se tratará como referido a la muestra seca acondicionada por CIA a 80 °C durante 48 h;
 - este acondicionamiento es distinto del procedimiento gravimétrico de Bioenergía a 105 °C durante 16 h;
-- el secado CIA no sustituye la determinación de humedad o materia seca realizada en Bioenergía;
-- la base metodológica del N del precompostado no permanece como incertidumbre abierta.
+- el secado CIA no se utilizará para reconstruir la humedad ni sustituye la determinación de humedad o materia seca realizada en Bioenergía;
+- la base metodológica del N del precompostado no se presentará como incertidumbre abierta.
 
 La configuración de ingestión vigente, `scripts/sampling_ingestion_config.py`, conserva además la metodología oficial del CIA suministrada por el investigador: el abono sólido se seca a 80 °C durante 48 h, se muele, se criba a 1 mm y se determinan N y C por combustión seca de Dumas. Esta fuente documenta que el mismo acondicionamiento se aplicó a la determinación de C; esa afirmación no se deriva únicamente de la aclaración específica sobre N. El carbono se conserva como caracterización descriptiva según las decisiones vigentes.
 
