@@ -87,6 +87,30 @@ IDs internos de sesión: cuando el cambio de contexto resulte relevante, basta
 con indicarlo en el reporte. Cambiar de rama obliga a reevaluar si conviene una
 sesión nueva, pero iniciar una sesión nueva no obliga a crear otra rama.
 
+### Prompts diferenciales y reanudación
+
+Cuando existe un *baseline* o checkpoint validado, el siguiente prompt lo
+identifica por rama y SHA y describe únicamente el objetivo nuevo, los archivos
+que deben inspeccionarse, los cambios permitidos, las restricciones específicas,
+las validaciones afectadas y el reporte esperado. Las reglas permanentes de Git,
+reportes, documentación y cierre se aplican desde `AGENTS.md` y este flujo; el
+prompt no necesita copiarlas ni repetir contexto científico o metodológico que
+ya tenga una fuente responsable, salvo cuando sea relevante para decidir el
+cambio actual.
+
+Después de una interrupción por cuota, error de entorno o cierre de sesión,
+Codex no reinicia automáticamente la unidad. Primero inspecciona el estado Git y
+el trabajo existente, distingue lo completo de lo pendiente, conserva los
+cambios válidos y continúa solo lo necesario. No repite análisis, regeneraciones
+o validaciones si sus insumos no cambiaron; una anomalía, un diff nuevo o una
+dependencia modificada sí justifican ampliar la comprobación.
+
+La delegación a subagentes es opcional y, cuando las instrucciones aplicables la
+permitan, se reserva para subtareas delimitadas e independientes donde el
+paralelismo aporte valor. El agente principal sigue siendo responsable de
+integrar el trabajo, revisar el diff conjunto, resolver inconsistencias y
+ejecutar la validación final.
+
 ### Objetivo principal del chat
 
 ChatGPT debe mantener conscientemente identificado el objetivo principal vigente
