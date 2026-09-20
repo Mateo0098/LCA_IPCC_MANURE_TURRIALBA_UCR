@@ -43,6 +43,7 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `docs/REGLAS_FORMATO_WORD.md` | Especificación de documentos Word | B | Generadores y validación documental | Formato, nomenclatura, captions, ecuaciones o validadores Word | Manual | Vigente |
 | `docs/PLAN_CIERRE_TFG.md` | Roadmap operativo de cierre y transición de provisional a definitivo | B | Estado académico y dependencias de cierre | Unidad activa, dependencia principal, hitos o condiciones de cierre | Manual | Vigente |
 | `docs/REFERENCIAS_TFG.md` | Registro bibliográfico integral mínimo | B | Referencias utilizadas y candidatas del TFG | Citas, capítulos, metodología, fuentes o estado de verificación | Manual | Vigente; verificación bibliográfica final pendiente |
+| `Academic_documents/registro_evidencia_experimental_primaria.md` | Registro factual del muestreo, operación observada y procedimientos experimentales ejecutados | B | Confirmaciones del investigador y evidencia primaria de campo/laboratorio | Se incorpora una jornada, se confirma o corrige un procedimiento, o cambia una incertidumbre experimental | Manual, con contraste contra fuentes primarias | Vigente; consolidación pre-M3 |
 | `docs/DOCUMENTACION_VIVA.md` | Índice de responsabilidad documental | A | Gobernanza documental | Se crea, retira, reclasifica o cambia de responsable un documento relevante | Manual | Vigente |
 
 ## Manifiestos y reportes generados
