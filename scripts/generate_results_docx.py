@@ -48,6 +48,9 @@ PROCESSED_TOTALS = ROOT / "processed" / "acv_impacto_total_por_escenario.csv"
 PROCESSED_STAGE_IMPACTS = ROOT / "processed" / "acv_impacto_por_etapa_escenario.csv"
 PROCESSED_A2_BENCHMARK = ROOT / "processed" / "a2_ipcc_jjagwe_benchmark.csv"
 METHODOLOGY_DOCX = OUT_DIR / "metodologia_desarrollada_tfg.docx"
+CONCLUSIONS_DOCX = OUT_DIR / "conclusiones_desarrolladas_tfg.docx"
+INTEGRAL_DOCX = OUT_DIR / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx"
+INTEGRAL_VALIDATION_OUT = OUT_DIR / "reporte_validacion_documento_integral.md"
 README_OUT = OUT_DIR / "README_DOCUMENTOS_GENERADOS.md"
 VALIDATION_OUT = OUT_DIR / "reporte_validacion_documentos.md"
 FORMAT_REPORT_OUT = OUT_DIR / "reporte_formato_master.md"
@@ -1565,8 +1568,11 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 
 - `metodologia_desarrollada_tfg.docx`
 - `resultados_desarrollados_tfg.docx`
+- `conclusiones_desarrolladas_tfg.docx`
+- `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`
 - `README_DOCUMENTOS_GENERADOS.md`
 - `reporte_validacion_documentos.md`
+- `reporte_validacion_documento_integral.md`
 - `reporte_formato_master.md`
 - `reporte_relacion_apendices.md`
 - `reporte_referencias_factores.md`
@@ -1575,6 +1581,8 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 
 - `scripts/generate_methodology_docx.py`
 - `scripts/generate_results_docx.py`
+- `scripts/generate_conclusions_docx.py`
+- `scripts/generate_integral_tfg_docx.py`
 
 ## 3. Tablas utilizadas
 
@@ -1600,6 +1608,7 @@ Figuras complementarias en apéndices:
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
+- El documento integral se identifica expresamente como PROVISIONAL M1–M2 y se genera después de los tres módulos académicos.
 - No se modificó el documento maestro de referencia. Hash antes: `{master_hash_before}`. Hash después: `{master_hash_after}`.
 
 ## 6. Mejoras de formato académico aplicadas
@@ -1663,6 +1672,7 @@ Resultados:
 
 def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> None:
     documents = [METHODOLOGY_DOCX, OUT_DOCX]
+    documents.extend(path for path in [CONCLUSIONS_DOCX, INTEGRAL_DOCX] if path.exists())
     texts = []
     for path in documents:
         doc = Document(path)
@@ -1680,6 +1690,9 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         "- Electricidad IMN agregada y combustión de diésel IMN–EF 3.1: incluidas, sin procesos de fondo pendientes.",
         "- Agua de lavado descrita como pluvial, sin carga de potabilización municipal: Sí.",
         "- El cañón no recibe una entrada energética independiente: Sí.",
+        f"- Documento de conclusiones cubierto por el manifiesto y la validación: {'Sí' if CONCLUSIONS_DOCX.exists() else 'No'}.",
+        f"- Documento integral provisional cubierto por el manifiesto: {'Sí' if INTEGRAL_DOCX.exists() else 'No'}.",
+        f"- Reporte específico del documento integral disponible: {'Sí' if INTEGRAL_VALIDATION_OUT.exists() else 'No'}.",
         f"- Documento maestro protegido sin cambios: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "- Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones seleccionables: aplicados por los generadores canónicos.",
     ]

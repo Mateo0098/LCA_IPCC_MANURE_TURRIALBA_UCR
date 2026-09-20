@@ -85,6 +85,7 @@ en este orden:
 .venv\Scripts\python.exe scripts\generate_methodology_docx.py
 .venv\Scripts\python.exe scripts\generate_results_docx.py
 .venv\Scripts\python.exe scripts\generate_conclusions_docx.py
+.venv\Scripts\python.exe scripts\generate_integral_tfg_docx.py
 .venv\Scripts\python.exe scripts\validate_provisional_m1_m2_outputs.py
 ```
 
@@ -174,6 +175,8 @@ debe presentarse como resultado experimental final.
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
 - `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`
 - `outputs/documentos_tfg/conclusiones_desarrolladas_tfg.docx`
+- `outputs/documentos_tfg/TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`
+- `outputs/documentos_tfg/reporte_validacion_documento_integral.md`
 - `outputs/documentos_tfg/reporte_validacion_provisional_m1_m2.md`
 
 Los archivos generados son productos regenerables del pipeline vigente. Las

@@ -4,6 +4,8 @@ Estas reglas se aplican a:
 
 - `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`
 - `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`
+- `outputs/documentos_tfg/conclusiones_desarrolladas_tfg.docx`
+- `outputs/documentos_tfg/TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`
 
 Los scripts generadores deben aplicarlas automáticamente. No se deben corregir manualmente los Word finales cuando el ajuste pueda implementarse en el generador.
 
@@ -29,6 +31,8 @@ No se debe:
 - sincronizar tablas, figuras o apéndices con el documento maestro.
 
 Correcto: metodología y resultados tienen secuencias internas coherentes e independientes.
+
+El documento integral constituye una unidad editorial propia: sus capítulos, tablas, figuras, ecuaciones y apéndices mantienen una única numeración global dentro de ese archivo. Los módulos parciales conservan su numeración independiente y no se insertan mediante concatenación binaria.
 
 Incorrecto: cambiar “Tabla 1” por “Tabla 14” únicamente porque el MASTER termina en la Tabla 13.
 

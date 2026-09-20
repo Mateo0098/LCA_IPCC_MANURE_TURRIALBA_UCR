@@ -41,6 +41,8 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `README_METODOLOGIA.md` | Explicación técnica detallada del método y pipeline | B | Implementación metodológica | Ingestión, integración, ecuaciones, parámetros, orden de ejecución o salidas | Manual | Potencialmente desactualizado; evaluar integración o reestructuración |
 | `DICCIONARIO_TRAZABILIDAD_VARIABLES.md` | Mapa de variables, fuentes, fórmulas y salidas | B | Capas de datos y cálculo | Variables, unidades, fuentes canónicas, fórmulas o consumidores | Manual | Revisado para la representación IPCC, la base de N y el contraste bibliográfico de A2 |
 | `docs/REGLAS_FORMATO_WORD.md` | Especificación de documentos Word | B | Generadores y validación documental | Formato, nomenclatura, captions, ecuaciones o validadores Word | Manual | Vigente |
+| `docs/PLAN_CIERRE_TFG.md` | Roadmap operativo de cierre y transición de provisional a definitivo | B | Estado académico y dependencias de cierre | Unidad activa, dependencia principal, hitos o condiciones de cierre | Manual | Vigente |
+| `docs/REFERENCIAS_TFG.md` | Registro bibliográfico integral mínimo | B | Referencias utilizadas y candidatas del TFG | Citas, capítulos, metodología, fuentes o estado de verificación | Manual | Vigente; verificación bibliográfica final pendiente |
 | `docs/DOCUMENTACION_VIVA.md` | Índice de responsabilidad documental | A | Gobernanza documental | Se crea, retira, reclasifica o cambia de responsable un documento relevante | Manual | Vigente |
 
 ## Manifiestos y reportes generados
@@ -50,8 +52,9 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `auditoria_integracion_estadistica_m1_m2.md` | Reporte de integración estadística vigente | `scripts/build_sampling_integration.py` | Ingestión, reglas o datos integrados | Generado |
 | `outputs/graficos_tesis/README_GRAFICOS.md` | Manifiesto de figuras y tablas fuente | `scripts/generate_thesis_graphics.py` | Figuras, tablas fuente o asignación documental | Generado y sujeto a validación contra outputs |
 | `outputs/tablas_tesis/resumen_resultados_para_redaccion.md` | Resumen narrativo de tablas e impactos | `scripts/generate_thesis_tables.py` | Tablas o resultados | Generado |
-| `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md` | Manifiesto de documentos, tablas y figuras | `scripts/generate_results_docx.py` | Documentos, tablas, figuras o formato | Generado; verificar cobertura del documento de conclusiones |
+| `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md` | Manifiesto de documentos, tablas y figuras | `scripts/generate_results_docx.py` | Documentos, tablas, figuras o formato | Generado; cubre metodología, resultados, conclusiones e integral provisional |
 | `outputs/documentos_tfg/reporte_validacion_documentos.md` | Validación documental detallada | `scripts/generate_results_docx.py` | Cualquier documento Word generado o sus reglas | Generado |
+| `outputs/documentos_tfg/reporte_validacion_documento_integral.md` | Validación estructural del TFG integral provisional | `scripts/generate_integral_tfg_docx.py` | Ensamblador, MASTER, referencias, tablas, figuras o estructura integral | Generado |
 | `outputs/documentos_tfg/reporte_formato_master.md` | Perfil aplicado desde el MASTER | `scripts/generate_results_docx.py` | Formato o generadores Word | Generado |
 | `outputs/documentos_tfg/reporte_relacion_apendices.md` | Relación entre prosa y apéndices | `scripts/generate_results_docx.py` | Contenido o estructura de documentos | Generado |
 | `outputs/documentos_tfg/reporte_referencias_factores.md` | Trazabilidad de factores citados | `scripts/generate_results_docx.py` | Factores, referencias o documentos | Generado |

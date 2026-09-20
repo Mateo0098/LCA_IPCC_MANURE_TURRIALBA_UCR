@@ -7,5 +7,8 @@
 - Electricidad IMN agregada y combustión de diésel IMN–EF 3.1: incluidas, sin procesos de fondo pendientes.
 - Agua de lavado descrita como pluvial, sin carga de potabilización municipal: Sí.
 - El cañón no recibe una entrada energética independiente: Sí.
+- Documento de conclusiones cubierto por el manifiesto y la validación: Sí.
+- Documento integral provisional cubierto por el manifiesto: Sí.
+- Reporte específico del documento integral disponible: Sí.
 - Documento maestro protegido sin cambios: Sí.
 - Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones seleccionables: aplicados por los generadores canónicos.

@@ -4,8 +4,11 @@
 
 - `metodologia_desarrollada_tfg.docx`
 - `resultados_desarrollados_tfg.docx`
+- `conclusiones_desarrolladas_tfg.docx`
+- `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`
 - `README_DOCUMENTOS_GENERADOS.md`
 - `reporte_validacion_documentos.md`
+- `reporte_validacion_documento_integral.md`
 - `reporte_formato_master.md`
 - `reporte_relacion_apendices.md`
 - `reporte_referencias_factores.md`
@@ -14,6 +17,8 @@
 
 - `scripts/generate_methodology_docx.py`
 - `scripts/generate_results_docx.py`
+- `scripts/generate_conclusions_docx.py`
+- `scripts/generate_integral_tfg_docx.py`
 
 ## 3. Tablas utilizadas
 
@@ -59,6 +64,7 @@ Figuras complementarias en apéndices:
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
+- El documento integral se identifica expresamente como PROVISIONAL M1–M2 y se genera después de los tres módulos académicos.
 - No se modificó el documento maestro de referencia. Hash antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`. Hash después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 
 ## 6. Mejoras de formato académico aplicadas
