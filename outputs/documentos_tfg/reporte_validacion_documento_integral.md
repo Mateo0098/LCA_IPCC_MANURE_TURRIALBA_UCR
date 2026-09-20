@@ -3,8 +3,8 @@
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
 - Tablas con numeración global: 11.
-- Figuras con numeración global: 6.
-- Ecuaciones con numeración global: 4.
+- Figuras con numeración global: 7.
+- Ecuaciones con numeración global: 17.
 - Referencias integradas desde el registro bibliográfico: 42.
 - SHA-256 del MASTER antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 - SHA-256 del MASTER después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
@@ -27,11 +27,14 @@
 - PASS — No hay delimitadores visibles de ecuaciones.
 - PASS — El MASTER conserva su hash registrado.
 - PASS — La salida está fuera del directorio protegido.
+- PASS — Las fuentes reproducibles del diagrama de fronteras existen.
 - PASS — Las figuras insertadas coinciden con las previstas.
 - PASS — Las tablas insertadas coinciden con las previstas.
 - PASS — No hay rótulos duplicados.
 - PASS — La numeración global de tablas es continua.
 - PASS — La numeración global de figuras es continua.
+- PASS — La numeración global de ecuaciones es continua.
+- PASS — Las tablas no duplican columnas de etapa.
 - PASS — No se asocian purines con etapas del Escenario A.
 
 ## Alcance de la validación

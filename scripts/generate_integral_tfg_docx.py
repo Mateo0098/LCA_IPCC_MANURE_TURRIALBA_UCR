@@ -6,7 +6,12 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 from docx import Document
 from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -46,6 +51,9 @@ OUT_DIR = ROOT / "outputs" / "documentos_tfg"
 OUT_DOCX = OUT_DIR / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx"
 OUT_VALIDATION = OUT_DIR / "reporte_validacion_documento_integral.md"
 FIG_DIR = ROOT / "outputs" / "graficos_tesis"
+INTEGRAL_FIG_DIR = OUT_DIR / "recursos_integral"
+SYSTEM_BOUNDARY_PNG = INTEGRAL_FIG_DIR / "fronteras_sistema_integral.png"
+SYSTEM_BOUNDARY_SVG = INTEGRAL_FIG_DIR / "fronteras_sistema_integral.svg"
 
 OBJECTIVE_GENERAL = (
     "Desarrollar un Análisis de Ciclo de Vida del manejo del estiércol del ganado "
@@ -216,10 +224,12 @@ def add_dataframe(
 def add_figure(
     document: Document,
     counters: EditorialCounters,
-    file_name: str,
+    file_name: str | Path,
     description: str,
 ) -> int:
-    image = FIG_DIR / file_name
+    image = Path(file_name)
+    if not image.is_absolute():
+        image = FIG_DIR / image
     if not image.exists():
         raise FileNotFoundError(f"No existe la figura requerida: {image.relative_to(ROOT)}")
     counters.figure += 1
@@ -247,6 +257,108 @@ def add_equation(
     if definition:
         document.add_paragraph(definition, style="Normal")
     return counters.equation
+
+
+def generate_system_boundary_figure() -> None:
+    """Reconstruye las fronteras vigentes de ambos escenarios desde código."""
+
+    def box(axis, x, y, width, height, text, *, facecolor="#EAF2F8", fontsize=8.5):
+        patch = FancyBboxPatch(
+            (x, y),
+            width,
+            height,
+            boxstyle="round,pad=0.015,rounding_size=0.012",
+            linewidth=1.0,
+            edgecolor="#1F3A4D",
+            facecolor=facecolor,
+        )
+        axis.add_patch(patch)
+        axis.text(x + width / 2, y + height / 2, text, ha="center", va="center", fontsize=fontsize)
+        return patch
+
+    def arrow(axis, start, end, *, text=None, text_offset=(0.0, 0.0), style="-"):
+        axis.add_patch(
+            FancyArrowPatch(
+                start,
+                end,
+                arrowstyle="-|>",
+                mutation_scale=12,
+                linewidth=1.2,
+                linestyle=style,
+                color="#263238",
+                shrinkA=2,
+                shrinkB=2,
+            )
+        )
+        if text:
+            axis.text(
+                (start[0] + end[0]) / 2 + text_offset[0],
+                (start[1] + end[1]) / 2 + text_offset[1],
+                text,
+                ha="center",
+                va="center",
+                fontsize=7.5,
+                color="#263238",
+            )
+
+    def prepare_axis(axis, title):
+        axis.set_xlim(0, 1)
+        axis.set_ylim(0, 1)
+        axis.axis("off")
+        axis.add_patch(Rectangle((0.025, 0.07), 0.95, 0.84, fill=False, linewidth=1.4, edgecolor="#2E75B6"))
+        axis.text(0.5, 0.955, title, ha="center", va="top", fontsize=11, fontweight="bold")
+        axis.text(0.965, 0.925, "Frontera del sistema", ha="right", va="bottom", fontsize=7.5, color="#2E75B6")
+
+    fig, axes = plt.subplots(2, 1, figsize=(10, 9.2))
+
+    ax = axes[0]
+    prepare_axis(ax, "Escenario A: ruta sólida y ruta de aguas verdes")
+    box(ax, 0.36, 0.76, 0.28, 0.09, "Flujo común de estiércol fresco\n26 278,7 kg/año", facecolor="#F3F6F8")
+    ax.text(0.50, 0.69, "Separación física durante la limpieza", ha="center", va="center", fontsize=7.5, fontstyle="italic")
+    box(ax, 0.11, 0.49, 0.25, 0.10, "A1: Precomposteo")
+    box(ax, 0.11, 0.21, 0.25, 0.10, "A2: Lombricompostaje")
+    box(ax, 0.64, 0.49, 0.25, 0.10, "A3: Almacenamiento\nde aguas verdes")
+    box(ax, 0.64, 0.21, 0.25, 0.10, "A4: Aplicación de aguas verdes\nen campos de pastoreo")
+    arrow(ax, (0.46, 0.76), (0.235, 0.59), text="Fracción paleada\n17 525,1 kg/año", text_offset=(-0.06, 0.035))
+    arrow(ax, (0.54, 0.76), (0.765, 0.59), text="Fracción remanente\n8 753,6 kg/año", text_offset=(0.06, 0.035))
+    arrow(ax, (0.235, 0.49), (0.235, 0.31))
+    arrow(ax, (0.765, 0.49), (0.765, 0.31))
+    arrow(ax, (0.97, 0.54), (0.89, 0.54), text="Agua de lavado", text_offset=(0.0, 0.045))
+    arrow(ax, (0.11, 0.525), (0.055, 0.40), text="Drenaje a suelo agrícola\no matorral", text_offset=(0.035, -0.01), style="--")
+    ax.text(0.90, 0.64, "Electricidad", ha="center", va="center", fontsize=7.5)
+    arrow(ax, (0.88, 0.62), (0.85, 0.59))
+    ax.text(0.765, 0.14, "Diésel", ha="center", va="center", fontsize=7.5)
+    arrow(ax, (0.765, 0.16), (0.765, 0.21))
+    ax.text(0.235, 0.13, "Lombricompost", ha="center", va="center", fontsize=7.5)
+    arrow(ax, (0.235, 0.21), (0.235, 0.16))
+    ax.text(0.50, 0.085, "Las emisiones de manejo se cuantifican en cada etapa.", ha="center", va="center", fontsize=7.5)
+
+    ax = axes[1]
+    prepare_axis(ax, "Escenario B: almacenamiento y aplicación de purines")
+    box(ax, 0.08, 0.54, 0.25, 0.12, "Flujo común de estiércol fresco\n26 278,7 kg/año", facecolor="#F3F6F8")
+    box(ax, 0.40, 0.54, 0.22, 0.12, "B1: Almacenamiento\nde purines")
+    box(ax, 0.70, 0.54, 0.24, 0.12, "B2: Aplicación de purines\nen campo de pastoreo")
+    arrow(ax, (0.33, 0.60), (0.40, 0.60))
+    arrow(ax, (0.62, 0.60), (0.70, 0.60))
+    arrow(ax, (0.51, 0.80), (0.51, 0.66), text="Agua de lavado", text_offset=(0.09, 0.0))
+    ax.text(0.46, 0.43, "Electricidad", ha="center", va="center", fontsize=7.5)
+    arrow(ax, (0.46, 0.46), (0.46, 0.54))
+    ax.text(0.77, 0.43, "Diésel", ha="center", va="center", fontsize=7.5)
+    arrow(ax, (0.77, 0.46), (0.77, 0.54))
+    ax.text(0.50, 0.22, "Se cuantifican emisiones de manejo y consumos operativos dentro de la frontera.", ha="center", va="center", fontsize=8)
+    arrow(ax, (0.57, 0.54), (0.57, 0.31), text="Emisiones", text_offset=(0.065, 0.0), style="--")
+    arrow(ax, (0.88, 0.54), (0.88, 0.31), text="Emisiones", text_offset=(0.065, 0.0), style="--")
+
+    fig.subplots_adjust(left=0.03, right=0.97, top=0.98, bottom=0.03, hspace=0.10)
+    INTEGRAL_FIG_DIR.mkdir(parents=True, exist_ok=True)
+    fig.savefig(SYSTEM_BOUNDARY_PNG, dpi=300, bbox_inches="tight", metadata={"Date": None})
+    fig.savefig(SYSTEM_BOUNDARY_SVG, bbox_inches="tight", metadata={"Date": None})
+    plt.close(fig)
+    svg_lines = SYSTEM_BOUNDARY_SVG.read_text(encoding="utf-8").splitlines()
+    SYSTEM_BOUNDARY_SVG.write_text(
+        "\n".join(line.rstrip() for line in svg_lines) + "\n",
+        encoding="utf-8",
+    )
 
 
 def read_reference_registry() -> list[dict[str, str]]:
@@ -448,6 +560,19 @@ def build_document() -> tuple[int, int, int, int]:
             f"El flujo anual común fue {results_source.fmt(methodology_context['flujo_referencia'], 6)} kg de estiércol fresco/año. En el Escenario A, la fracción sólida ingresó a A1: Precomposteo y continuó hacia A2: Lombricompostaje; el remanente se incorporó a A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo. En el Escenario B, el flujo completo ingresó a B1: Almacenamiento de purines y continuó hacia B2: Aplicación de purines en campo de pastoreo.",
         ],
     )
+    generate_system_boundary_figure()
+    boundary_figure = add_figure(
+        document,
+        counters,
+        SYSTEM_BOUNDARY_PNG,
+        "Fronteras y conexiones físicas de los escenarios evaluados.",
+    )
+    add_text(
+        document,
+        [
+            f"La Figura {boundary_figure} reconstruye los diagramas conceptuales de la propuesta con la nomenclatura y las conexiones vigentes. En el Escenario A, la fracción paleada y la fracción remanente siguen rutas físicamente separadas; en el Escenario B, el flujo común completo continúa por almacenamiento y aplicación. Los consumos de electricidad y diésel se asignan a las etapas operativas correspondientes.",
+        ],
+    )
     stage_table = methodology_source.stage_summary().drop(
         columns=["Modelo de estimación"], errors="ignore"
     )
@@ -487,18 +612,67 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "El N total constituyó el balance físico principal y el nitrógeno amoniacal total un subbalance sujeto a 0 ≤ TAN ≤ N total. TAN se inicializó como 0,60 del N total únicamente en las fronteras de estiércol fresco y ambos componentes se propagaron entre etapas físicamente conectadas.",
             "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por EMEP/EEA redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
-            "A2: Lombricompostaje se representó mediante la categoría IPCC de compostaje en hileras pasivas como aproximación disponible. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones del sistema estudiado, sin cambiar el factor genérico de la categoría.",
+            "A2: Lombricompostaje se representó mediante la categoría IPCC de compostaje en hileras pasivas como aproximación disponible. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones del sistema estudiado, sin cambiar el factor genérico de la categoría. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente; los factores específicos por etapa se presentan en la tabla metodológica correspondiente.",
         ],
     )
+    document.add_heading("4.4.1 Metano de las etapas de manejo", level=3)
+    add_equation(
+        document,
+        counters,
+        "m_CH₄ = m_manejada × VS_húmeda × B₀ × 0,67 × (MCF/100) × AWMS",
+        "m_CH₄ es la emisión de metano de la etapa; m_manejada es la masa húmeda manejada; VS_húmeda es la fracción de sólidos volátiles en base húmeda; B₀ es la capacidad máxima de producción de metano; MCF es el factor de conversión de metano y AWMS es la fracción manejada por el sistema.",
+    )
+    document.add_heading("4.4.2 Balance secuencial de N total y TAN", level=3)
     add_equation(
         document,
         counters,
         "TAN_fresco = 0,60 × N_total,fresco",
         "TAN_fresco es el nitrógeno amoniacal total en la frontera fresca y N_total,fresco es el nitrógeno total del estiércol fresco.",
     )
+    add_equation(
+        document,
+        counters,
+        "TAN_disponible = TAN_entrada + N_mineralizado",
+        "La mineralización se aplica donde corresponde antes de estimar las pérdidas EMEP/EEA sobre el TAN disponible.",
+    )
+    add_equation(
+        document,
+        counters,
+        "N_j = TAN_disponible × f_j,  j ∈ {NH₃-N, NO-N, N₂-N}",
+        "La expresión resume las rutas parametrizadas con factores EMEP/EEA. En A2, la masa de NH₃ se estima con el factor específico de Komakech et al. (2016), mientras NO-N y N₂-N conservan provisionalmente los factores sólidos EMEP/EEA.",
+    )
+    add_equation(document, counters, "N_N₂O–N,directo = N_total,entrada × EF₃")
+    add_equation(document, counters, "m_N₂O,directo = N_N₂O–N,directo × 44/28")
+    add_equation(
+        document,
+        counters,
+        "N_total,salida = N_total,entrada − N_NH₃ − N_NOx − N_N₂ − N_N₂O–N,directo − N_pérdida,hídrica",
+        "Esta identidad expresa el cierre secuencial de N total en las etapas de manejo; cada pérdida física se descuenta una sola vez.",
+    )
     add_equation(document, counters, "N_precursor,vol = N_NH₃ + N_NOx")
-    add_equation(document, counters, "N_N₂O,ind,vol = N_precursor,vol × EF₄")
+    add_equation(document, counters, "m_N₂O,ind,vol = N_precursor,vol × EF₄ × 44/28")
+    document.add_heading("4.4.3 Rutas de N hacia el suelo y aplicación", level=3)
+    add_text(
+        document,
+        [
+            "A4 y B2 recibieron el N total y el TAN propagados desde sus etapas de almacenamiento. La volatilización de NH₃ se estimó sobre el TAN aplicado; el NOx, expresado como NO₂, se estimó sobre el N aplicado y se convirtió a masa de N. El N₂O directo y la lixiviación o escorrentía conservaron como base el N de estiércol aplicado.",
+        ],
+    )
+    add_equation(
+        document,
+        counters,
+        "N_drenaje,A1 = N_total,A1 × FracLeachMS_A1",
+        "El drenaje de A1 se trata como entrada de N al suelo y no como una masa de NO₃⁻ directa.",
+    )
+    add_equation(
+        document,
+        counters,
+        "N_NH₃,aplic = TAN_aplicado × f_NH₃;  N_NOx,aplic = (N_aplicado × f_NO₂) × 14/46",
+    )
+    add_equation(document, counters, "m_N₂O,directo,suelo = N_aplicado × EF₁ × 44/28")
+    add_equation(document, counters, "N_lix,esc = N_entrada,suelo × FracLEACH_suelo")
     add_equation(document, counters, "m_NO₃⁻ = N_lix,esc × 62/14")
+    add_equation(document, counters, "m_N₂O,ind,lix = N_lix,esc × EF₅ × 44/28")
 
     document.add_heading("4.5 Evaluación de impactos y consumos operativos", level=2)
     add_text(
@@ -509,6 +683,13 @@ def build_document() -> tuple[int, int, int, int]:
             "Los factores, la asignación de sistemas y los consumos operativos corresponden a las decisiones metodológicas vigentes. Esta integración documental no recalculó ni modificó el ACV.",
         ],
     )
+    add_equation(
+        document,
+        counters,
+        "I_c = Σᵢ (m_i × CF_i,c)",
+        "I_c es el indicador de la categoría c, m_i es la masa del flujo elemental i y CF_i,c es su factor de caracterización en esa categoría.",
+    )
+    add_equation(document, counters, "CC_total = CC_manejo + CC_electricidad + CC_diésel")
     factor_table = methodology_source.characterization_factors()
     table_3 = add_dataframe(
         document,
@@ -592,6 +773,13 @@ def build_document() -> tuple[int, int, int, int]:
 
     document.add_heading("5.3 Impactos por etapa y por escenario", level=2)
     stage_impacts = results_source.impact_stage_summary()
+    if {"Escenario", "Etapa", "Nombre de etapa"} <= set(stage_impacts.columns):
+        stage_codes = stage_impacts["Escenario"].astype(str) + stage_impacts["Etapa"].astype(int).astype(str)
+        stage_names = stage_impacts["Nombre de etapa"].astype(str).str.replace(
+            r"^Etapa\s+\d+:\s*", "", regex=True
+        )
+        stage_impacts.insert(1, "Etapa del sistema", stage_codes + ": " + stage_names)
+        stage_impacts = stage_impacts.drop(columns=["Etapa", "Nombre de etapa"])
     table_5 = add_dataframe(
         document,
         profile,
@@ -859,6 +1047,7 @@ def validate_document(
         ("No hay delimitadores visibles de ecuaciones", "\\[" not in text and "\\]" not in text and "$$" not in text),
         ("El MASTER conserva su hash registrado", master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256),
         ("La salida está fuera del directorio protegido", MASTER.parent not in OUT_DOCX.parents),
+        ("Las fuentes reproducibles del diagrama de fronteras existen", SYSTEM_BOUNDARY_PNG.exists() and SYSTEM_BOUNDARY_SVG.exists()),
         ("Las figuras insertadas coinciden con las previstas", len(document.inline_shapes) == expected_figures),
         ("Las tablas insertadas coinciden con las previstas", len(document.tables) == expected_tables),
     ]
@@ -871,6 +1060,14 @@ def validate_document(
     checks.append(("No hay rótulos duplicados", len(labels) == len(set(labels))))
     checks.append(("La numeración global de tablas es continua", sorted(int(x.split()[1]) for x in labels if x.startswith("Tabla")) == list(range(1, expected_tables + 1))))
     checks.append(("La numeración global de figuras es continua", sorted(int(x.split()[1]) for x in labels if x.startswith("Figura")) == list(range(1, expected_figures + 1))))
+    equation_numbers = [
+        int(match.group(1))
+        for paragraph in document.paragraphs
+        if (match := re.search(r"\s+\((\d+)\)$", paragraph.text.strip()))
+    ]
+    checks.append(("La numeración global de ecuaciones es continua", equation_numbers == list(range(1, expected_equations + 1))))
+    table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]
+    checks.append(("Las tablas no duplican columnas de etapa", not ({"Etapa", "Nombre de etapa"} <= set(table_headers))))
 
     paragraph_text = "\n".join(paragraph.text for paragraph in document.paragraphs)
     clause_text = re.split(r"(?<=[.!?])\s+", paragraph_text)
