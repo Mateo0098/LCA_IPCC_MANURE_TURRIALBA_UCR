@@ -22,8 +22,9 @@ Los datos crudos principales estan en `Academic_documents/`:
 - `Academic_documents/resultados CIA y LASA muestreo 1/`: reportes de
   laboratorio CIA/LASA y archivo de trabajo para humedad, materia seca, cenizas,
   solidos volatiles y nitrogeno total.
-- `Academic_documents/resultados CIA y LASA muestreo 2/`: segunda jornada de
-  muestras compuestas independientes y sus determinaciones analiticas.
+- `Academic_documents/resultados CIA y LASA muestreo 2/`: segunda jornada con
+  tres muestras compuestas por sólido, compartidas físicamente entre Bioenergía
+  y el laboratorio externo mediante el envío del remanente.
 - `Academic_documents/Datos boniga y agua proy_AS.xlsx`: mediciones de agua y
   boniga usadas para estimar flujos diarios, semanales y anuales.
 - `processed/masa_total_factor_overrides.csv`: factores manuales para asignar
@@ -72,26 +73,29 @@ Las masas físicas quedan también en el inventario operativo y su exportación.
 
 ## Procesamiento de laboratorio
 
-El procesamiento de laboratorio se hace en dos rutas:
+Las rutinas base de extracción y gravimetría son:
 
 1. `scripts/extract_analysis_results.py`
    - Lee reportes CIA/LASA y PDF de nitrogeno.
-   - Genera `processed/CIA_samples_table_v6.csv`.
-   - Genera `processed/CIA_samples_table_v6_treatment_summary.csv`.
-   - Variables principales: `n_total_mg_kg`, `n_total_porcentaje`,
-     `mean_n_percentage`.
+   - Normaliza los reportes CIA/LASA cuando es invocado por la ingestión activa.
+   - También puede generar tablas históricas M1 para trazabilidad; esas tablas no
+     son fuente vigente del ACV.
 
 2. `scripts/compute_sample_parameters.py`
    - Lee `Material_laboratorio_copy_to_work_python.xlsx`.
    - Calcula masa fresca, masa seca, humedad, materia seca, cenizas y solidos
      volatiles.
-   - Genera:
+   - También conserva productos históricos de detalle M1:
      - `processed/volatile_solids_table.csv`
      - `processed/volatile_solids_representative_table.csv`
      - `processed/volatile_solids_treatment_table.csv`
      - `processed/volatile_solids_mass_loss_fresh_to_precomposted.csv`
 
-### Capa multijornada independiente del modelo
+La ruta canónica no consume esos resúmenes históricos: parte de las observaciones
+normalizadas, resume por jornada, integra entre jornadas y promueve los resultados
+vigentes al ACV.
+
+### Capa multijornada activa
 
 La ingestión de M1 y M2 se ejecuta con:
 
@@ -110,10 +114,16 @@ Esta capa genera:
   submuestras dentro de cada muestra compuesta y después las muestras dentro de
   cada jornada.
 
-La jerarquía es `jornada -> muestra compuesta -> réplica analítica`. No se
-agrupan todas las réplicas como muestras independientes y no se integran M1 y
-M2 entre sí en esta fase. Estas dos salidas nuevas no alimentan todavía el
-modelo ACV ni sustituyen los archivos históricos de parámetros.
+La jerarquía es `réplica analítica -> muestra compuesta -> promedio de jornada
+-> integración entre jornadas`. No se agrupan todas las réplicas como muestras
+independientes. En M1, por cada sólido, las dos muestras de Bioenergía y las dos
+muestras del laboratorio externo fueron conjuntos físicos independientes: LASA
+para estiércol fresco y CIA para precompostado. Por ello, «dos muestras M1»
+significa dos por fuente y flujo analítico, no dos muestras físicas totales por
+material. En M2 hubo tres muestras compuestas por sólido, Bioenergía efectuó tres
+réplicas gravimétricas por muestra y el remanente de esas mismas muestras se
+envió a LASA o CIA. La integración multijornada vigente alimenta los parámetros
+activos del ACV; las tablas históricas no sustituyen esta ruta.
 
 Para N de aguas verdes y purines, M1 conserva por separado la especiación de N
 amoniacal, N nítrico y N ureico con uso `solo_trazabilidad`. M2 conserva N total
@@ -127,16 +137,15 @@ Para N y C del estiércol precompostado, los reportes CIA 97600 y 100751 se
 documentan con el método `Dumas (combustión seca)`, conforme a la metodología
 oficial CIA suministrada por el investigador: secado a 80 °C durante 48 h, molienda, criba
 de 1 mm, pesada aproximada de 80–100 mg y análisis en un autoanalizador
-Elementar Vario Macro Cube. Los reportes y la metodología no declaran
-inequívocamente si el porcentaje final está en base seca o fresca. El CIA no
-determinó humedad a 105 °C porque no fue solicitada; esa preparación no debe
-confundirse con los ensayos gravimétricos independientes del TFG a 105 °C. La
-capa normalizada registra la condición física de secado sin alterar los valores
-analíticos. Para A2, la decisión metodológica vigente interpreta el N como
-concentración del material preparado/seco y aplica la materia seca gravimétrica
-independiente del TFG para expresarlo sobre la masa húmeda usada como actividad.
-Esta conversión no intenta corregir pérdidas de N durante el secado CIA y no se
-aplica al carbono.
+Elementar Vario Macro Cube. El porcentaje de N se refiere a la muestra
+seca/acondicionada por el CIA a 80 °C durante 48 h. El CIA no determinó humedad
+a 105 °C porque no fue solicitada; esa preparación no debe confundirse con la
+gravimetría independiente de Bioenergía a 105 °C durante 16 h, que aporta la
+humedad y materia seca del TFG. Para A2, el N integrado se convierte a base
+húmeda únicamente para construir el benchmark experimental; no reinicializa el
+ledger productivo, que recibe N total y TAN desde A1. El carbono y la relación
+C/N permanecen como caracterización descriptiva, sin conversión húmeda ni uso
+productivo en el ACV.
 
 Para N líquido M2, se conservan todos los decimales almacenados por el equipo
 en los archivos CIA y se calculan los resúmenes antes de cualquier formato de
@@ -157,7 +166,7 @@ Las conversiones principales son:
 - Cenizas: `masa_cenizas / masa_seca_calcinacion * 100`.
 - Solidos volatiles: `100 - cenizas`.
 - Nitrógeno total de estiércol fresco, aguas verdes y purines como fracción másica: `n_ex_fraction = n_ex_pct / 100`.
-- Nitrógeno efectivo del precompostado en A2 sobre masa húmeda: `N_fraction_wet = (n_ex_pct / 100) * (materia_seca_pct / 100)`.
+- Benchmark experimental de N del precompostado en A2 sobre masa húmeda: `N_fraction_wet = (n_ex_pct / 100) * (materia_seca_pct / 100)`; no reinicializa el ledger productivo.
 - Solidos volatiles en base humeda: `(vs_t_pct / 100) * fraccion_masa_seca`.
 - Flujos anuales: `(promedio / duracion_muestreo_dias) * 365`.
 

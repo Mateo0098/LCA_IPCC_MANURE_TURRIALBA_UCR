@@ -2,7 +2,7 @@
 
 Este documento usa unicamente las tablas finales actuales de `outputs/tablas_tesis/`.
 
-El nitrógeno total reportado en porcentaje se expresa como fracción másica. En A2 se aplica además la materia seca gravimétrica para llevar el N del material preparado/seco a base húmeda.
+El nitrógeno total reportado en porcentaje se expresa como fracción másica. En A2 se aplica además la materia seca gravimétrica para construir el benchmark experimental húmedo; el ledger productivo recibe N total y TAN propagados desde A1.
 
 ## Nomenclatura oficial de etapas
 
@@ -79,6 +79,6 @@ En cambio climático dominan A3: Almacenamiento de aguas verdes en el Escenario 
 
 | categoria_impacto | escenario_A | escenario_B | unidad | diferencia_absoluta_B_menos_A | diferencia_porcentual_B_vs_A | escenario_con_mayor_impacto | fuente | observaciones |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Cambio climático | 3170.113530330761 | 6254.307147250426 | kg CO2-eq/año | 3084.193616919665 | 97.2896897038848 | B | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |
-| Eutrofización terrestre | 617.0517125078838 | 961.269308200257 | mol N-eq/año | 344.21759569237315 | 55.78423796821975 | B | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |
-| Eutrofización marina | 15.648347825374902 | 35.62231521609108 | kg N-eq/año | 19.97396739071618 | 127.64265987446277 | B | processed/acv_impacto_total_por_escenario.csv | Comparación entre escenarios con la fracción másica efectiva como entrada de nitrógeno |
+| Cambio climático | 3170.113530330761 | 6254.307147250426 | kg CO2-eq/año | 3084.193616919665 | 97.2896897038848 | B | processed/acv_impacto_total_por_escenario.csv | Comparación de los resultados del ledger productivo de N total y TAN propagado entre etapas |
+| Eutrofización terrestre | 617.0517125078838 | 961.269308200257 | mol N-eq/año | 344.21759569237315 | 55.78423796821975 | B | processed/acv_impacto_total_por_escenario.csv | Comparación de los resultados del ledger productivo de N total y TAN propagado entre etapas |
+| Eutrofización marina | 15.648347825374902 | 35.62231521609108 | kg N-eq/año | 19.97396739071618 | 127.64265987446277 | B | processed/acv_impacto_total_por_escenario.csv | Comparación de los resultados del ledger productivo de N total y TAN propagado entre etapas |

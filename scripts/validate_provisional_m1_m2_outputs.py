@@ -25,6 +25,16 @@ GRAPHICS = ROOT / "outputs" / "graficos_tesis"
 DOCS = ROOT / "outputs" / "documentos_tfg"
 LABEL = "PROVISIONAL M1–M2"
 REPORT = DOCS / "reporte_validacion_provisional_m1_m2.md"
+AUTHORIZED_NUMERIC_BASELINE_SHA256 = {
+    "processed/muestreos_transformacion_masa_interjornada.csv": "3617fea334265eb377ca900053a0200a320a85807ee154a1c1b1d8204cf56ed7",
+    "processed/acv_parametros_escenario_etapa.csv": "4a1309f7787e8ca444950081eb916cc39236bf946827e44a9febb158e1935011",
+    "processed/masa_total_escenario_etapa.csv": "6f36294d9663dffcacb8641f94135ba8932e0ed696f768a8a573b345f610aa78",
+    "processed/reactive_n_ledger.csv": "7260f2f265e2c9e6200163f0974539b27f1dec18f856f3f21d4c5efc1dd4b2e2",
+    "processed/reactive_n_ledger_parameters.csv": "8ccb70d299ff6141233c074cdc647ed535febd48bb1e480c21ff1cdef9387f1f",
+    "processed/ACV_resumen_emisiones.csv": "bb9d668ab176c3e2af997b7656441066fc4c93afd498494238f9ed7c3f5194c1",
+    "processed/acv_impacto_por_etapa_escenario.csv": "7857b3d15a537bfb83834a763182a24a01ebfb14d686e3cfa95e3f5d93ab567d",
+    "processed/acv_impacto_total_por_escenario.csv": "27d0968c43e5423797c307e9c03bcadbf9a8daccda57e434a4a67b25c99b3e22",
+}
 
 
 def read_rows(path: Path) -> list[dict[str, str]]:
@@ -47,6 +57,12 @@ def finite_sum(row: dict[str, str], columns: list[str]) -> float:
         if math.isfinite(value):
             values.append(value)
     return sum(values)
+
+
+def validate_authorized_numeric_baseline() -> None:
+    for relative_path, expected in AUTHORIZED_NUMERIC_BASELINE_SHA256.items():
+        observed = hashlib.sha256((ROOT / relative_path).read_bytes()).hexdigest()
+        assert observed == expected, f"El producto numérico cambió respecto al baseline autorizado: {relative_path}"
 
 
 def document_text(path: Path) -> tuple[str, str]:
@@ -131,7 +147,28 @@ def validate_a2_nitrogen_basis() -> None:
     assert a2["transformacion_n_acv"] == "multiplicar_por_fraccion_materia_seca_gravimetrica_TFG_105C"
     effective_fraction = (float(a2["n_ex_pct"]) / 100.0) * (float(a2["materia_seca_pct"]) / 100.0)
     annual_n = float(masses[("A", "2")]["masa_total_kg_eq"]) * effective_fraction
-    assert effective_fraction > 0.0 and annual_n > 0.0
+    assert math.isclose(float(a2["n_ex_pct"]), 2.5041666666666664, rel_tol=0.0, abs_tol=1e-15)
+    assert math.isclose(float(a2["materia_seca_pct"]), 20.667943550028752, rel_tol=0.0, abs_tol=1e-15)
+    assert math.isclose(effective_fraction, 0.005175597530653033, rel_tol=0.0, abs_tol=1e-15)
+    assert math.isclose(annual_n, 38.45452738224266, rel_tol=0.0, abs_tol=1e-12)
+
+    ledger = read_rows(PROCESSED / "reactive_n_ledger.csv")
+    a1_ledger = next(row for row in ledger if row["stage"] == "A1: Precomposteo")
+    a2_ledger = next(row for row in ledger if row["stage"] == "A2: Lombricompostaje")
+    assert close(a2_ledger["n_total_in_kg"], a1_ledger["n_total_out_kg"])
+    assert close(a2_ledger["tan_in_kg"], a1_ledger["tan_out_kg"])
+    assert not close(a2_ledger["n_total_in_kg"], annual_n)
+    integration = read_rows(PROCESSED / "muestreos_integracion_interjornada_provisional.csv")
+    descriptive = [
+        row for row in integration
+        if row["material"] == "estiércol precompostado"
+        and row["variable"] in {"carbono", "relación C/N"}
+    ]
+    assert len(descriptive) == 2
+    assert all(row["estado_integracion"] == "solo_caracterizacion" for row in descriptive)
+    assert all("sin conversión a base húmeda" in row["observacion_metodologica"] for row in descriptive)
+    assert all("sin consumo productivo" in row["observacion_metodologica"] for row in descriptive)
+    assert all("carbon" not in column.lower() and "c/n" not in column.lower() for column in a2)
     for key, row in params.items():
         if key != ("A", "2"):
             assert row["transformacion_n_acv"] == "ninguna"
@@ -461,6 +498,7 @@ def validate_graph_sources_and_freshness(graphics_dir: Path = GRAPHICS) -> None:
 
 
 def main() -> None:
+    validate_authorized_numeric_baseline()
     validate_characterization()
     validate_factor_and_masses()
     validate_a2_nitrogen_basis()

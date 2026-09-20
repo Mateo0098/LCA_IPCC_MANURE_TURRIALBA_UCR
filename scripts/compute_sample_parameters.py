@@ -583,7 +583,12 @@ def extract_gravimetric_normalized(source: Dict[str, object], project_root: Path
             "cenizas": (ash_mass / dry_inc_mass) * 100.0,
         }
         values["sólidos volátiles"] = 100.0 - values["cenizas"]
-        normalized_id = f'{source["jornada"]}-{"EF" if material == "estiércol fresco" else "EP"}-{sample_number}'
+        material_code = "EF" if material == "estiércol fresco" else "EP"
+        normalized_id = (
+            f'M1-BIO-{material_code}-{sample_number}'
+            if source["jornada"] == "M1"
+            else f'{source["jornada"]}-{material_code}-{sample_number}'
+        )
         for variable, value in values.items():
             records.append({
                 "jornada_muestreo": source["jornada"], "fecha_muestreo": source.get("sampling_date", ""),

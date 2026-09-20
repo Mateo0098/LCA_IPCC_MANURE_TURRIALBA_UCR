@@ -102,6 +102,29 @@ def main() -> None:
     assert "integración conserva el porcentaje analítico" in pre_n["observacion_metodologica"]
     assert "En A2" in pre_n["observacion_metodologica"]
     assert "materia seca gravimétrica del TFG" in pre_n["observacion_metodologica"]
+    assert math.isclose(
+        float(pre_n["valor_integrado_provisional"]),
+        2.5041666666666664,
+        rel_tol=0.0,
+        abs_tol=1e-15,
+    )
+    pre_dm = indexed[("estiércol precompostado", "materia seca")]
+    assert math.isclose(
+        float(pre_dm["valor_integrado_provisional"]),
+        20.667943550028752,
+        rel_tol=0.0,
+        abs_tol=1e-15,
+    )
+    wet_benchmark = (
+        float(pre_n["valor_integrado_provisional"]) / 100.0
+        * float(pre_dm["valor_integrado_provisional"]) / 100.0
+    )
+    assert math.isclose(wet_benchmark, 0.005175597530653033, rel_tol=0.0, abs_tol=1e-15)
+    for variable in ("carbono", "relación C/N"):
+        descriptive = indexed[("estiércol precompostado", variable)]
+        assert descriptive["estado_integracion"] == "solo_caracterizacion"
+        assert "sin conversión a base húmeda" in descriptive["observacion_metodologica"]
+        assert "sin consumo productivo" in descriptive["observacion_metodologica"]
     for row in result:
         if row["estado_integracion"] == "solo_caracterizacion":
             assert "no es parámetro" in row["uso_previsto"]

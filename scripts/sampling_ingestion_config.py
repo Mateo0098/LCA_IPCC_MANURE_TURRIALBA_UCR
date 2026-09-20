@@ -32,8 +32,10 @@ CIA_SOLID_CN_METHOD_SOURCE = (
     "abono sólido se seca a 80 °C durante 48 h, se muele, se criba a 1 mm, se pesan "
     "aproximadamente 80–100 mg y se determina N y C por combustión seca de "
     "Dumas en un autoanalizador Elementar Vario Macro Cube. El CIA aclaró que no "
-    "determinó humedad a 105 °C porque no fue solicitada. La metodología y los "
-    "reportes no especifican formalmente la base final del porcentaje."
+    "determinó humedad a 105 °C porque no fue solicitada. Los porcentajes se "
+    "refieren a la muestra seca/acondicionada por el CIA a 80 °C durante 48 h; "
+    "la humedad y la materia seca usadas por el TFG proceden de la gravimetría "
+    "independiente de Bioenergía a 105 °C durante 16 h."
 )
 
 
@@ -92,7 +94,7 @@ SOURCES = [
         "jornada": "M1",
         "kind": "gravimetric_xlsx",
         "path": "Academic_documents/resultados CIA y LASA muestreo 1/Material_laboratorio_copy_to_work_python.xlsx",
-        "laboratorio": "no documentado",
+        "laboratorio": "Bioenergía",
         "metodo": "gravimetría",
         "fuente_metodo": "Procedimiento y masas primarias registrados en las hojas Procedure y Data.",
         "uso_modelo": "elegible",
@@ -157,7 +159,7 @@ SOURCES = [
         "jornada": "M2",
         "kind": "gravimetric_xlsx",
         "path": "Academic_documents/resultados CIA y LASA muestreo 2/muestreo2_solidos_volatiles.xlsx",
-        "laboratorio": "no documentado",
+        "laboratorio": "Bioenergía",
         "metodo": "gravimetría",
         "fuente_metodo": "Procedimiento y masas primarias registrados en las hojas Procedure y Data.",
         "uso_modelo": "elegible",

@@ -258,9 +258,9 @@ def plot_sample_characterization(readme: list[dict[str, str]]) -> None:
         (
             ["Nitrogeno total"],
             "% N total",
-            "Nitrogeno total (%)",
+            "Nitrógeno total analítico (%)",
             "fig_03_caracterizacion_nitrogeno_total",
-            "Presenta nitrogeno total promedio por tipo de muestra.",
+            "Presenta porcentajes analíticos de nitrógeno total; el valor del precompostado se convierte por separado a base húmeda para construir el benchmark experimental de A2.",
         ),
     ]
 

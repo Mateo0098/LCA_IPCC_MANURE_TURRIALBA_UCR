@@ -37,6 +37,15 @@ La corrida vigente es **ACV PROVISIONAL M1–M2**:
 - el N total de aguas verdes y purines procede únicamente de M2, determinado mediante Kjeldahl;
 - la transformación de estiércol fresco a precompostado integra los factores calculados primero para M1 y M2 por separado.
 
+En M1, cada sólido tuvo dos muestras compuestas de Bioenergía y otras dos
+muestras independientes del laboratorio externo. En M2, tres muestras por
+sólido fueron compartidas físicamente entre Bioenergía y LASA o CIA, con tres
+réplicas gravimétricas por muestra en Bioenergía. El N del precompostado fue
+determinado por Dumas sobre muestra seca/acondicionada por CIA a 80 °C durante
+48 h; su conversión con la materia seca de Bioenergía a 105 °C durante 16 h
+construye un benchmark húmedo de A2, no una reinicialización del ledger. C y C/N
+permanecen exclusivamente como caracterización descriptiva.
+
 Cuando exista una M3 metodológicamente compatible, el mismo pipeline integrará
 M1+M2+M3 para sólidos y transformación de masa, y M2+M3 para N líquido. No hay
 perfiles históricos, snapshots del modelo ni pipelines paralelos activos.

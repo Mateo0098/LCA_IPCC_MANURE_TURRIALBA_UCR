@@ -52,9 +52,11 @@ class ReactiveNPipelineOutputTests(unittest.TestCase):
                 self.assertAlmostEqual(float(rows[key][column]), value, places=12)
 
     def test_total_impacts_match_promotion_checkpoint(self):
+        # El total climático autorizado combina manejo EF 3.1 y recursos
+        # operativos; las demás categorías permanecen asociadas al manejo.
         expected = {
-            "A": (2687.737847464095, 617.0517125078838, 15.648347825374902),
-            "B": (5771.93146438376, 961.269308200257, 35.62231521609108),
+            "A": (3170.1135303307615, 617.0517125078838, 15.648347825374902),
+            "B": (6254.307147250426, 961.269308200257, 35.62231521609108),
         }
         rows = read_rows(ROOT / "processed" / "acv_impacto_total_por_escenario.csv")
         actual = {row["Escenario"]: row for row in rows}

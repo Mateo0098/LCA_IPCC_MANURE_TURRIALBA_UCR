@@ -113,7 +113,7 @@ for variable in ("carbono", "relación C/N"):
             "uso_previsto": "solo caracterización; no es parámetro actual del modelo ACV",
             "observacion_metodologica": (
                 "Muestra secada a 80 °C durante 48 h; la integración conserva el porcentaje analítico. "
-                "La conversión aprobada a base húmeda se aplica después y únicamente para A2."
+                "Variable de caracterización descriptiva, sin conversión a base húmeda y sin consumo productivo en el ACV."
             ),
             "tipo_regla": "solo_caracterizacion",
         }

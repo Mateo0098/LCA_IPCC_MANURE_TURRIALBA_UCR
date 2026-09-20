@@ -89,6 +89,83 @@ def main() -> int:
                     if reps != {"1", "2", "3"}:
                         fail(errors, f"Réplicas LASA incorrectas: {source['jornada']} {sample}: {sorted(reps)}")
 
+    solid_rows = [
+        row for row in rows
+        if row["tipo_material"] in {"estiércol fresco", "estiércol precompostado"}
+    ]
+    expected_m1 = {
+        ("Bioenergía", "estiércol fresco"): {"M1-BIO-EF-1", "M1-BIO-EF-2"},
+        ("LASA", "estiércol fresco"): {"M1-LASA-EF-1", "M1-LASA-EF-2"},
+        ("Bioenergía", "estiércol precompostado"): {"M1-BIO-EP-1", "M1-BIO-EP-2"},
+        ("CIA", "estiércol precompostado"): {"M1-CIA-EP-1", "M1-CIA-EP-2"},
+    }
+    for key, expected in expected_m1.items():
+        laboratory, material = key
+        observed = {
+            row["identificador_muestra"] for row in solid_rows
+            if row["jornada_muestreo"] == "M1"
+            and row["laboratorio"] == laboratory
+            and row["tipo_material"] == material
+        }
+        if observed != expected:
+            fail(errors, f"Identidad física M1 incorrecta para {laboratory}/{material}: {sorted(observed)}")
+    for material, bio_lab, external_lab in (
+        ("estiércol fresco", "Bioenergía", "LASA"),
+        ("estiércol precompostado", "Bioenergía", "CIA"),
+    ):
+        bio_ids = {
+            row["identificador_muestra"] for row in solid_rows
+            if row["jornada_muestreo"] == "M1" and row["laboratorio"] == bio_lab
+            and row["tipo_material"] == material
+        }
+        external_ids = {
+            row["identificador_muestra"] for row in solid_rows
+            if row["jornada_muestreo"] == "M1" and row["laboratorio"] == external_lab
+            and row["tipo_material"] == material
+        }
+        if bio_ids & external_ids or len(bio_ids | external_ids) != 4:
+            fail(errors, f"M1 no conserva cuatro muestras físicas disjuntas para {material}")
+
+    for material, code, external_lab in (
+        ("estiércol fresco", "EF", "LASA"),
+        ("estiércol precompostado", "EP", "CIA"),
+    ):
+        expected_ids = {f"M2-{code}-{number}" for number in (1, 2, 3)}
+        bio_ids = {
+            row["identificador_muestra"] for row in solid_rows
+            if row["jornada_muestreo"] == "M2" and row["laboratorio"] == "Bioenergía"
+            and row["tipo_material"] == material
+        }
+        external_ids = {
+            row["identificador_muestra"] for row in solid_rows
+            if row["jornada_muestreo"] == "M2" and row["laboratorio"] == external_lab
+            and row["tipo_material"] == material
+        }
+        if bio_ids != expected_ids or external_ids != expected_ids:
+            fail(errors, f"M2 no conserva identidad física compartida para {material}")
+
+    m2_gravimetric = [
+        row for row in solid_rows
+        if row["jornada_muestreo"] == "M2" and row["laboratorio"] == "Bioenergía"
+        and row["metodo_analitico"] == "gravimetría"
+    ]
+    for variable in {"humedad", "materia seca", "cenizas", "sólidos volátiles"}:
+        variable_rows = [row for row in m2_gravimetric if row["variable"] == variable]
+        if len(variable_rows) != 18:
+            fail(errors, f"M2 {variable}: {len(variable_rows)} observaciones gravimétricas; esperadas 18")
+    expected_origins = {
+        f"{prefix}{sample}{replica}"
+        for prefix in ("A", "B") for sample in (1, 2, 3) for replica in (1, 2, 3)
+    }
+    observed_origins = {row["identificador_muestra_origen"] for row in m2_gravimetric}
+    if observed_origins != expected_origins:
+        fail(errors, "La hoja Data M2 no conserva la estructura efectiva A11–A33/B11–B33")
+    if any(
+        row["celda_o_fila_origen"] != f'{row["identificador_muestra_origen"]} / {row["identificador_muestra_origen"][0]}I{row["identificador_muestra_origen"][1:]}'
+        for row in m2_gravimetric
+    ):
+        fail(errors, "Los pares de secado/incineración M2 no corresponden a A11–AI33/B11–BI33")
+
     for material in ("aguas verdes", "purines"):
         m1_n = [row for row in rows if row["jornada_muestreo"] == "M1" and row["tipo_material"] == material and row["variable"].startswith("N ")]
         m2_n = [row for row in rows if row["jornada_muestreo"] == "M2" and row["tipo_material"] == material and row["variable"] == "N total"]
@@ -106,9 +183,9 @@ def main() -> int:
     ]
     if not precomp_nc or any(row["metodo_analitico"] != "Dumas (combustión seca)" for row in precomp_nc):
         fail(errors, "N/C de precompostado M1/M2 no quedó documentado mediante Dumas")
-    expected_base = "muestra previamente secada a 80 °C durante 48 h; base final del porcentaje no especificada formalmente por el reporte"
+    expected_base = "porcentaje determinado sobre muestra seca/acondicionada por CIA a 80 °C durante 48 h"
     if any(row["base_medicion"] != expected_base for row in precomp_nc):
-        fail(errors, "N/C de precompostado afirma una base de medición no respaldada")
+        fail(errors, "N/C de precompostado no declara la base seca/acondicionada confirmada por el CIA")
     if any("80 °C durante 48 h" not in row["condicion_muestra"] or "no determinó humedad a 105 °C" not in row["condicion_muestra"] for row in precomp_nc):
         fail(errors, "Falta la condición de preparación CIA de N/C del precompostado")
     precomp_n = [row for row in precomp_nc if row["variable"] == "N total"]
@@ -119,6 +196,12 @@ def main() -> int:
     ]
     if any(row["uso_modelo"] != "solo_caracterizacion" for row in characterization):
         fail(errors, "Densidad, carbono o relación C/N heredó elegibilidad de la fuente")
+    if any(
+        row["variable"] in {"carbono", "relación C/N"}
+        and ("base húmeda" in row["motivo_uso_modelo"].lower() or row["uso_modelo"] != "solo_caracterizacion")
+        for row in rows
+    ):
+        fail(errors, "C o C/N recibió conversión húmeda o uso productivo")
 
     expected_liquid_m2 = {
         "M2-AV-1": 0.009886,
@@ -161,11 +244,12 @@ def main() -> int:
             print(f"- {error}")
         return 1
     print(f"VALIDACIÓN CORRECTA: {len(rows)} observaciones y {len(summaries)} resúmenes intrajornada")
-    print("M1: 2 muestras compuestas por material; M2: 3 muestras compuestas por material")
-    print("Sólidos y LASA: 3 réplicas analíticas por muestra")
+    print("M1: 2 muestras compuestas por fuente y material; 4 muestras físicas disjuntas por material")
+    print("M2: 3 muestras físicas compartidas entre Bioenergía y laboratorio externo por material")
+    print("Bioenergía M2: 3 réplicas por muestra y 18 observaciones por variable gravimétrica")
     print("Líquidos M1: especiación/solo_trazabilidad; líquidos M2: Kjeldahl/elegible")
-    print("Precompostado M1/M2: N/C por Dumas; muestra secada a 80 °C durante 48 h; base formal no especificada")
-    print("Densidad, carbono y relación C/N: solo_caracterizacion")
+    print("Precompostado M1/M2: N/C por Dumas sobre muestra seca/acondicionada por CIA a 80 °C durante 48 h")
+    print("Densidad, carbono y relación C/N: solo_caracterizacion, sin conversión húmeda ni consumidor productivo")
     print("N líquido M2: valores internos completos conservados; redondeo reservado para presentación")
     return 0
 

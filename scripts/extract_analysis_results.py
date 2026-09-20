@@ -680,12 +680,20 @@ def _base_for(variable: str, unit: str) -> str:
 
 
 def _cia_base_for(material: str, variable: str, unit: str) -> str:
-    # Los reportes CIA 97600 y 100751 expresan N/C como porcentaje, pero no
-    # declaran si el resultado final está referido a base seca o fresca. El
-    # secado a 80 °C es preparación de muestra y no basta para inferir la base.
     if material == "estiércol precompostado" and variable in {"N total", "carbono"}:
-        return "muestra previamente secada a 80 °C durante 48 h; base final del porcentaje no especificada formalmente por el reporte"
+        return "porcentaje determinado sobre muestra seca/acondicionada por CIA a 80 °C durante 48 h"
     return _base_for(variable, unit)
+
+
+def _normalized_solid_sample_id(source: Dict[str, object], material: str, sample_number: int) -> str:
+    """Conserva conjuntos M1 disjuntos y la identidad física compartida de M2."""
+    journey = str(source["jornada"])
+    material_code = _material_code(material)
+    if journey == "M1" and material in {"estiércol fresco", "estiércol precompostado"}:
+        laboratory = _fold(str(source["laboratorio"])).replace(" ", "")
+        source_code = "LASA" if laboratory == "LASA" else "CIA"
+        return f"{journey}-{source_code}-{material_code}-{sample_number}"
+    return f"{journey}-{material_code}-{sample_number}"
 
 
 def _variable_usage(source: Dict[str, object], variable: str) -> Tuple[str, str]:
@@ -727,7 +735,7 @@ def extract_cia_normalized(source: Dict[str, object], project_root: Path) -> Lis
             continue
         sample_index += 1
         sample_number = _sample_number(origin_id, str(source["jornada"]), sample_index)
-        normalized_id = f'{source["jornada"]}-{_material_code(str(source["material"]))}-{sample_number}'
+        normalized_id = _normalized_solid_sample_id(source, str(source["material"]), sample_number)
         id_lab = str(worksheet.cell(row_num, id_lab_col).value or "").strip() if id_lab_col else ""
         for col, header in headers.items():
             if col in {id_user_col, id_lab_col}:
@@ -791,7 +799,7 @@ def extract_lasa_normalized(source: Dict[str, object], project_root: Path) -> Li
         block = results_text[start.end():end]
         sample_number = index + 1
         origin = f"{key}. {descriptions.get(key, 'Fresco sin descripción')}"
-        normalized_id = f'{source["jornada"]}-EF-{sample_number}'
+        normalized_id = _normalized_solid_sample_id(source, str(source["material"]), sample_number)
         for match in re.finditer(r"\b([123])\s+([0-9]+,[0-9]+)\s*±\s*([0-9]+,[0-9]+)", block):
             records.append({
                 "jornada_muestreo": source["jornada"],

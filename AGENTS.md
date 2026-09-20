@@ -388,6 +388,8 @@ Después de regenerar documentos, verificar:
 - Las réplicas analíticas no son observaciones temporales independientes.
 - Las jornadas reciben igual peso temporal. No ponderar M2 más que M1 por contener más muestras compuestas o réplicas.
 - Para sólidos metodológicamente comparables, el estado provisional actual integra M1+M2. El estado final futuro requerirá M1+M2+M3 compatible.
+- En M1 existen, para cada sólido, dos muestras compuestas analizadas por Bioenergía y otras dos muestras compuestas independientes analizadas por LASA (estiércol fresco) o CIA (precompostado). Los conjuntos físicos entre fuentes son disjuntos.
+- En M2 existen tres muestras compuestas por sólido. Bioenergía realizó tres réplicas gravimétricas por muestra y el remanente de esas mismas muestras se remitió a LASA o CIA; la identidad física es compartida entre laboratorios.
 
 ### N líquido y precisión
 
@@ -405,7 +407,9 @@ Después de regenerar documentos, verificar:
 
 ### N/C y transformación fresco→precompostado
 
-- No convertir automáticamente los resultados de N/C determinados por Dumas tras preparación a 80 °C durante 48 h usando la materia seca gravimétrica determinada a 105 °C. Son procedimientos separados y la base formal final del porcentaje no fue especificada por el reporte.
+- El porcentaje de N del precompostado se refiere a la muestra seca/acondicionada por el CIA a 80 °C durante 48 h y determinada por Dumas. Para construir el benchmark experimental húmedo de A2 se aplica `N_fraction_wet = (n_ex_pct / 100) × (materia_seca_pct / 100)` con la materia seca independiente de Bioenergía a 105 °C durante 16 h.
+- El secado CIA no reconstruye humedad ni sustituye la gravimetría. El benchmark experimental de N del precompostado no reinicializa el ledger productivo de A2, que recibe N total y TAN propagados desde A1.
+- El carbono y la relación C/N son caracterización descriptiva: no reciben conversión a base húmeda ni alimentan actualmente el ACV.
 - Calcular la transformación fresco→precompostado primero por jornada usando materia seca y cenizas de ambos materiales; después integrar los factores de jornada con igual peso temporal.
 - No promediar primero las cuatro variables entre jornadas ni crear una segunda ruta principal basada en un promedio independiente de pérdidas. La pérdida integrada se deriva del factor integrado.
 

@@ -844,7 +844,7 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            "Los parámetros utilizados en el modelo se organizaron por escenario y etapa. La tabla distingue entre el nitrógeno total reportado en porcentaje y la fracción másica efectiva empleada en las ecuaciones. Para A2, esta fracción expresa el N del precompostado sobre masa húmeda e incorpora la materia seca gravimétrica; las demás etapas conservan su tratamiento analítico vigente.",
+            "Los parámetros se organizaron por escenario y etapa. La tabla distingue entre el nitrógeno total reportado en porcentaje y su expresión como fracción másica. Para A2, la fracción del precompostado sobre masa húmeda incorpora la materia seca gravimétrica y constituye un benchmark experimental; no reinicializa el balance productivo, cuyo N total y nitrógeno amoniacal total proceden de la salida de A1.",
             "A2: Lombricompostaje se calculó con ecuaciones IPCC y la categoría Composting – Passive Windrow. La fracción de lixiviación se estableció en cero como parámetro específico del sistema estudiado, sin alterar el valor genérico de la categoría. La Tabla 3 resume los parámetros principales.",
             "Los restantes factores de A2 —MCF, EF3 y fracción volatilizada— corresponden a la categoría IPCC seleccionada.",
             "La Tabla R3 del bloque de apéndices internos, Parámetros completos del modelo ACV, amplía los parámetros por escenario y etapa; la Tabla R4, Factores completos de emisión y caracterización, documenta los factores asociados.",
