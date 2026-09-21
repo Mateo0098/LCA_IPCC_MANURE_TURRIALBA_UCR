@@ -1605,6 +1605,10 @@ Figuras complementarias en apéndices:
 - El flujo anual de referencia es común para los escenarios A y B.
 - La metodología propaga N total y TAN entre las etapas físicamente conectadas.
 - NH₃, NOx y NO₃⁻ proceden de especies explícitas o rutas hídricas justificadas; no se usa reparto 50/50.
+- El Escenario A se identifica como operación habitual y el Escenario B como alternativa materializada temporalmente, no como operación permanente ni como escenario puramente hipotético.
+- Se distinguen la tanqueta de almacenamiento y el cañón VAIA de aplicación, así como la frecuencia operativa de tres días y el intervalo de acumulación previo al muestreo.
+- A1 se describe como aproximadamente tres a cuatro semanas y A2 como aproximadamente 13 semanas posteriores a A1, sin atribuir al TFG una muestra de lombricompost terminado.
+- El MCF de 38 % se presenta como proxy metodológico y no como una medición específica para tres días.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
@@ -1690,6 +1694,12 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         "- Electricidad IMN agregada y combustión de diésel IMN–EF 3.1: incluidas, sin procesos de fondo pendientes.",
         "- Agua de lavado descrita como pluvial, sin carga de potabilización municipal: Sí.",
         "- El cañón no recibe una entrada energética independiente: Sí.",
+        "- Escenario A identificado como operación habitual y Escenario B como alternativa materializada temporalmente: Sí.",
+        "- Tanqueta de almacenamiento y cañón VAIA de aplicación diferenciados: Sí.",
+        "- Frecuencia operativa de tres días diferenciada del intervalo jueves–lunes previo al muestreo: Sí.",
+        "- A1 descrita como tres a cuatro semanas y A2 como 13 semanas posteriores a A1, sin afirmar muestreo de lombricompost terminado: Sí.",
+        "- MCF de 38 % descrito como proxy IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.",
+        "- Ausencia de 3,5 días como parámetro canónico de anualización: Sí.",
         f"- Documento de conclusiones cubierto por el manifiesto y la validación: {'Sí' if CONCLUSIONS_DOCX.exists() else 'No'}.",
         f"- Documento integral provisional cubierto por el manifiesto: {'Sí' if INTEGRAL_DOCX.exists() else 'No'}.",
         f"- Reporte específico del documento integral disponible: {'Sí' if INTEGRAL_VALIDATION_OUT.exists() else 'No'}.",

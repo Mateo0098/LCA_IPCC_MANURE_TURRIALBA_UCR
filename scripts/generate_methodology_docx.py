@@ -632,8 +632,9 @@ def build_document() -> None:
     doc.add_heading("4. Escenarios evaluados", level=2)
     add_paragraphs(doc, [
         f"Ambos escenarios se definieron como alternativas de manejo para el mismo flujo anual de referencia de {fmt(context['flujo_referencia'], 6)} kg de estiércol fresco/año.",
-        f"En el Escenario A, {fmt(100 * context['fraccion_recolectada'], 2)} % del estiércol depositado se recolectó y entró primero a A1: Precomposteo; la masa resultante de esa transformación continuó posteriormente hacia A2: Lombricompostaje. El {fmt(100 * context['fraccion_remanente'], 2)} % restante permaneció adherido al piso, se incorporó a las aguas verdes y fue representado en A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo.",
-        f"En el Escenario B no se efectuó esa separación: el 100 % del estiércol teóricamente depositado, equivalente a {fmt(context['flujo_referencia'], 6)} kg/año, ingresó a B1: Almacenamiento de purines. En B2: Aplicación de purines en campo de pastoreo se integraron el agua de lavado y el total de estiércol depositado.",
+        f"El Escenario A representó la operación habitual observada. El estiércol recogido con pala, equivalente a {fmt(100 * context['fraccion_recolectada'], 2)} % del depósito estimado, entró a A1: Precomposteo y después continuó hacia A2: Lombricompostaje. El {fmt(100 * context['fraccion_remanente'], 2)} % restante permaneció en el piso, se incorporó al agua de lavado y formó las aguas verdes que llegaron mediante el drenaje o canal a la tanqueta. A3: Almacenamiento de aguas verdes representó su almacenamiento y A4: Aplicación de aguas verdes en campos de pastoreo, su aplicación.",
+        f"El Escenario B fue la alternativa comparativa del ACV, pero no una condición puramente hipotética ni la operación habitual permanente. Para materializarlo temporalmente se suspendió la desviación normal del sólido hacia precomposteo y lombricompostaje, el estiércol paleado se dirigió a la tanqueta y el remanente del piso se incorporó mediante lavado. Así se generaron, acumularon, observaron y muestrearon los purines representativos. El 100 % del estiércol teóricamente depositado, equivalente a {fmt(context['flujo_referencia'], 6)} kg/año, se representó en B1: Almacenamiento de purines y B2: Aplicación de purines en campo de pastoreo.",
+        "Las campañas de aguas verdes y purines ocurrieron en momentos diferentes y utilizaron la misma tanqueta; no implicaron la coexistencia simultánea de ambos contenidos. La tanqueta cumplió la función de almacenamiento. El cañón VAIA, accionado por el tractor, cumplió la función distinta de aplicar los efluentes al campo en A4 o B2.",
     ])
 
     doc.add_heading("5. Fronteras del sistema", level=2)
@@ -643,7 +644,8 @@ def build_document() -> None:
     ])
     doc.add_heading("6. Etapas del Escenario A", level=2)
     add_paragraphs(doc, [
-        "A1: Precomposteo corresponde al manejo inicial de la fracción sólida fresca antes del lombricompostaje. A2: Lombricompostaje corresponde a la transformación de la fracción sólida precompostada y representa el manejo posterior de dicha fracción.",
+        "A1: Precomposteo corresponde al manejo inicial de la fracción sólida fresca. Su duración observada fue aproximadamente de 21 días a cerca de un mes, por lo que se describe como tres a cuatro semanas sin atribuir una exactitud medida a 28 días. A2: Lombricompostaje comienza cuando el material que completó A1 ingresa a las camas y su operación regular dura aproximadamente 13 semanas. Vargas Sarmiento (2023, sección 5.2.2.1, p. 14; sección 6.1.3, p. 25) documentó en el mismo lombricario 13 semanas desde la siembra de las lombrices y para procesar toda la boñiga.",
+        "Las duraciones de A1 y A2 son consecutivas y contextuales; no se sumaron para atribuirlas a una sola etapa ni se utilizaron para escalar factores IPCC, EMEP/EEA o Komakech. Las muestras sólidas del presente TFG correspondieron a estiércol fresco y estiércol precompostado listo para alimentar las lombrices. No se muestreó el lombricompost terminado y las 13 semanas no describen la edad del material precompostado analizado.",
         "A3: Almacenamiento de aguas verdes corresponde al almacenamiento del efluente generado por el lavado y el arrastre de residuos. Para estimar las emisiones de manejo en esta etapa se utilizó como masa de actividad únicamente el estiércol remanente sometido al sistema, junto con la caracterización química del estiércol fresco y los factores del sistema IPCC seleccionado; el agua de lavado presente físicamente no se sumó como masa de estiércol en esas ecuaciones.",
         "A4: Aplicación de aguas verdes en campos de pastoreo corresponde a la etapa subsecuente de aplicación del efluente al suelo. Su flujo aplicado integró el agua de lavado y el estiércol remanente incorporado a las aguas verdes, y se empleó la caracterización química específica de las aguas verdes en las ecuaciones asociadas con suelos gestionados.",
     ])
@@ -673,6 +675,7 @@ def build_document() -> None:
         "En M1 se obtuvieron, para cada material sólido, dos muestras compuestas analizadas por Bioenergía y otras dos muestras compuestas independientes destinadas al laboratorio externo: LASA para el estiércol fresco y CIA para el precompostado. En M2 se obtuvieron tres muestras compuestas por material sólido; Bioenergía efectuó tres réplicas gravimétricas de cada muestra y el remanente de esas mismas muestras se remitió a LASA o CIA. Por tanto, los conjuntos físicos de M1 fueron disjuntos entre laboratorios, mientras que en M2 la identidad de las muestras fue compartida.",
         "La jerarquía estadística fue réplica analítica, muestra compuesta, promedio de jornada e integración entre jornadas. Las réplicas no se trataron como observaciones temporales independientes y M1 y M2 recibieron igual peso temporal.",
         "Esta versión metodológica corresponde a la integración provisional de M1 y M2. La jornada M3 permanece pendiente y su incorporación actualizará la caracterización final.",
+        "Antes de cada campaña de muestreo líquido, la tanqueta se vació el jueves por la tarde y se dejó acumular material hasta el lunes por la mañana. Durante ese intervalo de acumulación previo al muestreo continuaron entrando materiales y ocurrieron dos lavados; por tanto, no se trató de una carga cerrada ni de un ensayo de almacenamiento estático. Las campañas de aguas verdes y purines se realizaron por separado.",
         "Las muestras sólidas permitieron determinar contenido de agua, materia seca, cenizas, sólidos volátiles y nitrógeno total; las muestras líquidas se utilizaron principalmente para representar el contenido de nitrógeno total y los flujos asociados al almacenamiento y aplicación en campo. Los resultados resumidos de caracterización se presentan en la Tabla 1 y los flujos utilizados para el inventario en la Tabla 2.",
         "La materia seca y los sólidos volátiles se emplearon para representar la fracción orgánica disponible en las estimaciones de CH4. El nitrógeno total se utilizó en la estimación de N2O, NH3 y NO3, según la alternativa de manejo correspondiente. Los parámetros principales utilizados para la estimación de emisiones se muestran en la Tabla 3.",
     ])
@@ -738,7 +741,8 @@ def build_document() -> None:
         "Para representar A2: Lombricompostaje se seleccionó la categoría Composting – Passive Windrow de las Directrices del IPCC, por constituir la aproximación disponible más cercana a las condiciones operativas del sistema estudiado. El proceso se desarrolla con material sólido y no corresponde a un reactor cerrado; tampoco utiliza aireación forzada ni volteo mecánico intensivo diario. La actividad y el desplazamiento de las lombrices, sin embargo, contribuyen a la movilización y aireación no intensiva del sustrato.",
         "En A2 se adoptó una fracción de pérdida de N por lixiviación igual a cero como parámetro específico del sistema, sin alterar el valor genérico de la categoría Composting – Passive Windrow. Vargas Sarmiento (2023), en un ensayo efectuado en el mismo lombricario de la UCR Sede del Atlántico, documentó infraestructura bajo techo y camas construidas completamente con piso y paredes de cemento, sin drenajes; indicó además que la ausencia de drenajes dificultaba el escurrimiento del exceso de agua aplicado durante el riego experimental destinado a mantener la humedad objetivo.",
         "De manera separada, las observaciones directas efectuadas durante las giras de campo del presente TFG confirmaron que las camas se encontraban bajo techo, sin exposición directa a la precipitación, y que la adición regular de agua no constituía una práctica operacional habitual. Con base en la exclusión de lluvia directa, la impermeabilización de las camas, la ausencia de drenaje y la ausencia observada de riego operacional regular, no se modeló una pérdida de N hacia el ambiente por lixiviación durante A2. Este supuesto representa la ausencia de una salida significativa de N por esa vía y no niega que pueda ocurrir movimiento de agua dentro del sustrato.",
-        "A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se representaron como almacenamiento de estiércol líquido sin costra natural. Para ambas etapas se utilizó un MCF de 38 % como aproximación conservadora para clima tropical húmedo, EF3 igual a cero y ausencia de lixiviación sistemática. La mineralización previa del 10 % del N orgánico se mantuvo como aproximación EMEP por defecto, sin escalado lineal por la residencia aproximada de tres días; su representatividad temporal constituye una incertidumbre explícita.",
+        "A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se representaron como almacenamiento de estiércol líquido sin costra natural. La operación habitual se caracterizó por un vaciado de la tanqueta aproximadamente cada tres días. Esta frecuencia operativa sustenta la anualización de los consumos y no se reemplazó por el intervalo jueves–lunes empleado para preparar las muestras líquidas.",
+        "Para ambas etapas se utilizó un MCF de 38 % como proxy IPCC conservador para clima tropical húmedo. El valor procede de la categoría tabulada de un mes y no corresponde a una medición específica del MCF para tres días ni se transformó como 38 % × 3/30. EF3 permaneció en cero y no se representó lixiviación sistemática. La mineralización previa del 10 % del N orgánico se mantuvo como aproximación EMEP por defecto y tampoco se escaló linealmente por la residencia. El tiempo físico de operación, el intervalo de acumulación previo al muestreo y la duración tabulada del proxy son conceptos distintos.",
         "A4: Aplicación de aguas verdes en campos de pastoreo recibió exactamente el N total y el TAN remanentes de A3; B2: Aplicación de purines en campo de pastoreo recibió los pools correspondientes de B1. Ambas etapas representan aplicación al suelo de estiércol líquido previamente manejado y no deposición directa por animales durante pastoreo. Las mediciones intermedias se conservaron como benchmarks experimentales, sin reinicializar el ledger.",
         "Para la trazabilidad de la aplicación, el N retornado según EMEP se definió como el N aplicado menos el NH3-N volatilizado durante la aplicación. Esta variable no descuenta NOx-N, N2O-N directo ni lixiviación o escorrentía. De forma separada, el ledger calculó el N residual del suelo después de descontar NH3-N, NOx-N, N2O-N directo y N lixiviado o escurrido; esta última es una variable contable de cierre y no una definición oficial EMEP o IPCC.",
         "A2: Lombricompostaje utilizó las ecuaciones IPCC de manejo del estiércol y los factores genéricos de la categoría Composting – Passive Windrow, excepto la fracción de lixiviación, cuyo valor efectivo de cero se incorporó como parámetro específico del sistema estudiado. Las emisiones de las etapas se estimaron con los factores de manejo y parámetros descritos en la Tabla 3.",
@@ -770,7 +774,7 @@ def build_document() -> None:
         "La evaluación de impacto aplicó Environmental Footprint 3.1 a las emisiones directas. El cambio climático se expresó en kg CO₂-eq, la eutrofización terrestre en mol N-eq y la eutrofización marina en kg N-eq; estas categorías no se sumaron entre sí.",
         "El CH₄ del manejo se representó como metano biogénico y el inventario de N₂O se confirmó en kg N₂O, no N₂O-N. NH₃ y NOx como NO₂ se asignaron al aire; NO₃⁻ se asignó a agua dulce como receptor continental final. Los factores proceden de la tabla oficial EF 3.1 de la Comisión Europea y el JRC.",
         "Los impactos se calcularon primero por etapa y posteriormente se agregaron por escenario. La comparación entre escenarios se realizó con diferencias absolutas y porcentuales entre el Escenario A y el Escenario B.",
-        "La bomba Aermotor de 1,5 kW mecánicos se modeló con eficiencia media supuesta de 80 %, 7 min por lavado y dos lavados cada tres días, resultando 53,23 kWh/año en A3 y B1. Para el tractor Massey Ferguson 6711 con cañón, operado en 540E, los operarios comunicaron una duración aproximada de 30 min por vaciado, no medida instrumentalmente; el consumo de 3 L diésel/h fue un supuesto del estudio. El resultado fue 182,50 L/año en A4 y B2. Los escenarios son alternativos y estos consumos no se dividieron entre ellos.",
+        "La bomba Aermotor de 1,5 kW mecánicos se modeló con eficiencia media supuesta de 80 %, 7 min por lavado y dos lavados cada tres días, resultando 53,23 kWh/año en A3 y B1. Para el tractor Massey Ferguson 6711 que acciona el cañón VAIA, operado en 540E, los operarios comunicaron una duración aproximada de 30 min por vaciado, no medida instrumentalmente; el consumo de 3 L diésel/h fue un supuesto del estudio. El resultado fue 182,50 L/año en A4 y B2. La tanqueta almacena y el cañón aplica; los escenarios son alternativos y estos consumos no se dividieron entre ellos.",
         "El patrón operativo observado el 25 de agosto de 2026 se anualizó a 365 días; no constituye una medición instrumental anual continua. Para electricidad se utilizó el factor IMN de consumo de 2025, 0,0415 kg CO₂-eq/kWh, como proxy temporal del último año disponible; no se utilizó el factor de generación de 2024. La electricidad permanece agregada en CO₂-eq, sin desagregación física ni armonización artificial de potenciales de calentamiento global.",
         "El diésel empleó 2,613 kg CO₂/L, 0,382 g CH₄/L y 0,02442 g N₂O/L del IMN. Para CH₄ y N₂O se adoptó Residencial y agrícola/Diésel como proxy sectorial de la operación agrícola con toma de fuerza 540E, no como categoría literal de tractor. Se descartó transporte terrestre sin catalizador porque el transporte vial está fuera de la frontera y no se acreditó esa condición del motor. Las masas se convirtieron a kg y se caracterizaron con EF 3.1: CO₂ fósil = 1, CH₄ fósil = 29,8 y N₂O = 273; el CH₄ biogénico del manejo conserva 27. No se usaron los GWP IMN 1/28/265 para el diésel.",
         "El cambio climático total suma manejo del estiércol, electricidad y combustión de diésel, con factores IMN para recursos energéticos y caracterización EF 3.1 de emisiones elementales. La electricidad atribuye emisiones de generación externa al consumo; no se modelan cadenas completas de producción, refinación, infraestructura y suministro mediante ecoinvent. SimaPro es únicamente una herramienta opcional de verificación independiente de las emisiones elementales EF 3.1. El cañón no recibe energía adicional ni el agua pluvial tratamiento municipal.",
@@ -804,7 +808,7 @@ def build_document() -> None:
 
     doc.add_heading("22. Limitaciones metodológicas", level=2)
     add_paragraphs(doc, [
-        "La estimación depende de la representatividad de las muestras de laboratorio y de la duración del muestreo de agua y estiércol. Las conversiones de N₂O-N a N₂O, de N a NH₃ y de N a NO₃⁻ se documentaron como cálculos estequiométricos derivados de relaciones de masa.",
+        "La estimación depende de la representatividad temporal de las jornadas y de las muestras de laboratorio. El intervalo de acumulación previo al muestreo líquido describe la condición concreta de las muestras y no se interpreta como residencia canónica. Las conversiones de N₂O-N a N₂O, de N a NH₃ y de N a NO₃⁻ se documentaron como cálculos estequiométricos derivados de relaciones de masa.",
         "La presentación de flujos anuales y masas equivalentes describe la escala operacional del sistema, pero la comparación metodológica entre escenarios se mantiene referida a 1 kg de estiércol fresco.",
     ])
 
@@ -812,6 +816,7 @@ def build_document() -> None:
     add_paragraphs(doc, ["Instituto Meteorológico Nacional. (2026, según portada). Factores de emisión de gases de efecto invernadero. 16.ª edición; las páginas interiores indican 15a edición / 2025. San José, Costa Rica. Secciones de energía, pp. 3–4."])
     add_paragraphs(doc, [
         "Sánchez-Romero, C. A., & Brenes-Gamboa, S. (2026). Cuantificación y caracterización de residuos generados durante el ordeño de ganado Jersey. Agronomía Mesoamericana, 37, artículo 6135ky76. https://doi.org/10.15517/6135ky76",
+        "Vargas Sarmiento, F. (2023). Caracterización del abono orgánico resultante de dos metodologías de vermicompostaje a partir de excretas de ganado vacuno mediante el uso de la lombriz roja californiana (Eisenia foetida) y su efecto sobre plantas de banano cv. Gros Michel (Musa AAA) en invernadero [Tesis de Licenciatura en Agronomía, Universidad de Costa Rica].",
         "Komakech, A. J., Zurbrügg, C., Miito, G. J., Wanyama, J., & Vinnerås, B. (2016). Environmental impact from vermicomposting of organic waste in Kampala, Uganda. Journal of Environmental Management, 181, 395–402. https://doi.org/10.1016/j.jenvman.2016.06.028",
         "Jjagwe, J., Komakech, A. J., Karungi, J., Amann, A., Wanyama, J., & Lederer, J. (2019). Assessment of a Cattle Manure Vermicomposting System Using Material Flow Analysis: A Case Study from Uganda. Sustainability, 11, 5173. https://doi.org/10.3390/su11195173",
         "European Environment Agency. (2023). EMEP/EEA air pollutant emission inventory guidebook 2023: Chapter 3.B, Manure management, y Chapter 3.D, Crop production and agricultural soils. Publications Office of the European Union.",
@@ -840,6 +845,29 @@ def build_document() -> None:
     doc.save(OUT_DOCX)
 
 
+def validate_physical_temporal_text(text: str) -> None:
+    lowered = text.lower()
+    required_groups = {
+        "Escenario A como operación habitual": ("escenario a", "operación habitual"),
+        "Escenario B materializado temporalmente": ("escenario b", "materializarlo temporalmente"),
+        "Funciones distintas de tanqueta y cañón": ("la tanqueta almacena", "el cañón aplica"),
+        "Intervalo previo al muestreo": ("jueves por la tarde", "lunes por la mañana", "entradas"),
+        "Duración contextual de A1": ("21 días", "tres a cuatro semanas"),
+        "Duración regular de A2": ("13 semanas", "operación regular"),
+        "Ausencia de muestreo del producto final": ("no se muestreó el lombricompost terminado",),
+        "MCF como proxy no medido": ("mcf de 38 %", "proxy ipcc", "no corresponde a una medición específica"),
+        "Carácter provisional": (PROVISIONAL_LABEL.lower(), "m3"),
+    }
+    failures = [
+        name for name, terms in required_groups.items()
+        if not all(term in lowered for term in terms)
+    ]
+    if "3,5 días" in lowered or "3.5 días" in lowered:
+        failures.append("No usa 3,5 días como parámetro canónico")
+    if failures:
+        raise RuntimeError(f"Falló la validación físico-temporal de la metodología: {failures}")
+
+
 def main() -> None:
     validate_inputs()
     master_hash_before = sha256_file(REFERENCE_DOCX)
@@ -847,6 +875,7 @@ def main() -> None:
     visible = "\n".join(paragraph.text for paragraph in Document(OUT_DOCX).paragraphs)
     if PROVISIONAL_LABEL not in visible or "M3" not in visible:
         raise RuntimeError("La metodología no quedó identificada como PROVISIONAL M1–M2 pendiente de M3.")
+    validate_physical_temporal_text(visible)
     assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
     print(f"Documento generado: {OUT_DOCX.relative_to(ROOT)}")
 

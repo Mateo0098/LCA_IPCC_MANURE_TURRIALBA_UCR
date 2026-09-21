@@ -30,7 +30,16 @@ El artículo citado refiere bibliográficamente un intervalo de producción diar
 
 El balance derivado produjo aproximadamente 33,31 % de estiércol remanente y 66,69 % de estiércol recolectado. Estas fracciones no son mediciones directas realizadas por Sánchez-Romero y Brenes-Gamboa (2026); son estimaciones metodológicas del TFG.
 
-## 5. Balance entre escenarios
+## 5. Realidad operativa y balance entre escenarios
+
+El Escenario A representa la operación habitual observada en la lechería. Parte
+del estiércol se recoge con pala y la fracción paleada sigue la secuencia A1:
+Precomposteo → A2: Lombricompostaje. El remanente que permanece en el piso se
+incorpora al agua de lavado; las aguas verdes resultantes llegan mediante el
+sistema de drenaje o canal a la tanqueta, donde se almacenan en A3 antes de su
+aplicación en A4. La tanqueta cumple la función de almacenamiento. El cañón VAIA,
+accionado por el tractor, cumple la función distinta de aplicar el efluente al
+campo.
 
 El Escenario A mantiene dos corrientes físicamente separadas:
 
@@ -49,12 +58,25 @@ piso y se incorpora al lavado.
 
 En el Escenario B, el 100 % del flujo común de 26 278,725181 kg/año ingresa a B1: Almacenamiento de purines. Ambos escenarios representan alternativas para el mismo flujo anual de referencia.
 
-## 6. Representación de A1, A3 y B1
+El Escenario B no corresponde a la operación habitual permanente, pero tampoco
+es una construcción puramente hipotética. Para obtener su condición
+representativa se modificó temporalmente la operación: se suspendió la
+desviación normal del sólido hacia precomposteo y lombricompostaje, el estiércol
+paleado se dirigió a la tanqueta y el remanente del piso se incorporó mediante
+lavado. Los purines así generados y acumulados fueron observados y muestreados.
+Las campañas de aguas verdes y purines ocurrieron en momentos distintos usando
+la misma tanqueta; no representan contenidos simultáneos. B1 representa el
+almacenamiento y B2 la aplicación con el mismo conjunto tractor–cañón utilizado
+para A4.
+
+## 6. Representación de A1, A2, A3 y B1
 
 ### A1: Precomposteo
 
 A1 representa el precomposteo del estiércol paleado durante aproximadamente
-cuatro semanas, equivalentes a unos 28 días. La pila permanece sin volteo
+tres a cuatro semanas. La duración observada varió entre 21 días y cerca de un
+mes; por tanto, cuatro semanas constituye una descripción representativa y no
+una medición exacta de 28 días. La pila permanece sin volteo
 mecánico y sin aireación forzada. Durante esta etapa existe pérdida de humedad y
 drenaje. El drenaje no dispone de una infraestructura estable de tratamiento y,
 para la frontera del sistema modelado, termina depositándose sobre el suelo
@@ -93,6 +115,21 @@ de suelos gestionados que se utiliza para representar otras entradas de N al
 suelo. La secuencia metodológica objetivo es:
 
 `N_drenaje_A1 → entrada de N al suelo → lixiviación/escorrentía IPCC desde suelo → N_lixiviado_suelo → conversión estequiométrica a NO₃⁻ → flujo explícito de NO₃⁻ en el ICV → caracterización EF 3.1`
+
+### A2: Lombricompostaje
+
+A2 comienza después de A1, cuando el material precompostado ingresa a las camas.
+La operación regular dura aproximadamente 13 semanas, excluidas las tres a
+cuatro semanas anteriores de precomposteo. Vargas Sarmiento (2023, sección
+5.2.2.1, p. 14; sección 6.1.3, p. 25) documentó en el mismo lombricario un
+procesamiento de 13 semanas desde la siembra de las lombrices y precisó que ese
+lapso permitía procesar toda la boñiga. La condición regular se conserva además
+como confirmación del investigador para el sistema estudiado.
+
+Las 13 semanas son una duración operativa y contextual. No multiplican ni
+escalan factores IPCC, EMEP/EEA o Komakech. El material muestreado en el presente
+TFG fue estiércol precompostado listo para alimentar las lombrices, no
+lombricompost terminado; no se tomó una muestra del producto final de A2.
 
 ## 15. Caracterización EF 3.1 e inventario operativo
 
@@ -183,6 +220,16 @@ La superficie no tiene una cubierta directa ni un sellado hermético, no se
 agita y no se documentó una costra natural. Predominan condiciones anaerobias.
 La residencia operacional aproximada es de tres días.
 
+Esta residencia describe la operación habitual: la tanqueta se vacía
+aproximadamente cada tres días, con cerca de dos lavados por ciclo, siete minutos
+por lavado y treinta minutos de tractor/cañón por vaciado. De forma separada,
+antes de cada campaña de muestreo líquido la tanqueta se vació el jueves por la
+tarde y acumuló material hasta el lunes por la mañana. Durante ese intervalo de
+acumulación previo al muestreo continuaron las entradas y ocurrieron dos lavados;
+no fue una carga cerrada ni un ensayo de almacenamiento estático. Este intervalo
+no sustituye la frecuencia operativa de tres días ni constituye un nuevo
+parámetro del modelo.
+
 Se adopta la zona climática `Tropical Wet`, de acuerdo con la caracterización
 climática documentada para el sitio. Para CH₄ se utiliza MCF = 38 %, valor IPCC
 de un mes para `Liquid/Slurry` en `Tropical Wet`, como proxy conservador de la
@@ -214,6 +261,11 @@ NH₃-N, NO-N y N₂-N sobre el TAN disponible. Se aprueba mantener `fmin = 0,10
 como aproximación EMEP por defecto y no escalarlo linealmente por los tres días.
 La decisión metodológica está cerrada; la incertidumbre sobre su
 representatividad para una residencia tan corta debe acompañar los resultados.
+
+En consecuencia, el tiempo físico de la operación, el intervalo específico de
+preparación de las muestras y la duración tabulada que sustenta el proxy IPCC
+son conceptos distintos. Ninguno autoriza un escalado temporal lineal de los
+factores.
 
 - En A3, la masa de actividad es la masa de estiércol remanente sometida al sistema de manejo.
 - En B1, la masa de actividad es la totalidad del estiércol teóricamente depositado.

@@ -20,7 +20,9 @@ Las afirmaciones identificadas como **confirmación del investigador** fueron su
 
 **Confirmación del investigador.** El Escenario A corresponde al funcionamiento habitual de la lechería. El estiércol sólido se desvía hacia la ruta de precomposteo y lombricompostaje. El material que permanece en el piso se incorpora al agua de lavado y forma las aguas verdes que llegan por el canal a la tanqueta.
 
-El material precompostado se tomó de la pila con mayor tiempo de permanencia, es decir, la pila cuyo material estaba listo para alimentar las lombrices. El precomposteo observado duraba aproximadamente entre 21 días y un mes. La duración aproximada del proceso de lombricompostaje evaluado fue de 13 semanas.
+El material precompostado se tomó de la pila con mayor tiempo de permanencia, es decir, la pila cuyo material estaba listo para alimentar las lombrices. El precomposteo observado duraba aproximadamente entre 21 días y un mes.
+
+La operación regular de lombricompostaje duraba aproximadamente 13 semanas desde que el material, después de completar el precomposteo, ingresaba a las camas. Esta duración corresponde a A2 y excluye las aproximadamente tres a cuatro semanas de A1. Describe el proceso habitual y no la edad del material precompostado muestreado. El investigador no tomó muestras del lombricompost terminado.
 
 ### Escenario B
 

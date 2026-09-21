@@ -4,9 +4,13 @@
 
 TFG en fase documental pre-M3. Existe una corrida científica **PROVISIONAL M1–M2** y un documento integral provisional para revisar estructura, continuidad académica y trazabilidad.
 
-## Unidad activa
+## Unidad pre-M3 completada pendiente de revisión
 
-Integración documental integral provisional: ensamblar el contenido vigente del MASTER con la metodología, los resultados y las conclusiones regenerables, sin modificar el modelo científico.
+La documentación metodológica y el integral provisional reconciliaron la
+operación habitual del Escenario A, la materialización temporal del Escenario B,
+las duraciones contextuales de A1/A2 y la diferencia entre operación de la
+tanqueta y preparación de las campañas líquidas. Esta reconciliación no modificó
+el modelo científico. Su cierre supervisor permanece pendiente de revisión.
 
 ## Siguiente unidad prevista
 
@@ -23,7 +27,7 @@ Preparación e incorporación de M3 mediante el pipeline canónico, cuando esté
 1. Revisar la continuidad académica y la estructura del documento integral provisional.
 2. Completar la verificación de las referencias marcadas como pendientes en `docs/REFERENCIAS_TFG.md`.
 3. Definir la evaluación cuantitativa mínima de sensibilidad para los supuestos dominantes, sin crear una ruta de cálculo paralela.
-4. Revisar la limpieza puntual de `README_METODOLOGIA.md` y decidir el retiro de `auditoria_alineacion_tfg.md` cuando sus hallazgos permanentes estén absorbidos.
+4. Decidir el retiro de `auditoria_alineacion_tfg.md` cuando sus hallazgos permanentes estén absorbidos.
 5. Incorporar M3 con el pipeline vigente.
 
 ## Paso de provisional a definitivo

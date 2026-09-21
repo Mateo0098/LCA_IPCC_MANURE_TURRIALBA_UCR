@@ -61,6 +61,10 @@ Figuras complementarias en apéndices:
 - El flujo anual de referencia es común para los escenarios A y B.
 - La metodología propaga N total y TAN entre las etapas físicamente conectadas.
 - NH₃, NOx y NO₃⁻ proceden de especies explícitas o rutas hídricas justificadas; no se usa reparto 50/50.
+- El Escenario A se identifica como operación habitual y el Escenario B como alternativa materializada temporalmente, no como operación permanente ni como escenario puramente hipotético.
+- Se distinguen la tanqueta de almacenamiento y el cañón VAIA de aplicación, así como la frecuencia operativa de tres días y el intervalo de acumulación previo al muestreo.
+- A1 se describe como aproximadamente tres a cuatro semanas y A2 como aproximadamente 13 semanas posteriores a A1, sin atribuir al TFG una muestra de lombricompost terminado.
+- El MCF de 38 % se presenta como proxy metodológico y no como una medición específica para tres días.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.

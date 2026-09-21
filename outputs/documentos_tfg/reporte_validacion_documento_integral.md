@@ -30,6 +30,15 @@
 - PASS — Las fuentes reproducibles del diagrama de fronteras existen.
 - PASS — Las figuras insertadas coinciden con las previstas.
 - PASS — Las tablas insertadas coinciden con las previstas.
+- PASS — El Escenario A se identifica como operación habitual.
+- PASS — El Escenario B se identifica como materializado temporalmente.
+- PASS — La tanqueta y el cañón tienen funciones distintas.
+- PASS — Se distingue el intervalo previo al muestreo.
+- PASS — A1 se describe sin precisión falsa.
+- PASS — A2 se describe como operación regular posterior a A1.
+- PASS — No se atribuye una muestra de lombricompost terminado.
+- PASS — El MCF se identifica como proxy no medido a tres días.
+- PASS — No se presenta 3,5 días como parámetro canónico.
 - PASS — No hay rótulos duplicados.
 - PASS — La numeración global de tablas es continua.
 - PASS — La numeración global de figuras es continua.

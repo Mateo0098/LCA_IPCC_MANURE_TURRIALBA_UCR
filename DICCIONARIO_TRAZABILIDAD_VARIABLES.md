@@ -44,6 +44,17 @@ finales en `outputs/tablas_tesis/`.
 | `mass_ratio_integrado` / `factor_restante_a2` | Factor de masa restante de fresco a precompostado | Relación de masa húmeda precompostada respecto a masa húmeda fresca, calculada por jornada e integrada con igual peso temporal. | kg/kg | `processed/muestreos_transformacion_masa_interjornada.csv` | Por jornada: `(cenizas_fresco/cenizas_precompostado) × (MS_fresco/MS_precompostado)`; después media temporal de factores | `scripts/build_sampling_integration.py` | `processed/muestreos_transformacion_masa_interjornada.csv`; `processed/masa_total_escenario_etapa.csv` | Transformación activa de estiércol fresco a precompostado |
 | `masa_total_kg_eq` en B2 | Flujo de purines | Masa equivalente total compuesta por el total teóricamente depositado y el agua de lavado. | kg eq/año | `processed/masa_total_escenario_etapa.csv` | `estiercol_total_depositado_anual + agua_lavado_anual` | `scripts/compute_masa_etapas_escenarios.py` | `processed/masa_total_escenario_etapa.csv` | Inventario de ciclo de vida: escenario B y purines |
 
+## Condiciones físicas y temporales
+
+| Condición | Significado académico | Naturaleza | Fuente responsable | Uso en el modelo | Efecto numérico |
+|---|---|---|---|---|---|
+| A1: aproximadamente 3–4 semanas | Precomposteo observado entre 21 días y cerca de un mes; no equivale a una medición exacta de 28 días. | Dato físico observado/confirmado y descripción contextual | `Academic_documents/registro_evidencia_experimental_primaria.md`; `DECISIONES_METODOLOGICAS_TFG.md` | Contextualiza A1; no escala factores IPCC o EMEP/EEA. | No directo |
+| A2: aproximadamente 13 semanas | Operación regular desde el ingreso del material precompostado a las camas; excluye A1. No describe la edad de una muestra ni un producto final muestreado. | Dato operativo confirmado y respaldo bibliográfico del proceso en el mismo lombricario | Registro primario; Vargas Sarmiento (2023), sección 5.2.2.1, p. 14, y sección 6.1.3, p. 25 | Contextualiza A2; no escala factores IPCC, EMEP/EEA o Komakech. | No directo |
+| Vaciado de la tanqueta cada ~3 días | Frecuencia operativa representativa para almacenamiento y aplicación, con dos lavados por ciclo. | Dato operativo comunicado | Nota de campo del 25-08-2026; `processed/acv_parametros_operativos.csv` | Anualiza bomba y tractor/cañón. | Sí, solo inventario energético |
+| Jueves por la tarde–lunes por la mañana | Intervalo de acumulación previo a cada muestreo líquido, con entradas continuas y dos lavados; no fue una carga estática. | Condición específica de campaña | `Academic_documents/registro_evidencia_experimental_primaria.md` | Describe la procedencia de las muestras; no sustituye la frecuencia operativa. | No |
+| MCF de 38 % en A3/B1 | Proxy IPCC de un mes para almacenamiento líquido en clima tropical húmedo; no es un MCF medido a tres días. | Supuesto o proxy metodológico | `DECISIONES_METODOLOGICAS_TFG.md`; tabla de factores IPCC | Factor activo de CH₄ sin escalado temporal lineal. | Sí |
+| Mineralización de 10 % en A3/B1 | Aproximación EMEP por defecto, no escalada por tres días. | Supuesto o proxy metodológico | `DECISIONES_METODOLOGICAS_TFG.md`; parámetros del ledger | Actualiza TAN antes de las pérdidas de almacenamiento. | Sí |
+
 ## Variables de emisiones
 
 | Variable en codigo | Nombre recomendado para la tesis | Definicion | Unidad | Fuente del dato | Formula usada | Script donde se calcula | Archivo de salida donde aparece | Seccion de tesis |

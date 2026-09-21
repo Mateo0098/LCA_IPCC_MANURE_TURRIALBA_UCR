@@ -382,6 +382,7 @@ def validate_quantitative_narratives() -> None:
 
 def validate_documents_and_conclusions() -> None:
     methodology_text, methodology_header = document_text(DOCS / "metodologia_desarrollada_tfg.docx")
+    integral_text, integral_header = document_text(DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx")
     results_text, results_header = document_text(DOCS / "resultados_desarrollados_tfg.docx")
     conclusions_text, conclusions_header = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
     conclusion_document = Document(DOCS / "conclusiones_desarrolladas_tfg.docx")
@@ -393,6 +394,7 @@ def validate_documents_and_conclusions() -> None:
     validate_c2_semantics(c2_candidates[0])
     for body, header in (
         (methodology_text, methodology_header),
+        (integral_text, integral_header),
         (results_text, results_header),
         (conclusions_text, conclusions_header),
     ):
@@ -402,6 +404,20 @@ def validate_documents_and_conclusions() -> None:
     for visible in ("EF 3.1", "53,23 kWh/año", "182,50 L/año"):
         assert visible in methodology_text
     assert "30 min" in methodology_text and "no medida instrumentalmente" in methodology_text
+
+    for body in (methodology_text, integral_text):
+        lowered = body.lower()
+        assert "escenario a" in lowered and "operación habitual" in lowered
+        assert "escenario b" in lowered and "materializarlo temporalmente" in lowered
+        assert "la tanqueta almacena" in lowered and "el cañón aplica" in lowered
+        assert "jueves por la tarde" in lowered and "lunes por la mañana" in lowered
+        assert "intervalo de acumulación previo al muestreo" in lowered
+        assert "21 días" in lowered and "tres a cuatro semanas" in lowered
+        assert "13 semanas" in lowered and "operación regular" in lowered
+        assert "no se muestreó el lombricompost terminado" in lowered or "no muestreó lombricompost terminado" in lowered
+        assert "mcf de 38 %" in lowered and "proxy ipcc" in lowered
+        assert "medición específica del mcf" in lowered and "3/30" in lowered
+        assert "3,5 días" not in lowered and "3.5 días" not in lowered
 
     characterization = read_rows(TABLES / "tabla_02_caracterizacion_muestras.csv")
     required = [

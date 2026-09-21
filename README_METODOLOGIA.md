@@ -168,7 +168,40 @@ Las conversiones principales son:
 - Nitrógeno total de estiércol fresco, aguas verdes y purines como fracción másica: `n_ex_fraction = n_ex_pct / 100`.
 - Benchmark experimental de N del precompostado en A2 sobre masa húmeda: `N_fraction_wet = (n_ex_pct / 100) * (materia_seca_pct / 100)`; no reinicializa el ledger productivo.
 - Solidos volatiles en base humeda: `(vs_t_pct / 100) * fraccion_masa_seca`.
-- Flujos anuales: `(promedio / duracion_muestreo_dias) * 365`.
+
+## Realidad física y temporal de los escenarios
+
+El Escenario A representa la operación habitual. La fracción paleada sigue A1:
+Precomposteo y después A2: Lombricompostaje; el remanente del piso se incorpora
+al agua de lavado, llega por drenaje o canal a la tanqueta y sigue A3:
+Almacenamiento de aguas verdes → A4: Aplicación de aguas verdes en campos de
+pastoreo. La tanqueta almacena. El cañón VAIA, accionado por el tractor, aplica.
+
+El Escenario B es la alternativa comparativa del ACV y fue materializado
+temporalmente, sin constituir la operación habitual permanente. Durante esa
+condición se suspendió la desviación del sólido hacia A1/A2, se dirigió el
+estiércol paleado a la tanqueta y el remanente se incorporó mediante lavado. Los
+purines se observaron y muestrearon físicamente. Las campañas A y B ocurrieron
+en momentos distintos con la misma tanqueta.
+
+A1 dura aproximadamente tres a cuatro semanas: la observación abarca 21 días a
+cerca de un mes y no constituye una medición exacta de 28 días. A2 comienza
+después de A1 y su operación regular dura aproximadamente 13 semanas. Vargas
+Sarmiento (2023, sección 5.2.2.1, p. 14; sección 6.1.3, p. 25) documenta en el
+mismo lombricario 13 semanas desde la siembra de las lombrices y para procesar
+toda la boñiga. El TFG muestreó estiércol precompostado listo para ingresar a A2,
+no lombricompost terminado. Ninguna de estas duraciones escala factores.
+
+La operación habitual de la tanqueta se representa mediante vaciado cada tres
+días, dos lavados por ciclo, siete minutos por lavado y treinta minutos de
+tractor/cañón por vaciado. Esta frecuencia anualiza los consumos operativos. El
+intervalo jueves por la tarde–lunes por la mañana describe únicamente la
+acumulación previa a cada muestreo líquido, con entradas continuas y dos lavados;
+no es una carga estática ni un parámetro de residencia del modelo.
+
+Para A3/B1, el MCF de 38 % es el proxy IPCC tabulado de un mes seleccionado como
+aproximación conservadora, no un MCF medido para tres días. No se escala como
+`38 % × 3/30`. La mineralización EMEP de 10 % tampoco se escala por la residencia.
 
 ## Normalizacion a unidad funcional
 
@@ -303,7 +336,6 @@ Si cambian datos crudos:
 ```powershell
 .venv\Scripts\python.exe scripts\extract_analysis_results.py --out-prefix CIA_samples_table_v6
 .venv\Scripts\python.exe scripts\compute_sample_parameters.py
-.venv\Scripts\python.exe scripts\compute_agua_boniga_stats.py
 .venv\Scripts\python.exe scripts\compute_masa_etapas_escenarios.py
 .venv\Scripts\python.exe scripts\generate_acv_parametros_escenario_etapa.py
 .venv\Scripts\python.exe ACV_orquestador.py

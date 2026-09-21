@@ -550,6 +550,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "La descripción del sitio y de sus operaciones conserva la formulación de la propuesta cuando continúa siendo compatible con el trabajo ejecutado. Los parámetros operativos cuantitativos se actualizaron con la evidencia de la misma lechería reportada por Sánchez-Romero y Brenes-Gamboa (2026).",
+            "En la operación habitual del Escenario A, el estiércol recogido con pala se conduce a A1: Precomposteo y después a A2: Lombricompostaje. El remanente del piso se incorpora al agua de lavado y las aguas verdes llegan mediante el drenaje o canal a la tanqueta para su almacenamiento en A3. La tanqueta se vacía aproximadamente cada tres días y el tractor acciona el cañón VAIA para la aplicación en A4. La tanqueta almacena; el cañón aplica.",
         ],
     )
     document.add_heading("4.2 Meta, alcance, unidad funcional y escenarios", level=2)
@@ -558,6 +559,8 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "La meta fue comparar el desempeño ambiental de dos alternativas de manejo bajo una misma unidad funcional de 1 kg de estiércol fresco manejado. Los flujos y emisiones anuales describen la escala operacional; los indicadores por kilogramo corresponden a la normalización respecto a la unidad funcional.",
             f"El flujo anual común fue {results_source.fmt(methodology_context['flujo_referencia'], 6)} kg de estiércol fresco/año. En el Escenario A, la fracción sólida ingresó a A1: Precomposteo y continuó hacia A2: Lombricompostaje; el remanente se incorporó a A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo. En el Escenario B, el flujo completo ingresó a B1: Almacenamiento de purines y continuó hacia B2: Aplicación de purines en campo de pastoreo.",
+            "El Escenario B no fue la operación habitual permanente ni una alternativa puramente hipotética. Para materializarlo temporalmente se suspendió la desviación normal del sólido hacia precomposteo y lombricompostaje, el estiércol paleado se dirigió a la tanqueta y el remanente del piso se incorporó mediante lavado. Los purines resultantes fueron acumulados, observados y muestreados físicamente. Las campañas A y B se realizaron en momentos distintos con la misma tanqueta y no implicaron la coexistencia de ambos contenidos. B1 representa el almacenamiento y B2 la aplicación con el mismo conjunto tractor–cañón utilizado para A4.",
+            "A1 duró aproximadamente entre 21 días y cerca de un mes, por lo que se representa como tres a cuatro semanas sin tratar 28 días como una medición exacta. A2 comenzó después de A1, cuando el material precompostado ingresó a las camas, y su operación regular duró aproximadamente 13 semanas. Vargas Sarmiento (2023, sección 5.2.2.1, p. 14; sección 6.1.3, p. 25) documentó en el mismo lombricario 13 semanas desde la siembra de las lombrices y para procesar toda la boñiga. Estas duraciones son contextuales y no escalan factores. El presente TFG no muestreó lombricompost terminado; las muestras correspondieron a material precompostado previo a A2.",
         ],
     )
     generate_system_boundary_figure()
@@ -595,6 +598,7 @@ def build_document() -> tuple[int, int, int, int]:
             "Bioenergía determinó humedad y materia seca por gravimetría a 105 °C durante 16 h. El CIA determinó N y C del precompostado por Dumas sobre muestra seca o acondicionada a 80 °C durante 48 h. El porcentaje de N se combinó con la materia seca independiente de Bioenergía para construir el benchmark húmedo de A2; C y C/N permanecieron como caracterización descriptiva, sin conversión húmeda ni uso productivo.",
             "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2. En aguas verdes y purines, M1 correspondió a especiación y se conservó para trazabilidad; el N total líquido activo procedió de M2 mediante Kjeldahl. M3 permanece pendiente y se incorporará mediante el mismo pipeline para producir la caracterización final.",
             "La transformación de estiércol fresco a precompostado se calculó primero por jornada mediante materia seca y cenizas de ambos materiales; posteriormente se integraron los factores de jornada con igual peso temporal. La pérdida integrada se derivó del factor integrado.",
+            "Antes de cada campaña líquida, la tanqueta se vació el jueves por la tarde y acumuló material hasta el lunes por la mañana. Durante ese intervalo de acumulación previo al muestreo continuaron las entradas y ocurrieron dos lavados; no fue una carga cerrada ni un ensayo de almacenamiento estático. Esta preparación de muestra no sustituyó la frecuencia operativa representativa de aproximadamente tres días.",
         ],
     )
     characterization = results_source.characterization_summary()
@@ -684,6 +688,7 @@ def build_document() -> tuple[int, int, int, int]:
             "Environmental Footprint 3.1 se aplicó a las emisiones directas. El cambio climático se expresó en kg CO₂-eq, la eutrofización terrestre en mol N-eq y la eutrofización marina en kg N-eq; las categorías se interpretaron por separado.",
             "La electricidad de la bomba se evaluó con el factor agregado de consumo del IMN para 2025 como aproximación temporal del patrón observado en 2026. La combustión de diésel se representó mediante masas físicas de CO₂ fósil, CH₄ fósil y N₂O obtenidas con factores IMN y caracterizadas con EF 3.1. No se incorporaron cadenas completas de fondo.",
             "Los factores, la asignación de sistemas y los consumos operativos corresponden a las decisiones metodológicas vigentes. Esta integración documental no recalculó ni modificó el ACV.",
+            "En A3/B1, el MCF de 38 % se mantuvo como proxy IPCC conservador de la categoría tabulada de un mes para clima tropical húmedo. No corresponde a una medición específica del MCF para la residencia operativa de tres días y no se escaló como 38 % × 3/30. La mineralización EMEP del 10 % tampoco se escaló por tres días. El tiempo físico de operación, el intervalo específico de preparación de las muestras y la duración tabulada del proxy metodológico se trataron como conceptos distintos.",
         ],
     )
     add_equation(
@@ -1053,6 +1058,15 @@ def validate_document(
         ("Las fuentes reproducibles del diagrama de fronteras existen", SYSTEM_BOUNDARY_PNG.exists() and SYSTEM_BOUNDARY_SVG.exists()),
         ("Las figuras insertadas coinciden con las previstas", len(document.inline_shapes) == expected_figures),
         ("Las tablas insertadas coinciden con las previstas", len(document.tables) == expected_tables),
+        ("El Escenario A se identifica como operación habitual", "Escenario A" in text and "operación habitual" in text),
+        ("El Escenario B se identifica como materializado temporalmente", "Escenario B" in text and "materializarlo temporalmente" in text),
+        ("La tanqueta y el cañón tienen funciones distintas", "La tanqueta almacena" in text and "el cañón aplica" in text),
+        ("Se distingue el intervalo previo al muestreo", all(term in text for term in ["jueves por la tarde", "lunes por la mañana", "entradas"])),
+        ("A1 se describe sin precisión falsa", "21 días" in text and "tres a cuatro semanas" in text),
+        ("A2 se describe como operación regular posterior a A1", "13 semanas" in text and "operación regular" in text and "después de A1" in text),
+        ("No se atribuye una muestra de lombricompost terminado", "no muestreó lombricompost terminado" in text),
+        ("El MCF se identifica como proxy no medido a tres días", "MCF de 38 %" in text and "proxy IPCC" in text and "No corresponde a una medición específica" in text),
+        ("No se presenta 3,5 días como parámetro canónico", "3,5 días" not in text and "3.5 días" not in text),
     ]
 
     labels = [
