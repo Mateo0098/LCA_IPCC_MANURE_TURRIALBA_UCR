@@ -33,8 +33,10 @@ Los datos crudos principales estan en `Academic_documents/`:
   sistema de manejo.
 - `processed/ipcc_sistema_manejo_por_etapa.csv`: asignacion escenario/etapa a
   sistema IPCC.
-- `processed/modelo_etapa_overrides.csv`: seleccion de modelo por etapa
-  (`ipcc` o `medido`).
+- `processed/modelo_etapa_overrides.csv`: selección del modelo IPCC en las seis
+  etapas vigentes. El lector actual rechaza `medido`; nombres históricos de
+  columnas o capacidades auxiliares no constituyen un método alternativo
+  ejecutado en el TFG.
 - `processed/ipcc_factores_manejo_overrides_etapa.csv`: parámetros específicos por escenario y etapa; A2 establece `FracLeachMS = 0` sin modificar la categoría IPCC genérica.
 - `processed/acv_factores_equivalencia.csv`: factores Environmental Footprint
   3.1 por identidad de flujo elemental, compartimento y categoría (origen fósil/biogénico explícito).
@@ -130,8 +132,9 @@ amoniacal, N nítrico y N ureico con uso `solo_trazabilidad`. M2 conserva N tota
 con método `Kjeldahl` y uso `elegible`. La asignación de M2 se fundamenta en la
 metodología oficial CIA suministrada por el investigador: digestión húmeda de
 10 g de abono líquido con H2SO4 mediante Kjeldahl, volumen final de 250 mL y
-determinación colorimétrica con FIA. La elegibilidad no implica conexión actual
-con el modelo.
+determinación colorimétrica con FIA. La elegibilidad de M2 permite el contraste
+experimental, pero no reinicializa el N total ni el TAN propagados por el ledger
+en A4/B2.
 
 Para N y C del estiércol precompostado, los reportes CIA 97600 y 100751 se
 documentan con el método `Dumas (combustión seca)`, conforme a la metodología
@@ -143,7 +146,8 @@ a 105 °C porque no fue solicitada; esa preparación no debe confundirse con la
 gravimetría independiente de Bioenergía a 105 °C durante 16 h, que aporta la
 humedad y materia seca del TFG. Para A2, el N integrado se convierte a base
 húmeda únicamente para construir el benchmark experimental; no reinicializa el
-ledger productivo, que recibe N total y TAN desde A1. El carbono y la relación
+ledger productivo, que recibe N total y TAN desde la salida de A1. No se fuerza
+la coincidencia entre el benchmark y el N propagado. El carbono y la relación
 C/N permanecen como caracterización descriptiva, sin conversión húmeda ni uso
 productivo en el ACV.
 
@@ -211,15 +215,20 @@ manejo evaluados bajo una misma base funcional.
 
 Algunos resultados se presentan como flujos anuales estimados para describir la
 magnitud operacional del sistema durante el periodo evaluado. Esos valores no
-sustituyen la unidad funcional del ACV. El codigo calcula masas equivalentes
-anuales por etapa mediante `masa_total_kg_eq`, calculada en:
+sustituyen la unidad funcional del ACV. El código registra masas equivalentes
+anuales por etapa mediante `masa_total_kg_eq` en:
 
 - `scripts/compute_masa_etapas_escenarios.py`
 - `processed/masa_total_escenario_etapa.csv`
 
-La tabla `masa_total_escenario_etapa.csv` integra boniga, agua, factor de
-precompostaje y factores manuales de asignacion por etapa. El supuesto operativo
-actual es `1 L agua = 1 kg equivalente`.
+La tabla `masa_total_escenario_etapa.csv` distingue masa de estiércol por etapa,
+agua de lavado y mezcla equivalente. En A1/A2/A3/B1 la masa equivalente coincide
+con la masa de actividad de estiércol pertinente; en A4/B2 incorpora agua para
+representar la mezcla y su dilución, con el supuesto `1 L agua = 1 kg
+equivalente`. Esa mezcla no es una masa funcional ni genera una segunda masa de
+N o emisiones: el N aplicado en A4/B2 procede del ledger de A3/B1. La masa
+funcional de referencia es el flujo anual común de estiércol fresco de los
+escenarios, usado como denominador al expresar resultados por 1 kg.
 
 La declaracion metodologica de unidad funcional y supuestos esta en:
 
@@ -253,10 +262,16 @@ Las emisiones se consolidan en:
 
 - `processed/ACV_resumen_emisiones.csv`
 
-La tabla contiene emisiones por escenario y etapa para CO2, CH4, N2O, NH3 y
-NO3. Las ecuaciones de N usan una fracción másica y no `n_ex_pct` directamente.
-En A2 esa fracción incorpora explícitamente la materia seca gravimétrica; las
-demás etapas conservan la conversión directa de porcentaje a fracción.
+La tabla contiene emisiones por escenario y etapa para CO₂, CH₄, N₂O, NH₃ y
+NO₃⁻. El N total y TAN productivos de A2 llegan desde A1 por
+`scripts/reactive_n_ledger.py`; sus emisiones de N se calculan con esos pools
+propagados y los factores correspondientes. La fracción húmeda derivada del
+N Dumas y la materia seca gravimétrica del precompostado solo construye un
+benchmark experimental. No se usa para reinicializar A2 ni se exige que
+coincida con el N propagado. El N de aplicación en A4/B2 también procede de la
+etapa precedente; la masa equivalente de la mezcla no multiplica de nuevo sus
+emisiones. Para CH₄ de manejo, A1/A2/A3/B1 usan la masa de actividad pertinente,
+que coincide allí con `masa_total_kg_eq` sin agua.
 
 La tabla final limpia para tesis es:
 
@@ -329,25 +344,37 @@ documentos se generan con `scripts/generate_methodology_docx.py` y
 el documento protegido de `MASTER_escrito/` únicamente como referencia de
 formato.
 
-## Orden recomendado de ejecucion
+## Orden recomendado de ejecución
 
-Si cambian datos crudos:
-
-```powershell
-.venv\Scripts\python.exe scripts\extract_analysis_results.py --out-prefix CIA_samples_table_v6
-.venv\Scripts\python.exe scripts\compute_sample_parameters.py
-.venv\Scripts\python.exe scripts\compute_masa_etapas_escenarios.py
-.venv\Scripts\python.exe scripts\generate_acv_parametros_escenario_etapa.py
-.venv\Scripts\python.exe ACV_orquestador.py
-.venv\Scripts\python.exe scripts\generate_thesis_tables.py
-```
-
-Si `processed/` ya esta validado:
+Cuando cambian datos experimentales, se ejecuta el único pipeline vigente en
+este orden. La ingestión normaliza observaciones y produce el resumen
+intrajornada; la integración construye los estimadores interjornada y la
+transformación de masa. `ACV_orquestador.py` parte de esa integración validada:
+promueve parámetros activos, calcula masas, ledger, emisiones e impactos. No
+ejecuta ingestión ni integración estadística.
 
 ```powershell
+.venv\Scripts\python.exe scripts\build_sampling_ingestion.py
+.venv\Scripts\python.exe scripts\validate_sampling_ingestion.py
+.venv\Scripts\python.exe scripts\build_sampling_integration.py
+.venv\Scripts\python.exe scripts\validate_sampling_integration.py
 .venv\Scripts\python.exe ACV_orquestador.py
 .venv\Scripts\python.exe scripts\generate_thesis_tables.py
+.venv\Scripts\python.exe scripts\generate_thesis_graphics.py
+.venv\Scripts\python.exe scripts\generate_methodology_docx.py
+.venv\Scripts\python.exe scripts\generate_results_docx.py
+.venv\Scripts\python.exe scripts\generate_conclusions_docx.py
+.venv\Scripts\python.exe scripts\generate_integral_tfg_docx.py
+.venv\Scripts\python.exe scripts\validate_provisional_m1_m2_outputs.py
 ```
+
+Las tablas M1 `CIA_samples_table*` y `volatile_solids_*`, y la ejecución aislada
+de `compute_sample_parameters.py`, se conservan para trazabilidad histórica;
+no sustituyen las salidas multijornada vigentes. El orquestador solo puede
+ejecutarse de forma abreviada si la ingestión y la integración activas ya
+corresponden a los datos actuales y superaron sus validadores. Ante duda se
+ejecuta la secuencia completa. Las tablas, figuras y documentos deben proceder
+de la misma corrida validada.
 
 ## Observaciones metodologicas pendientes
 
@@ -355,6 +382,13 @@ Si `processed/` ya esta validado:
   caracterizacion.
 - Validar los nombres descriptivos de etapas en
   `tabla_01_etapas_escenarios.csv`.
-- Mantener `n_ex_pct` como porcentaje analítico reportado. La fracción efectiva
-  de A2 incorpora la materia seca gravimétrica; las demás etapas conservan su
-  tratamiento vigente.
+
+## Factores históricos y caracterización vigente
+
+Las constantes `CH_4_eq = 21`, `N_2_O_eq = 310`, `NH_3_eq = 0.35` y
+`NO_3_eq = 0.095` conservadas en `scripts/ecuaciones_acv.py`, así como
+`gwp_ch4 = 21` y `gwp_n2o = 310` en los parámetros del ledger, son legados o
+valores de contraste diagnóstico; no son factores de caracterización productiva
+EF 3.1. El impacto vigente se caracteriza con la identidad de flujo,
+compartimento y categoría de `processed/acv_factores_equivalencia.csv`, además
+del factor agregado IMN para electricidad descrito arriba.
