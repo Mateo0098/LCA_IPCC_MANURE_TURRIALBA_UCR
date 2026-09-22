@@ -230,6 +230,41 @@ N o emisiones: el N aplicado en A4/B2 procede del ledger de A3/B1. La masa
 funcional de referencia es el flujo anual común de estiércol fresco de los
 escenarios, usado como denominador al expresar resultados por 1 kg.
 
+### Estimación de la frontera A1→A2 y alcance del agua
+
+La entrada de A1 es 17 525,1 kg/año de estiércol fresco recolectado. No se pesó
+la salida completa de A1. En cada jornada elegible se usan la fracción de
+materia seca sobre masa húmeda (`d`) y la fracción de cenizas sobre materia seca
+(`a`) de estiércol fresco (`f`) y precompostado (`p`). Al **suponer** que la
+ceniza mineral de la misma corriente se conserva,
+`M_f d_f a_f = M_p d_p a_p`, y por tanto
+`R_j = M_p/M_f = (d_f a_f)/(d_p a_p)` (kg/kg). Se promedian los factores de
+jornada con igual peso temporal; `M_A2 = M_A1 × promedio(R_j)` es una **masa
+húmeda anual inferida**, usada como actividad de A2. El resultado provisional
+M1–M2 es 0,4239615549830651 kg/kg y 7 429,968647 kg/año. El 57,6038445 %
+complementario es una diferencia estimada de masa húmeda, no una pérdida
+medida ni una atribución a evaporación.
+
+El cálculo requiere comparabilidad entre las muestras de entrada y salida y
+ausencia de entradas o salidas minerales; no verifica experimentalmente esas
+condiciones. En M1, las muestras compuestas de Bioenergía y de los laboratorios
+externos son físicamente distintas; la ecuación emplea promedios de jornada,
+no parejas de muestras ni un lote pesado. La media de razones de jornada no
+garantiza conservación exacta al combinarla con porcentajes integrados por
+separado.
+
+La humedad de ambos materiales se midió en muestras, pero no hay caudales
+cuantificados de agua añadida, evaporación, drenaje ni sólidos retirados entre
+A1 y la entrada de A2. El balance de agua quedaría
+`W_A2 = W_A1 + W_agregada − W_evaporada − W_drenada − W_otros`, con varias
+incógnitas; el cambio de masa húmeda no permite resolverlas. Los 250 572,5
+L/año de agua de lavado corresponden a las rutas de aguas verdes y purines,
+no a A1/A2. En A2 se observó ausencia de riego operacional regular, sin
+medición que pruebe aporte de agua exactamente nulo. Tampoco se muestreó el
+lombricompost terminado. A1 dura tres a cuatro semanas y A2 comienza después,
+con unas 13 semanas de operación regular independientes de los factores de
+emisión.
+
 La declaracion metodologica de unidad funcional y supuestos esta en:
 
 - `outputs/tablas_tesis/tabla_00_unidad_funcional_y_supuestos.csv`

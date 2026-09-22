@@ -143,7 +143,7 @@ def _build_row(rule: dict, source_rows: list[dict]) -> dict:
 
 
 def build_mass_transformation_rows(source_rows: list[dict]) -> list[dict]:
-    """Calcula primero el factor de cada jornada y luego integra esos factores."""
+    """Estima razones húmedas por ceniza conservada; no mide una salida ni cierra el agua."""
     indexed = {
         (row["jornada"], row["material"], row["variable"]): row
         for row in source_rows
