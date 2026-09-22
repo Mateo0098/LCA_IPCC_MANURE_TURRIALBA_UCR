@@ -25,5 +25,5 @@ soil_frac_leach,0.24,kg N leached/runoff/kg N input,A1 drainage;A4;B2,IPCC 2019 
 soil_frac_gas_current,0.21,kg volatilised N/kg N input,A4;B2 current comparison,Current project managed-soil parameter,Historical diagnostic comparison only; not used by target ledger
 soil_ef1,0.006,kg N2O-N/kg manure N applied,A4;B2,IPCC 2019 Refinement Volume 4 Chapter 11 Table 11.1,Other N inputs in wet climates; base is N applied
 komakech_nh3_factor,12.8,g NH3/Mg biowaste,A2,Komakech et al. 2016 DOI 10.1016/j.jenvman.2016.06.028,Measured vermicompost-unit factor on biowaste input basis
-gwp_ch4,21,kg CO2-eq/kg CH4,climate comparison,processed/acv_factores_equivalencia.csv,Current TFG characterization factor
-gwp_n2o,310,kg CO2-eq/kg N2O,climate comparison,processed/acv_factores_equivalencia.csv,Current TFG characterization factor
+gwp_ch4,21,kg CO2-eq/kg CH4,climate comparison,scripts/ecuaciones_acv.py (legacy repository constant; original bibliographic provenance not established),Historical diagnostic comparison factor; not active EF 3.1 characterization
+gwp_n2o,310,kg CO2-eq/kg N2O,climate comparison,scripts/ecuaciones_acv.py (legacy repository constant; original bibliographic provenance not established),Historical diagnostic comparison factor; not active EF 3.1 characterization
