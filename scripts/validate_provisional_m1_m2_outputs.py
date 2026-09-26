@@ -455,6 +455,32 @@ def validate_documents_and_conclusions() -> None:
     assert all(item["text"] in conclusions_text for item in expected)
 
 
+def validate_a1_a2_activity_assumptions() -> None:
+    assumptions = read_rows(TABLES / "tabla_00_unidad_funcional_y_supuestos.csv")
+
+    ash_rows = [
+        row for row in assumptions
+        if "cenizas" in row["nombre"].lower() and "a1→a2" in row["nombre"].lower()
+    ]
+    assert len(ash_rows) == 1
+    ash_text = " ".join(
+        (ash_rows[0]["nombre"], ash_rows[0]["descripcion"], ash_rows[0]["observaciones"])
+    ).lower()
+    assert "masa húmeda" in ash_text and "infiere" in ash_text
+    assert "conservación de cenizas" in ash_text
+    assert "no constituye una pérdida física medida" in ash_text
+    assert "balance cerrado de agua o sólidos" in ash_text
+    assert "la perdida de masa fresco a precompostado" not in ash_text
+
+    awms_rows = [row for row in assumptions if "awms" in row["nombre"].lower()]
+    assert len(awms_rows) == 1
+    awms_text = " ".join(
+        (awms_rows[0]["descripcion"], awms_rows[0]["observaciones"])
+    ).lower()
+    assert "corriente de masa" in awms_text and "ya fue asignada" in awms_text
+    assert "no significa" in awms_text and "estiércol total de la finca" in awms_text
+    assert "pendiente" not in awms_text
+
 HISTORICAL_GRAPH_STEMS = {
     "fig_11_impactos_calentamiento_global_etapa",
     "fig_12_impactos_eutrofizacion_etapa",
@@ -531,6 +557,7 @@ def main() -> None:
     validate_impacts_and_comparison()
     validate_quantitative_narratives()
     validate_documents_and_conclusions()
+    validate_a1_a2_activity_assumptions()
     validate_graph_sources_and_freshness()
     master = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
     master_hash = hashlib.sha256(master.read_bytes()).hexdigest().upper()
@@ -546,6 +573,7 @@ def main() -> None:
         "- Electricidad, diésel y normalización por unidad funcional: PASS.\n"
         "- Exportación foreground y controles de doble conteo: PASS.\n"
         "- Arquitectura híbrida A1/A2, proxies aprobados y benchmarks documentados: PASS.\n"
+        "- Supuestos de razón de masa A1→A2 y alcance de AWMS documentados sin pendientes: PASS.\n"
         "- Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.\n"
         "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"
