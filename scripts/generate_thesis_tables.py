@@ -667,7 +667,7 @@ def diccionario_variables() -> Path:
         ("tipo_muestra", "Tratamiento o material representado", "texto", "processed/acv_parametros_escenario_etapa.csv"),
         ("n_ex_pct", "Nitrogeno total reportado en laboratorio", "% N total", "processed/acv_parametros_escenario_etapa.csv"),
         ("n_ex_fraction", "Nitrógeno total como fracción másica", "kg N/kg masa húmeda", "En A2 representa un benchmark experimental húmedo y no reinicializa el ledger productivo"),
-        ("masa_total_kg_eq", "Masa equivalente usada para escalar emisiones", "kg eq/ano", "processed/masa_total_escenario_etapa.csv"),
+        ("masa_total_kg_eq", "Masa equivalente de la mezcla para el inventario físico y el contraste de dilución; no constituye una base general para escalar emisiones", "kg eq/ano", "processed/masa_total_escenario_etapa.csv"),
         ("valor", "Valor numerico de la variable reportada", "depende de unidad", "Tablas finales"),
         ("unidad", "Unidad explicita del valor reportado", "texto", "Tablas finales"),
         ("fuente_dato", "Archivo o fuente de origen del valor", "texto", "Tablas finales"),

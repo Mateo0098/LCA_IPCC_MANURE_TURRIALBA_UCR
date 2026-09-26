@@ -135,6 +135,33 @@ class ReactiveNLedgerTests(unittest.TestCase):
             reconstructed = item["modelled_n_mass_fraction"] * item["theoretical_mixture_mass_kg"]
             self.assertAlmostEqual(reconstructed, app.n_applic_kg)
 
+    def test_application_water_and_liquid_benchmarks_do_not_reset_productive_n(self):
+        params, chemistry, masses = MODULE.load_inputs()
+        baseline = {
+            row.stage[:2]: (row.n_applic_kg, row.tan_applic_kg, row.nh3_n_app_kg)
+            for row in self.applications
+        }
+        modified_chemistry = {key: dict(value) for key, value in chemistry.items()}
+        modified_masses = {key: dict(value) for key, value in masses.items()}
+        for key in (("A", 4), ("B", 2)):
+            modified_chemistry[key]["n_ex_pct"] = str(float(chemistry[key]["n_ex_pct"]) * 10.0)
+            modified_masses[key]["agua_l"] = str(float(masses[key]["agua_l"]) * 2.0)
+            modified_masses[key]["masa_total_kg_eq"] = str(
+                float(modified_masses[key]["boniga_kg"])
+                + float(modified_masses[key]["agua_l"])
+            )
+        with patch.object(
+            MODULE,
+            "load_inputs",
+            return_value=(params, modified_chemistry, modified_masses),
+        ):
+            _, applications, _ = MODULE.build_ledger()
+        actual = {
+            row.stage[:2]: (row.n_applic_kg, row.tan_applic_kg, row.nh3_n_app_kg)
+            for row in applications
+        }
+        self.assertEqual(actual, baseline)
+
     def test_komakech_nh3_does_not_exceed_a2_tan(self):
         self.assertLessEqual(self.m["A2"].nh3_n_kg, self.m["A2"].tan_in_kg)
 
