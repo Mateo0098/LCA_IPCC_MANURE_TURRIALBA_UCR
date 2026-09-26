@@ -30,7 +30,7 @@ AUTHORIZED_NUMERIC_BASELINE_SHA256 = {
     "processed/acv_parametros_escenario_etapa.csv": "4a1309f7787e8ca444950081eb916cc39236bf946827e44a9febb158e1935011",
     "processed/masa_total_escenario_etapa.csv": "6f36294d9663dffcacb8641f94135ba8932e0ed696f768a8a573b345f610aa78",
     "processed/reactive_n_ledger.csv": "7260f2f265e2c9e6200163f0974539b27f1dec18f856f3f21d4c5efc1dd4b2e2",
-    "processed/reactive_n_ledger_parameters.csv": "61d19c623d57a6b419968b6f603cc9e6d49960c5d9205a8c1216f64d19245791",
+    "processed/reactive_n_ledger_parameters.csv": "9866f412bf4075630a319ea7c8e8c03b2448de7089370668cab36d3f4c64e095",
     "processed/ACV_resumen_emisiones.csv": "bb9d668ab176c3e2af997b7656441066fc4c93afd498494238f9ed7c3f5194c1",
     "processed/acv_impacto_por_etapa_escenario.csv": "7857b3d15a537bfb83834a763182a24a01ebfb14d686e3cfa95e3f5d93ab567d",
     "processed/acv_impacto_total_por_escenario.csv": "27d0968c43e5423797c307e9c03bcadbf9a8daccda57e434a4a67b25c99b3e22",
@@ -419,6 +419,13 @@ def validate_documents_and_conclusions() -> None:
         assert "medición específica del mcf" in lowered and "3/30" in lowered
         assert "3,5 días" not in lowered and "3.5 días" not in lowered
 
+    for body in (methodology_text, integral_text, results_text):
+        lowered = body.lower()
+        assert "arquitectura híbrida" in lowered
+        assert "komakech" in lowered and "proxy experimental aprobado" in lowered
+        assert "benchmark" in lowered and "fracgas" in lowered
+    assert "pool residual de tan" in methodology_text.lower() and "doble conteo" in methodology_text.lower()
+
     characterization = read_rows(TABLES / "tabla_02_caracterizacion_muestras.csv")
     required = [
         row for row in characterization
@@ -538,6 +545,7 @@ def main() -> None:
         "- EF 3.1, casos unitarios, impactos y unidades: PASS.\n"
         "- Electricidad, diésel y normalización por unidad funcional: PASS.\n"
         "- Exportación foreground y controles de doble conteo: PASS.\n"
+        "- Arquitectura híbrida A1/A2, proxies aprobados y benchmarks documentados: PASS.\n"
         "- Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.\n"
         "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"

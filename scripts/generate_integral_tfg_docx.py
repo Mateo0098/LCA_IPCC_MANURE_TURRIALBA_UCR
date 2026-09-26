@@ -619,7 +619,8 @@ def build_document() -> tuple[int, int, int, int]:
             "El N total constituyó el balance físico principal y el nitrógeno amoniacal total un subbalance sujeto a 0 ≤ TAN ≤ N total. TAN se inicializó como 0,60 del N total únicamente en las fronteras de estiércol fresco y ambos componentes se propagaron entre etapas físicamente conectadas.",
             "En particular, A2 recibió el N total y el TAN remanentes de A1. La medición de N del precompostado se mantuvo como benchmark experimental y no reinicializó estos flujos productivos.",
             "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por EMEP/EEA redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
-            "A2: Lombricompostaje se representó mediante la categoría IPCC de compostaje en hileras pasivas como aproximación disponible. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones del sistema estudiado, sin cambiar el factor genérico de la categoría. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente; los factores específicos por etapa se presentan en la tabla metodológica correspondiente.",
+            "El ledger fue secuencial: A2 recibió el N total y el pool residual de TAN a la salida de A1. Por ello, aplicar factores en ambas etapas no duplicó matemáticamente los pools originales. FracGasMS permaneció exclusivamente como benchmark y no generó otra volatilización ni alimentó EF4. Las duraciones específicas introducen incertidumbre de representatividad temporal y de transferencia de los proxies, pero no justifican escalado lineal de los factores.",
+            "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como proxy para CH₄ y N₂O directo; Komakech et al. (2016), como proxy experimental aprobado para NH₃; y EMEP/EEA de almacenamiento sólido, como proxy metodológico aprobado provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
         ],
     )
     document.add_heading("4.4.1 Metano de las etapas de manejo", level=3)
@@ -646,7 +647,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         counters,
         "N_j = TAN_disponible × f_j,  j ∈ {NH₃-N, NO-N, N₂-N}",
-        "La expresión resume las rutas parametrizadas con factores EMEP/EEA. En A2, la masa de NH₃ se estima con el factor específico de Komakech et al. (2016), mientras NO-N y N₂-N conservan provisionalmente los factores sólidos EMEP/EEA.",
+        "La expresión resume las rutas parametrizadas con factores EMEP/EEA. En A2, la masa de NH₃ se estima una sola vez con el proxy experimental aprobado de Komakech et al. (2016), aplicado a la masa húmeda inferida de residuo orgánico que ingresa a la etapa, mientras NO-N y N₂-N conservan los proxies sólidos EMEP/EEA aprobados provisionalmente.",
     )
     add_equation(document, counters, "N_N₂O–N,directo = N_total,entrada × EF₃")
     add_equation(document, counters, "m_N₂O,directo = N_N₂O–N,directo × 44/28")
@@ -726,7 +727,7 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "Los supuestos dominantes incluyen la equivalencia entre litro de agua y kilogramo equivalente, la extrapolación anual de las operaciones, la generación teórica de estiércol durante la permanencia en sala, la conservación de cenizas, la asignación de sistemas de manejo y sus factores, la relación TAN/N inicial y la representación del almacenamiento líquido mediante un MCF de 38 %.",
             "La consistencia se controló mediante balances de masa y nitrógeno, normalización común, trazabilidad entre integración experimental y parámetros activos, sumas por etapa y escenario, y comprobaciones de dirección, signo, unidad, dominancia y redondeo de las comparaciones narrativas.",
-            "Las limitaciones principales son la representatividad temporal de M1–M2, la ausencia de una medición directa del MCF para aproximadamente tres días de residencia, el uso de categorías metodológicas aproximadas para A2 y la extrapolación de observaciones operativas puntuales. Estas limitaciones se mantienen explícitas y se revisarán después de M3.",
+            "Las limitaciones principales son la representatividad temporal de M1–M2, la ausencia de una medición directa del MCF para aproximadamente tres días de residencia, la transferibilidad de Komakech, la representatividad de las categorías IPCC y del factor EMEP de N₂ en A2, la masa húmeda inferida de A2 y la ausencia de un balance cerrado de agua y sólidos. Son incertidumbres científicas de la arquitectura aprobada, no decisiones metodológicas abiertas ni impedimentos para el modelo pre-M3.",
         ],
     )
 
@@ -895,7 +896,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "El contraste con Jjagwe et al. (2019) mostró que las diferencias entre la estimación IPCC y la referencia experimental no siguieron una dirección uniforme para CH₄ y N₂O directo. Las diferencias de especie de lombriz, acondicionamiento, alimentación, humedad, duración, clima, escala y frecuencia de medición impiden interpretar esa comparación como equivalencia física entre sistemas.",
-            "Las referencias de Komakech et al. (2016), Møller et al. (2004) y VanderZaag et al. (2013), junto con las directrices IPCC y EMEP/EEA, respaldan la selección y la interpretación de los factores empleados. La revisión bibliográfica final deberá cotejar los datos editoriales pendientes del registro integral.",
+            "Las referencias de Komakech et al. (2016), Møller et al. (2004) y VanderZaag et al. (2013), junto con las directrices IPCC y EMEP/EEA, permiten trazar la selección y la interpretación de los factores empleados, pero no demuestran equivalencia física entre sus sistemas de origen y el sistema estudiado. En particular, el factor de NH₃ de Komakech procede de reactores pequeños en Kampala, con residuo predominantemente ganadero, concentraciones gaseosas medidas y un flujo de aire estimado mediante el índice respirométrico dinámico; su aplicación a la masa húmeda inferida de entrada a A2 es un proxy experimental aprobado y una extrapolación con diferencias de escala, alimentación, clima, duración y operación. Estas limitaciones no convierten su selección en una decisión abierta para la fase pre-M3.",
         ],
     )
     document.add_heading("6.3 Sensibilidad y consistencia", level=2)
@@ -913,7 +914,7 @@ def build_document() -> tuple[int, int, int, int]:
         [
             f"La comprobación disponible para A2 varió el factor de N₂-N respecto al TAN entre 0 y 0,30. Frente al caso central de 0,30, el cambio máximo observado en el N total remanente equivalió a {results_source.fmt(maximum_change, 2)} % del N total de entrada. La Tabla {table_10} documenta esta prueba de QA; no constituye un análisis de sensibilidad completo de los impactos.",
             "Los supuestos con mayor capacidad material de afectar la comparación son el MCF del almacenamiento líquido, la caracterización de materia seca, sólidos volátiles y N después de M3, la relación TAN/N inicial, los factores de A2, la duración y frecuencia de los consumos operativos y los factores asociados a la aplicación al suelo.",
-            "Antes de la versión final se requiere una evaluación acotada, de una variable por vez, sobre los supuestos que controlan las etapas dominantes y con intervalos respaldados por las fuentes vigentes. La consistencia debe verificarse además mediante cierre de balances, igualdad del flujo funcional, integridad temporal de la corrida y estabilidad de la dirección comparativa. La selección de intervalos se definirá después de M3 para evitar evaluar una caracterización experimental todavía provisional.",
+            "Después de M3 y antes de la interpretación final podrá evaluarse si una sensibilidad acotada de los proxies de alta influencia, en particular N₂ de A2 y NH₃ de Komakech, aporta valor suficiente. Su ausencia no impide validar el modelo pre-M3. La consistencia continuará verificándose mediante cierre de balances, igualdad del flujo funcional e integridad temporal de la corrida.",
         ],
     )
 

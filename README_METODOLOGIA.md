@@ -33,10 +33,12 @@ Los datos crudos principales estan en `Academic_documents/`:
   sistema de manejo.
 - `processed/ipcc_sistema_manejo_por_etapa.csv`: asignacion escenario/etapa a
   sistema IPCC.
-- `processed/modelo_etapa_overrides.csv`: selección del modelo IPCC en las seis
-  etapas vigentes. El lector actual rechaza `medido`; nombres históricos de
-  columnas o capacidades auxiliares no constituyen un método alternativo
-  ejecutado en el TFG.
+- `processed/modelo_etapa_overrides.csv`: selección del núcleo de cálculo IPCC
+  en las seis etapas vigentes. En A1/A2 esta tabla no describe por sí sola toda
+  la arquitectura de N reactivo, que incorpora EMEP/EEA y Komakech según la
+  decisión metodológica vigente. El lector actual rechaza `medido`; nombres
+  históricos de columnas o capacidades auxiliares no constituyen un método
+  alternativo ejecutado en el TFG.
 - `processed/ipcc_factores_manejo_overrides_etapa.csv`: parámetros específicos por escenario y etapa; A2 establece `FracLeachMS = 0` sin modificar la categoría IPCC genérica.
 - `processed/acv_factores_equivalencia.csv`: factores Environmental Footprint
   3.1 por identidad de flujo elemental, compartimento y categoría (origen fósil/biogénico explícito).
@@ -307,6 +309,35 @@ coincida con el N propagado. El N de aplicación en A4/B2 también procede de la
 etapa precedente; la masa equivalente de la mezcla no multiplica de nuevo sus
 emisiones. Para CH₄ de manejo, A1/A2/A3/B1 usan la masa de actividad pertinente,
 que coincide allí con `masa_total_kg_eq` sin agua.
+
+En A1, la masa húmeda de actividad es el estiércol fresco recolectado y los
+sólidos volátiles se convierten de base seca a base húmeda antes de aplicar B₀,
+MCF y la densidad de CH₄. En A2, esa misma ecuación utiliza la masa húmeda
+inferida de entrada y la caracterización del precompostado. Para el N reactivo,
+A2 no usa esa masa para reconstruir N total ni TAN: ambos pools llegan de A1.
+La única ruta nitrogenada de A2 basada en masa húmeda es NH₃, mediante 12,8 g
+NH₃/Mg de residuo orgánico de entrada de Komakech et al. (2016). El denominador
+se interpreta como masa húmeda de entrada a partir de la unidad funcional y el
+balance en base húmeda del artículo. La transferencia es un proxy experimental,
+porque el factor se estimó en reactores pequeños de Kampala, con residuo
+predominantemente ganadero y flujo de aire aproximado mediante el índice
+respirométrico dinámico. NO-N y N₂-N usan provisionalmente factores EMEP/EEA de
+almacenamiento sólido. La fracción IPCC de volatilización permanece solo como
+benchmark y no crea otra masa de emisión.
+
+Esta combinación constituye la arquitectura híbrida IPCC–EMEP–Komakech vigente:
+IPCC cubre CH₄ y N₂O directo de A2, Komakech cubre NH₃ como proxy experimental
+aprobado y EMEP/EEA cubre NO y N₂ mediante proxies metodológicos aprobados
+provisionalmente. No es la aplicación íntegra de una sola guía ni una decisión
+pendiente de armonización. El factor EMEP de N₂-N, 0,300 kg/kg TAN, tiene alta
+influencia y permanece como incertidumbre de representatividad susceptible de
+una sensibilidad futura, sin bloquear el modelo pre-M3.
+
+El ledger secuencial impide interpretar por sí solo el uso de factores en A1 y
+A2 como doble conteo: A2 actúa sobre el N total y el pool residual de TAN que
+salen de A1. Las duraciones específicas introducen incertidumbre de
+transferibilidad temporal, pero no escalan linealmente los factores. Jjagwe et
+al. se conserva exclusivamente como benchmark interpretativo.
 
 La tabla final limpia para tesis es:
 

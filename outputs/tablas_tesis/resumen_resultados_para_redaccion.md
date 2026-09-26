@@ -49,7 +49,7 @@ B2: Aplicación de purines en campo de pastoreo presenta la mayor masa equivalen
 | B | NO3 | 121.2572835051862 |
 | B | NOx | 4.592074113208644 |
 
-B1: Almacenamiento de purines es la mayor fuente de CH4; B2: Aplicación de purines en campo de pastoreo de NH3; B2: Aplicación de purines en campo de pastoreo de NO3; y B2: Aplicación de purines en campo de pastoreo de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante ecuaciones IPCC.
+B1: Almacenamiento de purines es la mayor fuente de CH4; B2: Aplicación de purines en campo de pastoreo de NH3; B2: Aplicación de purines en campo de pastoreo de NO3; y B2: Aplicación de purines en campo de pastoreo de N2O. A2, correspondiente a la Etapa 2: Lombricompostaje, se estimó mediante la arquitectura híbrida IPCC–EMEP–Komakech vigente.
 
 ## 6.5 Impactos ambientales por etapa
 

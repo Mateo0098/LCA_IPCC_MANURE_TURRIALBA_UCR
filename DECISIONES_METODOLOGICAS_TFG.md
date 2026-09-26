@@ -336,6 +336,41 @@ N₂ utilizan provisionalmente los factores EMEP sólidos porque EMEP no contien
 una categoría explícita de lombricompostaje. El N₂O directo de A1 y A2 se
 calcula una sola vez con EF3 IPCC = 0,005 kg N₂O-N/kg N total de entrada.
 
+La arquitectura metodológica vigente de A1 y A2 es deliberadamente híbrida,
+explícita y trazable; no constituye la aplicación íntegra de una sola guía. En
+A1, IPCC aporta CH₄, N₂O directo y la ruta de drenaje, mientras EMEP/EEA aporta
+NH₃, NO y N₂. En A2, IPCC aporta CH₄ y N₂O directo, Komakech et al. (2016)
+aporta el proxy experimental de NH₃ y EMEP/EEA aporta los proxies de NO y N₂.
+Esta combinación es una decisión metodológica vigente y no requiere una
+armonización completa bajo IPCC o EMEP para validar el modelo pre-M3.
+
+El factor de Komakech et al. (2016) fue estimado para reactores pequeños de
+lombricompostaje en Kampala, alimentados con residuo predominantemente ganadero,
+a partir de concentraciones gaseosas medidas y un flujo de aire que no pudo
+medirse directamente y se aproximó mediante el índice respirométrico dinámico.
+El artículo expresa el factor como g NH₃/Mg de residuo biológico y organiza su
+unidad funcional y balance por tonelada de residuo o estiércol húmedo; por ello,
+la implementación interpreta el denominador como masa húmeda de entrada. Su uso
+en A2 es un proxy experimental trazable, no un factor directamente equivalente:
+difieren la escala, la alimentación, el clima, la duración y la operación. La
+masa húmeda inferida de A2 se utiliza en esta ruta y en CH₄; no reconstruye ni
+reinicializa el N total o el TAN propagados desde A1.
+
+Para esta fase, Komakech se clasifica como **proxy experimental aprobado y
+extrapolación con limitaciones**. Su incertidumbre de transferibilidad no lo
+convierte en una decisión abierta ni exige su sustitución inmediata. Del mismo
+modo, los factores EMEP/EEA de almacenamiento sólido para NO-N y N₂-N en A2 son
+**proxies metodológicos aprobados provisionalmente** por ausencia de una
+categoría específica de lombricompostaje. El factor de N₂-N de 0,300 kg/kg TAN
+tiene alta influencia sobre el balance y se conserva como fuente explícita de
+incertidumbre, no como evidencia de error ni como motivo para imponer una
+relación IPCC N₂:N₂O.
+
+La fracción IPCC de volatilización de `composting_pasive` se conserva para A1 y
+A2 exclusivamente como benchmark. No calcula NH₃, NO, N₂ ni N₂O indirecto en la
+ruta productiva y, por tanto, no duplica las pérdidas explícitas de Komakech y
+EMEP/EEA.
+
 En A3 y B1, tras la mineralización EMEP, se aplican sobre TAN disponible los
 factores `slurry`: 0,25 kg NH₃-N/kg TAN, 0,0001 kg NO-N/kg TAN y 0,003 kg
 N₂-N/kg TAN. EF3 y FracLeachMS son cero. Fugas, reboses y pérdidas accidentales
@@ -345,6 +380,13 @@ FracGasMS se conserva exclusivamente como benchmark IPCC y control de orden de
 magnitud. El `FracGas_modelado` se calcula como `(NH₃-N + NOx-N) / N_total_in`;
 no se fuerza coincidencia. EF4 utiliza exclusivamente el precursor explícito
 `NH₃-N + NOx-N`; FracGasMS no se utiliza para calcular el N₂O indirecto objetivo.
+
+La aplicación sucesiva de factores en A1 y A2 no constituye por sí misma un
+doble conteo: el ledger es secuencial y A2 recibe el N total y el pool residual
+de TAN que salen de A1, no los pools originales. Las duraciones subanuales de
+aproximadamente tres a cuatro semanas y trece semanas introducen incertidumbre
+de representatividad temporal y de transferencia de los proxies, pero no
+autorizan escalado lineal ni demuestran duplicación matemática de una masa.
 
 Las concentraciones experimentales de precompostado, aguas verdes y purines se
 mantienen como benchmarks independientes. Para A4/B2 se calcula además una
@@ -371,11 +413,11 @@ Estas decisiones solo deben modificarse por decisión expresa del investigador o
 
 ### Representación aprobada de A2
 
-A2: Lombricompostaje utiliza las ecuaciones IPCC de manejo de estiércol y la
-categoría `composting_pasive` (Composting – Passive Windrow) como aproximación
-al proceso estudiado. La selección responde al manejo de material sólido sin
-reactor cerrado, aireación forzada ni volteo mecánico intensivo, con movilización
-y aireación no intensiva asociada a la actividad de las lombrices.
+A2: Lombricompostaje utiliza la categoría IPCC `composting_pasive` (Composting
+– Passive Windrow) como aproximación para CH₄ y N₂O directo dentro de la
+arquitectura híbrida aprobada. La selección responde al manejo de material
+sólido sin reactor cerrado, aireación forzada ni volteo mecánico intensivo, con
+movilización y aireación no intensiva asociada a la actividad de las lombrices.
 
 Para A2 se establece `FracLeachMS = 0` como parámetro específico del sistema;
 no modifica el valor genérico de `composting_pasive`. Vargas Sarmiento (2023)
@@ -389,11 +431,13 @@ a afirmar que no exista movimiento de agua dentro del sustrato.
 
 ### Contraste bibliográfico experimental de A2
 
-La metodología oficial de A2 continúa siendo el modelo IPCC con la categoría
-`composting_pasive` y `FracLeachMS = 0`. Los datos de Jjagwe et al. (2019;
-DOI 10.3390/su11195173) se utilizan exclusivamente como contraste experimental
-bibliográfico para interpretar A2; no constituyen un modelo `medido`, no
-sustituyen el inventario oficial y no crean un segundo ACV.
+La metodología oficial de A2 continúa siendo la arquitectura híbrida aprobada,
+con la categoría IPCC `composting_pasive` para CH₄ y N₂O directo y
+`FracLeachMS = 0` bajo las condiciones operativas modeladas. Los datos de
+Jjagwe et al. (2019; DOI 10.3390/su11195173) se utilizan exclusivamente como
+benchmark o contraste experimental bibliográfico para interpretar A2; no
+constituyen un modelo `medido`, no sustituyen Komakech ni los factores
+IPCC/EMEP vigentes, no fuerzan NH₃ = 0 y no crean un segundo ACV.
 
 La frontera común es la materia seca del estiércol precompostado al ingreso de
 A2, derivada como `masa_humeda_A2 × fraccion_materia_seca_A2`. El contraste

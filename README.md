@@ -131,11 +131,13 @@ que convergen en la corrida del ACV.
 
 ### Modelo activo de A2
 
-A2 utiliza las ecuaciones IPCC compartidas y la categoría de manejo
-`composting_pasive` como aproximación al lombricompostaje. Conserva los factores
-genéricos de esa categoría, excepto `FracLeachMS = 0`, configurado como parámetro
-específico de A2 en `processed/ipcc_factores_manejo_overrides_etapa.csv`. La masa
-de A2 depende del factor integrado de transformación fresco→precompostado.
+A2 utiliza una arquitectura híbrida explícita: IPCC y la categoría de manejo
+`composting_pasive` como aproximación para CH₄ y N₂O directo; Komakech et al.
+(2016) como proxy experimental aprobado para NH₃; y EMEP/EEA de almacenamiento
+sólido como proxy metodológico aprobado provisionalmente para NO y N₂. Mantiene
+`FracLeachMS = 0` como parámetro específico de A2 en
+`processed/ipcc_factores_manejo_overrides_etapa.csv`. La masa de A2 depende del
+factor integrado de transformación fresco→precompostado.
 Su N total y TAN de entrada proceden exclusivamente de la salida de A1; la
 medición del precompostado se conserva como benchmark y no reinicializa el
 balance.

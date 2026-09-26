@@ -9,6 +9,7 @@
 - EF 3.1, casos unitarios, impactos y unidades: PASS.
 - Electricidad, diésel y normalización por unidad funcional: PASS.
 - Exportación foreground y controles de doble conteo: PASS.
+- Arquitectura híbrida A1/A2, proxies aprobados y benchmarks documentados: PASS.
 - Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.
 - Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.
 - Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.

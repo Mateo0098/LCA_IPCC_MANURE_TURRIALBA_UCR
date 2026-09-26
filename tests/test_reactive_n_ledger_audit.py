@@ -137,6 +137,28 @@ class ReactiveNLedgerTests(unittest.TestCase):
     def test_komakech_nh3_does_not_exceed_a2_tan(self):
         self.assertLessEqual(self.m["A2"].nh3_n_kg, self.m["A2"].tan_in_kg)
 
+    def test_komakech_uses_a2_wet_input_mass_once(self):
+        _, _, masses = MODULE.load_inputs()
+        wet_input_kg = float(masses[("A", 2)]["masa_total_kg_eq"])
+        expected_nh3_kg = wet_input_kg / 1000.0 * self.p["komakech_nh3_factor"] / 1000.0
+        self.assertAlmostEqual(self.m["A2"].nh3_n_kg * MODULE.KG_N_TO_NH3, expected_nh3_kg)
+
+    def test_a1_a2_ch4_activity_bases_are_stage_wet_masses(self):
+        _, chemistry, masses = MODULE.load_inputs()
+        factor_module = __import__("acv_factores_manejo_estiercol")
+        for key in (("A", 1), ("A", 2)):
+            dry_fraction = float(chemistry[key]["materia_seca_pct"]) / 100.0
+            vs_dry_fraction = float(chemistry[key]["vs_t_pct"]) / 100.0
+            wet_mass = float(masses[key]["masa_total_kg_eq"])
+            factors = factor_module.obtener_factores_manejo_ipcc(*key)
+            expected = wet_mass * dry_fraction * vs_dry_fraction * 0.24 * 0.67 * float(factors["MCF"]) / 100.0
+            self.assertAlmostEqual(MODULE._annual_ch4(*key), expected)
+            self.assertEqual(float(masses[key]["agua_l"]), 0.0)
+
+    def test_a2_starts_at_exact_a1_output(self):
+        self.assertEqual(self.m["A2"].n_total_in_kg, self.m["A1"].n_total_out_kg)
+        self.assertEqual(self.m["A2"].tan_in_kg, self.m["A1"].tan_out_kg)
+
     def test_application_ipcc_bases_remain_n_applied(self):
         for row in self.applications:
             self.assertAlmostEqual(row.n2o_n_direct_soil_kg, row.n_applic_kg * self.p["soil_ef1"])
