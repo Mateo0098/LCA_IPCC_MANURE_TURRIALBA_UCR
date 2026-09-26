@@ -30,7 +30,7 @@ AUTHORIZED_NUMERIC_BASELINE_SHA256 = {
     "processed/acv_parametros_escenario_etapa.csv": "4a1309f7787e8ca444950081eb916cc39236bf946827e44a9febb158e1935011",
     "processed/masa_total_escenario_etapa.csv": "6f36294d9663dffcacb8641f94135ba8932e0ed696f768a8a573b345f610aa78",
     "processed/reactive_n_ledger.csv": "7260f2f265e2c9e6200163f0974539b27f1dec18f856f3f21d4c5efc1dd4b2e2",
-    "processed/reactive_n_ledger_parameters.csv": "9866f412bf4075630a319ea7c8e8c03b2448de7089370668cab36d3f4c64e095",
+    "processed/reactive_n_ledger_parameters.csv": "c367e5a2aa48281a270c9f71f6a37283d88bda210f8939ecfea426be0e61fa33",
     "processed/ACV_resumen_emisiones.csv": "bb9d668ab176c3e2af997b7656441066fc4c93afd498494238f9ed7c3f5194c1",
     "processed/acv_impacto_por_etapa_escenario.csv": "7857b3d15a537bfb83834a763182a24a01ebfb14d686e3cfa95e3f5d93ab567d",
     "processed/acv_impacto_total_por_escenario.csv": "27d0968c43e5423797c307e9c03bcadbf9a8daccda57e434a4a67b25c99b3e22",
@@ -63,6 +63,45 @@ def validate_authorized_numeric_baseline() -> None:
     for relative_path, expected in AUTHORIZED_NUMERIC_BASELINE_SHA256.items():
         observed = hashlib.sha256((ROOT / relative_path).read_bytes()).hexdigest()
         assert observed == expected, f"El producto numérico cambió respecto al baseline autorizado: {relative_path}"
+
+
+def validate_ch4_parameters() -> None:
+    parameters = {
+        row["parameter"]: row
+        for row in read_rows(PROCESSED / "reactive_n_ledger_parameters.csv")
+    }
+    expected = {
+        "dairy_b0_m3_ch4_per_kg_vs": 0.24,
+        "ch4_density_kg_per_m3": 0.67,
+        "awms_assigned_stream_fraction": 1.0,
+    }
+    for name, value in expected.items():
+        assert name in parameters
+        assert close(parameters[name]["value"], value)
+        assert set(parameters[name]["scope"].split(";")) == {"A1", "A2", "A3", "B1"}
+
+    emissions = {
+        (row["Escenario"], int(row["Etapa"])): row
+        for row in read_rows(PROCESSED / "ACV_resumen_emisiones.csv")
+    }
+    expected_ch4 = {
+        ("A", 1): 8.116596082143149,
+        ("A", 2): 4.631411857864032,
+        ("A", 3): 61.62330176144752,
+        ("B", 1): 184.99556221002342,
+    }
+    for key, value in expected_ch4.items():
+        assert close(emissions[key]["CH4_ec1"], value)
+
+    factors = read_rows(TABLES / "tabla_05_factores_emision_y_caracterizacion.csv")
+    factor_values = {row["factor"]: row["valor"] for row in factors}
+    for label, value in (
+        ("Capacidad máxima de producción de CH₄ del estiércol lechero (B₀)", 0.24),
+        ("Conversión de volumen a masa de CH₄", 0.67),
+        ("Fracción de la corriente asignada manejada por el sistema (AWMS)", 1.0),
+    ):
+        assert label in factor_values
+        assert close(factor_values[label], value)
 
 
 def document_text(path: Path) -> tuple[str, str]:
@@ -548,6 +587,7 @@ def validate_graph_sources_and_freshness(graphics_dir: Path = GRAPHICS) -> None:
 
 def main() -> None:
     validate_authorized_numeric_baseline()
+    validate_ch4_parameters()
     validate_characterization()
     validate_factor_and_masses()
     validate_a2_nitrogen_basis()
@@ -568,6 +608,7 @@ def main() -> None:
         "- Masas contra inventario canónico: PASS.\n"
         "- Base de N de A2, fórmula húmeda y exclusión de las demás etapas: PASS.\n"
         "- Emisiones contra resumen canónico: PASS.\n"
+        "- B₀, conversión de CH₄ y AWMS parametrizados; CH₄ productivo invariante: PASS.\n"
         "- Contraste Jjagwe reproducido, N2O directo aislado y sin ruta medida ni eutrofización experimental: PASS.\n"
         "- EF 3.1, casos unitarios, impactos y unidades: PASS.\n"
         "- Electricidad, diésel y normalización por unidad funcional: PASS.\n"

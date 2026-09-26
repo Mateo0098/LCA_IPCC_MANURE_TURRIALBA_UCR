@@ -325,6 +325,17 @@ respirométrico dinámico. NO-N y N₂-N usan provisionalmente factores EMEP/EEA
 almacenamiento sólido. La fracción IPCC de volatilización permanece solo como
 benchmark y no crea otra masa de emisión.
 
+El B₀ productivo es `0,24 m³ CH₄/kg SV`, default IPCC 2019 de la tabla 10.16A
+para ganado lechero de sistemas de alta productividad en `Other Regions`,
+adoptado como proxy y no como medición local. La clasificación se apoya en la
+evidencia histórica del mismo Módulo Lechero publicada por Conejo-Morales y
+WingChing-Jones (2020), sin atribuir esos rendimientos históricos al hato de
+2026. B₀, el factor de conversión `0,67 kg CH₄/m³` de la ecuación 10.23 y AWMS
+se leen de `processed/reactive_n_ledger_parameters.csv`. AWMS se aplica a la
+corriente que ya fue asignada a la etapa, no al estiércol total de la finca.
+La decisión completa y sus limitaciones residen en
+`DECISIONES_METODOLOGICAS_TFG.md`.
+
 Esta combinación constituye la arquitectura híbrida IPCC–EMEP–Komakech vigente:
 IPCC cubre CH₄ y N₂O directo de A2, Komakech cubre NH₃ como proxy experimental
 aprobado y EMEP/EEA cubre NO y N₂ mediante proxies metodológicos aprobados

@@ -5,7 +5,7 @@
 - Tablas con numeración global: 11.
 - Figuras con numeración global: 7.
 - Ecuaciones con numeración global: 17.
-- Referencias integradas desde el registro bibliográfico: 42.
+- Referencias integradas desde el registro bibliográfico: 43.
 - SHA-256 del MASTER antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 - SHA-256 del MASTER después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 

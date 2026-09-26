@@ -88,6 +88,7 @@ REQUIRED_REFERENCE_KEYS = {
     "Barrantes2019",
     "CalderonChaves2020",
     "Callejo2020",
+    "ConejoMoralesWingChing2020",
     "Curran2006",
     "Curran2013",
     "EMEPEEA2023",
@@ -627,8 +628,8 @@ def build_document() -> tuple[int, int, int, int]:
     add_equation(
         document,
         counters,
-        "m_CH₄ = m_manejada × VS_húmeda × B₀ × 0,67 × (MCF/100) × AWMS",
-        "m_CH₄ es la emisión de metano de la etapa; m_manejada es la masa húmeda manejada; VS_húmeda es la fracción de sólidos volátiles en base húmeda; B₀ es la capacidad máxima de producción de metano; MCF es el factor de conversión de metano y AWMS es la fracción manejada por el sistema.",
+        "m_CH₄ = m_manejada × VS_húmeda × B₀ × ρ_CH₄ × (MCF/100) × AWMS",
+        "m_CH₄ es la emisión de metano de la etapa; m_manejada es la masa húmeda manejada; VS_húmeda es la fracción de sólidos volátiles en base húmeda; B₀ es la capacidad máxima de producción de metano; ρ_CH₄ es el factor IPCC de conversión de volumen a masa, 0,67 kg CH₄/m³; MCF es el factor de conversión de metano y AWMS es la fracción de la corriente ya asignada que se maneja mediante el sistema seleccionado.",
     )
     document.add_heading("4.4.2 Balance secuencial de N total y TAN", level=3)
     add_equation(
@@ -690,6 +691,7 @@ def build_document() -> tuple[int, int, int, int]:
             "La electricidad de la bomba se evaluó con el factor agregado de consumo del IMN para 2025 como aproximación temporal del patrón observado en 2026. La combustión de diésel se representó mediante masas físicas de CO₂ fósil, CH₄ fósil y N₂O obtenidas con factores IMN y caracterizadas con EF 3.1. No se incorporaron cadenas completas de fondo.",
             "Los factores, la asignación de sistemas y los consumos operativos corresponden a las decisiones metodológicas vigentes. Esta integración documental no recalculó ni modificó el ACV.",
             "En A3/B1, el MCF de 38 % se mantuvo como proxy IPCC conservador de la categoría tabulada de un mes para clima tropical húmedo. No corresponde a una medición específica del MCF para la residencia operativa de tres días y no se escaló como 38 % × 3/30. La mineralización EMEP del 10 % tampoco se escaló por tres días. El tiempo físico de operación, el intervalo específico de preparación de las muestras y la duración tabulada del proxy metodológico se trataron como conceptos distintos.",
+            "El B₀ de 0,24 m³ CH₄/kg SV se mantuvo como default IPCC para ganado lechero de alta productividad en otras regiones. La evidencia histórica del mismo Módulo Lechero publicada por Conejo-Morales y WingChing-Jones (2020) respalda esa clasificación, pero no constituye una medición local de B₀ ni demuestra la productividad actual de 2026. El default de baja productividad no sustituyó el valor central aprobado; la dependencia de B₀ respecto de la especie y la dieta permanece como incertidumbre paramétrica.",
         ],
     )
     add_equation(

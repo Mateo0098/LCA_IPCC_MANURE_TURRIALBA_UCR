@@ -389,9 +389,15 @@ def _annual_ch4(escenario: str, etapa: int) -> float:
     factors = obtener_factores_manejo_ipcc(escenario, etapa)
     dry_fraction = obtener_fraccion_masa_seca_etapa(escenario, etapa)
     vs_wet = convertir_vs_base_humeda(params["vs_t_pct"], dry_fraction)
-    _, _, masses = load_inputs()
+    ledger_parameters, _, masses = load_inputs()
     mass = float(masses[(escenario, etapa)]["masa_total_kg_eq"])
-    return ef_ch4(VS_T=vs_wet, B0_T=0.24, MCF=float(factors["MCF"]), AWMS=1.0) * mass
+    return ef_ch4(
+        VS_T=vs_wet,
+        B0_T=ledger_parameters["dairy_b0_m3_ch4_per_kg_vs"],
+        MCF=float(factors["MCF"]),
+        AWMS=ledger_parameters["awms_assigned_stream_fraction"],
+        ch4_density_kg_per_m3=ledger_parameters["ch4_density_kg_per_m3"],
+    ) * mass
 
 
 def productive_emission_rows() -> dict[tuple[str, int], dict[str, float | int]]:

@@ -5,6 +5,7 @@
 - Masas contra inventario canónico: PASS.
 - Base de N de A2, fórmula húmeda y exclusión de las demás etapas: PASS.
 - Emisiones contra resumen canónico: PASS.
+- B₀, conversión de CH₄ y AWMS parametrizados; CH₄ productivo invariante: PASS.
 - Contraste Jjagwe reproducido, N2O directo aislado y sin ruta medida ni eutrofización experimental: PASS.
 - EF 3.1, casos unitarios, impactos y unidades: PASS.
 - Electricidad, diésel y normalización por unidad funcional: PASS.

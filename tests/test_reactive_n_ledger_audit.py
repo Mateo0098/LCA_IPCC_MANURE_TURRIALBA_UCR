@@ -2,6 +2,7 @@ import importlib.util
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -151,9 +152,63 @@ class ReactiveNLedgerTests(unittest.TestCase):
             vs_dry_fraction = float(chemistry[key]["vs_t_pct"]) / 100.0
             wet_mass = float(masses[key]["masa_total_kg_eq"])
             factors = factor_module.obtener_factores_manejo_ipcc(*key)
-            expected = wet_mass * dry_fraction * vs_dry_fraction * 0.24 * 0.67 * float(factors["MCF"]) / 100.0
+            expected = (
+                wet_mass * dry_fraction * vs_dry_fraction
+                * self.p["dairy_b0_m3_ch4_per_kg_vs"]
+                * self.p["ch4_density_kg_per_m3"]
+                * float(factors["MCF"]) / 100.0
+                * self.p["awms_assigned_stream_fraction"]
+            )
             self.assertAlmostEqual(MODULE._annual_ch4(*key), expected)
             self.assertEqual(float(masses[key]["agua_l"]), 0.0)
+
+    def test_a3_b1_ch4_uses_manure_activity_not_washing_water(self):
+        _, chemistry, masses = MODULE.load_inputs()
+        factor_module = __import__("acv_factores_manejo_estiercol")
+        for key in (("A", 3), ("B", 1)):
+            dry_fraction = float(chemistry[key]["materia_seca_pct"]) / 100.0
+            vs_dry_fraction = float(chemistry[key]["vs_t_pct"]) / 100.0
+            manure_activity = float(masses[key]["boniga_kg"])
+            factors = factor_module.obtener_factores_manejo_ipcc(*key)
+            expected = (
+                manure_activity * dry_fraction * vs_dry_fraction
+                * self.p["dairy_b0_m3_ch4_per_kg_vs"]
+                * self.p["ch4_density_kg_per_m3"]
+                * float(factors["MCF"]) / 100.0
+                * self.p["awms_assigned_stream_fraction"]
+            )
+            self.assertAlmostEqual(MODULE._annual_ch4(*key), expected)
+            self.assertEqual(float(masses[key]["masa_total_kg_eq"]), manure_activity)
+            self.assertEqual(float(masses[key]["agua_l"]), 0.0)
+
+        self.assertGreater(float(masses[("A", 4)]["agua_l"]), 0.0)
+        self.assertGreater(float(masses[("B", 2)]["agua_l"]), 0.0)
+
+    def test_ch4_parameters_are_loaded_from_the_canonical_source(self):
+        self.assertEqual(self.p["dairy_b0_m3_ch4_per_kg_vs"], 0.24)
+        self.assertEqual(self.p["ch4_density_kg_per_m3"], 0.67)
+        self.assertEqual(self.p["awms_assigned_stream_fraction"], 1.0)
+        _, chemistry, masses = MODULE.load_inputs()
+        baseline = MODULE._annual_ch4("A", 3)
+        for parameter in (
+            "dairy_b0_m3_ch4_per_kg_vs",
+            "ch4_density_kg_per_m3",
+            "awms_assigned_stream_fraction",
+        ):
+            modified = dict(self.p)
+            modified[parameter] *= 1.1
+            with patch.object(MODULE, "load_inputs", return_value=(modified, chemistry, masses)):
+                self.assertAlmostEqual(MODULE._annual_ch4("A", 3), baseline * 1.1)
+
+    def test_management_ch4_results_remain_at_the_approved_baseline(self):
+        expected = {
+            ("A", 1): 8.116596082143149,
+            ("A", 2): 4.631411857864032,
+            ("A", 3): 61.62330176144752,
+            ("B", 1): 184.99556221002342,
+        }
+        for key, value in expected.items():
+            self.assertAlmostEqual(MODULE._annual_ch4(*key), value)
 
     def test_a2_starts_at_exact_a1_output(self):
         self.assertEqual(self.m["A2"].n_total_in_kg, self.m["A1"].n_total_out_kg)

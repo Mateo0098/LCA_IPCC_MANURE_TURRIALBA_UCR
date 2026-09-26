@@ -78,7 +78,7 @@ LEDGER_FACTOR_LABELS = {
     "a2_ef3": "EF3 de A2: Lombricompostaje",
     "slurry_ef3": "EF3 del almacenamiento líquido sin costra natural",
     "a1_mcf_pct": "MCF de A1: Precomposteo",
-    "slurry_mcf_pct": "MCF del almacenamiento líquido sin costra natural",
+    "slurry_mcf_pct": "MCF del almacenamiento líquido (tabla general IPCC)",
     "a1_frac_leach_ms": "Fracción de drenaje de A1: Precomposteo",
     "storage_frac_leach_ms": "Fracción de lixiviación del almacenamiento",
     "a1_frac_gas_ms_benchmark": "Benchmark FracGasMS de A1",
@@ -89,6 +89,9 @@ LEDGER_FACTOR_LABELS = {
     "soil_frac_leach": "Fracción de lixiviación y escorrentía desde suelo",
     "soil_ef1": "EF1 de N orgánico aplicado al suelo",
     "komakech_nh3_factor": "Factor de NH₃ de A2: Lombricompostaje",
+    "dairy_b0_m3_ch4_per_kg_vs": "Capacidad máxima de producción de CH₄ del estiércol lechero (B₀)",
+    "ch4_density_kg_per_m3": "Conversión de volumen a masa de CH₄",
+    "awms_assigned_stream_fraction": "Fracción de la corriente asignada manejada por el sistema (AWMS)",
 }
 
 AUDITED_FACTOR_REFERENCES = {
@@ -164,12 +167,14 @@ def _write(df: pd.DataFrame, name: str) -> Path:
 
 
 def tabla_00_unidad_funcional_y_supuestos() -> Path:
+    ledger_parameters = _read_csv("reactive_n_ledger_parameters.csv").set_index("parameter")
+    awms = ledger_parameters.loc["awms_assigned_stream_fraction", "value"]
     rows = [
         {"tipo": "unidad_funcional", "nombre": "Unidad funcional", "valor": "1", "unidad": "kg de estiércol fresco", "descripcion": "Un kilogramo de estiércol fresco manejado; el flujo anual común solo define la escala operacional.", "fuente": "Propuesta de TFG", "observaciones": "Base funcional para la comparación de los escenarios A y B."},
         {"tipo": "supuesto", "nombre": "Equivalencia agua-masa", "valor": "1", "unidad": "kg/L", "descripcion": "El modelo trata 1 L de agua como 1 kg equivalente para construir masa_total_kg_eq.", "fuente": "scripts/compute_masa_etapas_escenarios.py; processed/masa_total_escenario_etapa.csv", "observaciones": "Supuesto necesario para combinar agua_l y boniga_kg."},
         {"tipo": "supuesto", "nombre": "Razón de masa A1→A2 mediante cenizas", "valor": "aplicado", "unidad": "adimensional", "descripcion": "La razón de masa húmeda entre el estiércol fresco que entra en A1 y el material precompostado que ingresa a A2 se infiere mediante materia seca y cenizas bajo el supuesto de conservación de cenizas.", "fuente": "Integración provisional M1–M2 de materia seca y cenizas", "observaciones": "La masa de A2 es inferida y el complemento respecto a A1 no constituye una pérdida física medida ni un balance cerrado de agua o sólidos."},
         {"tipo": "supuesto", "nombre": "Asignacion de sistemas IPCC por etapa", "valor": "aplicado", "unidad": "adimensional", "descripcion": "Cada escenario/etapa se asigna a un sistema de manejo de estiercol IPCC.", "fuente": "processed/ipcc_sistema_manejo_por_etapa.csv", "observaciones": "Debe justificarse por etapa."},
-        {"tipo": "supuesto", "nombre": "Fracción de la corriente asignada al sistema de manejo (AWMS)", "valor": "1", "unidad": "adimensional", "descripcion": "AWMS se fija en 1 para la corriente de masa específica que ya fue asignada a cada etapa y a su sistema de manejo.", "fuente": "Implementación vigente de las ecuaciones IPCC por etapa", "observaciones": "AWMS = 1 se aplica a la corriente de masa ya asignada a cada etapa; no significa que el 100 % del estiércol total de la finca ingrese a esa etapa."},
+        {"tipo": "supuesto", "nombre": "Fracción de la corriente asignada al sistema de manejo (AWMS)", "valor": awms, "unidad": "adimensional", "descripcion": "AWMS se fija en 1 para la corriente de masa específica que ya fue asignada a cada etapa y a su sistema de manejo.", "fuente": "processed/reactive_n_ledger_parameters.csv; IPCC 2019, ecuación 10.23", "observaciones": "AWMS = 1 se aplica a la corriente de masa ya asignada a cada etapa; no significa que el 100 % del estiércol total de la finca ingrese a esa etapa."},
         {"tipo": "supuesto", "nombre": "Arquitectura híbrida de A2", "valor": "IPCC–EMEP–Komakech", "unidad": "modelo", "descripcion": "IPCC estima CH₄ y N₂O directo; Komakech aporta el proxy experimental aprobado de NH₃; EMEP/EEA aporta los proxies metodológicos aprobados provisionalmente de NO y N₂.", "fuente": "Decisión metodológica del TFG; IPCC 2019; EMEP/EEA 2023; Komakech et al. (2016)", "observaciones": "FracLeachMS efectivo es cero bajo las condiciones operativas modeladas; FracGasMS permanece como benchmark."},
         {"tipo": "supuesto", "nombre": "Fracción de lixiviación específica de A2", "valor": "0", "unidad": "adimensional", "descripcion": "No se modeló una pérdida de N hacia el ambiente por lixiviación durante A2.", "fuente": "processed/ipcc_factores_manejo_overrides_etapa.csv; Vargas Sarmiento (2023); observación directa del investigador", "observaciones": "No modifica el valor genérico de Composting – Passive Windrow."},
         {"tipo": "advertencia", "nombre": "Unidad de n_ex_pct", "valor": "% N total", "unidad": "porcentaje", "descripcion": "n_ex_pct representa el nitrógeno total integrado en porcentaje, no una masa de N.", "fuente": "processed/muestreos_integracion_interjornada_provisional.csv; processed/acv_parametros_escenario_etapa.csv", "observaciones": "En A2 se conserva como benchmark experimental y no reinicializa el balance productivo."},
@@ -341,8 +346,8 @@ def tabla_04_parametros_modelo_acv() -> Path:
     param_defs = [
         ("n_ex_pct", "Nitrogeno total reportado", "% N total", "fuente_integracion", "Valor de caracterizacion; no usar directamente en ecuaciones de N"),
         ("n_ex_fraction", "Nitrogeno total como fraccion masica", "kg N/kg masa húmeda", "fuente_integracion", "Fracción analítica o experimental; su función depende de la frontera de cada etapa"),
-        ("vs_t_pct", "Solidos volatiles", "% base seca", "fuente_integracion", "Parametro para CH4 en etapas solidas"),
-        ("materia_seca_pct", "Materia seca", "% masa húmeda", "fuente_integracion", "Fracción de materia seca usada en etapas sólidas"),
+        ("vs_t_pct", "Solidos volatiles", "% base seca", "fuente_integracion", "Parámetro para estimar CH4 a partir de la masa de estiércol"),
+        ("materia_seca_pct", "Materia seca", "% masa húmeda", "fuente_integracion", "Fracción usada para convertir los sólidos volátiles a base húmeda"),
         ("masa_total_kg_eq", "Masa equivalente total", "kg eq/ano", "", "Base de escalamiento por etapa"),
         ("mcf_pct", "MCF", "%", "", "Factor IPCC por sistema de manejo"),
         ("ef3", "EF3", "kg N2O-N/kg N", "", "Factor IPCC por sistema de manejo"),
@@ -425,6 +430,11 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
             })
 
     ledger_parameters = _read_csv("reactive_n_ledger_parameters.csv")
+    ch4_parameters = {
+        "dairy_b0_m3_ch4_per_kg_vs",
+        "ch4_density_kg_per_m3",
+        "awms_assigned_stream_fraction",
+    }
     for _, row in ledger_parameters.iterrows():
         if row["parameter"] not in LEDGER_FACTOR_LABELS:
             continue
@@ -437,13 +447,22 @@ def tabla_05_factores_emision_y_caracterizacion() -> Path:
             classification = "Komakech et al. (2016)"
         else:
             classification = "Fuente operativa o supuesto documentado"
+        is_ch4_parameter = row["parameter"] in ch4_parameters
         rows.append({
-            "tipo_factor": "Factor del ledger de N total y TAN",
+            "tipo_factor": (
+                "Parámetro canónico del cálculo de CH₄"
+                if is_ch4_parameter
+                else "Factor del ledger de N total y TAN"
+            ),
             "sistema_o_compuesto": row["scope"],
             "factor": LEDGER_FACTOR_LABELS[row["parameter"]],
             "valor": row["value"],
             "unidad": row["unit"],
-            "fuente_dato": "Parámetros canónicos del ledger de N total y TAN",
+            "fuente_dato": (
+                "Parámetros canónicos del cálculo de CH₄"
+                if is_ch4_parameter
+                else "Parámetros canónicos del ledger de N total y TAN"
+            ),
             "referencia_metodologica": source,
             "clasificacion_referencia": classification,
             "estado_referencia": "Resuelto",

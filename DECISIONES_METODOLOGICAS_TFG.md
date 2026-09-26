@@ -249,6 +249,37 @@ que no ofrece directamente esa parametrización. Por ello se adopta el valor
 tabulado de un mes como proxy conservador, sin cuantificar cuánto menor podría
 ser el MCF real a tres días.
 
+Para la capacidad máxima de producción de metano se aprueba `B₀ = 0,24 m³
+CH₄/kg SV`, default del Refinamiento 2019 del IPCC, volumen 4, capítulo 10,
+tabla 10.16A, para ganado lechero de sistemas de alta productividad en `Other
+Regions`. Es un proxy/default central del modelo y no una medición local, un
+valor nacional de Costa Rica, un valor específico de la raza Jersey ni un
+resultado experimental del TFG. El IPCC indica que B₀ depende de la especie y
+la dieta; por ello se conserva incertidumbre paramétrica y una sensibilidad
+futura puede ser útil, pero el default de baja productividad de 0,13 no
+sustituye el valor central aprobado.
+
+La clasificación de alta productividad se sustenta en las características del
+sistema y en evidencia histórica publicada del mismo establecimiento.
+Conejo-Morales y WingChing-Jones (2020) identificaron el sistema de Turrialba a
+660 msnm como el Módulo Lechero de la Sede del Atlántico de la Universidad de
+Costa Rica y reportaron 15,23 kg leche/vaca/día como promedio de los años
+evaluados y aproximadamente 16,50 kg leche/vaca/día para los años comparables
+2011–2014. Ambos valores superan las referencias representativas de 9,3 y 3,4
+kg leche/vaca/día usadas por el IPCC para construir, respectivamente, los
+sistemas latinoamericanos de alta y baja productividad de la tabla 10A.1. No
+se interpretan como umbrales universales ni como productividad actual de 2026:
+la publicación documenta un periodo histórico y no mide B₀. Sánchez-Romero y
+Brenes-Gamboa (2026) respalda la continuidad del establecimiento y del sistema
+Jersey, no el valor de producción láctea usado para esta clasificación.
+
+La ecuación productiva consume desde
+`processed/reactive_n_ledger_parameters.csv` el B₀ aprobado, el factor IPCC de
+conversión de volumen a masa de CH₄ de 0,67 kg CH₄/m³ (ecuación 10.23) y
+`AWMS = 1`. AWMS representa la fracción de la corriente de estiércol ya
+asignada a la etapa que se maneja mediante el sistema seleccionado; no significa
+que todo el estiércol producido en la finca ingrese a cada etapa.
+
 En operación normal no se modela una ruta de infiltración o lixiviación desde
 la fosa contenida. Se establece FracLeachMS = 0 tanto para A3 como para B1. El
 cero expresa la ausencia de esa ruta en la operación normal modelada; no afirma
