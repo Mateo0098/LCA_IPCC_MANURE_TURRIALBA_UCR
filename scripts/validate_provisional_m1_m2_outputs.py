@@ -30,10 +30,12 @@ AUTHORIZED_NUMERIC_BASELINE_SHA256 = {
     "processed/acv_parametros_escenario_etapa.csv": "4a1309f7787e8ca444950081eb916cc39236bf946827e44a9febb158e1935011",
     "processed/masa_total_escenario_etapa.csv": "6f36294d9663dffcacb8641f94135ba8932e0ed696f768a8a573b345f610aa78",
     "processed/reactive_n_ledger.csv": "7260f2f265e2c9e6200163f0974539b27f1dec18f856f3f21d4c5efc1dd4b2e2",
-    "processed/reactive_n_ledger_parameters.csv": "c367e5a2aa48281a270c9f71f6a37283d88bda210f8939ecfea426be0e61fa33",
     "processed/ACV_resumen_emisiones.csv": "bb9d668ab176c3e2af997b7656441066fc4c93afd498494238f9ed7c3f5194c1",
     "processed/acv_impacto_por_etapa_escenario.csv": "7857b3d15a537bfb83834a763182a24a01ebfb14d686e3cfa95e3f5d93ab567d",
     "processed/acv_impacto_total_por_escenario.csv": "27d0968c43e5423797c307e9c03bcadbf9a8daccda57e434a4a67b25c99b3e22",
+}
+VERSIONED_TEXT_BASELINE_SHA256 = {
+    "processed/reactive_n_ledger_parameters.csv": "95da6e503fb9fc94d631c208e8e2e57c93d139d6b6070885c0fd5076abb54d70",
 }
 
 
@@ -63,6 +65,21 @@ def validate_authorized_numeric_baseline() -> None:
     for relative_path, expected in AUTHORIZED_NUMERIC_BASELINE_SHA256.items():
         observed = hashlib.sha256((ROOT / relative_path).read_bytes()).hexdigest()
         assert observed == expected, f"El producto numérico cambió respecto al baseline autorizado: {relative_path}"
+
+
+def canonical_text_sha256(content: bytes) -> str:
+    """Calcula SHA-256 tras normalizar finales de línea CRLF y CR a LF."""
+    normalized = content.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(normalized).hexdigest()
+
+
+def validate_versioned_text_baseline() -> None:
+    for relative_path, expected in VERSIONED_TEXT_BASELINE_SHA256.items():
+        observed = canonical_text_sha256((ROOT / relative_path).read_bytes())
+        assert observed == expected, (
+            "La fuente textual versionada cambió respecto al baseline canónico: "
+            f"{relative_path}"
+        )
 
 
 def validate_ch4_parameters() -> None:
@@ -587,6 +604,7 @@ def validate_graph_sources_and_freshness(graphics_dir: Path = GRAPHICS) -> None:
 
 def main() -> None:
     validate_authorized_numeric_baseline()
+    validate_versioned_text_baseline()
     validate_ch4_parameters()
     validate_characterization()
     validate_factor_and_masses()
