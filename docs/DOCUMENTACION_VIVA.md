@@ -59,7 +59,6 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `outputs/documentos_tfg/reporte_formato_master.md` | Perfil aplicado desde el MASTER | `scripts/generate_results_docx.py` | Formato o generadores Word | Generado |
 | `outputs/documentos_tfg/reporte_relacion_apendices.md` | Relación entre prosa y apéndices | `scripts/generate_results_docx.py` | Contenido o estructura de documentos | Generado |
 | `outputs/documentos_tfg/reporte_referencias_factores.md` | Trazabilidad de factores citados | `scripts/generate_results_docx.py` | Factores, referencias o documentos | Generado |
-| `outputs/documentos_tfg/reporte_correccion_factor_estequiometrico_NO3.md` | Control del factor estequiométrico | `scripts/generate_results_docx.py` | Cálculo o documentación de nitrato | Generado |
 | `outputs/documentos_tfg/reporte_validacion_provisional_m1_m2.md` | Validación cruzada de la corrida completa | `scripts/validate_provisional_m1_m2_outputs.py` | Cualquier capa de la corrida vigente | Generado |
 | `outputs/documentos_tfg/trazabilidad_conclusiones_tfg.md` | Matriz de conclusiones y objetivos | `scripts/generate_conclusions_docx.py` | Conclusiones, objetivos o resultados | Generado |
 
@@ -67,13 +66,8 @@ Los manifiestos generados no deben corregirse manualmente cuando la corrección
 pueda aplicarse en su generador. Deben pertenecer a la misma corrida que los
 outputs que describen.
 
-## Revisiones pendientes de decisión
+## Componentes productivos y de QA/QC vigentes
 
-Estas revisiones conservan hallazgos aún no cerrados y no describen por sí solas
-el estado vigente:
-
-- `auditoria_alineacion_tfg.md`: vacíos de alineación entre objetivos, resultados
-  y conclusiones que requieren seguimiento académico.
 - `scripts/reactive_n_ledger.py` y
   `processed/reactive_n_ledger_parameters.csv`: implementación y parámetros
   responsables del ledger productivo de N total y TAN. El orquestador genera
@@ -85,9 +79,10 @@ el estado vigente:
   concentración y sensibilidad sin duplicar ecuaciones ni constituir una
   segunda fuente de verdad.
 
-Una vez resuelta cada decisión, su resultado permanente debe incorporarse en la
-fuente responsable y la auditoría debe retirarse, sin crear una carpeta histórica
-por defecto.
+Estos componentes describen el estado vigente y no constituyen decisiones
+pendientes. Cuando una auditoría puntual quede resuelta, su resultado permanente
+debe incorporarse en la fuente responsable y la auditoría debe retirarse, sin
+crear una carpeta histórica por defecto.
 
 ## Selección contextual al cierre
 

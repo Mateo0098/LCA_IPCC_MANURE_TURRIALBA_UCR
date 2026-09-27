@@ -211,9 +211,12 @@ aproximación conservadora, no un MCF medido para tres días. No se escala como
 
 ## Normalizacion a unidad funcional
 
-La unidad funcional del estudio es 1 kg de estiércol fresco, tal y como fue
-recolectado del módulo lechero. Esta unidad permite comparar los escenarios de
-manejo evaluados bajo una misma base funcional.
+La unidad funcional del estudio es 1 kg de estiércol fresco manejado. El flujo
+anual común de referencia es aproximadamente 26 278,725181 kg de estiércol
+fresco/año: anualiza el inventario y sirve como denominador común para expresar
+los resultados por unidad funcional. Este flujo operacional no redefine la
+unidad funcional ni debe limitarse a los 17 525,1 kg/año de estiércol físicamente
+recolectado durante las actividades de ordeño.
 
 Algunos resultados se presentan como flujos anuales estimados para describir la
 magnitud operacional del sistema durante el periodo evaluado. Esos valores no
@@ -412,7 +415,6 @@ Archivos en `outputs/tablas_tesis/`:
 - `tabla_08_impactos_totales_por_escenario.csv`
 - `tabla_09_comparacion_escenarios.csv`
 - `diccionario_variables.csv`
-- `tabla_auditoria_factores_hardcodeados.csv`
 
 Las figuras académicas se generan con
 `scripts/generate_thesis_graphics.py` en `outputs/graficos_tesis/`. Los
@@ -457,8 +459,6 @@ de la misma corrida validada.
 
 - Completar fuentes bibliograficas para factores IPCC y factores de
   caracterizacion.
-- Validar los nombres descriptivos de etapas en
-  `tabla_01_etapas_escenarios.csv`.
 
 ## Factores históricos y caracterización vigente
 
