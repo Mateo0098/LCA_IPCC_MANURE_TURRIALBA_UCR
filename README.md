@@ -15,10 +15,12 @@ El inventario operativo conserva las masas de CO₂ fósil, CH₄ fósil y N₂O
 combustión. Los resultados por etapa y escenario mantienen subtotales separados
 de manejo, electricidad, diésel y recursos energéticos, además del total.
 
-No se modelan cadenas completas de fondo mediante ecoinvent. SimaPro es una
-herramienta opcional de verificación independiente de la caracterización de
-emisiones elementales; no es dependencia del pipeline ni proveedor obligatorio
-de un total a reimportar. La electricidad agregada IMN no se caracteriza de nuevo.
+No se modelan cadenas completas de fondo mediante ecoinvent. SimaPro se utiliza
+como herramienta externa de verificación independiente de la caracterización de
+emisiones elementales; no es dependencia del pipeline ni proveedor de un total
+a reimportar. La electricidad agregada IMN no se caracteriza de nuevo. El
+protocolo, los casos reproducibles y el estado pendiente de la visita se
+documentan en `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md`.
 La selección temporal y sectorial se documenta en la sección 15 de
 `DECISIONES_METODOLOGICAS_TFG.md`.
 
@@ -167,6 +169,19 @@ Estas tablas se mantienen manualmente y no sustituyen las capas experimentales:
 
 Los factores energéticos se verifican con `scripts/validate_ef31_operational_inventory.py`
 y `tests/test_ef31_operational_inventory.py`; la validación integral los incluye.
+
+Los insumos para la verificación presencial independiente en SimaPro se generan
+sin modificar el pipeline científico:
+
+```powershell
+.venv\Scripts\python.exe scripts\generate_simapro_ef31_qa.py
+.venv\Scripts\python.exe -m unittest tests.test_simapro_ef31_qa
+```
+
+El generador deriva casos unitarios y cantidades **PROVISIONAL M1–M2** desde las
+fuentes activas, comprueba sus subtotales contra los impactos canónicos y excluye
+la electricidad IMN agregada. No ejecuta SimaPro ni contiene resultados de una
+visita presencial.
 
 ## Incorporación futura de M3
 

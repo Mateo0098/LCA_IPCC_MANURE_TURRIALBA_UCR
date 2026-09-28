@@ -17,12 +17,24 @@ documental pre-M3 una vez validadas sus modificaciones; no modifica el modelo ni
 los resultados científicos. La evaluación supervisora de una eventual integración
 a `main` es posterior y no forma parte de esta unidad.
 
-## Unidad activa: preparación canónica de M3
+## Unidad preparatoria de M3
 
 El diseño experimental, los datos irrepetibles, las fuentes futuras y los
 criterios de completitud se documentan en `docs/CONTRATO_EXPERIMENTAL_M3.md`.
 La preparación no declara M3 disponible ni modifica resultados. La ingestión
 queda protegida contra una declaración parcial de fuentes.
+
+M3 continúa `no_disponible`; esta preparación no autoriza simularla ni retirar
+la etiqueta **PROVISIONAL M1–M2**.
+
+## Unidad activa independiente: QA/QC Python–SimaPro de EF 3.1
+
+La metodología y los insumos reproducibles para verificar externamente la
+caracterización EF 3.1 se encuentran en
+`docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md` y
+`outputs/qa_qc_simapro_ef31/`. La verificación presencial continúa pendiente y
+no existen todavía resultados SimaPro. Esta unidad no altera el inventario, los
+factores, la arquitectura IMN ni los resultados científicos canónicos.
 
 ## Siguiente unidad prevista
 
@@ -35,6 +47,8 @@ canónico, comprobará compatibilidad y regenerará en secuencia todas las capas
 - Dependencia principal: resultados analíticos de M3.
 - La caracterización definitiva, la discusión completa y las conclusiones finales permanecen bloqueadas hasta integrar y validar M3.
 - La normalización bibliográfica e institucional final requiere revisión académica del documento integral.
+- La verificación EF 3.1 requiere acceso presencial a una instalación UCR de
+  SimaPro y el registro de la versión y configuración disponibles.
 
 ## Próximos hitos
 
@@ -46,6 +60,9 @@ canónico, comprobará compatibilidad y regenerará en secuencia todas las capas
    `docs/REFERENCIAS_TFG.md`.
 5. Definir la evaluación cuantitativa mínima de sensibilidad para los supuestos
    dominantes, sin crear una ruta de cálculo paralela.
+6. Ejecutar los casos unitarios y la comprobación agregada EF 3.1 en SimaPro,
+   conservar la evidencia y, tras revisarla, incorporar metodología y resultados
+   limitados al QA/QC en el documento integral.
 
 ## Paso de provisional a definitivo
 

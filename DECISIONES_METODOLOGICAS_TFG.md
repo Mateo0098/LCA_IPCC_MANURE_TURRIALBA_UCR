@@ -188,9 +188,14 @@ las cadenas completas de fondo eléctrico. No se añaden créditos ni cargas de
 etapas posteriores a A2 mediante esta decisión.
 
 Python sigue siendo la fuente de verdad del inventario, cálculo y normalización.
-SimaPro queda como herramienta opcional de verificación independiente/QA-QC de
-la caracterización EF 3.1 de emisiones elementales, sin reimportación obligatoria
-de un total y sin caracterizar como CO₂ elemental la electricidad IMN agregada.
+SimaPro se utiliza como herramienta externa de verificación independiente/QA-QC
+de la caracterización EF 3.1 de emisiones elementales, sin reconstruir el ACV,
+sin reimportar un total y sin caracterizar como CO₂ elemental la electricidad
+IMN agregada. La verificación comienza con casos unitarios y continúa, cuando las
+identidades sean comparables, con las mismas cantidades elementales de la corrida
+Python vigente. Una discrepancia exige revisar identidad, compartimento, unidad,
+versión, configuración, conversión y redondeo antes de modificar Python. El
+protocolo operativo reside en `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md`.
 
 FracLeachMS y la fracción de lixiviación o escorrentía del modelo IPCC de
 suelos representan fronteras físicas sucesivas y no deben confundirse.

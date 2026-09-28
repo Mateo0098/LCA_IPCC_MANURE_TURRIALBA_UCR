@@ -43,6 +43,7 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `docs/REGLAS_FORMATO_WORD.md` | Especificación de documentos Word | B | Generadores y validación documental | Formato, nomenclatura, captions, ecuaciones o validadores Word | Manual | Vigente |
 | `docs/PLAN_CIERRE_TFG.md` | Roadmap operativo de cierre y transición de provisional a definitivo | B | Estado académico y dependencias de cierre | Unidad activa, dependencia principal, hitos o condiciones de cierre | Manual | Vigente |
 | `docs/CONTRATO_EXPERIMENTAL_M3.md` | Diseño, checklist, trazabilidad física y criterios de completitud para ejecutar e incorporar M3 | B | Pipeline canónico, evidencia M1/M2 y decisiones metodológicas vigentes | Diseño de M3, métodos, identificadores, fuentes esperadas, ingestión o criterios de incorporación | Manual; antes y después de ejecutar M3 | Vigente; preparatorio, sin resultados M3 |
+| `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md` | Metodología, alcance, registro presencial y comparación Python–SimaPro de EF 3.1 | B | Factores e inventario elemental activos, decisiones EF/IMN y evidencia presencial futura | Factores, identidades de flujo, versión EF, arquitectura IMN, protocolo o resultados de la verificación | Manual; insumos numéricos generados | Vigente; metodología preparada, ejecución presencial pendiente |
 | `docs/REFERENCIAS_TFG.md` | Registro bibliográfico integral mínimo | B | Referencias utilizadas y candidatas del TFG | Citas, capítulos, metodología, fuentes o estado de verificación | Manual | Vigente; verificación bibliográfica final pendiente |
 | `Academic_documents/registro_evidencia_experimental_primaria.md` | Registro factual del muestreo, operación observada y procedimientos experimentales ejecutados | B | Confirmaciones del investigador y evidencia primaria de campo/laboratorio | Se incorpora una jornada, se confirma o corrige un procedimiento, o cambia una incertidumbre experimental | Manual, con contraste contra fuentes primarias | Vigente; consolidación física y temporal pre-M3 |
 | `docs/DOCUMENTACION_VIVA.md` | Índice de responsabilidad documental | A | Gobernanza documental | Se crea, retira, reclasifica o cambia de responsable un documento relevante | Manual | Vigente |
@@ -62,6 +63,7 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `outputs/documentos_tfg/reporte_referencias_factores.md` | Trazabilidad de factores citados | `scripts/generate_results_docx.py` | Factores, referencias o documentos | Generado |
 | `outputs/documentos_tfg/reporte_validacion_provisional_m1_m2.md` | Validación cruzada de la corrida completa | `scripts/validate_provisional_m1_m2_outputs.py` | Cualquier capa de la corrida vigente | Generado |
 | `outputs/documentos_tfg/trazabilidad_conclusiones_tfg.md` | Matriz de conclusiones y objetivos | `scripts/generate_conclusions_docx.py` | Conclusiones, objetivos o resultados | Generado |
+| `outputs/qa_qc_simapro_ef31/MANIFIESTO_QA_QC.md` | Estado, exclusiones y huellas de los insumos para verificación externa EF 3.1 | `scripts/generate_simapro_ef31_qa.py` | Factores EF 3.1, inventario foreground o impactos canónicos | Generado; sin resultados SimaPro hasta ejecutar la visita |
 
 Los manifiestos generados no deben corregirse manualmente cuando la corrección
 pueda aplicarse en su generador. Deben pertenecer a la misma corrida que los
@@ -112,3 +114,15 @@ tablas, gráficos y documentos consumen sus salidas; no hay otro pipeline.
 Al cambiar esta capa se revisan README, metodología, diccionario, generadores
 académicos, validación EF/IMN y validación integral. La tabla de supuestos 00
 queda a cargo de `scripts/generate_thesis_tables.py`; no se mantiene manualmente.
+
+## Responsabilidad del QA/QC Python–SimaPro
+
+`docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md` conserva la metodología permanente y
+separa la preparación reproducible de la evidencia aún pendiente. El generador
+`scripts/generate_simapro_ef31_qa.py` deriva casos unitarios, cantidades reales y
+subtotales desde las fuentes canónicas; sus archivos en
+`outputs/qa_qc_simapro_ef31/` no son una segunda fuente de verdad. La plantilla
+generada permanece vacía hasta la visita. La evidencia y los resultados
+observados se incorporarán solo después de ejecutar y revisar la comprobación
+presencial. Los documentos académicos no deben afirmar resultados SimaPro antes
+de ese momento.
