@@ -2,7 +2,7 @@
 
 ## Estado
 
-TFG en fase documental pre-M3. Existe una corrida científica **PROVISIONAL M1–M2**
+TFG en la primera unidad preparatoria de M3. Existe una corrida científica **PROVISIONAL M1–M2**
 y un documento integral provisional. La auditoría académica transversal final
 pre-M3 fue completada: el pipeline científico y computacional quedó validado y
 no se identificaron bloqueantes científicos ni de reproducibilidad.
@@ -17,11 +17,18 @@ documental pre-M3 una vez validadas sus modificaciones; no modifica el modelo ni
 los resultados científicos. La evaluación supervisora de una eventual integración
 a `main` es posterior y no forma parte de esta unidad.
 
+## Unidad activa: preparación canónica de M3
+
+El diseño experimental, los datos irrepetibles, las fuentes futuras y los
+criterios de completitud se documentan en `docs/CONTRATO_EXPERIMENTAL_M3.md`.
+La preparación no declara M3 disponible ni modifica resultados. La ingestión
+queda protegida contra una declaración parcial de fuentes.
+
 ## Siguiente unidad prevista
 
-M3 constituye una unidad posterior independiente. Su preparación e incorporación
-se realizará mediante el pipeline canónico cuando estén disponibles los datos y
-se confirme su compatibilidad metodológica.
+Después de ejecutar M3 y recibir el libro de Bioenergía y los informes CIA/LASA,
+la siguiente unidad incorporará exclusivamente las fuentes reales al pipeline
+canónico, comprobará compatibilidad y regenerará en secuencia todas las capas.
 
 ## Dependencias y bloqueos
 
@@ -33,10 +40,11 @@ se confirme su compatibilidad metodológica.
 
 1. Validar la reconciliación documental pre-M3 y evaluar de forma supervisora la
    eventual integración de la rama a `main`.
-2. Incorporar M3 como unidad independiente mediante el pipeline vigente.
-3. Completar la verificación final de las referencias marcadas como pendientes en
+2. Ejecutar M3 conforme al contrato experimental y conservar la evidencia primaria.
+3. Incorporar las fuentes reales M3 mediante el pipeline vigente.
+4. Completar la verificación final de las referencias marcadas como pendientes en
    `docs/REFERENCIAS_TFG.md`.
-4. Definir la evaluación cuantitativa mínima de sensibilidad para los supuestos
+5. Definir la evaluación cuantitativa mínima de sensibilidad para los supuestos
    dominantes, sin crear una ruta de cálculo paralela.
 
 ## Paso de provisional a definitivo

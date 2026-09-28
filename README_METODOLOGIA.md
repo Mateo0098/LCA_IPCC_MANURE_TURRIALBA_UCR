@@ -101,7 +101,7 @@ vigentes al ACV.
 
 ### Capa multijornada activa
 
-La ingestión de M1 y M2 se ejecuta con:
+La ingestión de las jornadas reales declaradas —actualmente M1 y M2— se ejecuta con:
 
 ```powershell
 .venv\Scripts\python.exe scripts\build_sampling_ingestion.py
@@ -109,6 +109,10 @@ La ingestión de M1 y M2 se ejecuta con:
 ```
 
 La configuración explícita está en `scripts/sampling_ingestion_config.py`.
+Esta configuración conserva el contrato de cinco fuentes lógicas futuras de M3
+sin declarar rutas ficticias. Distingue `no_disponible`, `declarada_incompleta`
+y `completa`; una M3 parcial bloquea la ingestión. El diseño experimental y el
+checklist de ejecución están en `docs/CONTRATO_EXPERIMENTAL_M3.md`.
 Esta capa genera:
 
 - `processed/muestreos_observaciones_normalizadas.csv`: una fila por

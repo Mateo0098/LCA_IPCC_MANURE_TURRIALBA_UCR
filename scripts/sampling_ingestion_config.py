@@ -6,10 +6,68 @@ solamente a partir del nombre de un archivo.
 
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
+from typing import Iterable
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+SOURCE_STATE_NOT_AVAILABLE = "no_disponible"
+SOURCE_STATE_DECLARED_INCOMPLETE = "declarada_incompleta"
+SOURCE_STATE_COMPLETE = "completa"
+
+# Contrato de fuentes de una jornada con el diseño físico de M2. No contiene
+# rutas ni resultados ficticios: sirve para distinguir una jornada todavía no
+# disponible de una declaración parcial y de un conjunto real completo.
+M3_SOURCE_CONTRACT = (
+    {
+        "kind": "lasa_pdf",
+        "material": "estiércol fresco",
+        "laboratorio": "LASA",
+        "metodo": "Kjeldahl",
+        "expected_samples": 3,
+        "expected_replicates": 3,
+    },
+    {
+        "kind": "cia_xlsx",
+        "material": "estiércol precompostado",
+        "laboratorio": "CIA",
+        "metodo": "Dumas (combustión seca)",
+        "expected_samples": 3,
+    },
+    {
+        "kind": "cia_xlsx",
+        "material": "aguas verdes",
+        "laboratorio": "CIA",
+        "metodo": "Kjeldahl",
+        "expected_samples": 3,
+    },
+    {
+        "kind": "cia_xlsx",
+        "material": "purines",
+        "laboratorio": "CIA",
+        "metodo": "Kjeldahl",
+        "expected_samples": 3,
+    },
+    {
+        "kind": "gravimetric_xlsx",
+        "material": "",
+        "laboratorio": "Bioenergía",
+        "metodo": "gravimetría",
+        "expected_samples_by_material": 3,
+        "expected_replicates": 3,
+    },
+)
+
+_COMMON_SOURCE_SLOTS = tuple(
+    (item["kind"], item["material"]) for item in M3_SOURCE_CONTRACT
+)
+EXPECTED_SOURCE_SLOTS_BY_JOURNEY = {
+    "M1": _COMMON_SOURCE_SLOTS,
+    "M2": _COMMON_SOURCE_SLOTS,
+    "M3": _COMMON_SOURCE_SLOTS,
+}
 
 CIA_LIQUID_N_METHOD_SOURCE = (
     "Metodología oficial del Laboratorio de Suelos y Foliares de la Ciudad de "
@@ -168,6 +226,139 @@ SOURCES = [
         "expected_replicates": 3,
     },
 ]
+
+
+def _source_slot(source: dict) -> tuple[str, str]:
+    return str(source.get("kind", "")), str(source.get("material", ""))
+
+
+def journey_source_status(
+    jornada: str,
+    sources: Iterable[dict] | None = None,
+    project_root: Path = PROJECT_ROOT,
+) -> dict:
+    """Clasifica la declaración de fuentes sin crear observaciones.
+
+    ``no_disponible`` significa que no se ha declarado ninguna fuente de la
+    jornada. ``declarada_incompleta`` bloquea la ingestión para impedir que una
+    parte de M3 entre en estadísticas. ``completa`` exige los cinco tipos de
+    fuente, metadatos compatibles y archivos reales existentes, y significa que
+    la declaración está lista para intentar la ingestión. La estructura y la
+    cardinalidad observadas se acreditan después mediante extracción y
+    validación, no por la mera existencia de las rutas.
+    """
+    selected = [
+        dict(source)
+        for source in (SOURCES if sources is None else sources)
+        if str(source.get("jornada", "")) == jornada
+    ]
+    expected_slots = EXPECTED_SOURCE_SLOTS_BY_JOURNEY.get(jornada)
+    if expected_slots is None:
+        return {
+            "jornada": jornada,
+            "estado": SOURCE_STATE_DECLARED_INCOMPLETE,
+            "errores": [f"Jornada no configurada: {jornada}"],
+            "fuentes_declaradas": len(selected),
+        }
+    if not selected:
+        return {
+            "jornada": jornada,
+            "estado": SOURCE_STATE_NOT_AVAILABLE,
+            "errores": [],
+            "fuentes_declaradas": 0,
+        }
+
+    errors: list[str] = []
+    expected = Counter(expected_slots)
+    observed = Counter(_source_slot(source) for source in selected)
+    missing = list((expected - observed).elements())
+    extra = list((observed - expected).elements())
+    if missing:
+        errors.append(f"Faltan fuentes: {missing}")
+    if extra:
+        errors.append(f"Sobran o se duplican fuentes: {extra}")
+
+    for source in selected:
+        slot = _source_slot(source)
+        raw_path = str(source.get("path", "")).strip()
+        if not raw_path:
+            errors.append(f"Fuente sin ruta real: {slot}")
+        else:
+            source_path = Path(raw_path)
+            if source_path.is_absolute():
+                errors.append(f"La ruta debe ser relativa al repositorio: {raw_path}")
+            elif not (project_root / source_path).is_file():
+                errors.append(f"Archivo declarado inexistente: {raw_path}")
+
+    if jornada == "M3":
+        declared_paths = Counter(
+            str(source.get("path", "")).strip()
+            for source in selected
+            if str(source.get("path", "")).strip()
+        )
+        duplicated_paths = [
+            path for path, count in declared_paths.items() if count > 1
+        ]
+        if duplicated_paths:
+            errors.append(
+                "M3 no puede simular fuentes lógicas duplicando rutas: "
+                f"{duplicated_paths}"
+            )
+        contract_by_slot = {
+            (item["kind"], item["material"]): item for item in M3_SOURCE_CONTRACT
+        }
+        for source in selected:
+            slot = _source_slot(source)
+            contract = contract_by_slot.get(slot)
+            if contract is None:
+                continue
+            for field, expected_value in contract.items():
+                if field in {"kind", "material"}:
+                    continue
+                if source.get(field) != expected_value:
+                    errors.append(
+                        f"M3 {slot}: {field}={source.get(field)!r}; "
+                        f"se requiere {expected_value!r}"
+                    )
+            for field in ("fuente_metodo", "uso_modelo", "motivo_uso"):
+                if not str(source.get(field, "")).strip():
+                    errors.append(f"M3 {slot}: falta {field}")
+            if source.get("uso_modelo") != "elegible":
+                errors.append(f"M3 {slot}: uso_modelo debe ser 'elegible'")
+            if slot == ("cia_xlsx", "estiércol precompostado") and not str(
+                source.get("condicion_muestra", "")
+            ).strip():
+                errors.append("M3 precompostado requiere condicion_muestra")
+            if slot[0] == "cia_xlsx" and slot[1] in {"aguas verdes", "purines"}:
+                if not str(source.get("nota_precision", "")).strip():
+                    errors.append(f"M3 {slot}: falta nota_precision")
+            if slot == ("gravimetric_xlsx", "") and not str(
+                source.get("sampling_date", "")
+            ).strip():
+                errors.append("M3 gravimétrica requiere sampling_date real")
+
+    return {
+        "jornada": jornada,
+        "estado": SOURCE_STATE_COMPLETE if not errors else SOURCE_STATE_DECLARED_INCOMPLETE,
+        "errores": errors,
+        "fuentes_declaradas": len(selected),
+    }
+
+
+def assert_configured_journeys_ready() -> None:
+    """Impide ingerir jornadas activas incompletas o una M3 parcial."""
+    errors: list[str] = []
+    for jornada in ("M1", "M2", "M3"):
+        status = journey_source_status(jornada)
+        if jornada in {"M1", "M2"} and status["estado"] != SOURCE_STATE_COMPLETE:
+            errors.extend(status["errores"] or [f"{jornada} no está completa"])
+        elif status["estado"] == SOURCE_STATE_DECLARED_INCOMPLETE:
+            errors.extend(
+                status["errores"]
+                or [f"{jornada} está declarada de forma incompleta"]
+            )
+    if errors:
+        raise ValueError("Configuración de fuentes no apta para ingestión:\n- " + "\n- ".join(errors))
 
 
 def configured_sources(kind: str | None = None) -> list[dict]:

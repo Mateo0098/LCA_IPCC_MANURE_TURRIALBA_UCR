@@ -175,6 +175,12 @@ final → validación de integración → mismo ACV → tablas → gráficos →
 → resultados → conclusiones → validación cruzada. Una integración incompleta no
 debe presentarse como resultado experimental final.
 
+El diseño, los identificadores, los datos irrepetibles, los criterios de
+completitud y el checklist de campo y laboratorio se mantienen en
+`docs/CONTRATO_EXPERIMENTAL_M3.md`. La configuración distingue M3 no disponible,
+declarada pero incompleta y completa; una declaración parcial bloquea la
+ingestión y no genera una integración parcial.
+
 ## Salidas principales
 
 - `processed/ACV_resumen_emisiones.csv`

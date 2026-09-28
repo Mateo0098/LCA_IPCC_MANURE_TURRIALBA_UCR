@@ -607,10 +607,17 @@ def _material_code(material: str) -> str:
 
 def _sample_number(origin_id: str, jornada: str, fallback: int) -> int:
     folded = _fold(origin_id)
-    if jornada != "M1":
-        match = re.search(r"(?:^|\D)2\s*[-,]\s*(\d+)\s*$", folded)
+    journey_match = re.fullmatch(r"M(\d+)", jornada)
+    if journey_match and jornada != "M1":
+        journey_number = re.escape(journey_match.group(1))
+        match = re.search(
+            rf"(?:^|\D){journey_number}\s*[-,]\s*(\d+)\s*$", folded
+        )
         if match:
             return int(match.group(1))
+        # Desde M2, los informes codifican la muestra como jornada-muestra.
+        # No interpretar otro número final (año, lote o informe) como muestra.
+        return fallback
     match = re.search(r"(\d+)\s*$", folded)
     return int(match.group(1)) if match else fallback
 
@@ -686,7 +693,7 @@ def _cia_base_for(material: str, variable: str, unit: str) -> str:
 
 
 def _normalized_solid_sample_id(source: Dict[str, object], material: str, sample_number: int) -> str:
-    """Conserva conjuntos M1 disjuntos y la identidad física compartida de M2."""
+    """Conserva M1 disjunto y la identidad física compartida desde M2."""
     journey = str(source["jornada"])
     material_code = _material_code(material)
     if journey == "M1" and material in {"estiércol fresco", "estiércol precompostado"}:

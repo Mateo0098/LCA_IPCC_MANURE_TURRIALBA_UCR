@@ -127,7 +127,9 @@ La metadata EXIF sitúa las actividades de campo de M1 el 10 de noviembre de 202
 
 ## Incertidumbres y pendientes reales para M3
 
-- Ejecutar y documentar M3 con una estructura compatible que permita la integración final prevista.
+- Ejecutar y documentar M3 con la estructura compatible y los criterios de
+  completitud definidos en `docs/CONTRATO_EXPERIMENTAL_M3.md`; este registro se
+  actualizará después con hechos ejecutados y no con datos planificados.
 - Confirmar, si resulta académicamente pertinente, fabricante, modelo, placa o número de serie del horno, la mufla y la balanza analítica utilizados en Bioenergía.
 - Mantener explícita la incertidumbre fotográfica de F031: no se recuerda si esa bandeja concreta corresponde al secado o a la determinación de sólidos volátiles.
 - Mantener explícita la ausencia de zona horaria EXIF en F001–F013; no corregirla por inferencia.
@@ -141,5 +143,7 @@ No quedan pendientes los tiempos o temperaturas de Bioenergía ni el acondiciona
 - `Academic_documents/resultados CIA y LASA muestreo 2/muestreo2_solidos_volatiles.xlsx`: masas primarias y registro del procedimiento de Bioenergía para M2.
 - Informes CIA y LASA conservados en `Academic_documents/resultados CIA y LASA muestreo 1/` y `Academic_documents/resultados CIA y LASA muestreo 2/`.
 - `scripts/sampling_ingestion_config.py`: asociación vigente entre informes, materiales, jornadas y métodos analíticos; conserva la metodología oficial CIA suministrada por el investigador.
+- `docs/CONTRATO_EXPERIMENTAL_M3.md`: contrato preparatorio y checklist para
+  ejecutar M3 sin convertir el plan en evidencia realizada.
 - `DECISIONES_METODOLOGICAS_TFG.md`: decisiones científicas vigentes sobre integración, bases analíticas y uso posterior de los datos.
 - `Academic_documents/references/en_campo_primario/nota_campo_operaciones_2026-08-25.md`: fuente separada para tiempos de operación y datos de equipos comunicados por operarios.

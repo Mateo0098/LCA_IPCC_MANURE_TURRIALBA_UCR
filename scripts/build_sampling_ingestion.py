@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Construye las capas de observaciones y resúmenes M1/M2 sin tocar el ACV."""
+"""Construye las capas multijornada declaradas y completas sin tocar el ACV."""
 
 from __future__ import annotations
 
@@ -15,7 +15,11 @@ from extract_analysis_results import (
     extract_cia_normalized,
     extract_lasa_normalized,
 )
-from sampling_ingestion_config import PROJECT_ROOT, configured_sources
+from sampling_ingestion_config import (
+    PROJECT_ROOT,
+    assert_configured_journeys_ready,
+    configured_sources,
+)
 
 
 OBSERVATIONS_PATH = PROJECT_ROOT / "processed" / "muestreos_observaciones_normalizadas.csv"
@@ -31,6 +35,7 @@ SUMMARY_FIELDS = [
 
 
 def ingest_all() -> List[Dict[str, object]]:
+    assert_configured_journeys_ready()
     observations: List[Dict[str, object]] = []
     extractors = {
         "cia_xlsx": extract_cia_normalized,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validación estructural y metodológica de la ingestión M1/M2."""
+"""Validación estructural y metodológica de las jornadas declaradas."""
 
 from __future__ import annotations
 
@@ -8,7 +8,14 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from sampling_ingestion_config import PROJECT_ROOT, configured_sources
+from sampling_ingestion_config import (
+    PROJECT_ROOT,
+    SOURCE_STATE_COMPLETE,
+    SOURCE_STATE_DECLARED_INCOMPLETE,
+    SOURCE_STATE_NOT_AVAILABLE,
+    configured_sources,
+    journey_source_status,
+)
 
 
 OBSERVATIONS = PROJECT_ROOT / "processed" / "muestreos_observaciones_normalizadas.csv"
@@ -19,12 +26,121 @@ def fail(errors: list[str], message: str) -> None:
     errors.append(message)
 
 
+def _validate_source_cardinality(
+    errors: list[str], source: dict, source_rows: list[dict]
+) -> None:
+    """Valida muestras, réplicas y determinaciones obligatorias por fuente."""
+    samples = {row["identificador_muestra"] for row in source_rows}
+    expected_samples = int(
+        source.get("expected_samples", source.get("expected_samples_by_material", 0))
+    )
+    if source["kind"] == "gravimetric_xlsx":
+        for material in {"estiércol fresco", "estiércol precompostado"}:
+            material_rows = [
+                row for row in source_rows if row["tipo_material"] == material
+            ]
+            material_samples = {
+                row["identificador_muestra"] for row in material_rows
+            }
+            if len(material_samples) != expected_samples:
+                fail(
+                    errors,
+                    f"{source['jornada']} {material}: {len(material_samples)} "
+                    f"muestras; esperadas {expected_samples}",
+                )
+            for sample in material_samples:
+                for variable in {
+                    "humedad",
+                    "materia seca",
+                    "cenizas",
+                    "sólidos volátiles",
+                }:
+                    reps = {
+                        row["replica_analitica"]
+                        for row in material_rows
+                        if row["identificador_muestra"] == sample
+                        and row["variable"] == variable
+                    }
+                    if reps != {"1", "2", "3"}:
+                        fail(
+                            errors,
+                            "Réplicas gravimétricas incorrectas: "
+                            f"{source['jornada']} {sample} {variable}: {sorted(reps)}",
+                        )
+        return
+
+    if len(samples) != expected_samples:
+        fail(
+            errors,
+            f"{source['path']}: {len(samples)} muestras; esperadas {expected_samples}",
+        )
+
+    required_variables: set[str] = set()
+    if source["kind"] == "lasa_pdf":
+        required_variables = {"N total"}
+        for sample in samples:
+            reps = {
+                row["replica_analitica"]
+                for row in source_rows
+                if row["identificador_muestra"] == sample
+                and row["variable"] == "N total"
+            }
+            if reps != {"1", "2", "3"}:
+                fail(
+                    errors,
+                    f"Réplicas LASA incorrectas: {source['jornada']} "
+                    f"{sample}: {sorted(reps)}",
+                )
+    elif (
+        source["kind"] == "cia_xlsx"
+        and source["material"] == "estiércol precompostado"
+    ):
+        required_variables = {"N total", "carbono"}
+    elif source["kind"] == "cia_xlsx" and source["material"] in {
+        "aguas verdes",
+        "purines",
+    } and source["metodo"] == "Kjeldahl":
+        required_variables = {"N total"}
+
+    for variable in required_variables:
+        variable_samples = {
+            row["identificador_muestra"]
+            for row in source_rows
+            if row["variable"] == variable
+        }
+        if variable_samples != samples or len(variable_samples) != expected_samples:
+            fail(
+                errors,
+                f"{source['jornada']} {source['material']} {variable}: "
+                f"{len(variable_samples)} muestras con resultado; "
+                f"esperadas {expected_samples}",
+            )
+
+
 def main() -> int:
     errors: list[str] = []
     with OBSERVATIONS.open(encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
     with SUMMARY.open(encoding="utf-8", newline="") as handle:
         summaries = list(csv.DictReader(handle))
+
+    source_states = {
+        jornada: journey_source_status(jornada) for jornada in ("M1", "M2", "M3")
+    }
+    for jornada in ("M1", "M2"):
+        if source_states[jornada]["estado"] != SOURCE_STATE_COMPLETE:
+            fail(errors, f"{jornada} no tiene una configuración completa de fuentes")
+    if source_states["M3"]["estado"] == SOURCE_STATE_DECLARED_INCOMPLETE:
+        fail(
+            errors,
+            "M3 está declarada pero incompleta: "
+            + "; ".join(source_states["M3"]["errores"]),
+        )
+    if (
+        source_states["M3"]["estado"] == SOURCE_STATE_NOT_AVAILABLE
+        and any(row["jornada_muestreo"] == "M3" for row in rows)
+    ):
+        fail(errors, "Existen observaciones M3 sin fuentes M3 declaradas")
 
     required = {
         "jornada_muestreo", "tipo_material", "identificador_muestra",
@@ -67,27 +183,7 @@ def main() -> int:
         if not source_rows:
             fail(errors, f"Fuente sin observaciones: {source['path']}")
             continue
-        samples = {row["identificador_muestra"] for row in source_rows}
-        expected_samples = int(source.get("expected_samples", source.get("expected_samples_by_material", 0)))
-        if source["kind"] == "gravimetric_xlsx":
-            for material in {"estiércol fresco", "estiércol precompostado"}:
-                material_rows = [row for row in source_rows if row["tipo_material"] == material]
-                material_samples = {row["identificador_muestra"] for row in material_rows}
-                if len(material_samples) != expected_samples:
-                    fail(errors, f"{source['jornada']} {material}: {len(material_samples)} muestras; esperadas {expected_samples}")
-                for sample in material_samples:
-                    for variable in {"humedad", "materia seca", "cenizas", "sólidos volátiles"}:
-                        reps = {row["replica_analitica"] for row in material_rows if row["identificador_muestra"] == sample and row["variable"] == variable}
-                        if reps != {"1", "2", "3"}:
-                            fail(errors, f"Réplicas gravimétricas incorrectas: {source['jornada']} {sample} {variable}: {sorted(reps)}")
-        else:
-            if len(samples) != expected_samples:
-                fail(errors, f"{source['path']}: {len(samples)} muestras; esperadas {expected_samples}")
-            if source["kind"] == "lasa_pdf":
-                for sample in samples:
-                    reps = {row["replica_analitica"] for row in source_rows if row["identificador_muestra"] == sample}
-                    if reps != {"1", "2", "3"}:
-                        fail(errors, f"Réplicas LASA incorrectas: {source['jornada']} {sample}: {sorted(reps)}")
+        _validate_source_cardinality(errors, source, source_rows)
 
     solid_rows = [
         row for row in rows
@@ -126,55 +222,99 @@ def main() -> int:
         if bio_ids & external_ids or len(bio_ids | external_ids) != 4:
             fail(errors, f"M1 no conserva cuatro muestras físicas disjuntas para {material}")
 
-    for material, code, external_lab in (
-        ("estiércol fresco", "EF", "LASA"),
-        ("estiércol precompostado", "EP", "CIA"),
-    ):
-        expected_ids = {f"M2-{code}-{number}" for number in (1, 2, 3)}
-        bio_ids = {
-            row["identificador_muestra"] for row in solid_rows
-            if row["jornada_muestreo"] == "M2" and row["laboratorio"] == "Bioenergía"
-            and row["tipo_material"] == material
-        }
-        external_ids = {
-            row["identificador_muestra"] for row in solid_rows
-            if row["jornada_muestreo"] == "M2" and row["laboratorio"] == external_lab
-            and row["tipo_material"] == material
-        }
-        if bio_ids != expected_ids or external_ids != expected_ids:
-            fail(errors, f"M2 no conserva identidad física compartida para {material}")
-
-    m2_gravimetric = [
-        row for row in solid_rows
-        if row["jornada_muestreo"] == "M2" and row["laboratorio"] == "Bioenergía"
-        and row["metodo_analitico"] == "gravimetría"
+    shared_journeys = [
+        jornada
+        for jornada in ("M2", "M3")
+        if source_states[jornada]["estado"] == SOURCE_STATE_COMPLETE
     ]
-    for variable in {"humedad", "materia seca", "cenizas", "sólidos volátiles"}:
-        variable_rows = [row for row in m2_gravimetric if row["variable"] == variable]
-        if len(variable_rows) != 18:
-            fail(errors, f"M2 {variable}: {len(variable_rows)} observaciones gravimétricas; esperadas 18")
-    expected_origins = {
-        f"{prefix}{sample}{replica}"
-        for prefix in ("A", "B") for sample in (1, 2, 3) for replica in (1, 2, 3)
-    }
-    observed_origins = {row["identificador_muestra_origen"] for row in m2_gravimetric}
-    if observed_origins != expected_origins:
-        fail(errors, "La hoja Data M2 no conserva la estructura efectiva A11–A33/B11–B33")
-    if any(
-        row["celda_o_fila_origen"] != f'{row["identificador_muestra_origen"]} / {row["identificador_muestra_origen"][0]}I{row["identificador_muestra_origen"][1:]}'
-        for row in m2_gravimetric
-    ):
-        fail(errors, "Los pares de secado/incineración M2 no corresponden a A11–AI33/B11–BI33")
+    for jornada in shared_journeys:
+        for material, code, external_lab in (
+            ("estiércol fresco", "EF", "LASA"),
+            ("estiércol precompostado", "EP", "CIA"),
+        ):
+            expected_ids = {f"{jornada}-{code}-{number}" for number in (1, 2, 3)}
+            bio_ids = {
+                row["identificador_muestra"] for row in solid_rows
+                if row["jornada_muestreo"] == jornada
+                and row["laboratorio"] == "Bioenergía"
+                and row["tipo_material"] == material
+            }
+            external_ids = {
+                row["identificador_muestra"] for row in solid_rows
+                if row["jornada_muestreo"] == jornada
+                and row["laboratorio"] == external_lab
+                and row["tipo_material"] == material
+            }
+            if bio_ids != expected_ids or external_ids != expected_ids:
+                fail(
+                    errors,
+                    f"{jornada} no conserva identidad física compartida para {material}",
+                )
+
+        gravimetric = [
+            row for row in solid_rows
+            if row["jornada_muestreo"] == jornada
+            and row["laboratorio"] == "Bioenergía"
+            and row["metodo_analitico"] == "gravimetría"
+        ]
+        for variable in {"humedad", "materia seca", "cenizas", "sólidos volátiles"}:
+            variable_rows = [row for row in gravimetric if row["variable"] == variable]
+            if len(variable_rows) != 18:
+                fail(
+                    errors,
+                    f"{jornada} {variable}: {len(variable_rows)} observaciones "
+                    "gravimétricas; esperadas 18",
+                )
+        expected_origins = {
+            f"{prefix}{sample}{replica}"
+            for prefix in ("A", "B")
+            for sample in (1, 2, 3)
+            for replica in (1, 2, 3)
+        }
+        observed_origins = {
+            row["identificador_muestra_origen"] for row in gravimetric
+        }
+        if observed_origins != expected_origins:
+            fail(
+                errors,
+                f"La hoja Data {jornada} no conserva la estructura efectiva "
+                "A11–A33/B11–B33",
+            )
+        if any(
+            row["celda_o_fila_origen"]
+            != f'{row["identificador_muestra_origen"]} / '
+            f'{row["identificador_muestra_origen"][0]}I'
+            f'{row["identificador_muestra_origen"][1:]}'
+            for row in gravimetric
+        ):
+            fail(
+                errors,
+                f"Los pares de secado/incineración {jornada} no corresponden "
+                "a A11–AI33/B11–BI33",
+            )
 
     for material in ("aguas verdes", "purines"):
         m1_n = [row for row in rows if row["jornada_muestreo"] == "M1" and row["tipo_material"] == material and row["variable"].startswith("N ")]
-        m2_n = [row for row in rows if row["jornada_muestreo"] == "M2" and row["tipo_material"] == material and row["variable"] == "N total"]
         if not m1_n or any(row["uso_modelo"] != "solo_trazabilidad" or row["metodo_analitico"] != "especiación" for row in m1_n):
             fail(errors, f"Decisión metodológica incorrecta para N M1 de {material}")
-        if not m2_n or any(row["uso_modelo"] != "elegible" or row["metodo_analitico"] != "Kjeldahl" for row in m2_n):
-            fail(errors, f"Decisión metodológica incorrecta para N M2 de {material}")
         if any(row["variable"] == "N total" for row in m1_n):
             fail(errors, f"Se generó artificialmente N total M1 para {material}")
+        for jornada in shared_journeys:
+            liquid_n = [
+                row for row in rows
+                if row["jornada_muestreo"] == jornada
+                and row["tipo_material"] == material
+                and row["variable"] == "N total"
+            ]
+            if not liquid_n or any(
+                row["uso_modelo"] != "elegible"
+                or row["metodo_analitico"] != "Kjeldahl"
+                for row in liquid_n
+            ):
+                fail(
+                    errors,
+                    f"Decisión metodológica incorrecta para N {jornada} de {material}",
+                )
 
     precomp_nc = [
         row for row in rows
@@ -182,7 +322,7 @@ def main() -> int:
         and row["variable"] in {"N total", "carbono"}
     ]
     if not precomp_nc or any(row["metodo_analitico"] != "Dumas (combustión seca)" for row in precomp_nc):
-        fail(errors, "N/C de precompostado M1/M2 no quedó documentado mediante Dumas")
+        fail(errors, "N/C de precompostado no quedó documentado mediante Dumas")
     expected_base = "porcentaje determinado sobre muestra seca/acondicionada por CIA a 80 °C durante 48 h"
     if any(row["base_medicion"] != expected_base for row in precomp_nc):
         fail(errors, "N/C de precompostado no declara la base seca/acondicionada confirmada por el CIA")
@@ -247,6 +387,7 @@ def main() -> int:
     print("M1: 2 muestras compuestas por fuente y material; 4 muestras físicas disjuntas por material")
     print("M2: 3 muestras físicas compartidas entre Bioenergía y laboratorio externo por material")
     print("Bioenergía M2: 3 réplicas por muestra y 18 observaciones por variable gravimétrica")
+    print(f"M3: {source_states['M3']['estado']}; una declaración parcial bloquea la ingestión")
     print("Líquidos M1: especiación/solo_trazabilidad; líquidos M2: Kjeldahl/elegible")
     print("Precompostado M1/M2: N/C por Dumas sobre muestra seca/acondicionada por CIA a 80 °C durante 48 h")
     print("Densidad, carbono y relación C/N: solo_caracterizacion, sin conversión húmeda ni consumidor productivo")
