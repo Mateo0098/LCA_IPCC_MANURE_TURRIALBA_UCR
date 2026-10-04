@@ -19,6 +19,17 @@ El MASTER se utiliza únicamente para identificar y reproducir fuente, tamaño, 
 
 Los generadores deben verificar su hash antes y después de cualquier generación documental. Los archivos generados deben guardarse únicamente en `outputs/documentos_tfg/`.
 
+La portada del documento integral debe recuperar desde el MASTER los nombres y
+cargos del comité asesor y fallar de forma explícita si deja de reconocerse la
+estructura autorizada. Su distribución vertical debe resolverse mediante
+espaciado de párrafo, estilos, secciones o estructuras sin bordes; no mediante
+párrafos vacíos, cadenas de espacios ni duplicación manual de los nombres.
+
+Los preliminares del integral deben contener, como mínimo, el estado del
+documento, el contenido y la **Lista de siglas y abreviaturas**, en ese orden,
+antes del cuerpo. Si se incorporan índices independientes de figuras o tablas,
+la lista de siglas se ubica después de esos índices y antes de la introducción.
+
 ## 2. Numeración independiente de documentos generados
 
 Cada documento generado conserva su propia numeración interna de secciones, tablas, figuras y apéndices.
@@ -53,7 +64,7 @@ Correcto: el mismo subtítulo con el formato académico del MASTER y color negro
 
 El orden obligatorio es:
 
-1. Prosa introductoria, si corresponde.
+1. Prosa que introduce, menciona o contextualiza la tabla.
 2. Un único título formal encima de la tabla.
 3. Tabla.
 4. Nota de tabla, solo cuando corresponda.
@@ -102,7 +113,7 @@ Las tablas académicas no deben mostrar `snake_case`, `dry_lot`, `n_ex_pct`, `n_
 
 El orden obligatorio es:
 
-1. Prosa introductoria, si corresponde.
+1. Prosa que introduce, menciona o contextualiza la figura.
 2. Un único caption formal encima de la figura.
 3. Imagen.
 4. Nota o fuente, solo cuando corresponda.
@@ -137,6 +148,14 @@ Todo texto visible debe estar en español académico, incluidos:
 
 Se permiten siglas aceptadas internacional o institucionalmente, como IPCC, ACV, ICV, EICV, CIA, LASA y UCR. También se conservan las fórmulas químicas y símbolos científicos.
 
+Se prefiere terminología científica en español frente a anglicismos evitables.
+En la prosa visible deben emplearse, según el contexto, expresiones como
+`referencia de contraste`, `balance secuencial`, `reserva`, `valor por defecto`,
+`secuencia de procesamiento`, `aproximación` y `aseguramiento de la calidad`,
+en lugar de vocabulario inglés usado como sustantivo común. Esta regla no
+traduce nombres propios, software, marcas, denominaciones oficiales ni títulos
+bibliográficos.
+
 Incorrecto: `Fresh manure`, `dry lot`, `global warming`.
 
 Correcto: `Estiércol fresco`, `Sistema de manejo en corral seco`, `Calentamiento global`.
@@ -163,7 +182,7 @@ kg CO₂-eq/año
 kg PO₄-eq/año
 ```
 
-Se deben conservar tildes, eñes, subíndices, superíndices y símbolos científicos correctos, como CH₄, N₂O, NH₃, NO₃⁻ y CO₂.
+Se deben conservar tildes, eñes, subíndices, superíndices y símbolos científicos correctos, como m², m³, CH₄, N₂O, NH₃, NO₃⁻, CO₂ y PO₄³⁻. La normalización se aplica al texto académico visible —prosa, tablas, captions, ejes, leyendas y anotaciones— y nunca mediante sustituciones globales sobre rutas, código, identificadores o datos fuente.
 
 ## 8. Nomenclatura de escenarios y etapas
 
@@ -182,6 +201,14 @@ En el Escenario A no debe aparecer `purín` ni `purines` asociado a flujos de A1
 
 En B1 y B2 no debe utilizarse `Aguas verdes` cuando el flujo corresponda a purín.
 
+Cuando A y B designan las alternativas del ACV se escribe `escenario A`,
+`escenario B` o `escenarios A y B`; `campaña` se reserva para campañas de
+muestreo o actividades experimentales reales.
+
+Los gráficos cuyo eje representa etapas usan únicamente A1–A4 y B1–B2. Los
+nombres completos permanecen en la prosa, la tabla que define las etapas, los
+captions cuando aportan contexto y la figura conceptual de fronteras.
+
 ## 9. Relación entre prosa y apéndices
 
 Cada apéndice interno debe mencionarse al menos una vez antes del bloque de apéndices, en la sección principal donde aporta información complementaria.
@@ -199,20 +226,40 @@ Correcto: “Los factores empleados en las estimaciones se detallan en el Apénd
 
 No se debe modificar la numeración de apéndices para hacerla coincidir con el MASTER.
 
-## 10. Ecuaciones
+## 10. Siglas y abreviaturas
+
+Las siglas gobernadas por los documentos se mantienen en un único registro
+controlado que conserva su desarrollo en español, denominación original cuando
+corresponde, idioma de origen, forma de primera aparición e inclusión en la
+lista. La lista del DOCX se deriva de ese registro y contiene solo entradas
+realmente utilizadas; no se mantiene una lista manual paralela.
+
+La primera aparición pertinente sigue la forma `nombre completo (SIGLA)`. Si
+la sigla procede del inglés, se explicita una sola vez mediante una formulación
+natural como `(SIGLA, por sus siglas en inglés)`. TAN se presenta como
+`nitrógeno amoniacal total (TAN, por sus siglas en inglés)`. Las fórmulas
+químicas, unidades, variables, marcas y los códigos A1–A4, B1–B2 y M1–M3 no se
+tratan automáticamente como siglas institucionales.
+
+## 11. Ecuaciones
 
 Las ecuaciones deben:
 
-- permanecer como texto LaTeX seleccionable;
+- aparecer como objetos matemáticos nativos de Word (OMML), seleccionables y editables;
 - estar centradas;
 - conservar su contenido matemático;
 - evitar imágenes;
-- evitar delimitadores visibles `\[` y `\]`;
-- evitar delimitadores visibles `$$`.
+- ocultar por completo la sintaxis fuente LaTeX;
+- alinear su número mediante tabulación o estructura estable, no mediante espacios manuales;
+- estar precedidas por prosa que introduzca o defina la expresión, sin crear párrafos redundantes.
+
+La conversión canónica es `LaTeX canónico → MathML → OMML` mediante la utilidad
+compartida del repositorio. Los generadores no deben mantener implementaciones
+paralelas de esa conversión.
 
 Los cambios de formato nunca deben alterar factores, variables, operadores, valores ni resultados.
 
-## 11. Validaciones obligatorias
+## 12. Validaciones obligatorias
 
 Cuando se regeneren los documentos, `outputs/documentos_tfg/reporte_validacion_documentos.md` debe confirmar como mínimo:
 
@@ -228,14 +275,20 @@ Cuando se regeneren los documentos, `outputs/documentos_tfg/reporte_validacion_d
 - nomenclatura oficial de A1–A4 y B1–B2;
 - uso correcto de aguas verdes y purines;
 - relación completa entre prosa y apéndices;
-- ecuaciones LaTeX seleccionables y sin imágenes;
+- lista de siglas consistente con el registro controlado y primeras apariciones correctas;
+- tratamiento explícito de siglas inglesas y de TAN;
+- ausencia contextual de anglicismos evitables y notación científica plana;
+- comité asesor presente y portada sin separadores manuales arbitrarios;
+- prosa anterior a cada tabla, figura y ecuación formal;
+- etiquetas A1–A4 y B1–B2 en gráficos por etapa;
+- ecuaciones OMML seleccionables, editables, sin imágenes ni LaTeX visible;
 - conservación de valores numéricos, cálculos y resultados;
 - consistencia de dirección, signo, porcentaje, unidad, dominancia y redondeo en comparaciones narrativas;
 - conservación del hash del MASTER antes y después de la generación;
 - numeración interna independiente del MASTER.
 
 Si una validación falla, se debe corregir primero el script generador y volver a ejecutar la validación. El documento MASTER no debe modificarse en ningún caso.
-## 12. Consistencia cuantitativa de la prosa
+## 13. Consistencia cuantitativa de la prosa
 
 Las afirmaciones comparativas visibles —mayor, menor, aumento, reducción y
 escenario o etapa dominante— deben derivarse de la misma fuente canónica que sus

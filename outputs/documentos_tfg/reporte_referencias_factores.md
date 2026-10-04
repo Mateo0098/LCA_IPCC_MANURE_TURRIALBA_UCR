@@ -2,7 +2,7 @@
 
 ## Trazabilidad metodológica
 
-- Los factores IPCC y EMEP fueron contrastados con el módulo canónico del ledger de N total y TAN y con sus parámetros versionados.
+- Los factores IPCC y EMEP fueron contrastados con el módulo canónico del balance secuencial de N total y TAN y con sus parámetros versionados.
 - Los factores de caracterización corresponden a Environmental Footprint 3.1 de la Comisión Europea y el JRC.
 - El parámetro específico de lixiviación de A2 se documenta mediante Vargas Sarmiento (2023) y observación directa del investigador.
 - Los factores sin fuente confirmada no recibieron una atribución inventada.
@@ -50,11 +50,11 @@
 | Diésel: general por combustible | Instituto Meteorológico Nacional | IMN, portada 16.ª edición, 2026; interiores 15a edición / 2025, p. 3, Sector energía: Dióxido de carbono | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor nacional por actividad; electricidad de consumo 2025 y emisiones físicas de combustión, pp. 3–4; discrepancia editorial conservada. | Resuelto |
 | Residencial y agrícola/Diésel | Instituto Meteorológico Nacional | IMN, portada 16.ª edición, 2026; interiores 15a edición / 2025, p. 3, Sector energía: Metano | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor nacional por actividad; electricidad de consumo 2025 y emisiones físicas de combustión, pp. 3–4; discrepancia editorial conservada. | Resuelto |
 | Residencial y agrícola/Diésel | Instituto Meteorológico Nacional | IMN, portada 16.ª edición, 2026; interiores 15a edición / 2025, p. 4, Sector energía: Óxido nitroso | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Factor nacional por actividad; electricidad de consumo 2025 y emisiones físicas de combustión, pp. 3–4; discrepancia editorial conservada. | Resuelto |
-| Factor de NH₃ de A2: Lombricompostaje | Komakech et al. (2016) | Komakech et al. 2016 DOI 10.1016/j.jenvman.2016.06.028 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Proxy experimental aprobado de NH₃ para el residuo húmedo de entrada a A2; extrapolación con limitaciones de transferibilidad. | Resuelto |
+| Factor de NH₃ de A2: Lombricompostaje | Komakech et al. (2016) | Komakech et al. 2016 DOI 10.1016/j.jenvman.2016.06.028 | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Aproximación experimental aprobada de NH₃ para el residuo húmedo de entrada a A2; extrapolación con limitaciones de transferibilidad. | Resuelto |
 | Fracción lixiviada efectiva | Supuesto del modelo | Vargas Sarmiento (2023) y observación directa del investigador | `tabla_05_factores_emision_y_caracterizacion.csv`; apéndices de factores de ambos Word | Supuesto explícito del modelo; no se presenta como factor bibliográfico. | Resuelto |
 
 ## Protección de resultados y del documento maestro
 
-- Los resultados se regeneraron de forma reproducible después de promover el ledger secuencial de N total y TAN.
+- Los resultados se regeneraron de forma reproducible después de promover el balance secuencial de N total y TAN.
 - El documento maestro protegido no fue modificado: Sí.
 - Hash SHA-256 del documento maestro: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.

@@ -28,7 +28,9 @@ def get_reference_docx_path(project_root: Path) -> Path:
     docx_files = sorted(
         path
         for path in reference_dir.rglob("*")
-        if path.is_file() and path.suffix.lower() == ".docx"
+        if path.is_file()
+        and path.suffix.lower() == ".docx"
+        and not path.name.startswith("~$")
     )
     if len(docx_files) != 1:
         names = ", ".join(path.name for path in docx_files) or "ninguno"

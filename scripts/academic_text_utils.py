@@ -114,6 +114,8 @@ def clean_chemical_notation(value: object) -> str:
     """Normaliza fórmulas químicas visibles sin alterar identificadores mayores."""
     text = str(value)
     replacements = (
+        (r"(?<![\w₀-₉])kg\s*CO2(?![\w₀-₉])", "kg CO₂"),
+        (r"(?<![\w₀-₉])g\s*PO4(?:-?3|\^3-)(?![\w₀-₉])", "g PO₄³⁻"),
         (r"(?<![\w₀-₉])PO4-eq(?![\w₀-₉])", "PO₄-eq"),
         (r"(?<![\w₀-₉])CO2-eq(?![\w₀-₉])", "CO₂-eq"),
         (r"(?<![\w₀-₉])PO4(?:\^?3-|³-)(?![\w₀-₉])", "PO₄³⁻"),
@@ -126,6 +128,46 @@ def clean_chemical_notation(value: object) -> str:
         (r"(?<![\w₀-₉])NO3-?(?![\w₀-₉])", "NO₃⁻"),
         (r"(?<![\w₀-₉])CO2(?![\w₀-₉])", "CO₂"),
         (r"(?<![\w₀-₉])PO4(?![\w₀-₉])", "PO₄³⁻"),
+        (r"(?<![\w])(?-i:m2)(?![\w])", "m²"),
+        (r"(?<![\w])(?-i:m3)(?![\w])", "m³"),
+    )
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    return text
+
+
+def clean_avoidable_anglicisms(value: object) -> str:
+    """Sustituye vocabulario común evitable, no identificadores ni rutas."""
+    text = str(value)
+    replacements = (
+        (r"\bQA/QC\b", "aseguramiento y control de la calidad"),
+        (r"\blos proxies sólidos EMEP/EEA aprobados provisionalmente\b", "las aproximaciones para sólidos de EMEP/EEA aprobadas provisionalmente"),
+        (r"\bproxies sólidos EMEP/EEA aprobados provisionalmente\b", "aproximaciones para sólidos de EMEP/EEA aprobadas provisionalmente"),
+        (r"\bproxies metodológicos aprobados provisionalmente\b", "aproximaciones metodológicas aprobadas provisionalmente"),
+        (r"\bproxy metodológico aprobado provisionalmente\b", "aproximación metodológica aprobada provisionalmente"),
+        (r"\bproxy experimental aprobado\b", "aproximación experimental aprobada"),
+        (r"\bproxy IPCC conservador\b", "aproximación conservadora del IPCC"),
+        (r"\bproxy metodológico\b", "aproximación metodológica"),
+        (r"\bproxy experimental\b", "aproximación experimental"),
+        (r"\bproxy temporal\b", "aproximación temporal"),
+        (r"\bproxy sectorial\b", "factor sustitutivo sectorial"),
+        (r"\bbenchmarks\b", "referencias de contraste"),
+        (r"\bbenchmark\b", "referencia de contraste"),
+        (r"\bledger\b", "balance secuencial"),
+        (r"\bsubpools\b", "subreservas"),
+        (r"\bsubpool\b", "subreserva"),
+        (r"\bpools\b", "reservas"),
+        (r"\bpool\b", "reserva"),
+        (r"\bdefaults\b", "valores por defecto"),
+        (r"\bdefault\b", "valor por defecto"),
+        (r"\bpipeline\b", "secuencia de procesamiento"),
+        (r"\blos proxies\b", "las aproximaciones"),
+        (r"\bdel proxy\b", "de la aproximación"),
+        (r"\bel proxy\b", "la aproximación"),
+        (r"\bun proxy\b", "una aproximación"),
+        (r"\bproxies\b", "aproximaciones"),
+        (r"\bproxy\b", "aproximación"),
+        (r"\bQA\b", "aseguramiento de la calidad"),
     )
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
@@ -133,7 +175,7 @@ def clean_chemical_notation(value: object) -> str:
 
 
 def clean_academic_label(value: object) -> str:
-    text = clean_annual_units(repair_mojibake(str(value)))
+    text = clean_avoidable_anglicisms(clean_annual_units(repair_mojibake(str(value))))
     for internal, academic in sorted(
         ACADEMIC_LABELS.items(), key=lambda item: len(item[0]), reverse=True
     ):

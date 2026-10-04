@@ -40,6 +40,19 @@ STYLE_SEQUENCE = [
     {"color": "#d9d9d9", "hatch": "xxx"},
 ]
 
+STAGE_FIGURES = (
+    "fig_04_flujos_masa_equivalente_total",
+    "fig_05_flujos_distribucion_componentes",
+    "fig_06_emisiones_ch4",
+    "fig_07_emisiones_n2o",
+    "fig_08_emisiones_nh3",
+    "fig_09_emisiones_no3",
+    "fig_10_emisiones_co2",
+    "fig_11_impactos_cambio_climatico_etapa",
+    "fig_12_impactos_eutrofizacion_terrestre_etapa",
+    "fig_13_impactos_eutrofizacion_marina_etapa",
+)
+
 
 def read_table(name: str) -> pd.DataFrame:
     return pd.read_csv(TABLE_DIR / TABLES[name])
@@ -62,15 +75,8 @@ def clean_label(value: object, width: int = 24) -> str:
 
 
 def stage_axis_label(row: pd.Series) -> str:
-    code = f"{row['escenario']}{int(row['etapa'])}"
-    name = str(row["nombre_etapa"])
-    expected_prefix = f"Etapa {int(row['etapa'])}: "
-    if name.startswith(expected_prefix):
-        name = name[len(expected_prefix):]
-    name = name.replace("Aplicación de aguas verdes en campos de pastoreo", "Aplicación de aguas verdes\nen campos de pastoreo")
-    name = name.replace("Aplicación de purines en campo de pastoreo", "Aplicación de purines\nen campo de pastoreo")
-    name = name.replace("Almacenamiento de purines", "Almacenamiento\nde purines")
-    return f"{code}:\n{name}"
+    """Devuelve la clave editorial breve para ejes que representan etapas."""
+    return f"{row['escenario']}{int(row['etapa'])}"
 
 
 def formatted_labels(values, width: int) -> list[str]:
@@ -515,21 +521,43 @@ def plot_scenario_comparison(readme: list[dict[str, str]]) -> None:
 
 def write_readme(rows: list[dict[str, str]]) -> None:
     lines = [
-        "# Graficos finales para tesis",
+        "# Gráficos finales para tesis",
         "",
-        "Todos los graficos fueron generados exclusivamente a partir de las tablas finales validadas en `outputs/tablas_tesis/` indicadas en cada registro.",
-        "Las imagenes no incluyen titulos internos; el titulo formal se incorpora como caption en los documentos Word.",
+        "Todos los gráficos fueron generados exclusivamente a partir de las tablas finales validadas en `outputs/tablas_tesis/` indicadas en cada registro.",
+        "Las imágenes no incluyen títulos internos; el título formal se incorpora como caption en los documentos Word.",
+        "Los gráficos 04–13 que representan etapas utilizan únicamente las claves A1–A4 y B1–B2 en sus ejes; los nombres completos permanecen en la Tabla 1 y en la prosa académica.",
         "",
-        "| Archivo | Tabla fuente | Que muestra | Seccion recomendada | Apendice relacionado |",
+        "| Archivo | Tabla fuente | Qué muestra | Sección recomendada | Apéndice relacionado |",
         "|---|---|---|---|---|",
     ]
     for row in rows:
         png = f"{row['archivo']}.png"
         svg = f"{row['archivo']}.svg"
         lines.append(
-            f"| `{png}` / `{svg}` | `{row['tabla']}` | {row['muestra']} | {row['seccion']} | {row['apendice']} |"
+            f"| `{png}` / `{svg}` | `{row['tabla']}` | {clean_academic_label(row['muestra'])} | "
+            f"{clean_academic_label(row['seccion'])} | {clean_academic_label(row['apendice'])} |"
         )
     (OUT_DIR / "README_GRAFICOS.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def validate_stage_labels() -> None:
+    long_labels = (
+        "Precomposteo",
+        "Lombricompostaje",
+        "Almacenamiento de aguas verdes",
+        "Aplicación de aguas verdes",
+        "Almacenamiento de purines",
+        "Aplicación de purines",
+    )
+    failures = []
+    for name in STAGE_FIGURES:
+        svg = (OUT_DIR / f"{name}.svg").read_text(encoding="utf-8")
+        if not any(f">{code}<" in svg for code in ("A1", "A2", "A3", "A4", "B1", "B2")):
+            failures.append(f"{name}: no contiene claves breves")
+        if any(label in svg for label in long_labels):
+            failures.append(f"{name}: conserva nombres largos en el eje")
+    if failures:
+        raise RuntimeError(f"Falló la validación de etiquetas breves: {failures}")
 
 
 def main(output_dir: Path | None = None, table_dir: Path | None = None) -> None:
@@ -560,6 +588,7 @@ def main(output_dir: Path | None = None, table_dir: Path | None = None) -> None:
         plot_emissions(readme_rows)
         plot_impacts_by_stage(readme_rows)
         plot_scenario_comparison(readme_rows)
+        validate_stage_labels()
         write_readme(readme_rows)
     finally:
         OUT_DIR = original_output_dir

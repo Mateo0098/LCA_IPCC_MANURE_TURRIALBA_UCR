@@ -29,6 +29,8 @@ import generate_conclusions_docx as conclusions_source  # noqa: E402
 import generate_methodology_docx as methodology_source  # noqa: E402
 import generate_results_docx as results_source  # noqa: E402
 from academic_text_utils import clean_academic_label  # noqa: E402
+from academic_acronyms import acronym_by_code, used_acronyms  # noqa: E402
+from academic_word_math import add_word_equation  # noqa: E402
 from master_word_format import (  # noqa: E402
     add_master_caption,
     apply_master_format,
@@ -156,7 +158,24 @@ def add_text(document: Document, paragraphs: list[str]) -> None:
 
 
 def add_master_paragraphs(document: Document, master: Document, indexes: range | list[int]) -> None:
-    values = [master.paragraphs[index].text.strip() for index in indexes]
+    values = []
+    for index in indexes:
+        value = master.paragraphs[index].text.strip()
+        if index == 31:
+            value = value.replace("IMN, 2021", "Instituto Meteorológico Nacional (IMN), 2021", 1)
+        elif index == 52:
+            value = value.replace("(NRCS, 2009)", "(NRCS, por sus siglas en inglés; 2009)")
+            value = value.replace("(USDA)", "(USDA, por sus siglas en inglés)")
+        elif index == 64:
+            value = value.replace("(ISO)", "(ISO, por sus siglas en inglés)", 1)
+        elif index == 74:
+            value = value.replace(
+                "Directrices del IPCC",
+                "Directrices del Grupo Intergubernamental de Expertos sobre el Cambio Climático "
+                "(IPCC, por sus siglas en inglés)",
+                1,
+            )
+        values.append(value)
     add_text(document, [value for value in values if value])
 
 
@@ -247,16 +266,13 @@ def add_figure(
 def add_equation(
     document: Document,
     counters: EditorialCounters,
-    equation: str,
+    equation_latex: str,
     definition: str | None = None,
 ) -> int:
     counters.equation += 1
-    paragraph = document.add_paragraph()
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = paragraph.add_run(f"{equation}    ({counters.equation})")
-    run.font.name = "Cambria Math"
     if definition:
-        document.add_paragraph(definition, style="Normal")
+        document.add_paragraph(clean_academic_label(definition), style="Normal")
+    add_word_equation(document, equation_latex, number=counters.equation)
     return counters.equation
 
 
@@ -332,7 +348,10 @@ def generate_system_boundary_figure() -> None:
     arrow(ax, (0.765, 0.16), (0.765, 0.21))
     ax.text(0.235, 0.13, "Lombricompost", ha="center", va="center", fontsize=7.5)
     arrow(ax, (0.235, 0.21), (0.235, 0.16))
-    ax.text(0.50, 0.085, "Las emisiones de manejo se cuantifican en cada etapa.", ha="center", va="center", fontsize=7.5)
+    arrow(ax, (0.36, 0.54), (0.45, 0.54), text="Emisiones", text_offset=(0.0, 0.035), style="--")
+    arrow(ax, (0.36, 0.26), (0.45, 0.26), text="Emisiones", text_offset=(0.0, 0.035), style="--")
+    arrow(ax, (0.64, 0.54), (0.55, 0.54), text="Emisiones", text_offset=(0.0, 0.035), style="--")
+    arrow(ax, (0.64, 0.26), (0.55, 0.26), text="Emisiones", text_offset=(0.0, 0.035), style="--")
 
     ax = axes[1]
     prepare_axis(ax, "Escenario B: almacenamiento y aplicación de purines")
@@ -421,7 +440,27 @@ def sensitivity_summary() -> tuple[pd.DataFrame, float]:
     return table, maximum
 
 
-def add_title_page(document: Document, profile) -> None:
+def committee_from_master(master: Document) -> list[tuple[str, str]]:
+    director = master_text(master, 10)
+    director_role = master_text(master, 11)
+    members_line = master_text(master, 16)
+    parts = [part.strip() for part in members_line.split("\t") if part.strip()]
+    if len(parts) != 3 or "Miembro, Comité Asesor" not in members_line:
+        raise RuntimeError("La estructura del comité asesor cambió en el MASTER.")
+    first_member = parts[0]
+    second_member = parts[1].removesuffix(" Miembro, Comité Asesor").strip()
+    member_role = parts[2]
+    committee = [
+        (director, director_role),
+        (first_member, member_role),
+        (second_member, "Miembro, Comité Asesor"),
+    ]
+    if any(not name or "Comité Asesor" not in role for name, role in committee):
+        raise RuntimeError("No fue posible extraer el comité asesor completo del MASTER.")
+    return committee
+
+
+def add_title_page(document: Document, profile, master: Document) -> None:
     centered = document.styles.add_style("Portada centrada", WD_STYLE_TYPE.PARAGRAPH)
     centered.base_style = document.styles["Normal"]
     centered.font.name = profile.font_name
@@ -429,6 +468,7 @@ def add_title_page(document: Document, profile) -> None:
     centered.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
     centered.paragraph_format.left_indent = Pt(0)
     centered.paragraph_format.first_line_indent = Pt(0)
+    centered.paragraph_format.space_after = Pt(8)
 
     title_style = document.styles.add_style("Título integral", WD_STYLE_TYPE.PARAGRAPH)
     title_style.base_style = centered
@@ -436,6 +476,8 @@ def add_title_page(document: Document, profile) -> None:
     title_style.font.size = Pt(profile.title_size_pt)
     title_style.font.italic = True
     title_style.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_style.paragraph_format.space_before = Pt(24)
+    title_style.paragraph_format.space_after = Pt(24)
 
     title_lines = [
         "Universidad de Costa Rica",
@@ -445,40 +487,65 @@ def add_title_page(document: Document, profile) -> None:
     for line in title_lines:
         paragraph = document.add_paragraph(style="Portada centrada")
         paragraph.add_run(line).bold = True
-    document.add_paragraph("")
     document.add_paragraph(
         "Análisis de ciclo de vida de los desechos bovinos, sólidos y líquidos "
         "producidos en una lechería especializada en Turrialba, Costa Rica",
         style="Título integral",
     )
-    document.add_paragraph("")
     author = document.add_paragraph(style="Portada centrada")
     author.add_run("Mateo Cerdas Barboza\nCarné B71946")
-    document.add_paragraph("")
+    author.paragraph_format.space_after = Pt(18)
+    for name, role in committee_from_master(master):
+        committee_paragraph = document.add_paragraph(style="Portada centrada")
+        committee_paragraph.add_run(name).bold = True
+        committee_paragraph.add_run(f"\n{role}")
+        committee_paragraph.paragraph_format.space_after = Pt(8)
     status = document.add_paragraph(style="Portada centrada")
     run = status.add_run(PROVISIONAL_LABEL)
     run.bold = True
+    status.paragraph_format.space_before = Pt(18)
     note = document.add_paragraph(style="Portada centrada")
     note.add_run(
         "Documento integral de trabajo para revisión académica. La jornada M3 permanece pendiente."
     ).italic = True
     date = document.add_paragraph(style="Portada centrada")
     date.add_run("Turrialba, Costa Rica\nSeptiembre de 2026")
+    date.paragraph_format.space_before = Pt(18)
 
 
-def add_preliminaries(document: Document) -> None:
+def add_preliminaries(document: Document):
     document.add_page_break()
     document.add_heading("Estado del documento", level=1)
     add_text(
         document,
         [
-            "Este documento integra la propuesta académica original con la metodología ejecutada y los productos regenerables de la corrida vigente. Los resultados, la discusión y las conclusiones corresponden a la integración PROVISIONAL M1–M2. La incorporación de M3 actualizará la caracterización y puede modificar las magnitudes, comparaciones e interpretaciones presentadas.",
+            "Este trabajo final de graduación (TFG) integra la propuesta académica original con la metodología ejecutada y los productos regenerables de la corrida vigente. Los resultados, la discusión y las conclusiones corresponden a la integración PROVISIONAL M1–M2. La incorporación de M3 actualizará la caracterización y puede modificar las magnitudes, comparaciones e interpretaciones presentadas.",
             "El documento maestro aprobado se conserva como fuente protegida de continuidad académica y formato. La presente versión establece una ruta editorial única hacia el TFG final sin alterar ese documento original.",
         ],
     )
     document.add_heading("Contenido", level=1)
     for heading in EXPECTED_HEADINGS:
         document.add_paragraph(heading, style="Normal")
+    marker = document.add_paragraph("__LISTA_SIGLAS__")
+    marker.paragraph_format.page_break_before = True
+    return marker
+
+
+def populate_acronym_list(document: Document, marker) -> list[str]:
+    body_text = all_document_text(document).replace("__LISTA_SIGLAS__", "")
+    entries = used_acronyms(body_text)
+    marker.text = "Lista de siglas y abreviaturas"
+    marker.style = document.styles["Heading 1"]
+    anchor = marker._p
+    for entry in entries:
+        paragraph = document.add_paragraph(style="Normal")
+        paragraph.paragraph_format.left_indent = Inches(0.35)
+        paragraph.paragraph_format.first_line_indent = Inches(-0.35)
+        paragraph.add_run(entry.code).bold = True
+        paragraph.add_run(f" — {entry.list_definition}")
+        anchor.addnext(paragraph._p)
+        anchor = paragraph._p
+    return [entry.code for entry in entries]
 
 
 def build_document() -> tuple[int, int, int, int]:
@@ -495,8 +562,8 @@ def build_document() -> tuple[int, int, int, int]:
         header.text = PROVISIONAL_LABEL
         header.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    add_title_page(document, profile)
-    add_preliminaries(document)
+    add_title_page(document, profile, master)
+    acronym_marker = add_preliminaries(document)
 
     add_chapter(document, "1. Introducción")
     document.add_heading("1.1 Justificación", level=2)
@@ -512,7 +579,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "El estudio aplicó el ACV a dos alternativas del manejo de estiércol en la lechería: el Escenario A, que integra la ruta sólida de precomposteo y lombricompostaje con la ruta de aguas verdes, y el Escenario B, que representa el almacenamiento y la aplicación directa de purines. La evaluación abarcó cambio climático, eutrofización terrestre y eutrofización marina. En esta etapa documental, la evidencia disponible integra M1 y M2 y mantiene pendiente M3.",
+            "El estudio aplicó el análisis de ciclo de vida (ACV) a dos alternativas del manejo de estiércol en la lechería: el Escenario A, que integra la ruta sólida de precomposteo y lombricompostaje con la ruta de aguas verdes, y el Escenario B, que representa el almacenamiento y la aplicación directa de purines. La evaluación abarcó cambio climático, eutrofización terrestre y eutrofización marina. En esta etapa documental, la evidencia disponible integra M1 y M2 y mantiene pendiente M3.",
         ],
     )
 
@@ -560,25 +627,33 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "La meta fue comparar el desempeño ambiental de dos alternativas de manejo bajo una misma unidad funcional de 1 kg de estiércol fresco manejado. Los flujos y emisiones anuales describen la escala operacional; los indicadores por kilogramo corresponden a la normalización respecto a la unidad funcional.",
             f"El flujo anual común fue {results_source.fmt(methodology_context['flujo_referencia'], 6)} kg de estiércol fresco/año. En el Escenario A, la fracción sólida ingresó a A1: Precomposteo y continuó hacia A2: Lombricompostaje; el remanente se incorporó a A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo. En el Escenario B, el flujo completo ingresó a B1: Almacenamiento de purines y continuó hacia B2: Aplicación de purines en campo de pastoreo.",
-            "El Escenario B no fue la operación habitual permanente ni una alternativa puramente hipotética. Para materializarlo temporalmente se suspendió la desviación normal del sólido hacia precomposteo y lombricompostaje, el estiércol paleado se dirigió a la tanqueta y el remanente del piso se incorporó mediante lavado. Los purines resultantes fueron acumulados, observados y muestreados físicamente. Las campañas A y B se realizaron en momentos distintos con la misma tanqueta y no implicaron la coexistencia de ambos contenidos. B1 representa el almacenamiento y B2 la aplicación con el mismo conjunto tractor–cañón utilizado para A4.",
+            "El Escenario B no fue la operación habitual permanente ni una alternativa puramente hipotética. Para materializarlo temporalmente se suspendió la desviación normal del sólido hacia precomposteo y lombricompostaje, el estiércol paleado se dirigió a la tanqueta y el remanente del piso se incorporó mediante lavado. Los purines resultantes fueron acumulados, observados y muestreados físicamente. Los escenarios A y B se materializaron en momentos distintos con la misma tanqueta y no implicaron la coexistencia de ambos contenidos. B1 representa el almacenamiento y B2 la aplicación con el mismo conjunto tractor–cañón utilizado para A4.",
             "A1 duró aproximadamente entre 21 días y cerca de un mes, por lo que se representa como tres a cuatro semanas sin tratar 28 días como una medición exacta. A2 comenzó después de A1, cuando el material precompostado ingresó a las camas, y su operación regular duró aproximadamente 13 semanas. Vargas Sarmiento (2023, sección 5.2.2.1, p. 14; sección 6.1.3, p. 25) documentó en el mismo lombricario 13 semanas desde la siembra de las lombrices y para procesar toda la boñiga. Estas duraciones son contextuales y no escalan factores. El presente TFG no muestreó lombricompost terminado; las muestras correspondieron a material precompostado previo a A2.",
         ],
     )
     generate_system_boundary_figure()
-    boundary_figure = add_figure(
-        document,
-        counters,
-        SYSTEM_BOUNDARY_PNG,
-        "Fronteras y conexiones físicas de los escenarios evaluados.",
-    )
+    boundary_figure = counters.figure + 1
     add_text(
         document,
         [
             f"La Figura {boundary_figure} reconstruye los diagramas conceptuales de la propuesta con la nomenclatura y las conexiones vigentes. En el Escenario A, la fracción paleada y la fracción remanente siguen rutas físicamente separadas; en el Escenario B, el flujo común completo continúa por almacenamiento y aplicación. Los consumos de electricidad y diésel se asignan a las etapas operativas correspondientes.",
         ],
     )
+    boundary_figure = add_figure(
+        document,
+        counters,
+        SYSTEM_BOUNDARY_PNG,
+        "Fronteras y conexiones físicas de los escenarios evaluados.",
+    )
     stage_table = methodology_source.stage_summary().drop(
         columns=["Modelo de estimación"], errors="ignore"
+    )
+    table_1 = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {table_1} presenta la jerarquía de etapas utilizada en todo el documento integral. En los gráficos por etapa se emplean las claves A1–A4 y B1–B2 definidas en esta tabla.",
+        ],
     )
     table_1 = add_dataframe(
         document,
@@ -588,14 +663,13 @@ def build_document() -> tuple[int, int, int, int]:
         stage_table,
         decimals=2,
     )
-    add_text(document, [f"La Tabla {table_1} presenta la jerarquía de etapas utilizada en todo el documento integral."])
 
     document.add_heading("4.3 Muestreo e integración temporal", level=2)
     add_text(
         document,
         [
             "La jerarquía estadística fue réplica analítica, muestra compuesta, promedio de jornada e integración entre jornadas. Las réplicas analíticas no se trataron como observaciones temporales independientes y las jornadas recibieron igual peso temporal.",
-            "En M1 se analizaron, por cada sólido, dos muestras compuestas en Bioenergía y otras dos muestras compuestas físicamente independientes en el laboratorio externo: LASA para estiércol fresco y CIA para precompostado. En M2 se conservaron tres muestras compuestas por sólido; Bioenergía realizó tres réplicas gravimétricas por muestra y el remanente de esas mismas muestras fue analizado por LASA o CIA.",
+            "En M1 se analizaron, por cada sólido, dos muestras compuestas en Bioenergía y otras dos muestras compuestas físicamente independientes en el laboratorio externo: los Laboratorios de Servicios Analíticos de la Escuela de Química (LASA), UCR, para estiércol fresco y el Laboratorio de Suelos y Foliares de la Ciudad de la Investigación (CIA) para precompostado. En M2 se conservaron tres muestras compuestas por sólido; Bioenergía realizó tres réplicas gravimétricas por muestra y el remanente de esas mismas muestras fue analizado por LASA o CIA.",
             "Bioenergía determinó humedad y materia seca por gravimetría a 105 °C durante 16 h. El CIA determinó N y C del precompostado por Dumas sobre muestra seca o acondicionada a 80 °C durante 48 h. El porcentaje de N se combinó con la materia seca independiente de Bioenergía para construir el benchmark húmedo de A2; C y C/N permanecieron como caracterización descriptiva, sin conversión húmeda ni uso productivo.",
             "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2. En aguas verdes y purines, M1 correspondió a especiación y se conservó para trazabilidad; el N total líquido activo procedió de M2 mediante Kjeldahl. M3 permanece pendiente y se incorporará mediante el mismo pipeline para producir la caracterización final.",
             "La transformación de estiércol fresco a precompostado se calculó primero por jornada mediante materia seca y cenizas de ambos materiales; posteriormente se integraron los factores de jornada con igual peso temporal. La pérdida integrada se derivó del factor integrado.",
@@ -603,6 +677,8 @@ def build_document() -> tuple[int, int, int, int]:
         ],
     )
     characterization = results_source.characterization_summary()
+    table_2 = counters.table + 1
+    add_text(document, [f"La Tabla {table_2} resume los datos experimentales promovidos a la corrida provisional."])
     table_2 = add_dataframe(
         document,
         profile,
@@ -611,15 +687,14 @@ def build_document() -> tuple[int, int, int, int]:
         characterization,
         decimals=3,
     )
-    add_text(document, [f"La Tabla {table_2} resume los datos experimentales promovidos a la corrida provisional."])
 
     document.add_heading("4.4 Balance secuencial de nitrógeno y estimación de emisiones", level=2)
     add_text(
         document,
         [
-            "El N total constituyó el balance físico principal y el nitrógeno amoniacal total un subbalance sujeto a 0 ≤ TAN ≤ N total. TAN se inicializó como 0,60 del N total únicamente en las fronteras de estiércol fresco y ambos componentes se propagaron entre etapas físicamente conectadas.",
+            "El N total constituyó el balance físico principal y el nitrógeno amoniacal total (TAN, por sus siglas en inglés) una reserva subordinada sujeta a 0 ≤ TAN ≤ N total. El TAN se inicializó como 0,60 del N total únicamente en las fronteras de estiércol fresco y ambos componentes se propagaron entre etapas físicamente conectadas.",
             "En particular, A2 recibió el N total y el TAN remanentes de A1. La medición de N del precompostado se mantuvo como benchmark experimental y no reinicializó estos flujos productivos.",
-            "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por EMEP/EEA redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
+            "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por la guía conjunta del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP, por sus siglas en inglés) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés) redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
             "El ledger fue secuencial: A2 recibió el N total y el pool residual de TAN a la salida de A1. Por ello, aplicar factores en ambas etapas no duplicó matemáticamente los pools originales. FracGasMS permaneció exclusivamente como benchmark y no generó otra volatilización ni alimentó EF4. Las duraciones específicas introducen incertidumbre de representatividad temporal y de transferencia de los proxies, pero no justifican escalado lineal de los factores.",
             "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como proxy para CH₄ y N₂O directo; Komakech et al. (2016), como proxy experimental aprobado para NH₃; y EMEP/EEA de almacenamiento sólido, como proxy metodológico aprobado provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
         ],
@@ -628,38 +703,38 @@ def build_document() -> tuple[int, int, int, int]:
     add_equation(
         document,
         counters,
-        "m_CH₄ = m_manejada × VS_húmeda × B₀ × ρ_CH₄ × (MCF/100) × AWMS",
-        "m_CH₄ es la emisión de metano de la etapa; m_manejada es la masa húmeda manejada; VS_húmeda es la fracción de sólidos volátiles en base húmeda; B₀ es la capacidad máxima de producción de metano; ρ_CH₄ es el factor IPCC de conversión de volumen a masa, 0,67 kg CH₄/m³; MCF es el factor de conversión de metano y AWMS es la fracción de la corriente ya asignada que se maneja mediante el sistema seleccionado.",
+        r"m_{\mathrm{CH_4}} = m_{\mathrm{manejada}} \times VS_{\mathrm{húmeda}} \times B_0 \times \rho_{\mathrm{CH_4}} \times \left(\frac{MCF}{100}\right) \times AWMS",
+        "En la ecuación, m_CH₄ es la emisión de metano de la etapa; m_manejada es la masa húmeda manejada; VS_húmeda es la fracción de sólidos volátiles (SV) en base húmeda; B₀ es la capacidad máxima de producción de metano; ρ_CH₄ es el factor IPCC de conversión de volumen a masa, 0,67 kg CH₄/m³; MCF es el factor de conversión de metano (MCF, por sus siglas en inglés) y AWMS representa la fracción asignada al sistema de manejo de desechos animales (AWMS, por sus siglas en inglés).",
     )
     document.add_heading("4.4.2 Balance secuencial de N total y TAN", level=3)
     add_equation(
         document,
         counters,
-        "TAN_fresco = 0,60 × N_total,fresco",
+        r"TAN_{\mathrm{fresco}} = 0{,}60 \times N_{\mathrm{total,fresco}}",
         "TAN_fresco es el nitrógeno amoniacal total en la frontera fresca y N_total,fresco es el nitrógeno total del estiércol fresco.",
     )
     add_equation(
         document,
         counters,
-        "TAN_disponible = TAN_entrada + N_mineralizado",
+        r"TAN_{\mathrm{disponible}} = TAN_{\mathrm{entrada}} + N_{\mathrm{mineralizado}}",
         "La mineralización se aplica donde corresponde antes de estimar las pérdidas EMEP/EEA sobre el TAN disponible.",
     )
     add_equation(
         document,
         counters,
-        "N_j = TAN_disponible × f_j,  j ∈ {NH₃-N, NO-N, N₂-N}",
+        r"N_j = TAN_{\mathrm{disponible}} \times f_j,\quad j \in \{\mathrm{NH_3-N},\,\mathrm{NO-N},\,\mathrm{N_2-N}\}",
         "La expresión resume las rutas parametrizadas con factores EMEP/EEA. En A2, la masa de NH₃ se estima una sola vez con el proxy experimental aprobado de Komakech et al. (2016), aplicado a la masa húmeda inferida de residuo orgánico que ingresa a la etapa, mientras NO-N y N₂-N conservan los proxies sólidos EMEP/EEA aprobados provisionalmente.",
     )
-    add_equation(document, counters, "N_N₂O–N,directo = N_total,entrada × EF₃")
-    add_equation(document, counters, "m_N₂O,directo = N_N₂O–N,directo × 44/28")
+    add_equation(document, counters, r"N_{\mathrm{N_2O-N,directo}} = N_{\mathrm{total,entrada}} \times EF_3")
+    add_equation(document, counters, r"m_{\mathrm{N_2O,directo}} = N_{\mathrm{N_2O-N,directo}} \times \frac{44}{28}")
     add_equation(
         document,
         counters,
-        "N_total,salida = N_total,entrada − N_NH₃ − N_NOx − N_N₂ − N_N₂O–N,directo − N_pérdida,hídrica",
+        r"N_{\mathrm{total,salida}} = N_{\mathrm{total,entrada}} - N_{\mathrm{NH_3}} - N_{\mathrm{NO_x}} - N_{\mathrm{N_2}} - N_{\mathrm{N_2O-N,directo}} - N_{\mathrm{pérdida,hídrica}}",
         "Esta identidad expresa el cierre secuencial de N total en las etapas de manejo; cada pérdida física se descuenta una sola vez.",
     )
-    add_equation(document, counters, "N_precursor,vol = N_NH₃ + N_NOx")
-    add_equation(document, counters, "m_N₂O,ind,vol = N_precursor,vol × EF₄ × 44/28")
+    add_equation(document, counters, r"N_{\mathrm{precursor,vol}} = N_{\mathrm{NH_3}} + N_{\mathrm{NO_x}}")
+    add_equation(document, counters, r"m_{\mathrm{N_2O,ind,vol}} = N_{\mathrm{precursor,vol}} \times EF_4 \times \frac{44}{28}")
     document.add_heading("4.4.3 Rutas de N hacia el suelo y aplicación", level=3)
     add_text(
         document,
@@ -670,24 +745,24 @@ def build_document() -> tuple[int, int, int, int]:
     add_equation(
         document,
         counters,
-        "N_drenaje,A1 = N_total,A1 × FracLeachMS_A1",
+        r"N_{\mathrm{drenaje,A1}} = N_{\mathrm{total,A1}} \times FracLeachMS_{\mathrm{A1}}",
         "El drenaje de A1 se trata como entrada de N al suelo y no como una masa de NO₃⁻ directa.",
     )
     add_equation(
         document,
         counters,
-        "N_NH₃,aplic = TAN_aplicado × f_NH₃;  N_NOx,aplic = (N_aplicado × f_NO₂) × 14/46",
+        r"N_{\mathrm{NH_3,aplic}} = TAN_{\mathrm{aplicado}} \times f_{\mathrm{NH_3}};\quad N_{\mathrm{NO_x,aplic}} = \left(N_{\mathrm{aplicado}} \times f_{\mathrm{NO_2}}\right) \times \frac{14}{46}",
     )
-    add_equation(document, counters, "m_N₂O,directo,suelo = N_aplicado × EF₁ × 44/28")
-    add_equation(document, counters, "N_lix,esc = N_entrada,suelo × FracLEACH_suelo")
-    add_equation(document, counters, "m_NO₃⁻ = N_lix,esc × 62/14")
-    add_equation(document, counters, "m_N₂O,ind,lix = N_lix,esc × EF₅ × 44/28")
+    add_equation(document, counters, r"m_{\mathrm{N_2O,directo,suelo}} = N_{\mathrm{aplicado}} \times EF_1 \times \frac{44}{28}")
+    add_equation(document, counters, r"N_{\mathrm{lix,esc}} = N_{\mathrm{entrada,suelo}} \times FracLEACH_{\mathrm{suelo}}")
+    add_equation(document, counters, r"m_{\mathrm{NO_3^-}} = N_{\mathrm{lix,esc}} \times \frac{62}{14}")
+    add_equation(document, counters, r"m_{\mathrm{N_2O,ind,lix}} = N_{\mathrm{lix,esc}} \times EF_5 \times \frac{44}{28}")
 
     document.add_heading("4.5 Evaluación de impactos y consumos operativos", level=2)
     add_text(
         document,
         [
-            "Environmental Footprint 3.1 se aplicó a las emisiones directas. El cambio climático se expresó en kg CO₂-eq, la eutrofización terrestre en mol N-eq y la eutrofización marina en kg N-eq; las categorías se interpretaron por separado.",
+            "El método de Huella Ambiental 3.1 (EF 3.1, por sus siglas en inglés), desarrollado por la Comisión Europea y su Centro Común de Investigación (JRC, por sus siglas en inglés), se aplicó a las emisiones directas. El cambio climático se expresó en kg CO₂-eq, la eutrofización terrestre en mol N-eq y la eutrofización marina en kg N-eq; las categorías se interpretaron por separado.",
             "La electricidad de la bomba se evaluó con el factor agregado de consumo del IMN para 2025 como aproximación temporal del patrón observado en 2026. La combustión de diésel se representó mediante masas físicas de CO₂ fósil, CH₄ fósil y N₂O obtenidas con factores IMN y caracterizadas con EF 3.1. No se incorporaron cadenas completas de fondo.",
             "Los factores, la asignación de sistemas y los consumos operativos corresponden a las decisiones metodológicas vigentes. Esta integración documental no recalculó ni modificó el ACV.",
             "En A3/B1, el MCF de 38 % se mantuvo como proxy IPCC conservador de la categoría tabulada de un mes para clima tropical húmedo. No corresponde a una medición específica del MCF para la residencia operativa de tres días y no se escaló como 38 % × 3/30. La mineralización EMEP del 10 % tampoco se escaló por tres días. El tiempo físico de operación, el intervalo específico de preparación de las muestras y la duración tabulada del proxy metodológico se trataron como conceptos distintos.",
@@ -697,11 +772,19 @@ def build_document() -> tuple[int, int, int, int]:
     add_equation(
         document,
         counters,
-        "I_c = Σᵢ (m_i × CF_i,c)",
+        r"I_c = \sum_i \left(m_i \times CF_{i,c}\right)",
         "I_c es el indicador de la categoría c, m_i es la masa del flujo elemental i y CF_i,c es su factor de caracterización en esa categoría.",
     )
-    add_equation(document, counters, "CC_total = CC_manejo + CC_electricidad + CC_diésel")
+    add_equation(document, counters, r"CC_{\mathrm{total}} = CC_{\mathrm{manejo}} + CC_{\mathrm{electricidad}} + CC_{\mathrm{diésel}}")
     factor_table = methodology_source.characterization_factors()
+    table_3 = counters.table + 1
+    figure_1 = counters.figure + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {table_3} documenta los factores visibles principales y la Figura {figure_1} muestra la escala operacional de los flujos.",
+        ],
+    )
     table_3 = add_dataframe(
         document,
         profile,
@@ -715,12 +798,6 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "fig_04_flujos_masa_equivalente_total.png",
         "Masa equivalente total por etapa y escenario.",
-    )
-    add_text(
-        document,
-        [
-            f"La Tabla {table_3} documenta los factores visibles principales y la Figura {figure_1} muestra la escala operacional de los flujos.",
-        ],
     )
 
     document.add_heading("4.6 Supuestos, consistencia y limitaciones", level=2)
@@ -751,16 +828,25 @@ def build_document() -> tuple[int, int, int, int]:
             "La distribución de flujos mantuvo el mismo flujo anual de referencia para ambos escenarios. La ruta A separó la fracción sólida recolectada de la fracción incorporada a las aguas verdes; la ruta B condujo el flujo completo al almacenamiento y posterior aplicación de purines.",
         ],
     )
+    figure_2 = counters.figure + 1
+    add_text(document, [f"La Figura {figure_2} presenta la caracterización gravimétrica provisional."])
     figure_2 = add_figure(
         document,
         counters,
         "fig_01_caracterizacion_humedad_materia_seca.png",
         "Humedad y materia seca promedio por tipo de muestra.",
     )
-    add_text(document, [f"La Figura {figure_2} presenta la caracterización gravimétrica provisional."])
 
     document.add_heading("5.2 Emisiones estimadas", level=2)
     emissions = results_source.emissions_summary()
+    table_4 = counters.table + 1
+    figure_3 = counters.figure + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {table_4} resume las emisiones del manejo y la Figura {figure_3} muestra la distribución de CH₄. Las contribuciones operativas de electricidad y diésel se incorporaron en el indicador de cambio climático, manteniendo separada su trazabilidad.",
+        ],
+    )
     table_4 = add_dataframe(
         document,
         profile,
@@ -775,12 +861,6 @@ def build_document() -> tuple[int, int, int, int]:
         "fig_06_emisiones_ch4.png",
         "Emisiones anuales de CH₄ por etapa y escenario.",
     )
-    add_text(
-        document,
-        [
-            f"La Tabla {table_4} resume las emisiones del manejo y la Figura {figure_3} muestra la distribución de CH₄. Las contribuciones operativas de electricidad y diésel se incorporaron en el indicador de cambio climático, manteniendo separada su trazabilidad.",
-        ],
-    )
 
     document.add_heading("5.3 Impactos por etapa y por escenario", level=2)
     stage_impacts = results_source.impact_stage_summary()
@@ -791,6 +871,15 @@ def build_document() -> tuple[int, int, int, int]:
         )
         stage_impacts.insert(1, "Etapa del sistema", stage_codes + ": " + stage_names)
         stage_impacts = stage_impacts.drop(columns=["Etapa", "Nombre de etapa"])
+    table_5 = counters.table + 1
+    figure_4 = counters.figure + 1
+    figure_5 = counters.figure + 2
+    add_text(
+        document,
+        [
+            f"La Tabla {table_5} presenta los impactos por etapa. En el Escenario A, {result_context['cg_dominant_a_name']} aportó {results_source.fmt(result_context['cg_dominant_a_percentage'], 2)} % del cambio climático; en el Escenario B, {result_context['cg_dominant_b_name']} aportó {results_source.fmt(result_context['cg_dominant_b_percentage'], 2)} %. Las Figuras {figure_4} y {figure_5} muestran la distribución por etapa de cambio climático y eutrofización terrestre.",
+        ],
+    )
     table_5 = add_dataframe(
         document,
         profile,
@@ -811,15 +900,19 @@ def build_document() -> tuple[int, int, int, int]:
         "fig_12_impactos_eutrofizacion_terrestre_etapa.png",
         "Eutrofización terrestre EF 3.1 por etapa y escenario.",
     )
-    add_text(
-        document,
-        [
-            f"La Tabla {table_5} presenta los impactos por etapa. En el Escenario A, {result_context['cg_dominant_a_name']} aportó {results_source.fmt(result_context['cg_dominant_a_percentage'], 2)} % del cambio climático; en el Escenario B, {result_context['cg_dominant_b_name']} aportó {results_source.fmt(result_context['cg_dominant_b_percentage'], 2)} %. Las Figuras {figure_4} y {figure_5} muestran la distribución por etapa de cambio climático y eutrofización terrestre.",
-        ],
-    )
     document.add_page_break()
     document.add_heading("5.3.1 Resultados totales y comparación entre escenarios", level=3)
     totals = results_source.total_impact_summary()
+    table_6 = counters.table + 1
+    table_7 = counters.table + 2
+    table_8 = counters.table + 3
+    figure_6 = counters.figure + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {table_6} presenta la magnitud anual y la Tabla {table_7} muestra los indicadores por unidad funcional. La Tabla {table_8} y la Figura {figure_6} presentan la comparación entre escenarios bajo la misma base funcional.",
+        ],
+    )
     table_6 = add_dataframe(
         document,
         profile,
@@ -859,15 +952,16 @@ def build_document() -> tuple[int, int, int, int]:
         "fig_17_comparacion_diferencia_porcentual.png",
         "Diferencia porcentual del Escenario B respecto al Escenario A por categoría de impacto.",
     )
-    add_text(
-        document,
-        [
-            f"La Tabla {table_6} presenta la magnitud anual y la Tabla {table_7} muestra los indicadores por unidad funcional. La Tabla {table_8} y la Figura {figure_6} presentan la comparación entre escenarios bajo la misma base funcional.",
-        ],
-    )
 
     document.add_heading("5.4 Contraste bibliográfico de A2", level=2)
     benchmark = results_source.a2_benchmark_summary()
+    table_9 = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {table_9} contrasta las estimaciones oficiales de A2: Lombricompostaje con Jjagwe et al. (2019) sobre una base material armonizada. El contraste apoya la interpretación, pero no sustituye el inventario oficial ni constituye una validación formal del modelo.",
+        ],
+    )
     table_9 = add_dataframe(
         document,
         profile,
@@ -875,12 +969,6 @@ def build_document() -> tuple[int, int, int, int]:
         "Contraste bibliográfico de A2 sobre materia seca de entrada.",
         benchmark,
         decimals=6,
-    )
-    add_text(
-        document,
-        [
-            f"La Tabla {table_9} contrasta las estimaciones oficiales de A2: Lombricompostaje con Jjagwe et al. (2019) sobre una base material armonizada. El contraste apoya la interpretación, pero no sustituye el inventario oficial ni constituye una validación formal del modelo.",
-        ],
     )
 
     add_chapter(document, "6. Discusión provisional")
@@ -903,6 +991,15 @@ def build_document() -> tuple[int, int, int, int]:
     )
     document.add_heading("6.3 Sensibilidad y consistencia", level=2)
     sensitivity, maximum_change = sensitivity_summary()
+    table_10 = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La comprobación disponible para A2 varió el factor de N₂-N respecto al TAN entre 0 y 0,30. Frente al caso central de 0,30, el cambio máximo observado en el N total remanente equivalió a {results_source.fmt(maximum_change, 2)} % del N total de entrada. La Tabla {table_10} documenta esta comprobación de aseguramiento de la calidad; no constituye un análisis de sensibilidad completo de los impactos.",
+            "Los supuestos con mayor capacidad material de afectar la comparación son el MCF del almacenamiento líquido, la caracterización de materia seca, sólidos volátiles y N después de M3, la relación TAN/N inicial, los factores de A2, la duración y frecuencia de los consumos operativos y los factores asociados a la aplicación al suelo.",
+            "Después de M3 y antes de la interpretación final podrá evaluarse si una sensibilidad acotada de las aproximaciones de alta influencia, en particular N₂ de A2 y NH₃ de Komakech, aporta valor suficiente. Su ausencia no impide validar el modelo pre-M3. La consistencia continuará verificándose mediante cierre de balances, igualdad del flujo funcional e integridad temporal de la corrida.",
+        ],
+    )
     table_10 = add_dataframe(
         document,
         profile,
@@ -910,14 +1007,6 @@ def build_document() -> tuple[int, int, int, int]:
         "Comprobación existente de sensibilidad del factor de N₂ en A2.",
         sensitivity,
         decimals=4,
-    )
-    add_text(
-        document,
-        [
-            f"La comprobación disponible para A2 varió el factor de N₂-N respecto al TAN entre 0 y 0,30. Frente al caso central de 0,30, el cambio máximo observado en el N total remanente equivalió a {results_source.fmt(maximum_change, 2)} % del N total de entrada. La Tabla {table_10} documenta esta prueba de QA; no constituye un análisis de sensibilidad completo de los impactos.",
-            "Los supuestos con mayor capacidad material de afectar la comparación son el MCF del almacenamiento líquido, la caracterización de materia seca, sólidos volátiles y N después de M3, la relación TAN/N inicial, los factores de A2, la duración y frecuencia de los consumos operativos y los factores asociados a la aplicación al suelo.",
-            "Después de M3 y antes de la interpretación final podrá evaluarse si una sensibilidad acotada de los proxies de alta influencia, en particular N₂ de A2 y NH₃ de Komakech, aporta valor suficiente. Su ausencia no impide validar el modelo pre-M3. La consistencia continuará verificándose mediante cierre de balances, igualdad del flujo funcional e integridad temporal de la corrida.",
-        ],
     )
 
     add_chapter(document, "7. Conclusiones provisionales")
@@ -982,6 +1071,13 @@ def build_document() -> tuple[int, int, int, int]:
         ],
         columns=["Objetivo", "Respuesta metodológica", "Evidencia integrada", "Conclusión relacionada"],
     )
+    table_11 = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {table_11} muestra cómo la metodología, los resultados y las conclusiones provisionales responden a los objetivos invariantes del estudio.",
+        ],
+    )
     table_11 = add_dataframe(
         document,
         profile,
@@ -990,13 +1086,7 @@ def build_document() -> tuple[int, int, int, int]:
         traceability,
         decimals=2,
     )
-    add_text(
-        document,
-        [
-            f"La Tabla {table_11} muestra cómo la metodología, los resultados y las conclusiones provisionales responden a los objetivos invariantes del estudio.",
-        ],
-    )
-
+    populate_acronym_list(document, acronym_marker)
     finalize_document_format(document, profile)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     document.save(OUT_DOCX)
@@ -1007,6 +1097,73 @@ def all_document_text(document: Document) -> str:
     paragraphs = [paragraph.text for paragraph in document.paragraphs]
     cells = [cell.text for table in document.tables for row in table.rows for cell in row.cells]
     return "\n".join(paragraphs + cells)
+
+
+def body_elements(document: Document) -> list[dict[str, object]]:
+    elements: list[dict[str, object]] = []
+    for child in document.element.body.iterchildren():
+        text = "".join(node.text or "" for node in child.iter(qn("w:t"))).strip()
+        elements.append(
+            {
+                "tag": child.tag,
+                "text": text,
+                "image": any(True for _ in child.iter(qn("a:blip"))),
+                "math": any(True for _ in child.iter(qn("m:oMath"))),
+            }
+        )
+    return elements
+
+
+def acronym_list_state(document: Document) -> tuple[list[str], str]:
+    paragraphs = [paragraph.text.strip() for paragraph in document.paragraphs]
+    list_start = paragraphs.index("Lista de siglas y abreviaturas")
+    body_start = next(
+        index
+        for index, value in enumerate(paragraphs[list_start + 1 :], start=list_start + 1)
+        if value == "1. Introducción"
+    )
+    listed = [
+        text.split(" — ", 1)[0]
+        for text in paragraphs[list_start + 1 : body_start]
+        if " — " in text
+    ]
+    non_list = paragraphs[:list_start] + paragraphs[body_start:]
+    non_list.extend(
+        cell.text
+        for table in document.tables
+        for row in table.rows
+        for cell in row.cells
+    )
+    return listed, "\n".join(non_list)
+
+
+def validate_editorial_order(document: Document, tables: int, figures: int) -> bool:
+    elements = body_elements(document)
+    for label, count in (("Tabla", tables), ("Figura", figures)):
+        for number in range(1, count + 1):
+            pattern = re.compile(rf"\b{label}s?\b[^.!?]{{0,80}}\b{number}\b")
+            caption_index = next(
+                i
+                for i, element in enumerate(elements)
+                if str(element["text"]) == f"{label} {number}"
+            )
+            if not any(pattern.search(str(element["text"])) for element in elements[:caption_index]):
+                return False
+            if label == "Tabla":
+                if not any(element["tag"] == qn("w:tbl") for element in elements[caption_index + 1 :]):
+                    return False
+            elif not any(bool(element["image"]) for element in elements[caption_index + 1 :]):
+                return False
+
+    equation_indexes = [i for i, element in enumerate(elements) if bool(element["math"])]
+    if len(equation_indexes) != 17:
+        return False
+    for number in (1, 2, 3, 4, 7, 10):
+        index = equation_indexes[number - 1]
+        previous = elements[index - 1] if index else {}
+        if not str(previous.get("text", "")).strip() or bool(previous.get("math")):
+            return False
+    return True
 
 
 def validate_document(
@@ -1024,6 +1181,45 @@ def validate_document(
 
     document = Document(str(OUT_DOCX))
     text = all_document_text(document)
+    academic_text = text.split("9. Referencias", 1)[0]
+    listed_acronyms, non_list_text = acronym_list_state(document)
+    expected_acronyms = [entry.code for entry in used_acronyms(non_list_text)]
+    required_first_mentions = {
+        "TFG", "IMN", "ACV", "IPCC", "LASA", "CIA", "TAN", "EMEP",
+        "EEA", "MCF", "AWMS", "SV", "EF 3.1", "JRC", "NRCS", "USDA", "ISO",
+    }
+    first_mentions_ok = True
+    non_list_paragraphs = [
+        paragraph.text
+        for paragraph in document.paragraphs
+        if paragraph.text != "Lista de siglas y abreviaturas" and " — " not in paragraph.text
+    ]
+    for code in required_first_mentions:
+        entry = acronym_by_code(code)
+        first_paragraph = next(
+            (value for value in non_list_paragraphs if re.search(rf"(?<![\w]){re.escape(code)}(?![\w])", value)),
+            "",
+        )
+        first_mentions_ok &= entry.spanish_name in first_paragraph
+        if entry.origin_language == "inglés":
+            first_mentions_ok &= f"{code}, por sus siglas en inglés" in first_paragraph
+    omml_count = len(document.element.body.xpath(".//m:oMath"))
+    boundary_svg = SYSTEM_BOUNDARY_SVG.read_text(encoding="utf-8")
+    state_index = next(i for i, paragraph in enumerate(document.paragraphs) if paragraph.text == "Estado del documento")
+    cover_manual_blanks = [
+        paragraph
+        for paragraph in document.paragraphs[:state_index]
+        if not paragraph.text.strip() and not paragraph._p.xpath('.//w:br[@w:type="page"]')
+    ]
+    paragraph_texts = [paragraph.text for paragraph in document.paragraphs]
+    list_index = paragraph_texts.index("Lista de siglas y abreviaturas")
+    body_intro_index = next(
+        index
+        for index, value in enumerate(paragraph_texts[list_index + 1 :], start=list_index + 1)
+        if value == "1. Introducción"
+    )
+    content_index = paragraph_texts.index("Contenido")
+    math_paragraphs = [paragraph for paragraph in document.paragraphs if paragraph._p.xpath(".//m:oMath")]
     checks: list[tuple[str, bool]] = [
         ("El DOCX abre como paquete válido", True),
         ("El objetivo general se conserva literalmente", OBJECTIVE_GENERAL in text),
@@ -1056,6 +1252,21 @@ def validate_document(
         ("Las unidades anuales conservan la tilde", not re.search(r"/(?:ano|aNo)\b", text)),
         ("No hay etapas con decimales", not re.search(r"\b[AB][1-4][,.]0+\b", text)),
         ("No hay delimitadores visibles de ecuaciones", "\\[" not in text and "\\]" not in text and "$$" not in text),
+        ("Las 17 ecuaciones formales son objetos OMML", omml_count == expected_equations == 17),
+        ("No queda sintaxis LaTeX fuente visible", not re.search(r"\\(?:frac|mathrm|times|sum|left|right)|_\{", text)),
+        ("La lista de siglas y abreviaturas está presente", "Lista de siglas y abreviaturas" in text),
+        ("La lista de siglas cierra los preliminares", content_index < list_index < body_intro_index),
+        ("La lista de siglas deriva del registro y contiene solo usos reales", listed_acronyms == expected_acronyms),
+        ("Las primeras apariciones controladas están desarrolladas", first_mentions_ok),
+        ("TAN se identifica como sigla de origen inglés", acronym_by_code("TAN").first_mention in non_list_text),
+        ("No se usa campaña A/B para las alternativas", not re.search(r"\bcampa(?:ña|ñas)\s+(?:A|B|A\s+y\s+B)\b", academic_text, re.IGNORECASE)),
+        ("No quedan anglicismos editoriales acordados", not re.search(r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b", academic_text, re.IGNORECASE)),
+        ("No quedan formas planas auditadas de unidades o fórmulas", not re.search(r"(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])", academic_text)),
+        ("El comité asesor completo procede del MASTER", all(name in text and role in text for name, role in committee_from_master(Document(str(MASTER))))),
+        ("La portada no usa párrafos vacíos como separadores", not cover_manual_blanks),
+        ("La numeración de ecuaciones usa tabulaciones estructurales", all(len(paragraph._p.xpath("./w:pPr/w:tabs/w:tab")) == 2 for paragraph in math_paragraphs)),
+        ("La Figura 1 representa emisiones en A1–A4 y B1–B2", boundary_svg.count("Emisiones") >= 6),
+        ("La prosa antecede a tablas, figuras y ecuaciones definidas", validate_editorial_order(document, expected_tables, expected_figures)),
         ("El MASTER conserva su hash registrado", master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256),
         ("La salida está fuera del directorio protegido", MASTER.parent not in OUT_DOCX.parents),
         ("Las fuentes reproducibles del diagrama de fronteras existen", SYSTEM_BOUNDARY_PNG.exists() and SYSTEM_BOUNDARY_SVG.exists()),
@@ -1068,7 +1279,7 @@ def validate_document(
         ("A1 se describe sin precisión falsa", "21 días" in text and "tres a cuatro semanas" in text),
         ("A2 se describe como operación regular posterior a A1", "13 semanas" in text and "operación regular" in text and "después de A1" in text),
         ("No se atribuye una muestra de lombricompost terminado", "no muestreó lombricompost terminado" in text),
-        ("El MCF se identifica como proxy no medido a tres días", "MCF de 38 %" in text and "proxy IPCC" in text and "No corresponde a una medición específica" in text),
+        ("El MCF se identifica como aproximación no medida a tres días", "MCF de 38 %" in text and "aproximación conservadora del IPCC" in text and "No corresponde a una medición específica" in text),
         ("No se presenta 3,5 días como parámetro canónico", "3,5 días" not in text and "3.5 días" not in text),
     ]
 
@@ -1083,7 +1294,8 @@ def validate_document(
     equation_numbers = [
         int(match.group(1))
         for paragraph in document.paragraphs
-        if (match := re.search(r"\s+\((\d+)\)$", paragraph.text.strip()))
+        if paragraph._p.xpath(".//m:oMath")
+        and (match := re.fullmatch(r"\s*\((\d+)\)", paragraph.text))
     ]
     checks.append(("La numeración global de ecuaciones es continua", equation_numbers == list(range(1, expected_equations + 1))))
     table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]

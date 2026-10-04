@@ -11,6 +11,7 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
 from academic_text_utils import clean_academic_label
+from academic_word_math import add_word_equation
 from master_word_format import (
     add_master_caption,
     analyze_master_format,
@@ -402,11 +403,7 @@ def add_provisional_identification(doc: Document) -> None:
 
 
 def add_latex_equation(doc: Document, equation: str, definitions: list[str] | None = None) -> None:
-    paragraph = doc.add_paragraph()
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = paragraph.add_run(equation)
-    run.font.name = "Cambria Math"
-    run.font.size = Pt(12)
+    add_word_equation(doc, equation)
     if definitions:
         for item in definitions:
             doc.add_paragraph(clean_text(item), style="Normal")
@@ -864,7 +861,7 @@ def validate_physical_temporal_text(text: str) -> None:
         "Duración contextual de A1": ("21 días", "tres a cuatro semanas"),
         "Duración regular de A2": ("13 semanas", "operación regular"),
         "Ausencia de muestreo del producto final": ("no se muestreó el lombricompost terminado",),
-        "MCF como proxy no medido": ("mcf de 38 %", "proxy ipcc", "no corresponde a una medición específica"),
+        "MCF como aproximación no medida": ("mcf de 38 %", "aproximación conservadora del ipcc", "no corresponde a una medición específica"),
         "Carácter provisional": (PROVISIONAL_LABEL.lower(), "m3"),
     }
     failures = [

@@ -25,6 +25,21 @@
 - PASS — Las unidades anuales conservan la tilde.
 - PASS — No hay etapas con decimales.
 - PASS — No hay delimitadores visibles de ecuaciones.
+- PASS — Las 17 ecuaciones formales son objetos OMML.
+- PASS — No queda sintaxis LaTeX fuente visible.
+- PASS — La lista de siglas y abreviaturas está presente.
+- PASS — La lista de siglas cierra los preliminares.
+- PASS — La lista de siglas deriva del registro y contiene solo usos reales.
+- PASS — Las primeras apariciones controladas están desarrolladas.
+- PASS — TAN se identifica como sigla de origen inglés.
+- PASS — No se usa campaña A/B para las alternativas.
+- PASS — No quedan anglicismos editoriales acordados.
+- PASS — No quedan formas planas auditadas de unidades o fórmulas.
+- PASS — El comité asesor completo procede del MASTER.
+- PASS — La portada no usa párrafos vacíos como separadores.
+- PASS — La numeración de ecuaciones usa tabulaciones estructurales.
+- PASS — La Figura 1 representa emisiones en A1–A4 y B1–B2.
+- PASS — La prosa antecede a tablas, figuras y ecuaciones definidas.
 - PASS — El MASTER conserva su hash registrado.
 - PASS — La salida está fuera del directorio protegido.
 - PASS — Las fuentes reproducibles del diagrama de fronteras existen.
@@ -37,7 +52,7 @@
 - PASS — A1 se describe sin precisión falsa.
 - PASS — A2 se describe como operación regular posterior a A1.
 - PASS — No se atribuye una muestra de lombricompost terminado.
-- PASS — El MCF se identifica como proxy no medido a tres días.
+- PASS — El MCF se identifica como aproximación no medida a tres días.
 - PASS — No se presenta 3,5 días como parámetro canónico.
 - PASS — No hay rótulos duplicados.
 - PASS — La numeración global de tablas es continua.

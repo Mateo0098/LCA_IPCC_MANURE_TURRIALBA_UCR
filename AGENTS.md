@@ -429,7 +429,7 @@ Después de regenerar documentos, verificar:
 
 ## Reglas de formato para documentos Word generados
 
-Estas reglas son obligatorias, según corresponda a su contenido, para `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`, `outputs/documentos_tfg/resultados_desarrollados_tfg.docx` y `outputs/documentos_tfg/conclusiones_desarrolladas_tfg.docx`:
+Estas reglas son obligatorias, según corresponda a su contenido, para `outputs/documentos_tfg/metodologia_desarrollada_tfg.docx`, `outputs/documentos_tfg/resultados_desarrollados_tfg.docx`, `outputs/documentos_tfg/conclusiones_desarrolladas_tfg.docx` y el documento integral generado:
 
 1. Seguir el estilo visual de `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx`.
 2. Usar el MASTER únicamente como referencia de formato. Nunca modificarlo, sobrescribirlo ni usarlo como archivo de salida.
@@ -448,9 +448,13 @@ Estas reglas son obligatorias, según corresponda a su contenido, para `outputs/
 15. No asociar `purín` ni `purines` con flujos de A1, A2, A3 o A4.
 16. No usar `Aguas verdes` en B1 o B2 cuando el flujo corresponda a purín.
 17. Mencionar cada apéndice interno al menos una vez en la prosa principal del documento correspondiente. La mención debe describir su contenido o incluir su título.
-18. Mantener las ecuaciones como texto LaTeX seleccionable y centrado, sin imágenes y sin delimitadores visibles `\[` `\]` ni `$$`.
+18. Generar las ecuaciones formales como objetos matemáticos nativos de Word (OMML), seleccionables, editables y centrados, sin imágenes ni sintaxis LaTeX visible.
 19. Aplicar estas reglas desde los scripts generadores. No corregir manualmente los Word finales cuando la corrección pueda implementarse en el generador.
 20. Confirmar estas reglas en `outputs/documentos_tfg/reporte_validacion_documentos.md` cada vez que se regeneren los documentos.
+21. Introducir en la prosa cada tabla, figura y ecuación formal antes de mostrarla.
+22. Desarrollar las siglas en su primera aparición, indicar su origen inglés cuando corresponda y generar la lista de siglas desde el registro controlado; A1–B2 y M1–M3 son códigos, no siglas institucionales.
+23. Usar `escenario A/B` para las alternativas del ACV y reservar `campaña` para actividades experimentales; en gráficos por etapa usar las claves A1–A4 y B1–B2.
+24. Mantener el comité asesor de la portada desde el MASTER y resolver la distribución mediante propiedades estructurales, no con espacios ni párrafos vacíos arbitrarios.
 
-La especificación detallada y los ejemplos están en `docs/REGLAS_FORMATO_WORD.md`.
+La especificación detallada, incluida la notación científica, los preliminares, la terminología española y la conversión matemática, está en `docs/REGLAS_FORMATO_WORD.md` y constituye la fuente especializada responsable.
 

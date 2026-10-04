@@ -2,19 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import latex2mathml.converter
-import mathml2omml
 from docx import Document
-from docx.oxml import parse_xml
-
-MATH_NS = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+from academic_word_math import add_word_equation
 
 
 def add_equation_from_latex(doc: Document, latex_expr: str) -> None:
-    mathml = latex2mathml.converter.convert(latex_expr)
-    omml = mathml2omml.convert(mathml)
-    p = doc.add_paragraph()
-    p._p.append(parse_xml(f'<m:oMathPara xmlns:m="{MATH_NS}">{omml}</m:oMathPara>'))
+    add_word_equation(doc, latex_expr)
 
 
 def add_variable(doc: Document, text: str) -> None:

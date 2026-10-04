@@ -11,10 +11,15 @@
 - Tanqueta de almacenamiento y cañón VAIA de aplicación diferenciados: Sí.
 - Frecuencia operativa de tres días diferenciada del intervalo jueves–lunes previo al muestreo: Sí.
 - A1 descrita como tres a cuatro semanas y A2 como 13 semanas posteriores a A1, sin afirmar muestreo de lombricompost terminado: Sí.
-- MCF de 38 % descrito como proxy IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.
+- MCF de 38 % descrito como aproximación conservadora del IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.
 - Ausencia de 3,5 días como parámetro canónico de anualización: Sí.
+- Ecuaciones de metodología en OMML: Sí (26 objetos).
+- Diecisiete ecuaciones integrales en OMML: Sí (17 objetos).
+- Ausencia de sintaxis LaTeX visible: Sí.
+- Ausencia de anglicismos editoriales acordados en prosa visible: Sí.
+- Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): Sí.
 - Documento de conclusiones cubierto por el manifiesto y la validación: Sí.
 - Documento integral provisional cubierto por el manifiesto: Sí.
 - Reporte específico del documento integral disponible: Sí.
 - Documento maestro protegido sin cambios: Sí.
-- Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones seleccionables: aplicados por los generadores canónicos.
+- Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones OMML seleccionables: aplicados por los generadores canónicos.

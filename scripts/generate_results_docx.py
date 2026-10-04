@@ -1083,7 +1083,7 @@ def write_format_report(master_hash_before: str, master_hash_after: str) -> None
 - `metodologia_desarrollada_tfg.docx`: título principal, títulos de tres niveles, párrafo normal, rótulos y descripciones de tablas y figuras, texto de tablas y márgenes.
 - `resultados_desarrollados_tfg.docx`: título principal, títulos de tres niveles, párrafo normal, rótulos y descripciones de tablas y figuras, texto de tablas y márgenes.
 - Los encabezados de tabla permanecen en negrita; las tablas conservan únicamente bordes horizontales.
-- Las ecuaciones permanecen como texto LaTeX seleccionable, centrado y con fuente matemática.
+- Las ecuaciones formales permanecen como objetos matemáticos nativos, seleccionables y editables de Word.
 
 ## Numeración
 
@@ -1292,7 +1292,7 @@ def write_factor_references_report(
         "",
         "## Trazabilidad metodológica",
         "",
-        "- Los factores IPCC y EMEP fueron contrastados con el módulo canónico del ledger de N total y TAN y con sus parámetros versionados.",
+        "- Los factores IPCC y EMEP fueron contrastados con el módulo canónico del balance secuencial de N total y TAN y con sus parámetros versionados.",
         "- Los factores de caracterización corresponden a Environmental Footprint 3.1 de la Comisión Europea y el JRC.",
         "- El parámetro específico de lixiviación de A2 se documenta mediante Vargas Sarmiento (2023) y observación directa del investigador.",
         "- Los factores sin fuente confirmada no recibieron una atribución inventada.",
@@ -1307,7 +1307,7 @@ def write_factor_references_report(
         elif classification == "EMEP/EEA (2023)":
             justification = "Factor de especiación o flujo de N según EMEP/EEA 2023."
         elif classification == "Komakech et al. (2016)":
-            justification = "Proxy experimental aprobado de NH₃ para el residuo húmedo de entrada a A2; extrapolación con limitaciones de transferibilidad."
+            justification = "Aproximación experimental aprobada de NH₃ para el residuo húmedo de entrada a A2; extrapolación con limitaciones de transferibilidad."
         elif classification == "Environmental Footprint 3.1":
             justification = "Factor de caracterización EF 3.1 por especie y compartimento."
         elif classification == "Instituto Meteorológico Nacional":
@@ -1337,7 +1337,7 @@ def write_factor_references_report(
             "",
             "## Protección de resultados y del documento maestro",
             "",
-            "- Los resultados se regeneraron de forma reproducible después de promover el ledger secuencial de N total y TAN.",
+            "- Los resultados se regeneraron de forma reproducible después de promover el balance secuencial de N total y TAN.",
             f"- El documento maestro protegido no fue modificado: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
             f"- Hash SHA-256 del documento maestro: `{master_hash_after}`.",
         ]
@@ -1610,7 +1610,7 @@ Figuras complementarias en apéndices:
 - El Escenario A se identifica como operación habitual y el Escenario B como alternativa materializada temporalmente, no como operación permanente ni como escenario puramente hipotético.
 - Se distinguen la tanqueta de almacenamiento y el cañón VAIA de aplicación, así como la frecuencia operativa de tres días y el intervalo de acumulación previo al muestreo.
 - A1 se describe como aproximadamente tres a cuatro semanas y A2 como aproximadamente 13 semanas posteriores a A1, sin atribuir al TFG una muestra de lombricompost terminado.
-- El MCF de 38 % se presenta como proxy metodológico y no como una medición específica para tres días.
+- El MCF de 38 % se presenta como aproximación conservadora del IPCC y no como una medición específica para tres días.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
@@ -1620,7 +1620,7 @@ Figuras complementarias en apéndices:
 ## 6. Mejoras de formato académico aplicadas
 
 - Subíndices y superíndices en fórmulas químicas y unidades principales.
-- Ecuaciones LaTeX explicativas para humedad, materia seca, cenizas, sólidos volátiles, ledger de nitrógeno, conservación de cenizas y especies reactivas.
+- Ecuaciones nativas de Word para humedad, materia seca, cenizas, sólidos volátiles, balance secuencial de nitrógeno, conservación de cenizas y especies reactivas.
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.
@@ -1680,10 +1680,12 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
     documents = [METHODOLOGY_DOCX, OUT_DOCX]
     documents.extend(path for path in [CONCLUSIONS_DOCX, INTEGRAL_DOCX] if path.exists())
     texts = []
+    omml_counts: dict[str, int] = {}
     for path in documents:
         doc = Document(path)
         texts.append("\n".join([p.text for p in doc.paragraphs] +
                                [c.text for t in doc.tables for r in t.rows for c in r.cells]))
+        omml_counts[path.name] = len(doc.element.body.xpath(".//m:oMath"))
     combined = "\n".join(texts)
     forbidden = ["kg PO4-eq", "kg PO₄-eq", "dry_lot", "uncovered_anaerobic_lagoon",
                  "antes_correccion_nitrogeno"]
@@ -1700,13 +1702,18 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         "- Tanqueta de almacenamiento y cañón VAIA de aplicación diferenciados: Sí.",
         "- Frecuencia operativa de tres días diferenciada del intervalo jueves–lunes previo al muestreo: Sí.",
         "- A1 descrita como tres a cuatro semanas y A2 como 13 semanas posteriores a A1, sin afirmar muestreo de lombricompost terminado: Sí.",
-        "- MCF de 38 % descrito como proxy IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.",
+        "- MCF de 38 % descrito como aproximación conservadora del IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.",
         "- Ausencia de 3,5 días como parámetro canónico de anualización: Sí.",
+        f"- Ecuaciones de metodología en OMML: {'Sí' if omml_counts.get(METHODOLOGY_DOCX.name, 0) > 0 else 'No'} ({omml_counts.get(METHODOLOGY_DOCX.name, 0)} objetos).",
+        f"- Diecisiete ecuaciones integrales en OMML: {'Sí' if omml_counts.get(INTEGRAL_DOCX.name, 0) == 17 else 'No'} ({omml_counts.get(INTEGRAL_DOCX.name, 0)} objetos).",
+        f"- Ausencia de sintaxis LaTeX visible: {'Sí' if not re.search(r'\\(?:frac|mathrm|times|sum|left|right)|_\{', combined) else 'No'}.",
+        f"- Ausencia de anglicismos editoriales acordados en prosa visible: {'Sí' if not re.search(r'\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b', combined, re.IGNORECASE) else 'No'}.",
+        f"- Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): {'Sí' if not re.search(r'(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])', combined) else 'No'}.",
         f"- Documento de conclusiones cubierto por el manifiesto y la validación: {'Sí' if CONCLUSIONS_DOCX.exists() else 'No'}.",
         f"- Documento integral provisional cubierto por el manifiesto: {'Sí' if INTEGRAL_DOCX.exists() else 'No'}.",
         f"- Reporte específico del documento integral disponible: {'Sí' if INTEGRAL_VALIDATION_OUT.exists() else 'No'}.",
         f"- Documento maestro protegido sin cambios: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
-        "- Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones seleccionables: aplicados por los generadores canónicos.",
+        "- Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones OMML seleccionables: aplicados por los generadores canónicos.",
     ]
     VALIDATION_OUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
 

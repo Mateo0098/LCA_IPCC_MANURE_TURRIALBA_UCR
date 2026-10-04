@@ -17,7 +17,7 @@
 - `metodologia_desarrollada_tfg.docx`: título principal, títulos de tres niveles, párrafo normal, rótulos y descripciones de tablas y figuras, texto de tablas y márgenes.
 - `resultados_desarrollados_tfg.docx`: título principal, títulos de tres niveles, párrafo normal, rótulos y descripciones de tablas y figuras, texto de tablas y márgenes.
 - Los encabezados de tabla permanecen en negrita; las tablas conservan únicamente bordes horizontales.
-- Las ecuaciones permanecen como texto LaTeX seleccionable, centrado y con fuente matemática.
+- Las ecuaciones formales permanecen como objetos matemáticos nativos, seleccionables y editables de Word.
 
 ## Numeración
 

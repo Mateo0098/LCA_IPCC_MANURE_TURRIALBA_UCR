@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import math
+import re
 import tempfile
 from pathlib import Path
 
@@ -442,6 +443,23 @@ def validate_documents_and_conclusions() -> None:
     results_text, results_header = document_text(DOCS / "resultados_desarrollados_tfg.docx")
     conclusions_text, conclusions_header = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
     conclusion_document = Document(DOCS / "conclusiones_desarrolladas_tfg.docx")
+    integral_document = Document(DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx")
+    assert len(integral_document.element.body.xpath(".//m:oMath")) == 17
+    assert "Lista de siglas y abreviaturas" in integral_text
+    assert "nitrógeno amoniacal total (TAN, por sus siglas en inglés)" in integral_text
+    assert not re.search(r"\\(?:frac|mathrm|times|sum|left|right)|_\{", integral_text)
+    assert not re.search(
+        r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b",
+        integral_text.split("9. Referencias", 1)[0],
+        re.IGNORECASE,
+    )
+    assert "Las campañas A y B" not in integral_text
+    for name in (
+        "Ing. María Melissa Rojas Downing, Ph.D.",
+        "María José Rodríguez Vásquez, Ph.D.",
+        "MBA. Saul Brenes Gamboa",
+    ):
+        assert name in integral_text
     c2_candidates = [
         paragraph.text for paragraph in conclusion_document.paragraphs
         if paragraph.text.startswith("Las cargas ambientales se concentraron")
@@ -471,16 +489,30 @@ def validate_documents_and_conclusions() -> None:
         assert "21 días" in lowered and "tres a cuatro semanas" in lowered
         assert "13 semanas" in lowered and "operación regular" in lowered
         assert "no se muestreó el lombricompost terminado" in lowered or "no muestreó lombricompost terminado" in lowered
-        assert "mcf de 38 %" in lowered and "proxy ipcc" in lowered
+        assert "mcf de 38 %" in lowered and "aproximación conservadora del ipcc" in lowered
         assert "medición específica del mcf" in lowered and "3/30" in lowered
         assert "3,5 días" not in lowered and "3.5 días" not in lowered
 
     for body in (methodology_text, integral_text, results_text):
         lowered = body.lower()
         assert "arquitectura híbrida" in lowered
-        assert "komakech" in lowered and "proxy experimental aprobado" in lowered
-        assert "benchmark" in lowered and "fracgas" in lowered
-    assert "pool residual de tan" in methodology_text.lower() and "doble conteo" in methodology_text.lower()
+        assert "komakech" in lowered and "aproximación experimental aprobada" in lowered
+        assert "referencia de contraste" in lowered and "fracgas" in lowered
+
+    for figure_name in graphics_generator.STAGE_FIGURES:
+        svg = (GRAPHICS / f"{figure_name}.svg").read_text(encoding="utf-8")
+        assert not any(
+            label in svg
+            for label in (
+                "Precomposteo",
+                "Lombricompostaje",
+                "Almacenamiento de aguas verdes",
+                "Aplicación de aguas verdes",
+                "Almacenamiento de purines",
+                "Aplicación de purines",
+            )
+        )
+    assert "reserva residual de tan" in methodology_text.lower() and "doble conteo" in methodology_text.lower()
 
     characterization = read_rows(TABLES / "tabla_02_caracterizacion_muestras.csv")
     required = [
@@ -631,7 +663,7 @@ def main() -> None:
         "- EF 3.1, casos unitarios, impactos y unidades: PASS.\n"
         "- Electricidad, diésel y normalización por unidad funcional: PASS.\n"
         "- Exportación foreground y controles de doble conteo: PASS.\n"
-        "- Arquitectura híbrida A1/A2, proxies aprobados y benchmarks documentados: PASS.\n"
+        "- Arquitectura híbrida A1/A2, aproximaciones aprobadas y referencias de contraste documentadas: PASS.\n"
         "- Supuestos de razón de masa A1→A2 y alcance de AWMS documentados sin pendientes: PASS.\n"
         "- Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.\n"
         "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
