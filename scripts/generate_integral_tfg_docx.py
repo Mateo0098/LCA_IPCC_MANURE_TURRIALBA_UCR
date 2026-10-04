@@ -29,7 +29,14 @@ import generate_conclusions_docx as conclusions_source  # noqa: E402
 import generate_methodology_docx as methodology_source  # noqa: E402
 import generate_results_docx as results_source  # noqa: E402
 from academic_text_utils import clean_academic_label  # noqa: E402
-from academic_acronyms import acronym_by_code, used_acronyms  # noqa: E402
+from academic_acronyms import (  # noqa: E402
+    ACRONYMS,
+    IGNORED_ACRONYM_CANDIDATES,
+    acronym_by_code,
+    acronym_is_used,
+    unregistered_acronym_candidates,
+    used_acronyms,
+)
 from academic_word_math import add_word_equation  # noqa: E402
 from master_word_format import (  # noqa: E402
     add_master_caption,
@@ -161,13 +168,23 @@ def add_master_paragraphs(document: Document, master: Document, indexes: range |
     values = []
     for index in indexes:
         value = master.paragraphs[index].text.strip()
-        if index == 31:
+        if index == 28:
+            value = value.replace(
+                "Instituto Nacional de Estadística y Censo [INEC]",
+                "Instituto Nacional de Estadística y Censos (INEC)",
+                1,
+            )
+        elif index == 29:
+            value = value.replace(
+                "Ministerio de Agricultura y Ganadería [MAG]",
+                "Ministerio de Agricultura y Ganadería (MAG)",
+                1,
+            )
+        elif index == 31:
             value = value.replace("IMN, 2021", "Instituto Meteorológico Nacional (IMN), 2021", 1)
         elif index == 52:
             value = value.replace("(NRCS, 2009)", "(NRCS, por sus siglas en inglés; 2009)")
             value = value.replace("(USDA)", "(USDA, por sus siglas en inglés)")
-        elif index == 64:
-            value = value.replace("(ISO)", "(ISO, por sus siglas en inglés)", 1)
         elif index == 74:
             value = value.replace(
                 "Directrices del IPCC",
@@ -669,7 +686,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "La jerarquía estadística fue réplica analítica, muestra compuesta, promedio de jornada e integración entre jornadas. Las réplicas analíticas no se trataron como observaciones temporales independientes y las jornadas recibieron igual peso temporal.",
-            "En M1 se analizaron, por cada sólido, dos muestras compuestas en Bioenergía y otras dos muestras compuestas físicamente independientes en el laboratorio externo: los Laboratorios de Servicios Analíticos de la Escuela de Química (LASA), UCR, para estiércol fresco y el Laboratorio de Suelos y Foliares de la Ciudad de la Investigación (CIA) para precompostado. En M2 se conservaron tres muestras compuestas por sólido; Bioenergía realizó tres réplicas gravimétricas por muestra y el remanente de esas mismas muestras fue analizado por LASA o CIA.",
+            "En M1 se analizaron, por cada sólido, dos muestras compuestas en Bioenergía y otras dos muestras compuestas físicamente independientes en el laboratorio externo: los Laboratorios de Servicios Analíticos de la Escuela de Química (LASA) de la Universidad de Costa Rica (UCR), para estiércol fresco, y el Laboratorio de Suelos y Foliares del Centro de Investigaciones Agronómicas (CIA), para precompostado. En M2 se conservaron tres muestras compuestas por sólido; Bioenergía realizó tres réplicas gravimétricas por muestra y el remanente de esas mismas muestras fue analizado por LASA o CIA.",
             "Bioenergía determinó humedad y materia seca por gravimetría a 105 °C durante 16 h. El CIA determinó N y C del precompostado por Dumas sobre muestra seca o acondicionada a 80 °C durante 48 h. El porcentaje de N se combinó con la materia seca independiente de Bioenergía para construir el benchmark húmedo de A2; C y C/N permanecieron como caracterización descriptiva, sin conversión húmeda ni uso productivo.",
             "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2. En aguas verdes y purines, M1 correspondió a especiación y se conservó para trazabilidad; el N total líquido activo procedió de M2 mediante Kjeldahl. M3 permanece pendiente y se incorporará mediante el mismo pipeline para producir la caracterización final.",
             "La transformación de estiércol fresco a precompostado se calculó primero por jornada mediante materia seca y cenizas de ambos materiales; posteriormente se integraron los factores de jornada con igual peso temporal. La pérdida integrada se derivó del factor integrado.",
@@ -694,7 +711,7 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "El N total constituyó el balance físico principal y el nitrógeno amoniacal total (TAN, por sus siglas en inglés) una reserva subordinada sujeta a 0 ≤ TAN ≤ N total. El TAN se inicializó como 0,60 del N total únicamente en las fronteras de estiércol fresco y ambos componentes se propagaron entre etapas físicamente conectadas.",
             "En particular, A2 recibió el N total y el TAN remanentes de A1. La medición de N del precompostado se mantuvo como benchmark experimental y no reinicializó estos flujos productivos.",
-            "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por la guía conjunta del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP, por sus siglas en inglés) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés) redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
+            "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por la guía conjunta del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés) redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
             "El ledger fue secuencial: A2 recibió el N total y el pool residual de TAN a la salida de A1. Por ello, aplicar factores en ambas etapas no duplicó matemáticamente los pools originales. FracGasMS permaneció exclusivamente como benchmark y no generó otra volatilización ni alimentó EF4. Las duraciones específicas introducen incertidumbre de representatividad temporal y de transferencia de los proxies, pero no justifican escalado lineal de los factores.",
             "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como proxy para CH₄ y N₂O directo; Komakech et al. (2016), como proxy experimental aprobado para NH₃; y EMEP/EEA de almacenamiento sólido, como proxy metodológico aprobado provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
         ],
@@ -1114,7 +1131,31 @@ def body_elements(document: Document) -> list[dict[str, object]]:
     return elements
 
 
-def acronym_list_state(document: Document) -> tuple[list[str], str]:
+def acronym_scope(document: Document) -> list[str]:
+    """Texto académico visible, sin la lista ni las referencias bibliográficas."""
+    paragraphs = [paragraph.text.strip() for paragraph in document.paragraphs]
+    list_start = paragraphs.index("Lista de siglas y abreviaturas")
+    body_start = next(
+        index
+        for index, value in enumerate(paragraphs[list_start + 1 :], start=list_start + 1)
+        if value == "1. Introducción"
+    )
+    references_start = next(
+        index
+        for index, value in enumerate(paragraphs[body_start + 1 :], start=body_start + 1)
+        if value == "9. Referencias"
+    )
+    visible = paragraphs[:list_start] + paragraphs[body_start:references_start]
+    visible.extend(
+        cell.text
+        for table in document.tables
+        for row in table.rows
+        for cell in row.cells
+    )
+    return visible
+
+
+def acronym_list_state(document: Document) -> tuple[list[str], list[str]]:
     paragraphs = [paragraph.text.strip() for paragraph in document.paragraphs]
     list_start = paragraphs.index("Lista de siglas y abreviaturas")
     body_start = next(
@@ -1127,14 +1168,34 @@ def acronym_list_state(document: Document) -> tuple[list[str], str]:
         for text in paragraphs[list_start + 1 : body_start]
         if " — " in text
     ]
-    non_list = paragraphs[:list_start] + paragraphs[body_start:]
-    non_list.extend(
-        cell.text
-        for table in document.tables
-        for row in table.rows
-        for cell in row.cells
-    )
-    return listed, "\n".join(non_list)
+    return listed, acronym_scope(document)
+
+
+def first_mentions_are_valid(scope: list[str]) -> bool:
+    """Comprueba automáticamente cada entrada gobernada realmente utilizada."""
+    scope_text = "\n".join(scope)
+    for entry in ACRONYMS:
+        if not acronym_is_used(scope_text, entry.code):
+            continue
+        first_paragraph = next(
+            (value for value in scope if acronym_is_used(value, entry.code)),
+            "",
+        )
+        if entry.spanish_name.casefold() not in first_paragraph.casefold():
+            return False
+        escaped_code = re.escape(entry.code)
+        if entry.requires_english_notice:
+            expected = rf"\({escaped_code}, por sus siglas en inglés(?:[;)])"
+        else:
+            expected = rf"\({escaped_code}\)"
+        if not re.search(expected, first_paragraph):
+            return False
+        if not entry.requires_english_notice and re.search(
+            rf"\({escaped_code}, por sus siglas en inglés",
+            first_paragraph,
+        ):
+            return False
+    return True
 
 
 def validate_editorial_order(document: Document, tables: int, figures: int) -> bool:
@@ -1182,27 +1243,11 @@ def validate_document(
     document = Document(str(OUT_DOCX))
     text = all_document_text(document)
     academic_text = text.split("9. Referencias", 1)[0]
-    listed_acronyms, non_list_text = acronym_list_state(document)
+    listed_acronyms, acronym_paragraphs = acronym_list_state(document)
+    non_list_text = "\n".join(acronym_paragraphs)
     expected_acronyms = [entry.code for entry in used_acronyms(non_list_text)]
-    required_first_mentions = {
-        "TFG", "IMN", "ACV", "IPCC", "LASA", "CIA", "TAN", "EMEP",
-        "EEA", "MCF", "AWMS", "SV", "EF 3.1", "JRC", "NRCS", "USDA", "ISO",
-    }
-    first_mentions_ok = True
-    non_list_paragraphs = [
-        paragraph.text
-        for paragraph in document.paragraphs
-        if paragraph.text != "Lista de siglas y abreviaturas" and " — " not in paragraph.text
-    ]
-    for code in required_first_mentions:
-        entry = acronym_by_code(code)
-        first_paragraph = next(
-            (value for value in non_list_paragraphs if re.search(rf"(?<![\w]){re.escape(code)}(?![\w])", value)),
-            "",
-        )
-        first_mentions_ok &= entry.spanish_name in first_paragraph
-        if entry.origin_language == "inglés":
-            first_mentions_ok &= f"{code}, por sus siglas en inglés" in first_paragraph
+    first_mentions_ok = first_mentions_are_valid(acronym_paragraphs)
+    unknown_acronyms = unregistered_acronym_candidates(acronym_paragraphs)
     omml_count = len(document.element.body.xpath(".//m:oMath"))
     boundary_svg = SYSTEM_BOUNDARY_SVG.read_text(encoding="utf-8")
     state_index = next(i for i, paragraph in enumerate(document.paragraphs) if paragraph.text == "Estado del documento")
@@ -1257,8 +1302,14 @@ def validate_document(
         ("La lista de siglas y abreviaturas está presente", "Lista de siglas y abreviaturas" in text),
         ("La lista de siglas cierra los preliminares", content_index < list_index < body_intro_index),
         ("La lista de siglas deriva del registro y contiene solo usos reales", listed_acronyms == expected_acronyms),
-        ("Las primeras apariciones controladas están desarrolladas", first_mentions_ok),
+        ("Todas las entradas utilizadas del registro tienen primera aparición válida", first_mentions_ok),
+        ("No hay candidatos reales a sigla sin clasificar", not unknown_acronyms),
         ("TAN se identifica como sigla de origen inglés", acronym_by_code("TAN").first_mention in non_list_text),
+        ("CIA se desarrolla como Centro de Investigaciones Agronómicas", acronym_by_code("CIA").first_mention in non_list_text),
+        ("CIA no se desarrolla como Ciudad de la Investigación", "Ciudad de la Investigación (CIA)" not in text),
+        ("ISO se presenta sin atribuirle siglas inglesas", acronym_by_code("ISO").first_mention in non_list_text and "ISO, por sus siglas en inglés" not in text),
+        ("EMEP usa su denominación abreviada oficial sin expansión mecánica", acronym_by_code("EMEP").first_mention in non_list_text and "EMEP, por sus siglas en inglés" not in text),
+        ("EEA conserva el tratamiento de sigla inglesa", acronym_by_code("EEA").first_mention in non_list_text),
         ("No se usa campaña A/B para las alternativas", not re.search(r"\bcampa(?:ña|ñas)\s+(?:A|B|A\s+y\s+B)\b", academic_text, re.IGNORECASE)),
         ("No quedan anglicismos editoriales acordados", not re.search(r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b", academic_text, re.IGNORECASE)),
         ("No quedan formas planas auditadas de unidades o fórmulas", not re.search(r"(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])", academic_text)),
@@ -1335,6 +1386,12 @@ def validate_document(
     lines.extend(f"- {'PASS' if passed else 'FAIL'} — {name}." for name, passed in checks)
     lines.extend(
         [
+            "",
+            "## Auditoría de siglas y abreviaturas",
+            "",
+            f"- Entradas registradas y utilizadas: {len(expected_acronyms)}.",
+            f"- Candidatos no registrados: {', '.join(unknown_acronyms) if unknown_acronyms else 'ninguno'}.",
+            f"- Exclusiones clasificadas disponibles: {len(IGNORED_ACRONYM_CANDIDATES)}.",
             "",
             "## Alcance de la validación",
             "",

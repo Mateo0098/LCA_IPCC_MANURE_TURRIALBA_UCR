@@ -444,9 +444,21 @@ def validate_documents_and_conclusions() -> None:
     conclusions_text, conclusions_header = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
     conclusion_document = Document(DOCS / "conclusiones_desarrolladas_tfg.docx")
     integral_document = Document(DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx")
+    integral_validation = (DOCS / "reporte_validacion_documento_integral.md").read_text(encoding="utf-8")
     assert len(integral_document.element.body.xpath(".//m:oMath")) == 17
     assert "Lista de siglas y abreviaturas" in integral_text
     assert "nitrógeno amoniacal total (TAN, por sus siglas en inglés)" in integral_text
+    assert "Centro de Investigaciones Agronómicas (CIA)" in integral_text
+    assert "Ciudad de la Investigación (CIA)" not in integral_text
+    assert "Organización Internacional de Normalización (ISO)" in integral_text
+    assert "ISO, por sus siglas en inglés" not in integral_text
+    assert "Europa (EMEP)" in integral_text
+    assert "EMEP, por sus siglas en inglés" not in integral_text
+    assert "Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés)" in integral_text
+    assert "DA — digestión anaeróbica" in integral_text
+    assert "Todas las entradas utilizadas del registro tienen primera aparición válida" in integral_validation
+    assert "PASS — No hay candidatos reales a sigla sin clasificar" in integral_validation
+    assert "Candidatos no registrados: ninguno" in integral_validation
     assert not re.search(r"\\(?:frac|mathrm|times|sum|left|right)|_\{", integral_text)
     assert not re.search(
         r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b",

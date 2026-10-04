@@ -234,12 +234,21 @@ corresponde, idioma de origen, forma de primera aparición e inclusión en la
 lista. La lista del DOCX se deriva de ese registro y contiene solo entradas
 realmente utilizadas; no se mantiene una lista manual paralela.
 
-La primera aparición pertinente sigue la forma `nombre completo (SIGLA)`. Si
-la sigla procede del inglés, se explicita una sola vez mediante una formulación
-natural como `(SIGLA, por sus siglas en inglés)`. TAN se presenta como
-`nitrógeno amoniacal total (TAN, por sus siglas en inglés)`. Las fórmulas
-químicas, unidades, variables, marcas y los códigos A1–A4, B1–B2 y M1–M3 no se
-tratan automáticamente como siglas institucionales.
+La primera aparición pertinente sigue la forma `nombre completo (SIGLA)`. La
+expresión `(SIGLA, por sus siglas en inglés)` se reserva para siglas o acrónimos
+realmente derivados de una denominación inglesa; TAN se presenta como
+`nitrógeno amoniacal total (TAN, por sus siglas en inglés)`. No se aplica esa
+fórmula de manera mecánica a toda denominación extranjera. Las formas
+institucionales o universales, como ISO, se presentan conforme a su definición
+oficial sin atribuirles una expansión inglesa; las denominaciones abreviadas
+convencionales, como EMEP, siguen la fuente institucional y no reciben una
+expansión artificial para hacer coincidir sus letras.
+
+La validación comprueba automáticamente la primera aparición de todas las
+entradas del registro que se utilizan en el cuerpo. También audita candidatos
+no registrados de forma conservadora y exige clasificarlos, distinguiéndolos de
+fórmulas químicas, unidades, variables, marcas, grados académicos, códigos de
+normas y los códigos A1–A4, B1–B2 y M1–M3.
 
 ## 11. Ecuaciones
 
@@ -276,7 +285,8 @@ Cuando se regeneren los documentos, `outputs/documentos_tfg/reporte_validacion_d
 - uso correcto de aguas verdes y purines;
 - relación completa entre prosa y apéndices;
 - lista de siglas consistente con el registro controlado y primeras apariciones correctas;
-- tratamiento explícito de siglas inglesas y de TAN;
+- tratamiento explícito y terminológicamente preciso de siglas inglesas,
+  abreviaturas institucionales, denominaciones convencionales y TAN;
 - ausencia contextual de anglicismos evitables y notación científica plana;
 - comité asesor presente y portada sin separadores manuales arbitrarios;
 - prosa anterior a cada tabla, figura y ecuación formal;

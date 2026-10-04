@@ -452,7 +452,7 @@ Estas reglas son obligatorias, según corresponda a su contenido, para `outputs/
 19. Aplicar estas reglas desde los scripts generadores. No corregir manualmente los Word finales cuando la corrección pueda implementarse en el generador.
 20. Confirmar estas reglas en `outputs/documentos_tfg/reporte_validacion_documentos.md` cada vez que se regeneren los documentos.
 21. Introducir en la prosa cada tabla, figura y ecuación formal antes de mostrarla.
-22. Desarrollar las siglas en su primera aparición, indicar su origen inglés cuando corresponda y generar la lista de siglas desde el registro controlado; A1–B2 y M1–M3 son códigos, no siglas institucionales.
+22. Desarrollar las siglas en su primera aparición, indicar `por sus siglas en inglés` solo cuando se deriven realmente de una denominación inglesa y generar la lista desde el registro controlado; las abreviaturas institucionales o convencionales siguen su fuente oficial, y A1–B2 y M1–M3 son códigos, no siglas institucionales.
 23. Usar `escenario A/B` para las alternativas del ACV y reservar `campaña` para actividades experimentales; en gráficos por etapa usar las claves A1–A4 y B1–B2.
 24. Mantener el comité asesor de la portada desde el MASTER y resolver la distribución mediante propiedades estructurales, no con espacios ni párrafos vacíos arbitrarios.
 

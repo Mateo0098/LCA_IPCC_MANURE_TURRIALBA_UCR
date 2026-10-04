@@ -1687,6 +1687,8 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
                                [c.text for t in doc.tables for r in t.rows for c in r.cells]))
         omml_counts[path.name] = len(doc.element.body.xpath(".//m:oMath"))
     combined = "\n".join(texts)
+    integral_text = texts[documents.index(INTEGRAL_DOCX)]
+    integral_validation = INTEGRAL_VALIDATION_OUT.read_text(encoding="utf-8")
     forbidden = ["kg PO4-eq", "kg PO₄-eq", "dry_lot", "uncovered_anaerobic_lagoon",
                  "antes_correccion_nitrogeno"]
     lines = [
@@ -1712,6 +1714,9 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         f"- Documento de conclusiones cubierto por el manifiesto y la validación: {'Sí' if CONCLUSIONS_DOCX.exists() else 'No'}.",
         f"- Documento integral provisional cubierto por el manifiesto: {'Sí' if INTEGRAL_DOCX.exists() else 'No'}.",
         f"- Reporte específico del documento integral disponible: {'Sí' if INTEGRAL_VALIDATION_OUT.exists() else 'No'}.",
+        f"- CIA desarrollada como Centro de Investigaciones Agronómicas: {'Sí' if 'Centro de Investigaciones Agronómicas (CIA)' in integral_text and 'Ciudad de la Investigación (CIA)' not in integral_text else 'No'}.",
+        f"- ISO y EMEP sin atribución mecánica de siglas inglesas, y EEA correctamente identificada: {'Sí' if 'ISO, por sus siglas en inglés' not in integral_text and 'EMEP, por sus siglas en inglés' not in integral_text and 'EEA, por sus siglas en inglés' in integral_text else 'No'}.",
+        f"- Primeras apariciones exhaustivas y candidatos no registrados validados: {'Sí' if 'PASS — Todas las entradas utilizadas del registro tienen primera aparición válida' in integral_validation and 'PASS — No hay candidatos reales a sigla sin clasificar' in integral_validation else 'No'}.",
         f"- Documento maestro protegido sin cambios: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "- Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones OMML seleccionables: aplicados por los generadores canónicos.",
     ]

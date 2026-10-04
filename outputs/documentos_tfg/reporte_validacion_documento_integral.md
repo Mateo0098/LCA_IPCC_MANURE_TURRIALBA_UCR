@@ -30,8 +30,14 @@
 - PASS — La lista de siglas y abreviaturas está presente.
 - PASS — La lista de siglas cierra los preliminares.
 - PASS — La lista de siglas deriva del registro y contiene solo usos reales.
-- PASS — Las primeras apariciones controladas están desarrolladas.
+- PASS — Todas las entradas utilizadas del registro tienen primera aparición válida.
+- PASS — No hay candidatos reales a sigla sin clasificar.
 - PASS — TAN se identifica como sigla de origen inglés.
+- PASS — CIA se desarrolla como Centro de Investigaciones Agronómicas.
+- PASS — CIA no se desarrolla como Ciudad de la Investigación.
+- PASS — ISO se presenta sin atribuirle siglas inglesas.
+- PASS — EMEP usa su denominación abreviada oficial sin expansión mecánica.
+- PASS — EEA conserva el tratamiento de sigla inglesa.
 - PASS — No se usa campaña A/B para las alternativas.
 - PASS — No quedan anglicismos editoriales acordados.
 - PASS — No quedan formas planas auditadas de unidades o fórmulas.
@@ -60,6 +66,12 @@
 - PASS — La numeración global de ecuaciones es continua.
 - PASS — Las tablas no duplican columnas de etapa.
 - PASS — No se asocian purines con etapas del Escenario A.
+
+## Auditoría de siglas y abreviaturas
+
+- Entradas registradas y utilizadas: 28.
+- Candidatos no registrados: ninguno.
+- Exclusiones clasificadas disponibles: 21.
 
 ## Alcance de la validación
 

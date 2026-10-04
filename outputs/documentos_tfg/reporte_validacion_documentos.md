@@ -21,5 +21,8 @@
 - Documento de conclusiones cubierto por el manifiesto y la validación: Sí.
 - Documento integral provisional cubierto por el manifiesto: Sí.
 - Reporte específico del documento integral disponible: Sí.
+- CIA desarrollada como Centro de Investigaciones Agronómicas: Sí.
+- ISO y EMEP sin atribución mecánica de siglas inglesas, y EEA correctamente identificada: Sí.
+- Primeras apariciones exhaustivas y candidatos no registrados validados: Sí.
 - Documento maestro protegido sin cambios: Sí.
 - Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones OMML seleccionables: aplicados por los generadores canónicos.
