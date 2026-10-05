@@ -501,10 +501,12 @@ def add_title_page(document: Document, profile, master: Document) -> None:
         "Escuela de Ingeniería de Biosistemas",
         "Trabajo Final de Graduación",
     ]
+    title_paragraphs = []
     for line in title_lines:
         paragraph = document.add_paragraph(style="Portada centrada")
         paragraph.add_run(line).bold = True
-    document.add_paragraph(
+        title_paragraphs.append(paragraph)
+    title_paragraph = document.add_paragraph(
         "Análisis de ciclo de vida de los desechos bovinos, sólidos y líquidos "
         "producidos en una lechería especializada en Turrialba, Costa Rica",
         style="Título integral",
@@ -527,7 +529,25 @@ def add_title_page(document: Document, profile, master: Document) -> None:
     ).italic = True
     date = document.add_paragraph(style="Portada centrada")
     date.add_run("Turrialba, Costa Rica\nSeptiembre de 2026")
-    date.paragraph_format.space_before = Pt(18)
+
+    # Espaciado estructural de los bloques de portada. La cadena keep-with-next
+    # conserva el conjunto en una página sin párrafos vacíos ni saltos internos.
+    for paragraph in title_paragraphs[:2]:
+        paragraph.paragraph_format.space_after = Pt(4)
+    title_paragraphs[-1].paragraph_format.space_after = Pt(24)
+    title_paragraph.paragraph_format.space_before = Pt(20)
+    title_paragraph.paragraph_format.space_after = Pt(30)
+    author.paragraph_format.space_before = Pt(8)
+    author.paragraph_format.space_after = Pt(24)
+    for committee_paragraph in document.paragraphs[-6:-3]:
+        committee_paragraph.paragraph_format.space_after = Pt(12)
+    status.paragraph_format.space_before = Pt(44)
+    status.paragraph_format.space_after = Pt(8)
+    note.paragraph_format.space_before = Pt(8)
+    note.paragraph_format.space_after = Pt(44)
+    date.paragraph_format.space_before = Pt(20)
+    for paragraph in document.paragraphs:
+        paragraph.paragraph_format.keep_with_next = paragraph is not date
 
 
 def add_preliminaries(document: Document):
@@ -687,8 +707,8 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "La jerarquía estadística fue réplica analítica, muestra compuesta, promedio de jornada e integración entre jornadas. Las réplicas analíticas no se trataron como observaciones temporales independientes y las jornadas recibieron igual peso temporal.",
             "En M1 se analizaron, por cada sólido, dos muestras compuestas en Bioenergía y otras dos muestras compuestas físicamente independientes en el laboratorio externo: los Laboratorios de Servicios Analíticos de la Escuela de Química (LASA) de la Universidad de Costa Rica (UCR), para estiércol fresco, y el Laboratorio de Suelos y Foliares del Centro de Investigaciones Agronómicas (CIA), para precompostado. En M2 se conservaron tres muestras compuestas por sólido; Bioenergía realizó tres réplicas gravimétricas por muestra y el remanente de esas mismas muestras fue analizado por LASA o CIA.",
-            "Bioenergía determinó humedad y materia seca por gravimetría a 105 °C durante 16 h. El CIA determinó N y C del precompostado por Dumas sobre muestra seca o acondicionada a 80 °C durante 48 h. El porcentaje de N se combinó con la materia seca independiente de Bioenergía para construir el benchmark húmedo de A2; C y C/N permanecieron como caracterización descriptiva, sin conversión húmeda ni uso productivo.",
-            "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2. En aguas verdes y purines, M1 correspondió a especiación y se conservó para trazabilidad; el N total líquido activo procedió de M2 mediante Kjeldahl. M3 permanece pendiente y se incorporará mediante el mismo pipeline para producir la caracterización final.",
+            "Bioenergía determinó humedad y materia seca por gravimetría a 105 °C durante 16 h. El CIA determinó N y C del precompostado por Dumas sobre muestra seca o acondicionada a 80 °C durante 48 h. El porcentaje de N se combinó con la materia seca independiente de Bioenergía para construir la referencia de contraste en base húmeda de A2; C y C/N permanecieron como caracterización descriptiva, sin conversión húmeda ni uso productivo.",
+            "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2. En aguas verdes y purines, M1 correspondió a especiación y se conservó para trazabilidad; el N total líquido activo procedió de M2 mediante Kjeldahl. M3 permanece pendiente y se incorporará mediante la misma secuencia de procesamiento para producir la caracterización final.",
             "La transformación de estiércol fresco a precompostado se calculó primero por jornada mediante materia seca y cenizas de ambos materiales; posteriormente se integraron los factores de jornada con igual peso temporal. La pérdida integrada se derivó del factor integrado.",
             "Antes de cada campaña líquida, la tanqueta se vació el jueves por la tarde y acumuló material hasta el lunes por la mañana. Durante ese intervalo de acumulación previo al muestreo continuaron las entradas y ocurrieron dos lavados; no fue una carga cerrada ni un ensayo de almacenamiento estático. Esta preparación de muestra no sustituyó la frecuencia operativa representativa de aproximadamente tres días.",
         ],
@@ -710,10 +730,10 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "El N total constituyó el balance físico principal y el nitrógeno amoniacal total (TAN, por sus siglas en inglés) una reserva subordinada sujeta a 0 ≤ TAN ≤ N total. El TAN se inicializó como 0,60 del N total únicamente en las fronteras de estiércol fresco y ambos componentes se propagaron entre etapas físicamente conectadas.",
-            "En particular, A2 recibió el N total y el TAN remanentes de A1. La medición de N del precompostado se mantuvo como benchmark experimental y no reinicializó estos flujos productivos.",
+            "En particular, A2 recibió el N total y el TAN remanentes de A1. La medición de N del precompostado se mantuvo como referencia de contraste experimental y no reinicializó estos flujos productivos.",
             "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por la guía conjunta del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés) redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
-            "El ledger fue secuencial: A2 recibió el N total y el pool residual de TAN a la salida de A1. Por ello, aplicar factores en ambas etapas no duplicó matemáticamente los pools originales. FracGasMS permaneció exclusivamente como benchmark y no generó otra volatilización ni alimentó EF4. Las duraciones específicas introducen incertidumbre de representatividad temporal y de transferencia de los proxies, pero no justifican escalado lineal de los factores.",
-            "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como proxy para CH₄ y N₂O directo; Komakech et al. (2016), como proxy experimental aprobado para NH₃; y EMEP/EEA de almacenamiento sólido, como proxy metodológico aprobado provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
+            "El balance se aplicó de forma secuencial: A2 recibió el N total y la reserva residual de TAN a la salida de A1. Por ello, aplicar factores en ambas etapas no duplicó matemáticamente las reservas originales. FracGasMS permaneció exclusivamente como referencia de contraste y no generó otra volatilización ni alimentó EF4. Las duraciones específicas introducen incertidumbre de representatividad temporal y de transferencia de las aproximaciones, pero no justifican escalado lineal de los factores.",
+            "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como aproximación para CH₄ y N₂O directo; Komakech et al. (2016), como aproximación experimental aprobada para NH₃; y EMEP/EEA de almacenamiento sólido, como aproximación metodológica aprobada provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
         ],
     )
     document.add_heading("4.4.1 Metano de las etapas de manejo", level=3)
@@ -740,7 +760,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         counters,
         r"N_j = TAN_{\mathrm{disponible}} \times f_j,\quad j \in \{\mathrm{NH_3-N},\,\mathrm{NO-N},\,\mathrm{N_2-N}\}",
-        "La expresión resume las rutas parametrizadas con factores EMEP/EEA. En A2, la masa de NH₃ se estima una sola vez con el proxy experimental aprobado de Komakech et al. (2016), aplicado a la masa húmeda inferida de residuo orgánico que ingresa a la etapa, mientras NO-N y N₂-N conservan los proxies sólidos EMEP/EEA aprobados provisionalmente.",
+        "La expresión resume las rutas parametrizadas con factores EMEP/EEA. En A2, la masa de NH₃ se estima una sola vez con la aproximación experimental aprobada de Komakech et al. (2016), aplicada a la masa húmeda inferida de residuo orgánico que ingresa a la etapa, mientras NO-N y N₂-N conservan las aproximaciones para sólidos de EMEP/EEA aprobadas provisionalmente.",
     )
     add_equation(document, counters, r"N_{\mathrm{N_2O-N,directo}} = N_{\mathrm{total,entrada}} \times EF_3")
     add_equation(document, counters, r"m_{\mathrm{N_2O,directo}} = N_{\mathrm{N_2O-N,directo}} \times \frac{44}{28}")
@@ -782,8 +802,8 @@ def build_document() -> tuple[int, int, int, int]:
             "El método de Huella Ambiental 3.1 (EF 3.1, por sus siglas en inglés), desarrollado por la Comisión Europea y su Centro Común de Investigación (JRC, por sus siglas en inglés), se aplicó a las emisiones directas. El cambio climático se expresó en kg CO₂-eq, la eutrofización terrestre en mol N-eq y la eutrofización marina en kg N-eq; las categorías se interpretaron por separado.",
             "La electricidad de la bomba se evaluó con el factor agregado de consumo del IMN para 2025 como aproximación temporal del patrón observado en 2026. La combustión de diésel se representó mediante masas físicas de CO₂ fósil, CH₄ fósil y N₂O obtenidas con factores IMN y caracterizadas con EF 3.1. No se incorporaron cadenas completas de fondo.",
             "Los factores, la asignación de sistemas y los consumos operativos corresponden a las decisiones metodológicas vigentes. Esta integración documental no recalculó ni modificó el ACV.",
-            "En A3/B1, el MCF de 38 % se mantuvo como proxy IPCC conservador de la categoría tabulada de un mes para clima tropical húmedo. No corresponde a una medición específica del MCF para la residencia operativa de tres días y no se escaló como 38 % × 3/30. La mineralización EMEP del 10 % tampoco se escaló por tres días. El tiempo físico de operación, el intervalo específico de preparación de las muestras y la duración tabulada del proxy metodológico se trataron como conceptos distintos.",
-            "El B₀ de 0,24 m³ CH₄/kg SV se mantuvo como default IPCC para ganado lechero de alta productividad en otras regiones. La evidencia histórica del mismo Módulo Lechero publicada por Conejo-Morales y WingChing-Jones (2020) respalda esa clasificación, pero no constituye una medición local de B₀ ni demuestra la productividad actual de 2026. El default de baja productividad no sustituyó el valor central aprobado; la dependencia de B₀ respecto de la especie y la dieta permanece como incertidumbre paramétrica.",
+            "En A3/B1, el MCF de 38 % se mantuvo como aproximación conservadora del IPCC de la categoría tabulada de un mes para clima tropical húmedo. No corresponde a una medición específica del MCF para la residencia operativa de tres días y no se escaló como 38 % × 3/30. La mineralización EMEP del 10 % tampoco se escaló por tres días. El tiempo físico de operación, el intervalo específico de preparación de las muestras y la duración tabulada de la aproximación metodológica se trataron como conceptos distintos.",
+            "El B₀ de 0,24 m³ CH₄/kg SV se mantuvo como valor por defecto del IPCC para ganado lechero de alta productividad en otras regiones. La evidencia histórica del mismo Módulo Lechero publicada por Conejo-Morales y WingChing-Jones (2020) respalda esa clasificación, pero no constituye una medición local de B₀ ni demuestra la productividad actual de 2026. El valor por defecto de baja productividad no sustituyó el valor central aprobado; la dependencia de B₀ respecto de la especie y la dieta permanece como incertidumbre paramétrica.",
         ],
     )
     add_equation(
@@ -1003,7 +1023,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "El contraste con Jjagwe et al. (2019) mostró que las diferencias entre la estimación IPCC y la referencia experimental no siguieron una dirección uniforme para CH₄ y N₂O directo. Las diferencias de especie de lombriz, acondicionamiento, alimentación, humedad, duración, clima, escala y frecuencia de medición impiden interpretar esa comparación como equivalencia física entre sistemas.",
-            "Las referencias de Komakech et al. (2016), Møller et al. (2004) y VanderZaag et al. (2013), junto con las directrices IPCC y EMEP/EEA, permiten trazar la selección y la interpretación de los factores empleados, pero no demuestran equivalencia física entre sus sistemas de origen y el sistema estudiado. En particular, el factor de NH₃ de Komakech procede de reactores pequeños en Kampala, con residuo predominantemente ganadero, concentraciones gaseosas medidas y un flujo de aire estimado mediante el índice respirométrico dinámico; su aplicación a la masa húmeda inferida de entrada a A2 es un proxy experimental aprobado y una extrapolación con diferencias de escala, alimentación, clima, duración y operación. Estas limitaciones no convierten su selección en una decisión abierta para la fase pre-M3.",
+            "Las referencias de Komakech et al. (2016), Møller et al. (2004) y VanderZaag et al. (2013), junto con las directrices IPCC y EMEP/EEA, permiten trazar la selección y la interpretación de los factores empleados, pero no demuestran equivalencia física entre sus sistemas de origen y el sistema estudiado. En particular, el factor de NH₃ de Komakech procede de reactores pequeños en Kampala, con residuo predominantemente ganadero, concentraciones gaseosas medidas y un flujo de aire estimado mediante el índice respirométrico dinámico; su aplicación a la masa húmeda inferida de entrada a A2 es una aproximación experimental aprobada y una extrapolación con diferencias de escala, alimentación, clima, duración y operación. Estas limitaciones no convierten su selección en una decisión abierta para la fase pre-M3.",
         ],
     )
     document.add_heading("6.3 Sensibilidad y consistencia", level=2)
@@ -1256,6 +1276,28 @@ def validate_document(
         for paragraph in document.paragraphs[:state_index]
         if not paragraph.text.strip() and not paragraph._p.xpath('.//w:br[@w:type="page"]')
     ]
+    cover_paragraphs = document.paragraphs[:state_index]
+    cover_page_breaks = [
+        index
+        for index, paragraph in enumerate(cover_paragraphs)
+        if paragraph._p.xpath('.//w:br[@w:type="page"]')
+    ]
+    cover_nonempty = [paragraph for paragraph in cover_paragraphs if paragraph.text.strip()]
+    cover_spacing_pt = sum(
+        (paragraph.paragraph_format.space_before.pt if paragraph.paragraph_format.space_before else 0)
+        + (paragraph.paragraph_format.space_after.pt if paragraph.paragraph_format.space_after else 0)
+        for paragraph in cover_nonempty
+    )
+    grammar_regressions = (
+        "el referencia",
+        "el mismo secuencia",
+        "El balance secuencial fue secuencial",
+        "el reserva",
+        "los reservas",
+        "el aproximación",
+        "del aproximación",
+        "un aproximación",
+    )
     paragraph_texts = [paragraph.text for paragraph in document.paragraphs]
     list_index = paragraph_texts.index("Lista de siglas y abreviaturas")
     body_intro_index = next(
@@ -1310,11 +1352,20 @@ def validate_document(
         ("ISO se presenta sin atribuirle siglas inglesas", acronym_by_code("ISO").first_mention in non_list_text and "ISO, por sus siglas en inglés" not in text),
         ("EMEP usa su denominación abreviada oficial sin expansión mecánica", acronym_by_code("EMEP").first_mention in non_list_text and "EMEP, por sus siglas en inglés" not in text),
         ("EEA conserva el tratamiento de sigla inglesa", acronym_by_code("EEA").first_mention in non_list_text),
-        ("No se usa campaña A/B para las alternativas", not re.search(r"\bcampa(?:ña|ñas)\s+(?:A|B|A\s+y\s+B)\b", academic_text, re.IGNORECASE)),
-        ("No quedan anglicismos editoriales acordados", not re.search(r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b", academic_text, re.IGNORECASE)),
-        ("No quedan formas planas auditadas de unidades o fórmulas", not re.search(r"(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])", academic_text)),
+        ("No se usa campaña A/B para las alternativas", not re.search(r"\bcampa(?:ña|ñas)\s+(?:A|B|A\s+y\s+B)\b", non_list_text, re.IGNORECASE)),
+        ("No quedan anglicismos editoriales acordados", not re.search(r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b", non_list_text, re.IGNORECASE)),
+        ("No quedan formas planas auditadas de unidades o fórmulas", not re.search(r"(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])", non_list_text)),
+        ("Las magnitudes de superficie auditadas usan espacio y superíndice", all(value in non_list_text for value in ("15 m²", "60 m²", "81 m²"))),
+        ("No quedan m2 o m3 planos junto a magnitudes", not re.search(r"\d\s*m[23](?![\w])", non_list_text, re.IGNORECASE)),
+        ("Las potencias científicas negativas usan exponentes compuestos", "1,18 × 10⁻⁸" in non_list_text and "2,17 × 10⁻⁹" in non_list_text and not re.search(r"×\s*10\s*\^?[-−]\s*\d+", non_list_text)),
+        ("No queda la forma ortográfica incorrecta húmedad", "húmedad" not in non_list_text),
+        ("No quedan regresiones gramaticales del normalizador", not any(phrase.casefold() in non_list_text.casefold() for phrase in grammar_regressions)),
+        ("Las etiquetas NOx están en español y con notación química", "NOx as NO2" not in non_list_text and "NOx as NO₂" not in non_list_text and "NOx como NO₂" in non_list_text),
+        ("Las fórmulas principales conservan notación científica", all(value in non_list_text for value in ("CO₂", "CH₄", "N₂O", "NH₃", "NO₃⁻", "PO₄³⁻", "m²", "m³"))),
         ("El comité asesor completo procede del MASTER", all(name in text and role in text for name, role in committee_from_master(Document(str(MASTER))))),
         ("La portada no usa párrafos vacíos como separadores", not cover_manual_blanks),
+        ("La portada distribuye sus bloques mediante espaciado estructural", cover_spacing_pt >= 250),
+        ("La portada conserva un único salto al terminar y una cadena indivisible", cover_page_breaks == [len(cover_paragraphs) - 1] and all(paragraph.paragraph_format.keep_with_next for paragraph in cover_nonempty[:-1])),
         ("La numeración de ecuaciones usa tabulaciones estructurales", all(len(paragraph._p.xpath("./w:pPr/w:tabs/w:tab")) == 2 for paragraph in math_paragraphs)),
         ("La Figura 1 representa emisiones en A1–A4 y B1–B2", boundary_svg.count("Emisiones") >= 6),
         ("La prosa antecede a tablas, figuras y ecuaciones definidas", validate_editorial_order(document, expected_tables, expected_figures)),

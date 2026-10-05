@@ -156,6 +156,12 @@ en lugar de vocabulario inglés usado como sustantivo común. Esta regla no
 traduce nombres propios, software, marcas, denominaciones oficiales ni títulos
 bibliográficos.
 
+La normalización automática no debe sustituir palabras aisladas en prosa libre
+cuando el cambio pueda alterar género, número, artículos, preposiciones o la
+estructura sintáctica. Las frases controladas por los generadores se redactan
+directamente en español correcto; el normalizador léxico se reserva para
+etiquetas y expresiones completas cuya sustitución sea gramaticalmente segura.
+
 Incorrecto: `Fresh manure`, `dry lot`, `global warming`.
 
 Correcto: `Estiércol fresco`, `Sistema de manejo en corral seco`, `Calentamiento global`.
@@ -182,7 +188,7 @@ kg CO₂-eq/año
 kg PO₄-eq/año
 ```
 
-Se deben conservar tildes, eñes, subíndices, superíndices y símbolos científicos correctos, como m², m³, CH₄, N₂O, NH₃, NO₃⁻, CO₂ y PO₄³⁻. La normalización se aplica al texto académico visible —prosa, tablas, captions, ejes, leyendas y anotaciones— y nunca mediante sustituciones globales sobre rutas, código, identificadores o datos fuente.
+Se deben conservar tildes, eñes, subíndices, superíndices y símbolos científicos correctos, como m², m³, CH₄, N₂O, NH₃, NO₃⁻, CO₂ y PO₄³⁻. Entre una magnitud y su unidad se deja un espacio (`15 m²`, no `15m2`). Las potencias de diez visibles usan exponentes compuestos (`1,18 × 10⁻⁸`, no `1,18 × 10-8`). La normalización se aplica al texto académico visible —prosa, tablas, captions, ejes, leyendas y anotaciones— y nunca mediante sustituciones globales sobre rutas, código, identificadores o datos fuente.
 
 ## 8. Nomenclatura de escenarios y etapas
 

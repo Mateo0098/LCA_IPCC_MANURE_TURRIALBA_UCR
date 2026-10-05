@@ -459,6 +459,19 @@ def validate_documents_and_conclusions() -> None:
     assert "Todas las entradas utilizadas del registro tienen primera aparición válida" in integral_validation
     assert "PASS — No hay candidatos reales a sigla sin clasificar" in integral_validation
     assert "Candidatos no registrados: ninguno" in integral_validation
+    assert all(value in integral_text for value in ("15 m²", "60 m²", "81 m²"))
+    assert not re.search(r"\d\s*m[23](?![\w])", integral_text, re.IGNORECASE)
+    assert "1,18 × 10⁻⁸" in integral_text and "2,17 × 10⁻⁹" in integral_text
+    assert not re.search(r"×\s*10\s*\^?[-−]\s*\d+", integral_text)
+    assert "húmedad" not in integral_text
+    assert not re.search(
+        r"\b(?:el referencia|el mismo secuencia|el reserva|los reservas|el aproximación|del aproximación|un aproximación)\b|El balance secuencial fue secuencial",
+        integral_text,
+        re.IGNORECASE,
+    )
+    assert "NOx as NO2" not in integral_text and "NOx as NO₂" not in integral_text
+    assert "NOx como NO₂" in integral_text
+    assert all(value in integral_text for value in ("CO₂", "CH₄", "N₂O", "NH₃", "NO₃⁻", "PO₄³⁻", "m²", "m³"))
     assert not re.search(r"\\(?:frac|mathrm|times|sum|left|right)|_\{", integral_text)
     assert not re.search(
         r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b",

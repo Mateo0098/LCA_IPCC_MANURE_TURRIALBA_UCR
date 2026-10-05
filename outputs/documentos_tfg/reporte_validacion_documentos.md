@@ -18,6 +18,10 @@
 - Ausencia de sintaxis LaTeX visible: Sí.
 - Ausencia de anglicismos editoriales acordados en prosa visible: Sí.
 - Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): Sí.
+- Magnitudes de superficie con espacio y superíndice: Sí.
+- Potencias de diez con exponentes compuestos: Sí.
+- Ausencia de húmedad y regresiones gramaticales auditadas: Sí.
+- Etiquetas NOx en español: Sí.
 - Documento de conclusiones cubierto por el manifiesto y la validación: Sí.
 - Documento integral provisional cubierto por el manifiesto: Sí.
 - Reporte específico del documento integral disponible: Sí.

@@ -88,6 +88,11 @@ ACADEMIC_LABELS = {
     "manure": "Estiércol",
     "dung": "Boñiga",
     "ash": "Cenizas",
+    "NOx as NO2": "NOx como NO₂",
+    "Factor del ledger de N total y TAN": "Factor del balance secuencial de N total y TAN",
+    "Benchmark FracGasMS de A1": "Referencia de contraste FracGasMS de A1",
+    "Benchmark FracGasMS de A2": "Referencia de contraste FracGasMS de A2",
+    "Benchmark FracGasMS del almacenamiento líquido": "Referencia de contraste FracGasMS del almacenamiento líquido",
 }
 
 
@@ -128,45 +133,36 @@ def clean_chemical_notation(value: object) -> str:
         (r"(?<![\w₀-₉])NO3-?(?![\w₀-₉])", "NO₃⁻"),
         (r"(?<![\w₀-₉])CO2(?![\w₀-₉])", "CO₂"),
         (r"(?<![\w₀-₉])PO4(?![\w₀-₉])", "PO₄³⁻"),
-        (r"(?<![\w])(?-i:m2)(?![\w])", "m²"),
-        (r"(?<![\w])(?-i:m3)(?![\w])", "m³"),
     )
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    for exponent, superscript in (("2", "²"), ("3", "³")):
+        text = re.sub(
+            rf"(?<![A-Za-z_])(\d(?:[\d.,]*))\s*m{exponent}(?![A-Za-z0-9_])",
+            rf"\1 m{superscript}",
+            text,
+            flags=re.IGNORECASE,
+        )
+        text = re.sub(
+            rf"(?<![\w])m{exponent}(?![\w])",
+            f"m{superscript}",
+            text,
+            flags=re.IGNORECASE,
+        )
+    superscript_digits = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
+    text = re.sub(
+        r"(×\s*10)\s*\^?[-−]\s*(\d+)",
+        lambda match: f"{match.group(1)}⁻{match.group(2).translate(superscript_digits)}",
+        text,
+    )
     return text
 
 
 def clean_avoidable_anglicisms(value: object) -> str:
-    """Sustituye vocabulario común evitable, no identificadores ni rutas."""
+    """Normaliza solo expresiones completas cuya sustitución no rompe la sintaxis."""
     text = str(value)
     replacements = (
         (r"\bQA/QC\b", "aseguramiento y control de la calidad"),
-        (r"\blos proxies sólidos EMEP/EEA aprobados provisionalmente\b", "las aproximaciones para sólidos de EMEP/EEA aprobadas provisionalmente"),
-        (r"\bproxies sólidos EMEP/EEA aprobados provisionalmente\b", "aproximaciones para sólidos de EMEP/EEA aprobadas provisionalmente"),
-        (r"\bproxies metodológicos aprobados provisionalmente\b", "aproximaciones metodológicas aprobadas provisionalmente"),
-        (r"\bproxy metodológico aprobado provisionalmente\b", "aproximación metodológica aprobada provisionalmente"),
-        (r"\bproxy experimental aprobado\b", "aproximación experimental aprobada"),
-        (r"\bproxy IPCC conservador\b", "aproximación conservadora del IPCC"),
-        (r"\bproxy metodológico\b", "aproximación metodológica"),
-        (r"\bproxy experimental\b", "aproximación experimental"),
-        (r"\bproxy temporal\b", "aproximación temporal"),
-        (r"\bproxy sectorial\b", "factor sustitutivo sectorial"),
-        (r"\bbenchmarks\b", "referencias de contraste"),
-        (r"\bbenchmark\b", "referencia de contraste"),
-        (r"\bledger\b", "balance secuencial"),
-        (r"\bsubpools\b", "subreservas"),
-        (r"\bsubpool\b", "subreserva"),
-        (r"\bpools\b", "reservas"),
-        (r"\bpool\b", "reserva"),
-        (r"\bdefaults\b", "valores por defecto"),
-        (r"\bdefault\b", "valor por defecto"),
-        (r"\bpipeline\b", "secuencia de procesamiento"),
-        (r"\blos proxies\b", "las aproximaciones"),
-        (r"\bdel proxy\b", "de la aproximación"),
-        (r"\bel proxy\b", "la aproximación"),
-        (r"\bun proxy\b", "una aproximación"),
-        (r"\bproxies\b", "aproximaciones"),
-        (r"\bproxy\b", "aproximación"),
         (r"\bQA\b", "aseguramiento de la calidad"),
     )
     for pattern, replacement in replacements:
@@ -193,7 +189,7 @@ def clean_academic_label(value: object) -> str:
     text = text.replace("Nitrogeno", "Nitrógeno")
     text = text.replace("Solidos", "Sólidos")
     text = text.replace("volatiles", "volátiles")
-    text = text.replace("humeda", "húmeda")
+    text = re.sub(r"\bhumeda\b", "húmeda", text, flags=re.IGNORECASE)
     text = text.replace("Eutrofizacion", "Eutrofización")
     text = text.replace("categoria impacto", "Categoría de impacto")
     return clean_chemical_notation(text)

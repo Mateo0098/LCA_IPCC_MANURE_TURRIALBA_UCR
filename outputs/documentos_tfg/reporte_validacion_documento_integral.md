@@ -41,8 +41,17 @@
 - PASS — No se usa campaña A/B para las alternativas.
 - PASS — No quedan anglicismos editoriales acordados.
 - PASS — No quedan formas planas auditadas de unidades o fórmulas.
+- PASS — Las magnitudes de superficie auditadas usan espacio y superíndice.
+- PASS — No quedan m2 o m3 planos junto a magnitudes.
+- PASS — Las potencias científicas negativas usan exponentes compuestos.
+- PASS — No queda la forma ortográfica incorrecta húmedad.
+- PASS — No quedan regresiones gramaticales del normalizador.
+- PASS — Las etiquetas NOx están en español y con notación química.
+- PASS — Las fórmulas principales conservan notación científica.
 - PASS — El comité asesor completo procede del MASTER.
 - PASS — La portada no usa párrafos vacíos como separadores.
+- PASS — La portada distribuye sus bloques mediante espaciado estructural.
+- PASS — La portada conserva un único salto al terminar y una cadena indivisible.
 - PASS — La numeración de ecuaciones usa tabulaciones estructurales.
 - PASS — La Figura 1 representa emisiones en A1–A4 y B1–B2.
 - PASS — La prosa antecede a tablas, figuras y ecuaciones definidas.
