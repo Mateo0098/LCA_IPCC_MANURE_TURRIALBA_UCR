@@ -10,7 +10,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
-from academic_text_utils import clean_academic_label
+from academic_text_utils import clean_academic_label, find_campaign_unit_corruptions
 from academic_word_math import add_word_equation
 from master_word_format import (
     add_master_caption,
@@ -162,8 +162,6 @@ CHEMICAL_REPLACEMENTS = [
     ("NO3", "NO\u2083\u207b"),
     ("CO2", "CO\u2082"),
     ("PO4", "PO\u2084\u00b3\u207b"),
-    ("m3", "m\u00b3"),
-    ("m2", "m\u00b2"),
 ]
 
 
@@ -881,6 +879,12 @@ def main() -> None:
     visible = "\n".join(paragraph.text for paragraph in Document(OUT_DOCX).paragraphs)
     if PROVISIONAL_LABEL not in visible or "M3" not in visible:
         raise RuntimeError("La metodología no quedó identificada como PROVISIONAL M1–M2 pendiente de M3.")
+    corruptions = find_campaign_unit_corruptions(visible)
+    if corruptions:
+        raise RuntimeError(
+            "La metodología confunde campañas M2/M3 con unidades físicas: "
+            + ", ".join(corruptions)
+        )
     validate_physical_temporal_text(visible)
     assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
     print(f"Documento generado: {OUT_DOCX.relative_to(ROOT)}")

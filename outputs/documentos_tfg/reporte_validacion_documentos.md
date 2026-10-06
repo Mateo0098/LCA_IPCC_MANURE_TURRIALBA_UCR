@@ -18,6 +18,7 @@
 - Ausencia de sintaxis LaTeX visible: Sí.
 - Ausencia de anglicismos editoriales acordados en prosa visible: Sí.
 - Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): Sí.
+- Campañas M2/M3 preservadas sin conversión a m²/m³: Sí.
 - Magnitudes de superficie con espacio y superíndice: Sí.
 - Potencias de diez con exponentes compuestos: Sí.
 - Ausencia de húmedad y regresiones gramaticales auditadas: Sí.

@@ -16,6 +16,7 @@ import generate_conclusions_docx as conclusions_generator
 import generate_a2_jjagwe_benchmark as benchmark_generator
 import generate_thesis_graphics as graphics_generator
 import validate_ef31_operational_inventory as ef31_validator
+from academic_text_utils import find_campaign_unit_corruptions
 from quantitative_comparison import Comparison, dominant
 
 
@@ -128,6 +129,26 @@ def document_text(path: Path) -> tuple[str, str]:
     body.extend(cell.text for table in document.tables for row in table.rows for cell in row.cells)
     headers = [paragraph.text for section in document.sections for paragraph in section.header.paragraphs]
     return "\n".join(body), "\n".join(headers)
+
+
+def validate_campaign_table_columns(document: Document, document_name: str) -> None:
+    """Evita unidades m²/m³ en columnas que identifican jornadas o campañas."""
+    for table_index, table in enumerate(document.tables, start=1):
+        if not table.rows:
+            continue
+        headers = [cell.text.casefold() for cell in table.rows[0].cells]
+        campaign_columns = [
+            index
+            for index, header in enumerate(headers)
+            if "jornada" in header or "campaña" in header
+        ]
+        for row_index, row in enumerate(table.rows[1:], start=2):
+            for column_index in campaign_columns:
+                value = row.cells[column_index].text.strip()
+                assert not re.search(r"(?:^|[;,\s])m[²³](?:$|[;,\s])", value, re.IGNORECASE), (
+                    f"El documento de {document_name}, tabla {table_index}, fila {row_index}, "
+                    f"usa una unidad física como identificador de campaña: {value!r}"
+                )
 
 
 def fmt_es(value: float, decimals: int) -> str:
@@ -442,9 +463,30 @@ def validate_documents_and_conclusions() -> None:
     integral_text, integral_header = document_text(DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx")
     results_text, results_header = document_text(DOCS / "resultados_desarrollados_tfg.docx")
     conclusions_text, conclusions_header = document_text(DOCS / "conclusiones_desarrolladas_tfg.docx")
+    methodology_document = Document(DOCS / "metodologia_desarrollada_tfg.docx")
+    results_document = Document(DOCS / "resultados_desarrollados_tfg.docx")
     conclusion_document = Document(DOCS / "conclusiones_desarrolladas_tfg.docx")
     integral_document = Document(DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx")
     integral_validation = (DOCS / "reporte_validacion_documento_integral.md").read_text(encoding="utf-8")
+    document_texts = {
+        "metodología": methodology_text,
+        "resultados": results_text,
+        "conclusiones": conclusions_text,
+        "integral": integral_text,
+    }
+    for document_name, visible_text in document_texts.items():
+        corruptions = find_campaign_unit_corruptions(visible_text)
+        assert not corruptions, (
+            f"El documento de {document_name} confunde campañas M2/M3 con unidades físicas: "
+            f"{corruptions}"
+        )
+    for document_name, document in (
+        ("metodología", methodology_document),
+        ("resultados", results_document),
+        ("conclusiones", conclusion_document),
+        ("integral", integral_document),
+    ):
+        validate_campaign_table_columns(document, document_name)
     assert len(integral_document.element.body.xpath(".//m:oMath")) == 17
     assert "Lista de siglas y abreviaturas" in integral_text
     assert "nitrógeno amoniacal total (TAN, por sus siglas en inglés)" in integral_text
@@ -460,7 +502,7 @@ def validate_documents_and_conclusions() -> None:
     assert "PASS — No hay candidatos reales a sigla sin clasificar" in integral_validation
     assert "Candidatos no registrados: ninguno" in integral_validation
     assert all(value in integral_text for value in ("15 m²", "60 m²", "81 m²"))
-    assert not re.search(r"\d\s*m[23](?![\w])", integral_text, re.IGNORECASE)
+    assert not re.search(r"\d\s*m[23](?![\w])", integral_text)
     assert "1,18 × 10⁻⁸" in integral_text and "2,17 × 10⁻⁹" in integral_text
     assert not re.search(r"×\s*10\s*\^?[-−]\s*\d+", integral_text)
     assert "húmedad" not in integral_text
@@ -693,6 +735,7 @@ def main() -> None:
         "- Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.\n"
         "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"
+        "- Campañas `M2` y `M3` preservadas sin conversión a `m²` o `m³`: PASS.\n"
         "- Cifras documentales verificadas con el redondeo visible: PASS.\n"
         "- Conclusiones reconstruidas desde fuentes canónicas: PASS.\n"
         "- Gráficos, manifiestos y vigencia relativa de productos: PASS.\n"

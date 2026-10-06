@@ -13,6 +13,7 @@ from academic_text_utils import (  # noqa: E402
     clean_academic_label,
     clean_avoidable_anglicisms,
     clean_chemical_notation,
+    find_campaign_unit_corruptions,
 )
 
 
@@ -23,9 +24,61 @@ def test_area_and_volume_units_are_spaced_and_superscripted() -> None:
     )
 
 
+def test_bare_lowercase_area_and_volume_units_are_superscripted() -> None:
+    assert clean_chemical_notation("Unidades: m2 y m3") == "Unidades: m² y m³"
+
+
+def test_sampling_campaign_identifiers_are_preserved() -> None:
+    samples = (
+        "M1",
+        "M2",
+        "M3",
+        "M1–M2",
+        "PROVISIONAL M1–M2",
+        "jornada M2",
+        "campaña M3",
+        "En M2",
+        "M3 permanece pendiente",
+    )
+    for source in samples:
+        assert clean_chemical_notation(source) == source
+        assert clean_academic_label(source) == source
+
+
+def test_campaign_corruption_detector_is_context_specific() -> None:
+    corruptions = (
+        "PROVISIONAL M1–m²",
+        "M1;m²",
+        "provisional M1 m²",
+        "provisional m² pendiente m³",
+        "La jornada m³ permanece pendiente",
+        "En M1 hubo dos muestras. En m² se obtuvieron tres muestras.",
+        "El N procedió de m² mediante Kjeldahl.",
+        "La fase pre-m³ no es definitiva.",
+        "Después de m³ se actualizará el análisis.",
+    )
+    for source in corruptions:
+        assert find_campaign_unit_corruptions(source)
+
+    legitimate_units = (
+        "La superficie fue de 60 m².",
+        "El volumen fue de 11,25 m³.",
+        "El factor se expresó en m³ CH₄/kg SV.",
+    )
+    for source in legitimate_units:
+        assert not find_campaign_unit_corruptions(source)
+
+
 def test_negative_powers_of_ten_use_unicode_superscripts() -> None:
     source = "1,18 × 10-8; 2,17 × 10−9; 4 × 10^-5"
     assert clean_chemical_notation(source) == "1,18 × 10⁻⁸; 2,17 × 10⁻⁹; 4 × 10⁻⁵"
+
+
+def test_existing_chemical_subscripts_and_superscripts_are_preserved() -> None:
+    source = "CH4, N2O, NH3, NO3-, CO2 y PO4^3-; ya: CH₄, N₂O, m² y m³."
+    assert clean_chemical_notation(source) == (
+        "CH₄, N₂O, NH₃, NO₃⁻, CO₂ y PO₄³⁻; ya: CH₄, N₂O, m² y m³."
+    )
 
 
 def test_humeda_does_not_corrupt_humedad() -> None:

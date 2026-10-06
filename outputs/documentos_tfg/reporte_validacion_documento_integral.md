@@ -17,6 +17,7 @@
 - PASS — El segundo objetivo específico se conserva literalmente.
 - PASS — La etiqueta PROVISIONAL M1–M2 es visible.
 - PASS — M3 se identifica como pendiente.
+- PASS — Las campañas M2/M3 no se confunden con unidades m²/m³.
 - PASS — La jerarquía académica prevista está completa.
 - PASS — No hay marcadores accidentales.
 - PASS — No hay rutas internas visibles.

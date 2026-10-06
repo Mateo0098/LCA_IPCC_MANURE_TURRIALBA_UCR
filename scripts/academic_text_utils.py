@@ -3,6 +3,25 @@ from __future__ import annotations
 import re
 
 
+CAMPAIGN_UNIT_CORRUPTION_PATTERNS = (
+    re.compile(r"\bM1\s*(?:[;–-]|y)\s*m[²³](?!\w)", re.IGNORECASE),
+    re.compile(r"\b(?:jornada|campaña)\s+m[²³](?!\w)", re.IGNORECASE),
+    re.compile(
+        r"\bprovisional\s+(?:M1\s+)?m[²³](?:\s+pendiente\s+m[²³])?",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\bm[²³]\s+(?:permanece\s+pendiente|mediante\s+Kjeldahl|recibieron\s+igual\s+peso(?:\s+temporal)?)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b(?:pre-|después\s+de\s+|incorporar\s+|incorporación\s+de\s+)m[²³](?!\w)",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\bEn\s+M1\b[^\n]{0,500}\bEn\s+m[²³](?!\w)", re.IGNORECASE),
+)
+
+
 ACADEMIC_LABELS = {
     "clima_manejo_ef31_kg_co2eq": "Manejo del estiércol, EF 3.1 (kg CO₂-eq/año)",
     "clima_electricidad_imn_kg_co2eq": "Electricidad, IMN (kg CO₂-eq/año)",
@@ -141,13 +160,11 @@ def clean_chemical_notation(value: object) -> str:
             rf"(?<![A-Za-z_])(\d(?:[\d.,]*))\s*m{exponent}(?![A-Za-z0-9_])",
             rf"\1 m{superscript}",
             text,
-            flags=re.IGNORECASE,
         )
         text = re.sub(
             rf"(?<![\w])m{exponent}(?![\w])",
             f"m{superscript}",
             text,
-            flags=re.IGNORECASE,
         )
     superscript_digits = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
     text = re.sub(
@@ -156,6 +173,16 @@ def clean_chemical_notation(value: object) -> str:
         text,
     )
     return text
+
+
+def find_campaign_unit_corruptions(value: object) -> list[str]:
+    """Detecta conversiones imposibles de campañas M2/M3 a unidades m²/m³."""
+    text = str(value)
+    return [
+        match.group(0)
+        for pattern in CAMPAIGN_UNIT_CORRUPTION_PATTERNS
+        for match in pattern.finditer(text)
+    ]
 
 
 def clean_avoidable_anglicisms(value: object) -> str:

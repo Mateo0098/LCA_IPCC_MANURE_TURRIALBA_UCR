@@ -13,7 +13,7 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 from docx.text.paragraph import Paragraph
 
-from academic_text_utils import clean_academic_label
+from academic_text_utils import clean_academic_label, find_campaign_unit_corruptions
 from master_word_format import (
     add_master_caption,
     analyze_master_format,
@@ -240,8 +240,6 @@ CHEMICAL_REPLACEMENTS = [
     ("NO3", "NO₃⁻"),
     ("CO2", "CO₂"),
     ("PO4", "PO₄³⁻"),
-    ("m3", "m³"),
-    ("m2", "m²"),
 ]
 
 
@@ -1689,6 +1687,7 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
     combined = "\n".join(texts)
     integral_text = texts[documents.index(INTEGRAL_DOCX)]
     integral_validation = INTEGRAL_VALIDATION_OUT.read_text(encoding="utf-8")
+    campaign_unit_corruptions = find_campaign_unit_corruptions(combined)
     forbidden = ["kg PO4-eq", "kg PO₄-eq", "dry_lot", "uncovered_anaerobic_lagoon",
                  "antes_correccion_nitrogeno"]
     lines = [
@@ -1711,7 +1710,8 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         f"- Ausencia de sintaxis LaTeX visible: {'Sí' if not re.search(r'\\(?:frac|mathrm|times|sum|left|right)|_\{', combined) else 'No'}.",
         f"- Ausencia de anglicismos editoriales acordados en prosa visible: {'Sí' if not re.search(r'\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b', combined, re.IGNORECASE) else 'No'}.",
         f"- Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): {'Sí' if not re.search(r'(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])', combined) else 'No'}.",
-        f"- Magnitudes de superficie con espacio y superíndice: {'Sí' if all(value in integral_text for value in ['15 m²', '60 m²', '81 m²']) and not re.search(r'\d\s*m[23](?![\w])', combined, re.IGNORECASE) else 'No'}.",
+        f"- Campañas M2/M3 preservadas sin conversión a m²/m³: {'Sí' if not campaign_unit_corruptions else 'No'}.",
+        f"- Magnitudes de superficie con espacio y superíndice: {'Sí' if all(value in integral_text for value in ['15 m²', '60 m²', '81 m²']) and not re.search(r'\d\s*m[23](?![\w])', combined) else 'No'}.",
         f"- Potencias de diez con exponentes compuestos: {'Sí' if all(value in integral_text for value in ['1,18 × 10⁻⁸', '2,17 × 10⁻⁹']) and not re.search(r'×\s*10\s*\^?[-−]\s*\d+', combined) else 'No'}.",
         f"- Ausencia de húmedad y regresiones gramaticales auditadas: {'Sí' if 'húmedad' not in combined and not re.search(r'\b(?:el referencia|el mismo secuencia|el reserva|los reservas|el aproximación|del aproximación|un aproximación)\b|El balance secuencial fue secuencial', combined, re.IGNORECASE) else 'No'}.",
         f"- Etiquetas NOx en español: {'Sí' if 'NOx as NO2' not in combined and 'NOx as NO₂' not in combined and 'NOx como NO₂' in integral_text else 'No'}.",
@@ -1734,6 +1734,12 @@ def main() -> None:
     visible = "\n".join(paragraph.text for paragraph in Document(OUT_DOCX).paragraphs)
     if PROVISIONAL_LABEL not in visible or "M3" not in visible:
         raise RuntimeError("Los resultados no quedaron identificados como PROVISIONAL M1–M2 pendientes de M3.")
+    corruptions = find_campaign_unit_corruptions(visible)
+    if corruptions:
+        raise RuntimeError(
+            "Los resultados confunden campañas M2/M3 con unidades físicas: "
+            + ", ".join(corruptions)
+        )
     master_hash_after = assert_reference_docx_intact(REFERENCE_DOCX, master_hash_before)
     write_format_report(master_hash_before, master_hash_after)
     write_readme(master_hash_before, master_hash_after)

@@ -28,7 +28,10 @@ if str(SCRIPT_DIR) not in sys.path:
 import generate_conclusions_docx as conclusions_source  # noqa: E402
 import generate_methodology_docx as methodology_source  # noqa: E402
 import generate_results_docx as results_source  # noqa: E402
-from academic_text_utils import clean_academic_label  # noqa: E402
+from academic_text_utils import (  # noqa: E402
+    clean_academic_label,
+    find_campaign_unit_corruptions,
+)
 from academic_acronyms import (  # noqa: E402
     ACRONYMS,
     IGNORED_ACRONYM_CANDIDATES,
@@ -1265,6 +1268,7 @@ def validate_document(
     academic_text = text.split("9. Referencias", 1)[0]
     listed_acronyms, acronym_paragraphs = acronym_list_state(document)
     non_list_text = "\n".join(acronym_paragraphs)
+    campaign_unit_corruptions = find_campaign_unit_corruptions(text)
     expected_acronyms = [entry.code for entry in used_acronyms(non_list_text)]
     first_mentions_ok = first_mentions_are_valid(acronym_paragraphs)
     unknown_acronyms = unregistered_acronym_candidates(acronym_paragraphs)
@@ -1314,6 +1318,7 @@ def validate_document(
         ("El segundo objetivo específico se conserva literalmente", OBJECTIVE_SPECIFIC_2 in text),
         ("La etiqueta PROVISIONAL M1–M2 es visible", PROVISIONAL_LABEL in text),
         ("M3 se identifica como pendiente", "M3" in text and "pendiente" in text.lower()),
+        ("Las campañas M2/M3 no se confunden con unidades m²/m³", not campaign_unit_corruptions),
         ("La jerarquía académica prevista está completa", all(title in text for title in EXPECTED_HEADINGS)),
         ("No hay marcadores accidentales", not re.search(r"\{\{|\}\}|\bTODO\b|\bTBD\b|Lorem ipsum|\[PENDIENTE\]", text)),
         ("No hay rutas internas visibles", not re.search(r"(?:processed|outputs|scripts|MASTER_escrito)[/\\]|\.csv\b", text, re.IGNORECASE)),
@@ -1356,7 +1361,7 @@ def validate_document(
         ("No quedan anglicismos editoriales acordados", not re.search(r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b", non_list_text, re.IGNORECASE)),
         ("No quedan formas planas auditadas de unidades o fórmulas", not re.search(r"(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])", non_list_text)),
         ("Las magnitudes de superficie auditadas usan espacio y superíndice", all(value in non_list_text for value in ("15 m²", "60 m²", "81 m²"))),
-        ("No quedan m2 o m3 planos junto a magnitudes", not re.search(r"\d\s*m[23](?![\w])", non_list_text, re.IGNORECASE)),
+        ("No quedan m2 o m3 planos junto a magnitudes", not re.search(r"\d\s*m[23](?![\w])", non_list_text)),
         ("Las potencias científicas negativas usan exponentes compuestos", "1,18 × 10⁻⁸" in non_list_text and "2,17 × 10⁻⁹" in non_list_text and not re.search(r"×\s*10\s*\^?[-−]\s*\d+", non_list_text)),
         ("No queda la forma ortográfica incorrecta húmedad", "húmedad" not in non_list_text),
         ("No quedan regresiones gramaticales del normalizador", not any(phrase.casefold() in non_list_text.casefold() for phrase in grammar_regressions)),
