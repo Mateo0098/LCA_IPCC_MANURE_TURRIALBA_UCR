@@ -12,6 +12,7 @@
 - Exportación foreground y controles de doble conteo: PASS.
 - Arquitectura híbrida A1/A2, aproximaciones aprobadas y referencias de contraste documentadas: PASS.
 - Supuestos de razón de masa A1→A2 y alcance de AWMS documentados sin pendientes: PASS.
+- Procedencia académica y tratamiento de todas las familias activas del ICV, sin consumo de M3: PASS.
 - Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.
 - Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.
 - Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.

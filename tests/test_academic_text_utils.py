@@ -15,6 +15,7 @@ from academic_text_utils import (  # noqa: E402
     clean_chemical_notation,
     find_campaign_unit_corruptions,
 )
+from generate_methodology_docx import clean_text as clean_methodology_text  # noqa: E402
 
 
 def test_area_and_volume_units_are_spaced_and_superscripted() -> None:
@@ -90,6 +91,18 @@ def test_humeda_does_not_corrupt_humedad() -> None:
 def test_free_prose_is_not_rewritten_word_by_word() -> None:
     source = "el benchmark usa un proxy y el pool residual"
     assert clean_avoidable_anglicisms(source) == source
+
+
+def test_measured_treatment_in_prose_is_not_promoted_to_factor_label() -> None:
+    source = "medido, observado, publicado, supuesto, calculado, integrado y propagado"
+    assert clean_methodology_text(source) == source
+    assert clean_methodology_text("medido") == "Factor medido"
+    assert clean_methodology_text("Factor medido") == "Factor medido"
+
+
+def test_official_emep_eea_title_is_preserved_verbatim() -> None:
+    title = "EMEP/EEA Air Pollutant Emission Inventory Guidebook 2023"
+    assert clean_academic_label(title) == title
 
 
 def test_nox_label_is_translated_without_changing_the_species() -> None:

@@ -6,6 +6,7 @@ import re
 import pandas as pd
 
 from academic_text_utils import clean_academic_label, clean_annual_units
+from inventory_data_provenance import academic_columns, build_provenance_rows
 from quantitative_comparison import dominant
 
 
@@ -659,6 +660,13 @@ def tabla_09_comparacion_escenarios() -> Path:
     return _write(pd.DataFrame(rows), "tabla_09_comparacion_escenarios.csv")
 
 
+def tabla_10_procedencia_datos_icv() -> Path:
+    """Genera la matriz académica de procedencia sin recalcular el inventario."""
+
+    rows = build_provenance_rows()
+    return _write(pd.DataFrame(rows)[academic_columns()], "tabla_10_procedencia_datos_icv.csv")
+
+
 def diccionario_variables() -> Path:
     rows = [
         ("escenario", "Identificador del escenario de manejo", "A o B", "Tablas de escenarios y resultados"),
@@ -967,6 +975,23 @@ def tablas_academicas_para_word() -> Path:
         ],
         "apendice_K_comparacion_escenarios_word.csv",
     )
+
+    provenance = pd.read_csv(OUTPUTS / "tabla_10_procedencia_datos_icv.csv")
+    write_word(
+        provenance[academic_columns()].rename(
+            columns={
+                "variable_o_familia": "Variable o familia de variables",
+                "etapas": "Etapa del sistema",
+                "valor_o_tipo_informacion": "Valor o tipo de información",
+                "procedencia_academica": "Procedencia académica",
+                "subtipo_procedencia": "Subtipo de procedencia",
+                "tratamiento_tfg": "Tratamiento dentro del TFG",
+                "fuente_concreta": "Fuente concreta",
+                "uso_metodologico": "Uso metodológico",
+            }
+        ),
+        "apendice_L_procedencia_datos_icv_word.csv",
+    )
     return word_dir
 
 
@@ -982,6 +1007,7 @@ def main() -> None:
         tabla_07_impactos_por_etapa,
         tabla_08_impactos_totales_por_escenario,
         tabla_09_comparacion_escenarios,
+        tabla_10_procedencia_datos_icv,
         diccionario_variables,
         resumen_resultados_para_redaccion,
         tablas_academicas_para_word,

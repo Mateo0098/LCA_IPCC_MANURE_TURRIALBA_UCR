@@ -17,6 +17,12 @@ import generate_a2_jjagwe_benchmark as benchmark_generator
 import generate_thesis_graphics as graphics_generator
 import validate_ef31_operational_inventory as ef31_validator
 from academic_text_utils import find_campaign_unit_corruptions
+from inventory_data_provenance import (
+    ACADEMIC_PROVENANCE,
+    academic_columns,
+    build_provenance_rows,
+    build_provenance_summary_rows,
+)
 from quantitative_comparison import Comparison, dominant
 
 
@@ -636,6 +642,83 @@ def validate_a1_a2_activity_assumptions() -> None:
     assert "no significa" in awms_text and "estiércol total de la finca" in awms_text
     assert "pendiente" not in awms_text
 
+
+def validate_inventory_data_provenance() -> None:
+    generated = read_rows(TABLES / "tabla_10_procedencia_datos_icv.csv")
+    expected = [
+        {column: row[column] for column in academic_columns()}
+        for row in build_provenance_rows()
+    ]
+    assert generated == expected, "La tabla de procedencia no corresponde a sus fuentes vigentes"
+    assert all(row["procedencia_academica"] in ACADEMIC_PROVENANCE for row in generated)
+    assert not any("M3" in " ".join(row.values()) for row in generated)
+    assert not any(row["procedencia_academica"] == "Terciaria" for row in generated)
+    assert len(generated) == 15
+    assert len(build_provenance_summary_rows()) == 6
+
+    experimental = next(
+        row for row in generated
+        if row["variable_o_familia"] == "Caracterización fisicoquímica de los materiales del estudio"
+    )
+    assert experimental["procedencia_academica"] == "Primaria"
+    assert "CIA/LASA" in experimental["fuente_concreta"]
+
+    operational_assumptions = next(
+        row for row in generated
+        if row["variable_o_familia"] == "Eficiencia de bomba, consumo de diésel y anualización operativa"
+    )
+    assert operational_assumptions["procedencia_academica"] == "No aplica: supuesto del estudio"
+    assert operational_assumptions["tratamiento_tfg"] == "Supuesto del estudio"
+
+    for family in (
+        "Masas, volúmenes y consumos del inventario",
+        "N total y TAN propagados entre etapas",
+    ):
+        row = next(item for item in generated if item["variable_o_familia"] == family)
+        assert row["procedencia_academica"] == "Mixta: primaria y secundaria"
+        assert "no constituye una tercera clase" in row["subtipo_procedencia"]
+
+    factor_families = (
+        "Factores y procedimientos IPCC para manejo y suelos",
+        "Factores EMEP/EEA de nitrógeno reactivo",
+        "Factor experimental de NH₃ utilizado como aproximación en A2",
+        "Factores nacionales para recursos energéticos",
+        "Factores de caracterización de impacto",
+    )
+    for family in factor_families:
+        row = next(item for item in generated if item["variable_o_familia"] == family)
+        assert row["procedencia_academica"] == "Secundaria"
+        assert row["fuente_concreta"].strip()
+
+    methodology_path = DOCS / "metodologia_desarrollada_tfg.docx"
+    integral_path = DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx"
+    methodology_text, _ = document_text(methodology_path)
+    integral_text, _ = document_text(integral_path)
+    for path, body in ((methodology_path, methodology_text), (integral_path, integral_text)):
+        lowered = body.casefold()
+        assert "fuentes y levantamiento del inventario" in lowered
+        assert "procedencia académica" in lowered
+        assert "tratamiento" in lowered
+        assert "ninguna entrada cuantitativa activa" in lowered
+        assert "según la taxonomía adoptada para este tfg" in lowered
+        assert "factor medido, observado" not in lowered
+        assert "medido, observado, publicado, supuesto" in lowered
+        assert "EMEP/EEA Air Pollutant Emission Inventory Guidebook 2023" in body
+        assert "EMEP/EEA Air Pollutant Emisión estimada Inventory Guidebook 2023" not in body
+
+        document = Document(path)
+        summary_tables = [
+            table for table in document.tables
+            if table.rows and table.rows[0].cells[0].text == "Macrofamilia"
+        ]
+        detailed_tables = [
+            table for table in document.tables
+            if table.rows and table.rows[0].cells[0].text == "Variable o familia de variables"
+            and any(cell.text == "Subtipo de procedencia" for cell in table.rows[0].cells)
+        ]
+        assert len(summary_tables) == 1 and len(summary_tables[0].rows) == 7
+        assert len(detailed_tables) == 1 and len(detailed_tables[0].rows) == 16
+
 HISTORICAL_GRAPH_STEMS = {
     "fig_11_impactos_calentamiento_global_etapa",
     "fig_12_impactos_eutrofizacion_etapa",
@@ -715,6 +798,7 @@ def main() -> None:
     validate_quantitative_narratives()
     validate_documents_and_conclusions()
     validate_a1_a2_activity_assumptions()
+    validate_inventory_data_provenance()
     validate_graph_sources_and_freshness()
     master = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
     master_hash = hashlib.sha256(master.read_bytes()).hexdigest().upper()
@@ -732,6 +816,7 @@ def main() -> None:
         "- Exportación foreground y controles de doble conteo: PASS.\n"
         "- Arquitectura híbrida A1/A2, aproximaciones aprobadas y referencias de contraste documentadas: PASS.\n"
         "- Supuestos de razón de masa A1→A2 y alcance de AWMS documentados sin pendientes: PASS.\n"
+        "- Procedencia académica y tratamiento de todas las familias activas del ICV, sin consumo de M3: PASS.\n"
         "- Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.\n"
         "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"

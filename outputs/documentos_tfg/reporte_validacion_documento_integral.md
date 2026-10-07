@@ -2,7 +2,7 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 11.
+- Tablas con numeración global: 13.
 - Figuras con numeración global: 7.
 - Ecuaciones con numeración global: 17.
 - Referencias integradas desde el registro bibliográfico: 43.
@@ -19,6 +19,9 @@
 - PASS — M3 se identifica como pendiente.
 - PASS — Las campañas M2/M3 no se confunden con unidades m²/m³.
 - PASS — La jerarquía académica prevista está completa.
+- PASS — La procedencia y el tratamiento se distinguen.
+- PASS — Los análisis externos del TFG se conservan como fuente primaria.
+- PASS — No se fuerza una fuente terciaria cuantitativa.
 - PASS — No hay marcadores accidentales.
 - PASS — No hay rutas internas visibles.
 - PASS — No hay etiquetas técnicas internas prohibidas.

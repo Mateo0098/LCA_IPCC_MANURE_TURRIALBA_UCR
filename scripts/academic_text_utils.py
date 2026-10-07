@@ -3,6 +3,11 @@ from __future__ import annotations
 import re
 
 
+PROTECTED_OFFICIAL_TITLES = (
+    "EMEP/EEA Air Pollutant Emission Inventory Guidebook 2023",
+)
+
+
 CAMPAIGN_UNIT_CORRUPTION_PATTERNS = (
     re.compile(r"\bM1\s*(?:[;–-]|y)\s*m[²³](?!\w)", re.IGNORECASE),
     re.compile(r"\b(?:jornada|campaña)\s+m[²³](?!\w)", re.IGNORECASE),
@@ -199,6 +204,12 @@ def clean_avoidable_anglicisms(value: object) -> str:
 
 def clean_academic_label(value: object) -> str:
     text = clean_avoidable_anglicisms(clean_annual_units(repair_mojibake(str(value))))
+    protected_titles: dict[str, str] = {}
+    for index, title in enumerate(PROTECTED_OFFICIAL_TITLES):
+        marker = f"⟦TITULO-OFICIAL-{index}⟧"
+        if title in text:
+            text = text.replace(title, marker)
+            protected_titles[marker] = title
     for internal, academic in sorted(
         ACADEMIC_LABELS.items(), key=lambda item: len(item[0]), reverse=True
     ):
@@ -219,4 +230,6 @@ def clean_academic_label(value: object) -> str:
     text = re.sub(r"\bhumeda\b", "húmeda", text, flags=re.IGNORECASE)
     text = text.replace("Eutrofizacion", "Eutrofización")
     text = text.replace("categoria impacto", "Categoría de impacto")
+    for marker, title in protected_titles.items():
+        text = text.replace(marker, title)
     return clean_chemical_notation(text)

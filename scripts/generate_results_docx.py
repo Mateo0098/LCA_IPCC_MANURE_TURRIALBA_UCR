@@ -64,6 +64,7 @@ METHODOLOGY_APPENDICES = [
     ("A", "Parámetros completos del modelo ACV", "Apéndice interno"),
     ("B", "Factores de emisión y caracterización", "Apéndice interno"),
     ("C", "Diccionario de variables metodológicas", "Apéndice interno"),
+    ("D", "Matriz detallada de procedencia de los datos del inventario", "Apéndice interno"),
 ]
 
 RESULTS_APPENDICES = [
@@ -93,6 +94,7 @@ TABLES = {
     "tabla_07": TABLE_DIR / "tabla_07_impactos_por_etapa.csv",
     "tabla_08": TABLE_DIR / "tabla_08_impactos_totales_por_escenario.csv",
     "tabla_09": TABLE_DIR / "tabla_09_comparacion_escenarios.csv",
+    "tabla_10": TABLE_DIR / "tabla_10_procedencia_datos_icv.csv",
 }
 
 MAIN_FIGURES = [
@@ -1636,6 +1638,7 @@ Metodología:
 - Tabla de unidad funcional, supuestos y advertencias metodológicas.
 - Tabla de etapas oficiales por escenario.
 - Tabla de caracterización resumida de muestras.
+- Tabla de procedencia y tratamiento de las familias de datos del inventario.
 - Tabla de factores de caracterización resumidos.
 - Figura de masa equivalente total como apoyo metodológico.
 
@@ -1657,6 +1660,7 @@ Metodología:
 - Parámetros completos del modelo ACV.
 - Factores técnicos completos.
 - Diccionario de variables.
+- Matriz detallada de procedencia y tratamiento de los datos del inventario.
 - Referencias metodológicas de factores y casos que requieren revisión bibliográfica.
 
 Resultados:

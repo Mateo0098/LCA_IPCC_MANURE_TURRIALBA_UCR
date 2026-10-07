@@ -92,6 +92,7 @@ EXPECTED_HEADINGS = [
     "8. Recomendaciones",
     "9. Referencias",
     "Apéndice A. Trazabilidad entre objetivos y evidencia provisional",
+    "Apéndice B. Matriz detallada de procedencia de los datos del inventario",
 ]
 
 REQUIRED_REFERENCE_KEYS = {
@@ -728,7 +729,32 @@ def build_document() -> tuple[int, int, int, int]:
         decimals=3,
     )
 
-    document.add_heading("4.4 Balance secuencial de nitrógeno y estimación de emisiones", level=2)
+    document.add_heading("4.4 Fuentes y levantamiento del inventario", level=2)
+    add_text(
+        document,
+        [
+            "El Inventario de Ciclo de Vida se levantó mediante seis componentes complementarios: caracterización experimental; observaciones y registros operativos de la finca; datos previamente publicados cuando fueron necesarios; factores metodológicos oficiales o de literatura; supuestos explícitos; y cálculos, integraciones y transformaciones reproducibles dentro del flujo de trabajo.",
+            "La procedencia y el tratamiento se registraron por separado. Según la taxonomía adoptada para este TFG, se clasificó como primaria la información obtenida específicamente mediante muestreo, medición, observación o registro directo. Los análisis de CIA y LASA conservaron esta condición cuando correspondieron a muestras del estudio, aunque se ejecutaran como servicio analítico externo. Los datos preexistentes, la literatura y los factores del IPCC, del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés), del IMN y de Environmental Footprint 3.1 se clasificaron como secundarios con subtipos que identifican su función.",
+            "La categoría terciaria se reservó para materiales de compilación o localización y no se asignó a ninguna entrada cuantitativa activa. Medido, observado, publicado, supuesto, calculado, integrado, propagado, factor metodológico y factor de caracterización describen el tratamiento del dato; no alteran por sí mismos su procedencia.",
+        ],
+    )
+    provenance_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {provenance_table} resume seis macrofamilias de datos y su uso. El Apéndice B, Matriz detallada de procedencia de los datos del inventario, conserva las 15 familias, etapas, subtipos, fuentes concretas y tratamientos necesarios para la trazabilidad fina.",
+        ],
+    )
+    provenance_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Procedencia y tratamiento de las familias de datos del inventario.",
+        methodology_source.provenance_summary(),
+        decimals=2,
+    )
+
+    document.add_heading("4.5 Balance secuencial de nitrógeno y estimación de emisiones", level=2)
     add_text(
         document,
         [
@@ -739,14 +765,14 @@ def build_document() -> tuple[int, int, int, int]:
             "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como aproximación para CH₄ y N₂O directo; Komakech et al. (2016), como aproximación experimental aprobada para NH₃; y EMEP/EEA de almacenamiento sólido, como aproximación metodológica aprobada provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
         ],
     )
-    document.add_heading("4.4.1 Metano de las etapas de manejo", level=3)
+    document.add_heading("4.5.1 Metano de las etapas de manejo", level=3)
     add_equation(
         document,
         counters,
         r"m_{\mathrm{CH_4}} = m_{\mathrm{manejada}} \times VS_{\mathrm{húmeda}} \times B_0 \times \rho_{\mathrm{CH_4}} \times \left(\frac{MCF}{100}\right) \times AWMS",
         "En la ecuación, m_CH₄ es la emisión de metano de la etapa; m_manejada es la masa húmeda manejada; VS_húmeda es la fracción de sólidos volátiles (SV) en base húmeda; B₀ es la capacidad máxima de producción de metano; ρ_CH₄ es el factor IPCC de conversión de volumen a masa, 0,67 kg CH₄/m³; MCF es el factor de conversión de metano (MCF, por sus siglas en inglés) y AWMS representa la fracción asignada al sistema de manejo de desechos animales (AWMS, por sus siglas en inglés).",
     )
-    document.add_heading("4.4.2 Balance secuencial de N total y TAN", level=3)
+    document.add_heading("4.5.2 Balance secuencial de N total y TAN", level=3)
     add_equation(
         document,
         counters,
@@ -775,7 +801,7 @@ def build_document() -> tuple[int, int, int, int]:
     )
     add_equation(document, counters, r"N_{\mathrm{precursor,vol}} = N_{\mathrm{NH_3}} + N_{\mathrm{NO_x}}")
     add_equation(document, counters, r"m_{\mathrm{N_2O,ind,vol}} = N_{\mathrm{precursor,vol}} \times EF_4 \times \frac{44}{28}")
-    document.add_heading("4.4.3 Rutas de N hacia el suelo y aplicación", level=3)
+    document.add_heading("4.5.3 Rutas de N hacia el suelo y aplicación", level=3)
     add_text(
         document,
         [
@@ -798,7 +824,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_equation(document, counters, r"m_{\mathrm{NO_3^-}} = N_{\mathrm{lix,esc}} \times \frac{62}{14}")
     add_equation(document, counters, r"m_{\mathrm{N_2O,ind,lix}} = N_{\mathrm{lix,esc}} \times EF_5 \times \frac{44}{28}")
 
-    document.add_heading("4.5 Evaluación de impactos y consumos operativos", level=2)
+    document.add_heading("4.6 Evaluación de impactos y consumos operativos", level=2)
     add_text(
         document,
         [
@@ -840,7 +866,7 @@ def build_document() -> tuple[int, int, int, int]:
         "Masa equivalente total por etapa y escenario.",
     )
 
-    document.add_heading("4.6 Supuestos, consistencia y limitaciones", level=2)
+    document.add_heading("4.7 Supuestos, consistencia y limitaciones", level=2)
     add_text(
         document,
         [
@@ -1126,6 +1152,26 @@ def build_document() -> tuple[int, int, int, int]:
         traceability,
         decimals=2,
     )
+
+    add_chapter(
+        document,
+        "Apéndice B. Matriz detallada de procedencia de los datos del inventario",
+    )
+    provenance_appendix_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {provenance_appendix_table} conserva la trazabilidad detallada por familia sin convertir los cálculos derivados en una nueva categoría de fuente.",
+        ],
+    )
+    provenance_appendix_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Matriz detallada de procedencia y tratamiento de los datos del inventario.",
+        methodology_source.provenance_detail(),
+        decimals=2,
+    )
     populate_acronym_list(document, acronym_marker)
     finalize_document_format(document, profile)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1320,6 +1366,9 @@ def validate_document(
         ("M3 se identifica como pendiente", "M3" in text and "pendiente" in text.lower()),
         ("Las campañas M2/M3 no se confunden con unidades m²/m³", not campaign_unit_corruptions),
         ("La jerarquía académica prevista está completa", all(title in text for title in EXPECTED_HEADINGS)),
+        ("La procedencia y el tratamiento se distinguen", "La procedencia y el tratamiento se registraron por separado" in text),
+        ("Los análisis externos del TFG se conservan como fuente primaria", "servicio analítico externo" in text and "Primaria" in text),
+        ("No se fuerza una fuente terciaria cuantitativa", "no se asignó a ninguna entrada cuantitativa activa" in text),
         ("No hay marcadores accidentales", not re.search(r"\{\{|\}\}|\bTODO\b|\bTBD\b|Lorem ipsum|\[PENDIENTE\]", text)),
         ("No hay rutas internas visibles", not re.search(r"(?:processed|outputs|scripts|MASTER_escrito)[/\\]|\.csv\b", text, re.IGNORECASE)),
         (

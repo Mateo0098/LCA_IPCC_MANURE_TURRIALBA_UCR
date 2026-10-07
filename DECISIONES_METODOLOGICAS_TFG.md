@@ -148,7 +148,10 @@ anualiza a 365 días; no es una medición instrumental continua de un año calen
 
 ### Tratamiento aprobado de recursos energéticos mediante IMN
 
-La fuente primaria es `Academic_documents/references/FactoresEmision-GEI-2026.pdf`.
+La fuente documental oficial consultada directamente es
+`Academic_documents/references/FactoresEmision-GEI-2026.pdf`. En la taxonomía
+académica del inventario corresponde a una fuente secundaria de tipo oficial,
+no a evidencia primaria levantada específicamente para el TFG.
 Se preserva la discrepancia editorial: portada 16.ª edición, 2026; páginas
 interiores 15a edición / 2025. Los factores y metadatos residen únicamente en
 `processed/acv_factores_imn_recursos_operativos.csv`, incluyendo páginas,
@@ -559,3 +562,41 @@ Con las jornadas actuales no se realizarán automáticamente ANOVA, pruebas t, p
 La integración M1–M2 constituye la caracterización experimental provisional activa. Los parámetros elegibles se promueven hacia el ACV y la corrida resultante se identifica expresamente como **PROVISIONAL M1–M2**. Cuando exista M3 metodológicamente compatible, se actualizará la integración y se regenerará el mismo pipeline. No deben crearse perfiles históricos, snapshots del modelo ni pipelines paralelos para incorporar M3.
 
 El factor de transformación de masa de estiércol fresco a estiércol precompostado se calcula primero de forma independiente para cada jornada a partir de sus promedios gravimétricos validados. Los factores de jornada reciben igual peso temporal y el parámetro integrado principal es `mass_ratio_precomp_over_fresh`. La pérdida porcentual integrada se deriva de ese factor mediante `(1 - mass_ratio_precomp_over_fresh) × 100`; no se promedia por una ruta independiente. El resultado M1–M2 es provisional y el valor definitivo requerirá M1, M2 y M3 metodológicamente elegibles.
+
+## 16. Procedencia y tratamiento de los datos del inventario
+
+La clasificación permanente distingue dos dimensiones que no deben
+intercambiarse:
+
+1. **Procedencia académica.** Es primaria cuando la información se obtuvo
+   específicamente para el TFG mediante muestreo, medición, observación,
+   registro de campo o análisis de sus muestras. Los resultados CIA y LASA son
+   primarios cuando corresponden a muestras recolectadas para este estudio,
+   aunque la determinación se haya contratado como servicio externo. Es
+   secundaria cuando la información existía previamente, incluidos datos
+   publicados de la finca, artículos, tesis, guías y factores oficiales de
+   IPCC, EMEP/EEA, IMN y Environmental Footprint 3.1. La categoría terciaria se
+   reserva para compilaciones o herramientas de localización; ninguna entrada
+   cuantitativa activa del inventario pertenece actualmente a ella. Las
+   identidades temporales puras se registran como convenciones del estudio, sin
+   forzarlas dentro de una categoría empírica o bibliográfica. De igual forma,
+   un supuesto numérico definido por el estudio sin fuente empírica o
+   bibliográfica directa se registra como `No aplica: supuesto del estudio`: la
+   evidencia de campo puede justificar su contexto, pero no convierte el valor
+   supuesto en información primaria. Esta categoría permanece separada de
+   `No aplica: convención del estudio`.
+2. **Tratamiento dentro del TFG.** Indica si el valor fue medido, observado,
+   publicado, supuesto, calculado o derivado, integrado estadísticamente,
+   propagado entre etapas, aplicado como factor metodológico o aplicado como
+   factor de caracterización. Un tratamiento no cambia por sí mismo la
+   procedencia: los valores calculados conservan la trazabilidad de sus entradas.
+
+Las familias derivadas que combinan información primaria y secundaria se
+identifican como mixtas y deben conservar la fuente concreta de cada componente.
+La etiqueta mixta no constituye una tercera clase de fuente: resume una
+procedencia heredada cuyos componentes permanecen separables. La futura matriz
+metodológica A1–B2 aportará el detalle por etapa sin cambiar esta clasificación.
+La matriz académica se genera desde las fuentes vigentes y no constituye una
+tabla manual independiente ni una nueva fuente científica. La taxonomía,
+subtipos y equivalencias de etiquetas se mantienen en
+`DICCIONARIO_TRAZABILIDAD_VARIABLES.md`.

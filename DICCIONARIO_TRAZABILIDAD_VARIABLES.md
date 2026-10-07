@@ -14,6 +14,57 @@ cruzada. El orquestador promueve la integración vigente; no ejecuta ingestión
 ni integración estadística. Una capacidad o un nombre de salida conservado en
 el código no implica que sea metodología productiva del TFG.
 
+## Taxonomía de procedencia y tratamiento de los datos
+
+La trazabilidad del inventario utiliza dos dimensiones independientes. La
+**procedencia académica** responde de dónde proviene la información; el
+**tratamiento dentro del TFG** describe qué se hizo con el valor. Por tanto, un
+valor calculado a partir de mediciones del estudio conserva trazabilidad hacia
+una fuente primaria y no se convierte en fuente terciaria por haber sido
+derivado.
+
+### Procedencia académica
+
+| Categoría | Subtipo gobernado | Criterio de uso en este TFG | Ejemplos vigentes |
+|---|---|---|---|
+| Primaria | Medición experimental del TFG | Muestreo, determinación o análisis realizado específicamente para este estudio. Un servicio analítico externo conserva este carácter cuando analiza muestras del TFG. | Muestreo del investigador; determinaciones de Bioenergía; informes CIA y LASA de M1–M2. |
+| Primaria | Observación o registro de campo | Observación directa, comunicación operacional, registro de campo o característica observada en una placa durante el estudio. | Frecuencias y tiempos de operación; potencia nominal observada en la bomba. |
+| Secundaria | Datos publicados del sitio | Información preexistente de la misma lechería, publicada antes de su uso en el TFG. | Parámetros operativos de Sánchez-Romero y Brenes-Gamboa (2026). |
+| Secundaria | Guía o documento oficial | Factores y procedimientos de organismos técnicos utilizados para estimar inventario o impacto. | IPCC, EMEP/EEA, IMN y Environmental Footprint 3.1. |
+| Secundaria | Literatura científica cuantitativa | Artículos o tesis previas usados como parámetro, aproximación o contraste. | Factor de Komakech et al. (2016) aplicado en A2. |
+| Terciaria | Compilación o herramienta de localización | Material que resume o remite a fuentes primarias o secundarias y se usa principalmente para contexto o localización. | No existe actualmente una entrada cuantitativa activa del inventario clasificada en esta categoría. |
+| No aplica | Supuesto del estudio | Valor definido explícitamente para el modelo sin fuente empírica o bibliográfica directa. La evidencia de campo puede aportar contexto, pero no transforma el valor supuesto en dato primario. | Eficiencia de bomba de 0,80 y consumo de diésel de 3 L/h. |
+| No aplica | Convención del estudio | Identidad o convención necesaria para expresar el cálculo, sin atribuirle un origen empírico o bibliográfico artificial. | Día de 24 h y año de modelado de 365 días. |
+
+Las familias que combinan mediciones primarias con factores secundarios se
+identifican como de procedencia mixta, pero cada componente conserva su fuente
+concreta. Esta etiqueta no crea una tercera fuente ni reemplaza la trazabilidad
+fina; la futura matriz metodológica A1–B2 desagregará los vínculos por etapa.
+
+### Tratamiento dentro del TFG
+
+Los estados controlados son: `medido`, `observado`, `publicado`, `supuesto del
+estudio`, `calculado o derivado`, `integrado estadísticamente`, `propagado entre
+etapas`, `factor metodológico`, `factor de caracterización` y `convención de
+cálculo`. Pueden combinarse cuando describen pasos sucesivos. Las etiquetas
+heredadas se normalizan así:
+
+| Etiqueta existente | Procedencia académica | Tratamiento normalizado |
+|---|---|---|
+| `primario_campo` / `Dato primario de campo` | Primaria: observación o registro de campo | Observado o comunicado; puede anualizarse después. |
+| `observado_placa` / `Observado en placa` | Primaria: observación directa de equipo | Observado. |
+| `dato_publicado` | Secundaria: datos publicados del sitio | Publicado. |
+| `supuesto_estudio` / `supuesto_tfg` con base empírica o bibliográfica directa | La de la evidencia que sustenta el supuesto | Supuesto del estudio. |
+| `supuesto_estudio` sin base empírica o bibliográfica directa | No aplica: supuesto del estudio | Supuesto del estudio. |
+| `identidad_temporal` | No aplica: convención del estudio | Convención de cálculo. |
+| Resultados de ecuaciones, integración o balance productivo | Heredada de sus entradas primarias y secundarias | Calculado, integrado o propagado, según corresponda. |
+
+La matriz académica generada por familias reside en
+`outputs/tablas_tesis/tabla_10_procedencia_datos_icv.csv`; su definición y sus
+controles se mantienen en `scripts/inventory_data_provenance.py`. La matriz no
+es una fuente nueva de valores: presenta la trazabilidad derivada de las fuentes
+vigentes enumeradas en este diccionario.
+
 ## Variables de laboratorio y caracterizacion de muestras
 
 | Variable en codigo | Nombre recomendado para la tesis | Definicion | Unidad | Fuente del dato | Formula usada | Script donde se calcula | Archivo de salida donde aparece | Seccion de tesis |

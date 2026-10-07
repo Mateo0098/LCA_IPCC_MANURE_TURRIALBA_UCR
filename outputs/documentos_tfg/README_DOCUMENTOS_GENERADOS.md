@@ -30,6 +30,7 @@
 - `tabla_07_impactos_por_etapa.csv`
 - `tabla_08_impactos_totales_por_escenario.csv`
 - `tabla_09_comparacion_escenarios.csv`
+- `tabla_10_procedencia_datos_icv.csv`
 
 ## 4. Figuras utilizadas
 
@@ -92,6 +93,7 @@ Metodología:
 - Tabla de unidad funcional, supuestos y advertencias metodológicas.
 - Tabla de etapas oficiales por escenario.
 - Tabla de caracterización resumida de muestras.
+- Tabla de procedencia y tratamiento de las familias de datos del inventario.
 - Tabla de factores de caracterización resumidos.
 - Figura de masa equivalente total como apoyo metodológico.
 
@@ -113,6 +115,7 @@ Metodología:
 - Parámetros completos del modelo ACV.
 - Factores técnicos completos.
 - Diccionario de variables.
+- Matriz detallada de procedencia y tratamiento de los datos del inventario.
 - Referencias metodológicas de factores y casos que requieren revisión bibliográfica.
 
 Resultados:
