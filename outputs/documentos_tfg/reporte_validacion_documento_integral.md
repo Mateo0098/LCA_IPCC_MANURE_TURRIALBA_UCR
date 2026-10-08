@@ -2,7 +2,7 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 13.
+- Tablas con numeración global: 15.
 - Figuras con numeración global: 7.
 - Ecuaciones con numeración global: 17.
 - Referencias integradas desde el registro bibliográfico: 43.
@@ -84,7 +84,7 @@
 
 - Entradas registradas y utilizadas: 28.
 - Candidatos no registrados: ninguno.
-- Exclusiones clasificadas disponibles: 21.
+- Exclusiones clasificadas disponibles: 30.
 
 ## Alcance de la validación
 

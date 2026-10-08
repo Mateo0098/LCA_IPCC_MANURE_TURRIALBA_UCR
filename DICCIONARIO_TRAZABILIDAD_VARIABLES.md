@@ -39,7 +39,9 @@ derivado.
 Las familias que combinan mediciones primarias con factores secundarios se
 identifican como de procedencia mixta, pero cada componente conserva su fuente
 concreta. Esta etiqueta no crea una tercera fuente ni reemplaza la trazabilidad
-fina; la futura matriz metodológica A1–B2 desagregará los vínculos por etapa.
+fina; la matriz metodológica A1–B2 desagrega los vínculos por etapa y se genera
+en `outputs/tablas_tesis/tabla_11_trazabilidad_metodologica_a1_b2.csv` desde
+`scripts/methodological_traceability.py`.
 
 ### Tratamiento dentro del TFG
 

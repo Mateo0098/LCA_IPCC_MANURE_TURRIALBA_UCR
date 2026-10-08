@@ -93,6 +93,7 @@ EXPECTED_HEADINGS = [
     "9. Referencias",
     "Apéndice A. Trazabilidad entre objetivos y evidencia provisional",
     "Apéndice B. Matriz detallada de procedencia de los datos del inventario",
+    "Apéndice C. Matriz detallada de trazabilidad metodológica por etapa A1–B2",
 ]
 
 REQUIRED_REFERENCE_KEYS = {
@@ -754,6 +755,23 @@ def build_document() -> tuple[int, int, int, int]:
         decimals=2,
     )
 
+    methodology_trace_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {methodology_trace_table} sintetiza la secuencia metodológica de cada etapa A1–B2. El Apéndice C, Matriz detallada de trazabilidad metodológica por etapa A1–B2, relaciona cada fenómeno con su ecuación vigente, dato de actividad, factor, procedencia, fuente y uso posterior.",
+            "Esta vista conserva separadas la generación del inventario y la caracterización de impactos: una emisión elemental o un consumo se obtiene primero y, cuando corresponde, se vincula después con el factor de Environmental Footprint 3.1. La electricidad mantiene el resultado agregado del Instituto Meteorológico Nacional y no se presenta como un flujo elemental caracterizado.",
+        ],
+    )
+    methodology_trace_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Síntesis de la trazabilidad metodológica por etapa A1–B2.",
+        methodology_source.methodological_summary(),
+        decimals=2,
+    )
+
     document.add_heading("4.5 Balance secuencial de nitrógeno y estimación de emisiones", level=2)
     add_text(
         document,
@@ -1170,6 +1188,26 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Matriz detallada de procedencia y tratamiento de los datos del inventario.",
         methodology_source.provenance_detail(),
+        decimals=2,
+    )
+
+    add_chapter(
+        document,
+        "Apéndice C. Matriz detallada de trazabilidad metodológica por etapa A1–B2",
+    )
+    methodology_appendix_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {methodology_appendix_table} permite seguir cada etapa individualmente desde el proceso y el dato de actividad hasta la relación de cálculo, la fuente metodológica y la salida utilizada posteriormente. Las relaciones se recuperan de las fuentes responsables vigentes y no constituyen un modelo paralelo.",
+        ],
+    )
+    methodology_appendix_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Matriz detallada de trazabilidad metodológica por etapa A1–B2.",
+        methodology_source.methodological_detail(),
         decimals=2,
     )
     populate_acronym_list(document, acronym_marker)

@@ -31,6 +31,7 @@
 - `tabla_08_impactos_totales_por_escenario.csv`
 - `tabla_09_comparacion_escenarios.csv`
 - `tabla_10_procedencia_datos_icv.csv`
+- `tabla_11_trazabilidad_metodologica_a1_b2.csv`
 
 ## 4. Figuras utilizadas
 
@@ -94,6 +95,7 @@ Metodología:
 - Tabla de etapas oficiales por escenario.
 - Tabla de caracterización resumida de muestras.
 - Tabla de procedencia y tratamiento de las familias de datos del inventario.
+- Tabla de síntesis metodológica por etapa A1–B2.
 - Tabla de factores de caracterización resumidos.
 - Figura de masa equivalente total como apoyo metodológico.
 
@@ -116,6 +118,7 @@ Metodología:
 - Factores técnicos completos.
 - Diccionario de variables.
 - Matriz detallada de procedencia y tratamiento de los datos del inventario.
+- Matriz detallada de trazabilidad metodológica por etapa A1–B2.
 - Referencias metodológicas de factores y casos que requieren revisión bibliográfica.
 
 Resultados:

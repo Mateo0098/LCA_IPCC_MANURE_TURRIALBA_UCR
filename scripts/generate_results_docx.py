@@ -65,6 +65,7 @@ METHODOLOGY_APPENDICES = [
     ("B", "Factores de emisión y caracterización", "Apéndice interno"),
     ("C", "Diccionario de variables metodológicas", "Apéndice interno"),
     ("D", "Matriz detallada de procedencia de los datos del inventario", "Apéndice interno"),
+    ("E", "Matriz detallada de trazabilidad metodológica por etapa A1–B2", "Apéndice interno"),
 ]
 
 RESULTS_APPENDICES = [
@@ -95,6 +96,7 @@ TABLES = {
     "tabla_08": TABLE_DIR / "tabla_08_impactos_totales_por_escenario.csv",
     "tabla_09": TABLE_DIR / "tabla_09_comparacion_escenarios.csv",
     "tabla_10": TABLE_DIR / "tabla_10_procedencia_datos_icv.csv",
+    "tabla_11": TABLE_DIR / "tabla_11_trazabilidad_metodologica_a1_b2.csv",
 }
 
 MAIN_FIGURES = [
@@ -1639,6 +1641,7 @@ Metodología:
 - Tabla de etapas oficiales por escenario.
 - Tabla de caracterización resumida de muestras.
 - Tabla de procedencia y tratamiento de las familias de datos del inventario.
+- Tabla de síntesis metodológica por etapa A1–B2.
 - Tabla de factores de caracterización resumidos.
 - Figura de masa equivalente total como apoyo metodológico.
 
@@ -1661,6 +1664,7 @@ Metodología:
 - Factores técnicos completos.
 - Diccionario de variables.
 - Matriz detallada de procedencia y tratamiento de los datos del inventario.
+- Matriz detallada de trazabilidad metodológica por etapa A1–B2.
 - Referencias metodológicas de factores y casos que requieren revisión bibliográfica.
 
 Resultados:

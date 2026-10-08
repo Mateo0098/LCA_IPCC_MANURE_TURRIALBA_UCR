@@ -13,6 +13,7 @@ from docx.shared import Inches, Pt
 from academic_text_utils import clean_academic_label, find_campaign_unit_corruptions
 from academic_word_math import add_word_equation
 from inventory_data_provenance import build_provenance_summary_rows
+from methodological_traceability import build_summary_rows as build_methodological_summary_rows
 from master_word_format import (
     add_master_caption,
     analyze_master_format,
@@ -50,6 +51,7 @@ TABLES = {
     "parametros": TABLE_DIR / "tabla_04_parametros_modelo_acv.csv",
     "factores": TABLE_DIR / "tabla_05_factores_emision_y_caracterizacion.csv",
     "procedencia": TABLE_DIR / "tabla_10_procedencia_datos_icv.csv",
+    "trazabilidad_metodologica": TABLE_DIR / "tabla_11_trazabilidad_metodologica_a1_b2.csv",
     "diccionario": TABLE_DIR / "diccionario_variables.csv",
 }
 
@@ -572,6 +574,40 @@ def provenance_detail() -> pd.DataFrame:
     )
 
 
+def methodological_summary() -> pd.DataFrame:
+    return pd.DataFrame(build_methodological_summary_rows()).drop(
+        columns=["filas_detalladas"]
+    ).rename(
+        columns={
+            "escenario": "Escenario",
+            "etapa": "Etapa del sistema",
+            "procesos_principales": "Procesos principales",
+            "datos_actividad": "Datos de actividad",
+            "marcos_fuentes_metodologicas": "Marcos y fuentes metodológicas",
+            "salidas_principales": "Salidas principales",
+        }
+    )
+
+
+def methodological_detail() -> pd.DataFrame:
+    return read_csv("trazabilidad_metodologica").rename(
+        columns={
+            "escenario": "Escenario",
+            "etapa": "Etapa del sistema",
+            "fase_metodologica": "Fase metodológica",
+            "proceso_o_fenomeno_modelado": "Proceso o fenómeno modelado",
+            "variable_o_flujo_calculado": "Variable o flujo calculado",
+            "identificador_ecuacion": "Ecuación",
+            "ecuacion_o_relacion_calculo": "Relación de cálculo",
+            "dato_actividad": "Dato de actividad",
+            "parametro_o_factor": "Parámetro o factor",
+            "procedencia_dato_factor": "Procedencia del dato o factor",
+            "fuente_metodologica": "Fuente metodológica",
+            "salida_o_uso_posterior": "Salida o uso posterior",
+        }
+    )
+
+
 def methodology_context() -> dict[str, float]:
     operational = pd.read_csv(OPERATIVE_PARAMS, encoding="utf-8-sig")
     values = {
@@ -722,6 +758,12 @@ def build_document() -> None:
     ])
     add_dataframe_table(doc, "Tabla 4. Procedencia y tratamiento de las familias de datos del inventario.", format_df(provenance_summary()))
 
+    add_paragraphs(doc, [
+        "La lógica metodológica se organizó además por etapa para mostrar, sin reconstruir el modelo, la relación entre proceso, dato de actividad, ecuación vigente, fuente y uso posterior. La Tabla 5 sintetiza las seis etapas obligatorias; la matriz completa se presenta en el Apéndice interno E, Matriz detallada de trazabilidad metodológica por etapa A1–B2.",
+        "La matriz distingue la generación del inventario de su caracterización: primero se obtienen emisiones o consumos y, únicamente después, los flujos elementales compatibles se multiplican por factores de Environmental Footprint 3.1 para producir indicadores. El factor agregado del Instituto Meteorológico Nacional para electricidad conserva su tratamiento separado.",
+    ])
+    add_dataframe_table(doc, "Tabla 5. Síntesis de la trazabilidad metodológica por etapa A1–B2.", format_df(methodological_summary()))
+
     doc.add_heading("11. Cálculo de humedad y materia seca", level=2)
     add_paragraphs(doc, ["La materia seca se calculó como la proporción entre la masa posterior al secado y la masa fresca inicial. La humedad se estimó como la fracción de agua removida durante el secado. Estas determinaciones gravimétricas fueron realizadas por Bioenergía a 105 °C durante 16 h y son independientes del acondicionamiento aplicado por el CIA para el análisis elemental."])
     add_latex_equation(doc, r"MS(\%) = \frac{m_{\mathrm{seca}}}{m_{\mathrm{fresca}}} \times 100", ["Donde: MS = materia seca, %; m_seca = masa posterior al secado, g; m_fresca = masa fresca inicial, g."])
@@ -799,7 +841,7 @@ def build_document() -> None:
         "El uso consecutivo de factores en A1 y A2 no duplicó el mismo N: A2 recibió el N total y la reserva residual de TAN a la salida de A1. Las duraciones específicas de ambas etapas introducen incertidumbre de representatividad temporal y de transferencia de las aproximaciones, pero no justifican un escalado lineal ni demuestran doble conteo.",
         "En A3 y B1, la mineralización EMEP aumentó el TAN disponible antes de calcular NH₃-N, NO-N y N₂-N. En A4 y B2, NH₃-N se calculó como 0,55 kg NH₃-N por kg TAN aplicado; el NOx se reportó como NO₂ con 0,04 kg NO₂ por kg N aplicado y se convirtió a NOx-N mediante 14/46 para el balance.",
         "El N₂O indirecto por volatilización se calculó exclusivamente con las especies explícitas NH₃-N y NOx-N. FracGasMS se conservó solo como referencia de orden de magnitud y no generó una segunda masa física. El nitrato se originó exclusivamente en rutas hídricas justificadas y el N₂O indirecto asociado no se descontó de la masa de NO₃⁻ inventariada.",
-        "Los factores de caracterización empleados para convertir emisiones en indicadores de impacto se presentan en la Tabla 5.",
+        "Los factores de caracterización empleados para convertir emisiones en indicadores de impacto se presentan en la Tabla 6.",
     ])
 
     add_latex_equation(doc, r"TAN_{fresco} = 0{,}60 \times N_{total,fresco}", ["Donde: TAN_fresco = nitrógeno amoniacal total en la frontera fresca, kg N/año; N_total,fresco = nitrógeno total del estiércol fresco, kg N/año."])
@@ -825,7 +867,7 @@ def build_document() -> None:
     add_latex_equation(doc, r"CC_{total}=CC_{manejo}+CC_{electricidad}+CC_{diesel}")
     add_latex_equation(doc, r"CC_{electricidad}=E_{kWh} \times FE_{IMN,consumo,2025}")
     add_latex_equation(doc, r"CC_{diesel}=m_{CO_2,fosil} \times 1 + m_{CH_4,fosil} \times 29{,}8 + m_{N_2O,combustion} \times 273")
-    add_dataframe_table(doc, "Tabla 5. Factores de emisión IMN y caracterización EF 3.1.", format_df(characterization_factors(), decimals=4))
+    add_dataframe_table(doc, "Tabla 6. Factores de emisión IMN y caracterización EF 3.1.", format_df(characterization_factors(), decimals=4))
 
     doc.add_heading("20. Contraste bibliográfico experimental de A2", level=2)
     add_paragraphs(doc, [
@@ -870,7 +912,7 @@ def build_document() -> None:
     ])
 
     doc.add_heading("Apéndices internos de metodología", level=1)
-    add_paragraphs(doc, ["Los apéndices internos reúnen material técnico de apoyo. La Tabla M1 presenta parámetros completos del modelo ACV, la Tabla M2 presenta factores de emisión y caracterización, la Tabla M3 presenta el diccionario de variables metodológicas y la Tabla M4 conserva la trazabilidad detallada de procedencia y tratamiento de los datos del inventario."])
+    add_paragraphs(doc, ["Los apéndices internos reúnen material técnico de apoyo. La Tabla M1 presenta parámetros completos del modelo ACV, la Tabla M2 presenta factores de emisión y caracterización, la Tabla M3 presenta el diccionario de variables metodológicas, la Tabla M4 conserva la trazabilidad detallada de procedencia y la Tabla M5 desarrolla la trazabilidad metodológica por etapa."])
 
     doc.add_heading("Apéndice interno A. Parámetros completos del modelo ACV", level=2)
     params = add_calculation_framework(strip_internal_columns(apply_official_stage_names(read_csv("parametros"))))
@@ -887,6 +929,10 @@ def build_document() -> None:
     doc.add_heading("Apéndice interno D. Matriz detallada de procedencia de los datos del inventario", level=2)
     add_paragraphs(doc, ["La Tabla M4 detalla la procedencia académica y, por separado, el tratamiento aplicado a cada familia de datos utilizada para construir el inventario."])
     add_dataframe_table(doc, "Tabla M4. Matriz detallada de procedencia y tratamiento de los datos del inventario.", format_df(provenance_detail()))
+
+    doc.add_heading("Apéndice interno E. Matriz detallada de trazabilidad metodológica por etapa A1–B2", level=2)
+    add_paragraphs(doc, ["La Tabla M5 permite seguir cada etapa desde el fenómeno y el dato de actividad hasta la relación de cálculo, la fuente metodológica y el uso posterior. Las filas de caracterización se mantienen separadas de las filas que generan emisiones o consumos."])
+    add_dataframe_table(doc, "Tabla M5. Matriz detallada de trazabilidad metodológica por etapa A1–B2.", format_df(methodological_detail()))
 
     finalize_document_format(doc, profile)
     doc.save(OUT_DOCX)
@@ -907,6 +953,7 @@ def validate_physical_temporal_text(text: str) -> None:
         "Procedencia y tratamiento diferenciados": ("procedencia académica", "dimensiones independientes", "servicio analítico externo"),
         "Ausencia justificada de fuente terciaria activa": ("ninguna entrada cuantitativa activa", "terciaria"),
         "Apéndice de procedencia referenciado": ("apéndice interno d", "matriz detallada de procedencia"),
+        "Apéndice metodológico por etapa referenciado": ("apéndice interno e", "trazabilidad metodológica por etapa"),
     }
     failures = [
         name for name, terms in required_groups.items()

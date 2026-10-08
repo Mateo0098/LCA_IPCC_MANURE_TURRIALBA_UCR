@@ -594,8 +594,8 @@ intercambiarse:
 Las familias derivadas que combinan información primaria y secundaria se
 identifican como mixtas y deben conservar la fuente concreta de cada componente.
 La etiqueta mixta no constituye una tercera clase de fuente: resume una
-procedencia heredada cuyos componentes permanecen separables. La futura matriz
-metodológica A1–B2 aportará el detalle por etapa sin cambiar esta clasificación.
+procedencia heredada cuyos componentes permanecen separables. La matriz
+metodológica A1–B2 generada aporta el detalle por etapa sin cambiar esta clasificación.
 La matriz académica se genera desde las fuentes vigentes y no constituye una
 tabla manual independiente ni una nueva fuente científica. La taxonomía,
 subtipos y equivalencias de etiquetas se mantienen en

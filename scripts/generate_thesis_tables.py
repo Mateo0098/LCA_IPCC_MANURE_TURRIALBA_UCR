@@ -7,6 +7,10 @@ import pandas as pd
 
 from academic_text_utils import clean_academic_label, clean_annual_units
 from inventory_data_provenance import academic_columns, build_provenance_rows
+from methodological_traceability import (
+    academic_columns as methodological_columns,
+    build_detailed_rows as build_methodological_rows,
+)
 from quantitative_comparison import dominant
 
 
@@ -667,6 +671,16 @@ def tabla_10_procedencia_datos_icv() -> Path:
     return _write(pd.DataFrame(rows)[academic_columns()], "tabla_10_procedencia_datos_icv.csv")
 
 
+def tabla_11_trazabilidad_metodologica_a1_b2() -> Path:
+    """Genera la vista académica detallada sin recalcular el modelo científico."""
+
+    rows = build_methodological_rows()
+    return _write(
+        pd.DataFrame(rows)[methodological_columns()],
+        "tabla_11_trazabilidad_metodologica_a1_b2.csv",
+    )
+
+
 def diccionario_variables() -> Path:
     rows = [
         ("escenario", "Identificador del escenario de manejo", "A o B", "Tablas de escenarios y resultados"),
@@ -992,6 +1006,27 @@ def tablas_academicas_para_word() -> Path:
         ),
         "apendice_L_procedencia_datos_icv_word.csv",
     )
+
+    methodology = pd.read_csv(OUTPUTS / "tabla_11_trazabilidad_metodologica_a1_b2.csv")
+    write_word(
+        methodology[methodological_columns()].rename(
+            columns={
+                "escenario": "Escenario",
+                "etapa": "Etapa del sistema",
+                "fase_metodologica": "Fase metodológica",
+                "proceso_o_fenomeno_modelado": "Proceso o fenómeno modelado",
+                "variable_o_flujo_calculado": "Variable o flujo calculado",
+                "identificador_ecuacion": "Ecuación",
+                "ecuacion_o_relacion_calculo": "Relación de cálculo",
+                "dato_actividad": "Dato de actividad",
+                "parametro_o_factor": "Parámetro o factor",
+                "procedencia_dato_factor": "Procedencia",
+                "fuente_metodologica": "Fuente metodológica",
+                "salida_o_uso_posterior": "Salida o uso posterior",
+            }
+        ),
+        "apendice_M_trazabilidad_metodologica_a1_b2_word.csv",
+    )
     return word_dir
 
 
@@ -1008,6 +1043,7 @@ def main() -> None:
         tabla_08_impactos_totales_por_escenario,
         tabla_09_comparacion_escenarios,
         tabla_10_procedencia_datos_icv,
+        tabla_11_trazabilidad_metodologica_a1_b2,
         diccionario_variables,
         resumen_resultados_para_redaccion,
         tablas_academicas_para_word,

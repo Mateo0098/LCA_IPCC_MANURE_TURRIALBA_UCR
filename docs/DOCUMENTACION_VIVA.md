@@ -56,6 +56,7 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `outputs/graficos_tesis/README_GRAFICOS.md` | Manifiesto de figuras y tablas fuente | `scripts/generate_thesis_graphics.py` | Figuras, tablas fuente o asignación documental | Generado y sujeto a validación contra outputs |
 | `outputs/tablas_tesis/resumen_resultados_para_redaccion.md` | Resumen narrativo de tablas e impactos | `scripts/generate_thesis_tables.py` | Tablas o resultados | Generado |
 | `outputs/tablas_tesis/tabla_10_procedencia_datos_icv.csv` | Matriz académica por familias sobre procedencia, tratamiento, fuente concreta y uso metodológico de los datos del ICV | `scripts/inventory_data_provenance.py`; `scripts/generate_thesis_tables.py` | Fuentes experimentales, operativas, bibliográficas, factores, convenciones o reglas de clasificación | Generado y validado contra fuentes vigentes |
+| `outputs/tablas_tesis/tabla_11_trazabilidad_metodologica_a1_b2.csv` | Matriz académica por etapa que relaciona fenómeno, ecuación vigente, actividad, factor, procedencia, fuente y uso posterior | `scripts/methodological_traceability.py`; `scripts/generate_thesis_tables.py` | Ecuaciones productivas, fuentes responsables, factores, datos de actividad o arquitectura inventario–caracterización | Generado desde fuentes vigentes; no recalcula el modelo científico |
 | `outputs/documentos_tfg/README_DOCUMENTOS_GENERADOS.md` | Manifiesto de documentos, tablas y figuras | `scripts/generate_results_docx.py` | Documentos, tablas, figuras o formato | Generado; cubre metodología, resultados, conclusiones e integral provisional |
 | `outputs/documentos_tfg/reporte_validacion_documentos.md` | Validación documental detallada | `scripts/generate_results_docx.py` | Cualquier documento Word generado o sus reglas | Generado |
 | `outputs/documentos_tfg/reporte_validacion_documento_integral.md` | Validación estructural del TFG integral provisional | `scripts/generate_integral_tfg_docx.py` | Ensamblador, MASTER, referencias, tablas, figuras o estructura integral | Generado |
@@ -82,6 +83,10 @@ outputs que describen.
   consumidor QA/QC del módulo canónico. Conserva benchmarks de masa,
   concentración y sensibilidad sin duplicar ecuaciones ni constituir una
   segunda fuente de verdad.
+- `scripts/methodological_traceability.py`: capa semántica responsable de las
+  vistas resumida y detallada A1–B2. Lee y valida fuentes canónicas, reutiliza la
+  taxonomía de procedencia y no implementa ecuaciones físicas ni recalcula
+  resultados.
 
 Estos componentes describen el estado vigente y no constituyen decisiones
 pendientes. Cuando una auditoría puntual quede resuelta, su resultado permanente

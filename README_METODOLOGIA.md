@@ -300,6 +300,12 @@ Los factores, unidades y ubicaciones bibliográficas del ledger residen en
 `processed/reactive_n_ledger_parameters.csv`; su salida física productiva es
 `processed/reactive_n_ledger.csv`.
 
+La vista académica que enlaza cada etapa A1–B2 con sus fenómenos, relaciones de
+cálculo, datos de actividad, factores, procedencias y usos posteriores se genera
+mediante `scripts/methodological_traceability.py` y se publica en
+`outputs/tablas_tesis/tabla_11_trazabilidad_metodologica_a1_b2.csv`. Esta capa
+semántica valida las fuentes vigentes, pero no recalcula ni duplica el modelo.
+
 ## Estimacion de emisiones
 
 Las emisiones se consolidan en:
