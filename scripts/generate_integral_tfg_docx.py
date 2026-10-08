@@ -772,7 +772,45 @@ def build_document() -> tuple[int, int, int, int]:
         decimals=2,
     )
 
-    document.add_heading("4.5 Balance secuencial de nitrógeno y estimación de emisiones", level=2)
+    document.add_heading("4.5 Construcción de masas y bases experimentales", level=2)
+    add_text(
+        document,
+        [
+            "Las masas anuales de las seis etapas se construyeron a partir del estiércol fresco recolectado, la fracción recolectada respecto del depósito teórico en la sala de ordeño, el balance de la fracción remanente y el volumen anual de agua de lavado. El primer conjunto de relaciones define las masas de estiércol que ingresan a A1, A3 y B1; todas se expresan en kg/año.",
+        ],
+    )
+    add_equation(
+        document,
+        counters,
+        r"m_{\mathrm{A1}}=m_{\mathrm{recolectado}};\quad m_{\mathrm{B1}}=m_{\mathrm{depositado}}=\frac{m_{\mathrm{recolectado}}}{f_{\mathrm{recolectada}}};\quad m_{\mathrm{A3}}=m_{\mathrm{depositado}}-m_{\mathrm{recolectado}}",
+        "En estas relaciones, m_A1 es la masa recolectada, f_recolectada es la fracción del depósito teórico recuperada por paleado, m_B1 es la masa total teóricamente depositada y m_A3 es la masa remanente arrastrable.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"m_{\mathrm{eq,A4}}=m_{\mathrm{A3}}+V_{\mathrm{agua}}\left(1\ \frac{\mathrm{kg}}{\mathrm{L}}\right);\quad m_{\mathrm{eq,B2}}=m_{\mathrm{B1}}+V_{\mathrm{agua}}\left(1\ \frac{\mathrm{kg}}{\mathrm{L}}\right)",
+        "Las masas equivalentes de A4 y B2 expresan la mezcla física o dilución del estiércol con el agua de lavado. No crean N, no reinicializan N total ni nitrógeno amoniacal total (TAN, por sus siglas en inglés) y no constituyen la base de las ecuaciones nitrogenadas del suelo, que reciben las reservas propagadas desde A3 y B1.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"R_j=\frac{f_{\mathrm{MS,fresco},j}\,f_{\mathrm{cenizas,fresco},j}}{f_{\mathrm{MS,precompostado},j}\,f_{\mathrm{cenizas,precompostado},j}};\quad \overline R=\frac{1}{n}\sum_{j=1}^{n}R_j;\quad \widehat m_{\mathrm{A2}}=m_{\mathrm{A1}}\,\overline R",
+        "La transformación húmeda A1→A2 se calculó primero en cada jornada elegible mediante R_j y luego se integró con igual peso temporal. Las fracciones de materia seca (MS) se expresan respecto de la masa húmeda y las fracciones de cenizas respecto de la materia seca; el acento circunflejo identifica que la masa húmeda de A2 fue inferida, no pesada a la salida de A1.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"f_{\mathrm{SV,húmeda}}=\left(\frac{SV_{\mathrm{base\ seca}}}{100}\right)\left(\frac{MS}{100}\right)",
+        "Antes de estimar CH₄, el porcentaje de sólidos volátiles (SV) en base seca se convirtió a fracción de SV en base húmeda mediante la materia seca gravimétrica de la etapa.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"N_{\mathrm{total,entrada}}=m_{\mathrm{fresca}}\,f_{\mathrm{N,húmeda}}",
+        "En las fronteras frescas A1, A3 y B1, N_total,entrada se obtuvo multiplicando la masa fresca de estiércol —sin sumar el agua de lavado— por su fracción húmeda de N. Las mediciones intermedias se conservaron como referencias experimentales y no reinicializaron el balance.",
+    )
+
+    document.add_heading("4.6 Balance secuencial de nitrógeno y estimación de emisiones", level=2)
     add_text(
         document,
         [
@@ -783,14 +821,14 @@ def build_document() -> tuple[int, int, int, int]:
             "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como aproximación para CH₄ y N₂O directo; Komakech et al. (2016), como aproximación experimental aprobada para NH₃; y EMEP/EEA de almacenamiento sólido, como aproximación metodológica aprobada provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
         ],
     )
-    document.add_heading("4.5.1 Metano de las etapas de manejo", level=3)
+    document.add_heading("4.6.1 Metano de las etapas de manejo", level=3)
     add_equation(
         document,
         counters,
         r"m_{\mathrm{CH_4}} = m_{\mathrm{manejada}} \times VS_{\mathrm{húmeda}} \times B_0 \times \rho_{\mathrm{CH_4}} \times \left(\frac{MCF}{100}\right) \times AWMS",
         "En la ecuación, m_CH₄ es la emisión de metano de la etapa; m_manejada es la masa húmeda manejada; VS_húmeda es la fracción de sólidos volátiles (SV) en base húmeda; B₀ es la capacidad máxima de producción de metano; ρ_CH₄ es el factor IPCC de conversión de volumen a masa, 0,67 kg CH₄/m³; MCF es el factor de conversión de metano (MCF, por sus siglas en inglés) y AWMS representa la fracción asignada al sistema de manejo de desechos animales (AWMS, por sus siglas en inglés).",
     )
-    document.add_heading("4.5.2 Balance secuencial de N total y TAN", level=3)
+    document.add_heading("4.6.2 Balance secuencial de N total y TAN", level=3)
     add_equation(
         document,
         counters,
@@ -800,8 +838,8 @@ def build_document() -> tuple[int, int, int, int]:
     add_equation(
         document,
         counters,
-        r"TAN_{\mathrm{disponible}} = TAN_{\mathrm{entrada}} + N_{\mathrm{mineralizado}}",
-        "La mineralización se aplica donde corresponde antes de estimar las pérdidas EMEP/EEA sobre el TAN disponible.",
+        r"N_{\mathrm{mineralizado}}=\left(N_{\mathrm{total,entrada}}-TAN_{\mathrm{entrada}}\right)f_{\mathrm{min}};\quad TAN_{\mathrm{disponible}}=TAN_{\mathrm{entrada}}+N_{\mathrm{mineralizado}}",
+        "En A3 y B1, la mineralización se calculó sobre el N orgánico, definido como la diferencia entre N total y TAN de entrada, antes de estimar en paralelo las pérdidas EMEP/EEA sobre el TAN disponible.",
     )
     add_equation(
         document,
@@ -809,17 +847,49 @@ def build_document() -> tuple[int, int, int, int]:
         r"N_j = TAN_{\mathrm{disponible}} \times f_j,\quad j \in \{\mathrm{NH_3-N},\,\mathrm{NO-N},\,\mathrm{N_2-N}\}",
         "La expresión resume las rutas parametrizadas con factores EMEP/EEA. En A2, la masa de NH₃ se estima una sola vez con la aproximación experimental aprobada de Komakech et al. (2016), aplicada a la masa húmeda inferida de residuo orgánico que ingresa a la etapa, mientras NO-N y N₂-N conservan las aproximaciones para sólidos de EMEP/EEA aprobadas provisionalmente.",
     )
-    add_equation(document, counters, r"N_{\mathrm{N_2O-N,directo}} = N_{\mathrm{total,entrada}} \times EF_3")
-    add_equation(document, counters, r"m_{\mathrm{N_2O,directo}} = N_{\mathrm{N_2O-N,directo}} \times \frac{44}{28}")
+    add_equation(
+        document,
+        counters,
+        r"TAN_{\mathrm{salida}}=TAN_{\mathrm{disponible}}-N_{\mathrm{NH_3}}-N_{\mathrm{NO_x}}-N_{\mathrm{N_2}}",
+        "El cierre de TAN descuenta conjuntamente las tres pérdidas calculadas en paralelo sobre la misma reserva disponible; la ecuación no representa una secuencia ficticia de bases decrecientes.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"m_{\mathrm{NH_3,A2}}=\left(\frac{\widehat m_{\mathrm{A2}}}{1000\ \mathrm{kg/Mg}}\right)\left(12{,}8\ \frac{\mathrm{g\ NH_3}}{\mathrm{Mg}}\right)\left(\frac{1\ \mathrm{kg}}{1000\ \mathrm{g}}\right);\quad N_{\mathrm{NH_3,A2}}=m_{\mathrm{NH_3,A2}}\frac{14}{17}",
+        "Como excepción exclusiva de A2, Komakech et al. (2016) aporta 12,8 g NH₃ por Mg de entrada húmeda; la masa de NH₃ se convierte después a NH₃-N mediante 14/17. Esta relación no reinicializa N total ni TAN, y NO-N y N₂-N continúan calculándose con EMEP/EEA.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"N_{\mathrm{N_2O-N,directo}} = N_{\mathrm{total,entrada}} \times EF_3",
+        "El N₂O-N directo de las etapas de manejo se estimó con EF₃ sobre el N total de entrada.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"m_{\mathrm{N_2O,directo}} = N_{\mathrm{N_2O-N,directo}} \times \frac{44}{28}",
+        "La masa de N₂O-N directo se convirtió a masa molecular de N₂O mediante la razón 44/28.",
+    )
     add_equation(
         document,
         counters,
         r"N_{\mathrm{total,salida}} = N_{\mathrm{total,entrada}} - N_{\mathrm{NH_3}} - N_{\mathrm{NO_x}} - N_{\mathrm{N_2}} - N_{\mathrm{N_2O-N,directo}} - N_{\mathrm{pérdida,hídrica}}",
         "Esta identidad expresa el cierre secuencial de N total en las etapas de manejo; cada pérdida física se descuenta una sola vez.",
     )
-    add_equation(document, counters, r"N_{\mathrm{precursor,vol}} = N_{\mathrm{NH_3}} + N_{\mathrm{NO_x}}")
-    add_equation(document, counters, r"m_{\mathrm{N_2O,ind,vol}} = N_{\mathrm{precursor,vol}} \times EF_4 \times \frac{44}{28}")
-    document.add_heading("4.5.3 Rutas de N hacia el suelo y aplicación", level=3)
+    add_equation(
+        document,
+        counters,
+        r"N_{\mathrm{precursor,vol}} = N_{\mathrm{NH_3}} + N_{\mathrm{NO_x}}",
+        "Las especies explícitas NH₃-N y NOx-N se sumaron para definir el precursor volatilizado que alimenta EF₄; FracGasMS permaneció solo como referencia de contraste.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"m_{\mathrm{N_2O,ind,vol}} = N_{\mathrm{precursor,vol}} \times EF_4 \times \frac{44}{28}",
+        "El N₂O indirecto por volatilización se obtuvo aplicando EF₄ al N precursor y convirtiendo N₂O-N a N₂O.",
+    )
+    document.add_heading("4.6.3 Rutas de N hacia el suelo y aplicación", level=3)
     add_text(
         document,
         [
@@ -836,13 +906,14 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         counters,
         r"N_{\mathrm{NH_3,aplic}} = TAN_{\mathrm{aplicado}} \times f_{\mathrm{NH_3}};\quad N_{\mathrm{NO_x,aplic}} = \left(N_{\mathrm{aplicado}} \times f_{\mathrm{NO_2}}\right) \times \frac{14}{46}",
+        "En las aplicaciones al suelo, NH₃-N se estimó sobre el TAN propagado, mientras NOx-N se obtuvo sobre el N aplicado y se convirtió desde NO₂ mediante 14/46.",
     )
-    add_equation(document, counters, r"m_{\mathrm{N_2O,directo,suelo}} = N_{\mathrm{aplicado}} \times EF_1 \times \frac{44}{28}")
-    add_equation(document, counters, r"N_{\mathrm{lix,esc}} = N_{\mathrm{entrada,suelo}} \times FracLEACH_{\mathrm{suelo}}")
-    add_equation(document, counters, r"m_{\mathrm{NO_3^-}} = N_{\mathrm{lix,esc}} \times \frac{62}{14}")
-    add_equation(document, counters, r"m_{\mathrm{N_2O,ind,lix}} = N_{\mathrm{lix,esc}} \times EF_5 \times \frac{44}{28}")
+    add_equation(document, counters, r"m_{\mathrm{N_2O,directo,suelo}} = N_{\mathrm{aplicado}} \times EF_1 \times \frac{44}{28}", "El N₂O directo del suelo se estimó con EF₁ sobre el N propagado y aplicado, no sobre la masa equivalente de la mezcla.")
+    add_equation(document, counters, r"N_{\mathrm{lix,esc}} = N_{\mathrm{entrada,suelo}} \times FracLEACH_{\mathrm{suelo}}", "El N lixiviado o escurrido se estimó únicamente en las rutas hídricas justificadas a partir del N que ingresa al suelo.")
+    add_equation(document, counters, r"m_{\mathrm{NO_3^-}} = N_{\mathrm{lix,esc}} \times \frac{62}{14}", "La masa de N lixiviado o escurrido se expresó como NO₃⁻ mediante la razón estequiométrica 62/14.")
+    add_equation(document, counters, r"m_{\mathrm{N_2O,ind,lix}} = N_{\mathrm{lix,esc}} \times EF_5 \times \frac{44}{28}", "El N₂O indirecto de la ruta hídrica se calculó con EF₅ y la conversión de N₂O-N a N₂O.")
 
-    document.add_heading("4.6 Evaluación de impactos y consumos operativos", level=2)
+    document.add_heading("4.7 Recursos operativos y evaluación de impactos", level=2)
     add_text(
         document,
         [
@@ -856,10 +927,22 @@ def build_document() -> tuple[int, int, int, int]:
     add_equation(
         document,
         counters,
+        r"E=\left(\frac{P_{\mathrm{mec}}}{\eta}\right)\left(\frac{365}{d_{\mathrm{ciclo}}}\right)n_{\mathrm{lavados}}\left(\frac{t_{\mathrm{lavado}}}{60}\right);\quad CC_{\mathrm{electricidad}}=E\,FE_{\mathrm{IMN,elec}}",
+        "El consumo anual de electricidad E, en kWh/año, combina potencia mecánica, eficiencia, frecuencia y duración del lavado. Su contribución climática se obtiene con el factor agregado de consumo del IMN y no vuelve a caracterizarse como flujo elemental de EF 3.1.",
+    )
+    add_equation(
+        document,
+        counters,
+        r"V_{\mathrm{diésel}}=\left(\frac{365}{d_{\mathrm{ciclo}}}\right)\left(\frac{t_{\mathrm{operación}}}{60}\right)q_{\mathrm{diésel}};\quad m_i=V_{\mathrm{diésel}}FE_{\mathrm{IMN},i}k_i,\quad k_i=1\ \mathrm{para\ kg/L},\ k_i=10^{-3}\ \mathrm{para\ g/L}",
+        "El volumen anual de diésel V_diésel, en L/año, se obtiene de la frecuencia, duración y consumo horario. Los factores IMN producen masas físicas de CO₂ fósil, CH₄ fósil y N₂O; k_i hace explícita la conversión de g a kg cuando corresponde, y esas masas se caracterizan después con EF 3.1.",
+    )
+    add_equation(
+        document,
+        counters,
         r"I_c = \sum_i \left(m_i \times CF_{i,c}\right)",
         "I_c es el indicador de la categoría c, m_i es la masa del flujo elemental i y CF_i,c es su factor de caracterización en esa categoría.",
     )
-    add_equation(document, counters, r"CC_{\mathrm{total}} = CC_{\mathrm{manejo}} + CC_{\mathrm{electricidad}} + CC_{\mathrm{diésel}}")
+    add_equation(document, counters, r"CC_{\mathrm{total}} = CC_{\mathrm{manejo}} + CC_{\mathrm{electricidad}} + CC_{\mathrm{diésel}}", "El cambio climático total suma una sola vez las contribuciones del manejo, la electricidad agregada y las emisiones físicas del diésel caracterizadas con EF 3.1.")
     factor_table = methodology_source.characterization_factors()
     table_3 = counters.table + 1
     figure_1 = counters.figure + 1
@@ -1305,7 +1388,9 @@ def first_mentions_are_valid(scope: list[str]) -> bool:
     return True
 
 
-def validate_editorial_order(document: Document, tables: int, figures: int) -> bool:
+def validate_editorial_order(
+    document: Document, tables: int, figures: int, equations: int
+) -> bool:
     elements = body_elements(document)
     for label, count in (("Tabla", tables), ("Figura", figures)):
         for number in range(1, count + 1):
@@ -1324,10 +1409,9 @@ def validate_editorial_order(document: Document, tables: int, figures: int) -> b
                 return False
 
     equation_indexes = [i for i, element in enumerate(elements) if bool(element["math"])]
-    if len(equation_indexes) != 17:
+    if len(equation_indexes) != equations:
         return False
-    for number in (1, 2, 3, 4, 7, 10):
-        index = equation_indexes[number - 1]
+    for index in equation_indexes:
         previous = elements[index - 1] if index else {}
         if not str(previous.get("text", "")).strip() or bool(previous.get("math")):
             return False
@@ -1357,6 +1441,23 @@ def validate_document(
     first_mentions_ok = first_mentions_are_valid(acronym_paragraphs)
     unknown_acronyms = unregistered_acronym_candidates(acronym_paragraphs)
     omml_count = len(document.element.body.xpath(".//m:oMath"))
+    equation_texts = [
+        "".join(node.text or "" for node in paragraph._p.iter(qn("m:t")))
+        for paragraph in document.paragraphs
+        if paragraph._p.xpath(".//m:oMath")
+    ]
+    normalized_equations = [re.sub(r"\s+", "", value).casefold() for value in equation_texts]
+    equation_corpus = "\n".join(normalized_equations)
+    traceability = pd.read_csv(
+        ROOT / "outputs" / "tablas_tesis" / "tabla_11_trazabilidad_metodologica_a1_b2.csv",
+        encoding="utf-8-sig",
+    )
+    trace_ids = set(traceability["identificador_ecuacion"].astype(str))
+    mass_source = (ROOT / "scripts" / "compute_masa_etapas_escenarios.py").read_text(encoding="utf-8")
+    dry_source = (ROOT / "scripts" / "acv_masa_seca.py").read_text(encoding="utf-8")
+    nitrogen_source = (ROOT / "scripts" / "reactive_n_ledger.py").read_text(encoding="utf-8")
+    operational_source = (ROOT / "scripts" / "compute_operational_inventory.py").read_text(encoding="utf-8")
+    imn_source = (ROOT / "scripts" / "imn_operational_factors.py").read_text(encoding="utf-8")
     boundary_svg = SYSTEM_BOUNDARY_SVG.read_text(encoding="utf-8")
     state_index = next(i for i, paragraph in enumerate(document.paragraphs) if paragraph.text == "Estado del documento")
     cover_manual_blanks = [
@@ -1431,7 +1532,48 @@ def validate_document(
         ("Las unidades anuales conservan la tilde", not re.search(r"/(?:ano|aNo)\b", text)),
         ("No hay etapas con decimales", not re.search(r"\b[AB][1-4][,.]0+\b", text)),
         ("No hay delimitadores visibles de ecuaciones", "\\[" not in text and "\\]" not in text and "$$" not in text),
-        ("Las 17 ecuaciones formales son objetos OMML", omml_count == expected_equations == 17),
+        ("Las ecuaciones formales seleccionadas son objetos OMML", omml_count == expected_equations == 26),
+        ("No hay ecuaciones OMML duplicadas", len(normalized_equations) == len(set(normalized_equations))),
+        (
+            "Las relaciones obligatorias de masa están cubiertas",
+            all(token in equation_corpus for token in ("ma1", "mb1", "ma3", "meq,a4", "meq,b2")),
+        ),
+        (
+            "La transformación A1→A2 conserva cálculo por jornada e integración temporal",
+            all(token in equation_corpus for token in ("rj", "r―", "m^a2", "fms,fresco,j", "fcenizas,precompostado,j")),
+        ),
+        ("La conversión de SV a base húmeda es explícita", "fsv,húmeda" in equation_corpus and "svbaseseca100" in equation_corpus),
+        ("La inicialización de N total desde masa fresca es explícita", "ntotal,entrada=mfresca" in equation_corpus and "fn,húmeda" in equation_corpus),
+        ("La mineralización antecede al TAN disponible", "nmineralizado" in equation_corpus and "fmin" in equation_corpus),
+        ("El cierre conjunto de TAN es explícito", "tansalida=tandisponible" in equation_corpus),
+        ("Komakech aparece una sola vez y solo para A2", equation_corpus.count("12,8") == 1 and "mnh3,a2" in equation_corpus),
+        ("Las relaciones operativas distinguen electricidad y diésel", all(token in equation_corpus for token in ("pmec", "feimn,elec", "vdiésel", "qdiésel", "10−3"))),
+        ("M3 no interviene en las ecuaciones", "m3" not in equation_corpus),
+        (
+            "La masa equivalente no se usa como base de N",
+            not any("meq" in eq and ("ntotal" in eq or "tan" in eq) for eq in normalized_equations),
+        ),
+        (
+            "La cobertura documental se vincula con los identificadores metodológicos vigentes",
+            {"M11", "M12", "M13", "M14", "M15", "M16", "M02", "N01", "N02", "N03K", "O01", "O02", "C01"} <= trace_ids,
+        ),
+        (
+            "Las ecuaciones recuperadas conservan correspondencia con las fuentes productivas",
+            all(
+                (
+                    "total_depositado = params.estiercol_recolectado_anual / fraccion_recolectada" in mass_source,
+                    "remanente = total_depositado - params.estiercol_recolectado_anual" in mass_source,
+                    "params.estiercol_recolectado_anual * factor_a2" in mass_source,
+                    "return (float(vs_pct_base_seca) / 100.0) * float(fraccion_masa_seca)" in dry_source,
+                    "fresh_n_a1 = float(masses[(\"A\", 1)][\"masa_total_kg_eq\"]) * fresh_fraction" in nitrogen_source,
+                    "mineralised = (n_total - tan) * p[\"emep_slurry_mineralisation_fraction\"]" in nitrogen_source,
+                    "a2_mass / 1000.0 * p[\"komakech_nh3_factor\"] / 1000.0 / KG_N_TO_NH3" in nitrogen_source,
+                    "electricity = pump_input_kw * pump_hours" in operational_source,
+                    "diesel = tractor_hours * parameters[\"tractor_diesel_l_per_hour\"]" in operational_source,
+                    "quantity * float(factors.loc[ident, \"valor\"]) / grams_per_kg" in imn_source,
+                )
+            ),
+        ),
         ("No queda sintaxis LaTeX fuente visible", not re.search(r"\\(?:frac|mathrm|times|sum|left|right)|_\{", text)),
         ("La lista de siglas y abreviaturas está presente", "Lista de siglas y abreviaturas" in text),
         ("La lista de siglas cierra los preliminares", content_index < list_index < body_intro_index),
@@ -1460,7 +1602,7 @@ def validate_document(
         ("La portada conserva un único salto al terminar y una cadena indivisible", cover_page_breaks == [len(cover_paragraphs) - 1] and all(paragraph.paragraph_format.keep_with_next for paragraph in cover_nonempty[:-1])),
         ("La numeración de ecuaciones usa tabulaciones estructurales", all(len(paragraph._p.xpath("./w:pPr/w:tabs/w:tab")) == 2 for paragraph in math_paragraphs)),
         ("La Figura 1 representa emisiones en A1–A4 y B1–B2", boundary_svg.count("Emisiones") >= 6),
-        ("La prosa antecede a tablas, figuras y ecuaciones definidas", validate_editorial_order(document, expected_tables, expected_figures)),
+        ("La prosa antecede a tablas, figuras y todas las ecuaciones", validate_editorial_order(document, expected_tables, expected_figures, expected_equations)),
         ("El MASTER conserva su hash registrado", master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256),
         ("La salida está fuera del directorio protegido", MASTER.parent not in OUT_DOCX.parents),
         ("Las fuentes reproducibles del diagrama de fronteras existen", SYSTEM_BOUNDARY_PNG.exists() and SYSTEM_BOUNDARY_SVG.exists()),

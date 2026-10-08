@@ -493,7 +493,7 @@ def validate_documents_and_conclusions() -> None:
         ("integral", integral_document),
     ):
         validate_campaign_table_columns(document, document_name)
-    assert len(integral_document.element.body.xpath(".//m:oMath")) == 17
+    assert len(integral_document.element.body.xpath(".//m:oMath")) == 26
     assert "Lista de siglas y abreviaturas" in integral_text
     assert "nitrógeno amoniacal total (TAN, por sus siglas en inglés)" in integral_text
     assert "Centro de Investigaciones Agronómicas (CIA)" in integral_text

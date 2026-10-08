@@ -1617,12 +1617,13 @@ Figuras complementarias en apéndices:
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
 - El documento integral se identifica expresamente como PROVISIONAL M1–M2 y se genera después de los tres módulos académicos.
+- El documento integral contiene 26 ecuaciones OMML seleccionadas por necesidad de reproducibilidad, con numeración global consecutiva y sin convertir la metodología en una transcripción exhaustiva del modelo.
 - No se modificó el documento maestro de referencia. Hash antes: `{master_hash_before}`. Hash después: `{master_hash_after}`.
 
 ## 6. Mejoras de formato académico aplicadas
 
 - Subíndices y superíndices en fórmulas químicas y unidades principales.
-- Ecuaciones nativas de Word para humedad, materia seca, cenizas, sólidos volátiles, balance secuencial de nitrógeno, conservación de cenizas y especies reactivas.
+- Ecuaciones nativas de Word para humedad, materia seca, cenizas, sólidos volátiles, construcción de masas, balance secuencial de nitrógeno, recursos operativos, conservación de cenizas y especies reactivas.
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.
@@ -1714,7 +1715,7 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         "- MCF de 38 % descrito como aproximación conservadora del IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.",
         "- Ausencia de 3,5 días como parámetro canónico de anualización: Sí.",
         f"- Ecuaciones de metodología en OMML: {'Sí' if omml_counts.get(METHODOLOGY_DOCX.name, 0) > 0 else 'No'} ({omml_counts.get(METHODOLOGY_DOCX.name, 0)} objetos).",
-        f"- Diecisiete ecuaciones integrales en OMML: {'Sí' if omml_counts.get(INTEGRAL_DOCX.name, 0) == 17 else 'No'} ({omml_counts.get(INTEGRAL_DOCX.name, 0)} objetos).",
+        f"- Ecuaciones integrales seleccionadas en OMML: {'Sí' if omml_counts.get(INTEGRAL_DOCX.name, 0) == 26 else 'No'} ({omml_counts.get(INTEGRAL_DOCX.name, 0)} objetos).",
         f"- Ausencia de sintaxis LaTeX visible: {'Sí' if not re.search(r'\\(?:frac|mathrm|times|sum|left|right)|_\{', combined) else 'No'}.",
         f"- Ausencia de anglicismos editoriales acordados en prosa visible: {'Sí' if not re.search(r'\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b', combined, re.IGNORECASE) else 'No'}.",
         f"- Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): {'Sí' if not re.search(r'(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])', combined) else 'No'}.",

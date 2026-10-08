@@ -71,12 +71,13 @@ Figuras complementarias en apéndices:
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
 - El documento integral se identifica expresamente como PROVISIONAL M1–M2 y se genera después de los tres módulos académicos.
+- El documento integral contiene 26 ecuaciones OMML seleccionadas por necesidad de reproducibilidad, con numeración global consecutiva y sin convertir la metodología en una transcripción exhaustiva del modelo.
 - No se modificó el documento maestro de referencia. Hash antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`. Hash después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 
 ## 6. Mejoras de formato académico aplicadas
 
 - Subíndices y superíndices en fórmulas químicas y unidades principales.
-- Ecuaciones nativas de Word para humedad, materia seca, cenizas, sólidos volátiles, balance secuencial de nitrógeno, conservación de cenizas y especies reactivas.
+- Ecuaciones nativas de Word para humedad, materia seca, cenizas, sólidos volátiles, construcción de masas, balance secuencial de nitrógeno, recursos operativos, conservación de cenizas y especies reactivas.
 - Referencias explícitas a tablas y figuras en la prosa.
 - Tablas con encabezados en negrita.
 - Tablas con bordes horizontales únicamente.

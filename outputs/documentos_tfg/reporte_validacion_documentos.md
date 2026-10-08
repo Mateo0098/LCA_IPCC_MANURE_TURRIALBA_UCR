@@ -14,7 +14,7 @@
 - MCF de 38 % descrito como aproximación conservadora del IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.
 - Ausencia de 3,5 días como parámetro canónico de anualización: Sí.
 - Ecuaciones de metodología en OMML: Sí (26 objetos).
-- Diecisiete ecuaciones integrales en OMML: Sí (17 objetos).
+- Ecuaciones integrales seleccionadas en OMML: Sí (26 objetos).
 - Ausencia de sintaxis LaTeX visible: Sí.
 - Ausencia de anglicismos editoriales acordados en prosa visible: Sí.
 - Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): Sí.

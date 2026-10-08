@@ -4,7 +4,7 @@
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
 - Tablas con numeración global: 15.
 - Figuras con numeración global: 7.
-- Ecuaciones con numeración global: 17.
+- Ecuaciones con numeración global: 26.
 - Referencias integradas desde el registro bibliográfico: 43.
 - SHA-256 del MASTER antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 - SHA-256 del MASTER después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
@@ -29,7 +29,20 @@
 - PASS — Las unidades anuales conservan la tilde.
 - PASS — No hay etapas con decimales.
 - PASS — No hay delimitadores visibles de ecuaciones.
-- PASS — Las 17 ecuaciones formales son objetos OMML.
+- PASS — Las ecuaciones formales seleccionadas son objetos OMML.
+- PASS — No hay ecuaciones OMML duplicadas.
+- PASS — Las relaciones obligatorias de masa están cubiertas.
+- PASS — La transformación A1→A2 conserva cálculo por jornada e integración temporal.
+- PASS — La conversión de SV a base húmeda es explícita.
+- PASS — La inicialización de N total desde masa fresca es explícita.
+- PASS — La mineralización antecede al TAN disponible.
+- PASS — El cierre conjunto de TAN es explícito.
+- PASS — Komakech aparece una sola vez y solo para A2.
+- PASS — Las relaciones operativas distinguen electricidad y diésel.
+- PASS — M3 no interviene en las ecuaciones.
+- PASS — La masa equivalente no se usa como base de N.
+- PASS — La cobertura documental se vincula con los identificadores metodológicos vigentes.
+- PASS — Las ecuaciones recuperadas conservan correspondencia con las fuentes productivas.
 - PASS — No queda sintaxis LaTeX fuente visible.
 - PASS — La lista de siglas y abreviaturas está presente.
 - PASS — La lista de siglas cierra los preliminares.
@@ -58,7 +71,7 @@
 - PASS — La portada conserva un único salto al terminar y una cadena indivisible.
 - PASS — La numeración de ecuaciones usa tabulaciones estructurales.
 - PASS — La Figura 1 representa emisiones en A1–A4 y B1–B2.
-- PASS — La prosa antecede a tablas, figuras y ecuaciones definidas.
+- PASS — La prosa antecede a tablas, figuras y todas las ecuaciones.
 - PASS — El MASTER conserva su hash registrado.
 - PASS — La salida está fuera del directorio protegido.
 - PASS — Las fuentes reproducibles del diagrama de fronteras existen.
