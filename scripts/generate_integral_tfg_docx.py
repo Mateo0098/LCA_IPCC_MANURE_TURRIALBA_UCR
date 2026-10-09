@@ -94,6 +94,7 @@ EXPECTED_HEADINGS = [
     "Apéndice A. Trazabilidad entre objetivos y evidencia provisional",
     "Apéndice B. Matriz detallada de procedencia de los datos del inventario",
     "Apéndice C. Matriz detallada de trazabilidad metodológica por etapa A1–B2",
+    "Apéndice D. Trazabilidad experimental de las campañas M1–M2",
 ]
 
 REQUIRED_REFERENCE_KEYS = {
@@ -228,6 +229,130 @@ def display_value(value: object, decimals: int = 4) -> str:
     for source, target in replacements.items():
         text = text.replace(source, target)
     return text
+
+
+def experimental_body_table() -> pd.DataFrame:
+    """Vista compacta de la procedencia experimental y su función en el ACV."""
+
+    return pd.DataFrame(
+        [
+            {
+                "Material": "Estiércol fresco",
+                "Procedencia física": "Sala de espera; cinco submuestras de puntos aleatorios por muestra compuesta",
+                "Determinaciones": "Humedad, materia seca, cenizas, sólidos volátiles y N total",
+                "Laboratorio": "Bioenergía y LASA",
+                "Relación con el sistema": "A1: Precomposteo; A3: Almacenamiento de aguas verdes; B1: Almacenamiento de purines",
+                "Función metodológica": "Materia seca y sólidos volátiles para CH₄; N total para inicializar N y TAN en las fronteras frescas; cenizas para la transformación A1→A2",
+            },
+            {
+                "Material": "Estiércol precompostado",
+                "Procedencia física": "Pila con mayor permanencia, lista para alimentar las lombrices; no corresponde a lombricompost terminado",
+                "Determinaciones": "Humedad, materia seca, cenizas, sólidos volátiles, N total, C y relación C/N",
+                "Laboratorio": "Bioenergía y CIA",
+                "Relación con el sistema": "Salida de A1 y material de entrada a A2: Lombricompostaje",
+                "Función metodológica": "Materia seca y cenizas para la transformación A1→A2; materia seca y sólidos volátiles para CH₄; N como referencia de contraste sin reinicializar A2; C y C/N como caracterización descriptiva",
+            },
+            {
+                "Material": "Aguas verdes",
+                "Procedencia física": "Tanqueta del Escenario A, después de remoción manual; cinco alícuotas consecutivas desde una abertura",
+                "Determinaciones": "M1: N–NH₄, N–NO₃ y N ureico; M2: N total",
+                "Laboratorio": "CIA",
+                "Relación con el sistema": "A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo",
+                "Función metodológica": "M1 se conserva como especiación de trazabilidad; M2 aporta la referencia provisional de contraste y no reinicializa el N ni el TAN propagados",
+            },
+            {
+                "Material": "Purines",
+                "Procedencia física": "Tanqueta durante la operación temporal del Escenario B, después de remoción manual; cinco alícuotas consecutivas desde una abertura",
+                "Determinaciones": "M1: N–NH₄, N–NO₃ y N ureico; M2: N total",
+                "Laboratorio": "CIA",
+                "Relación con el sistema": "B1: Almacenamiento de purines y B2: Aplicación de purines en campo de pastoreo",
+                "Función metodológica": "M1 se conserva como especiación de trazabilidad; M2 aporta la referencia provisional de contraste y no reinicializa el N ni el TAN propagados",
+            },
+        ]
+    )
+
+
+def experimental_campaign_table() -> pd.DataFrame:
+    """Diseño físico ejecutado, sin reproducir observaciones ni réplicas crudas."""
+
+    rows = [
+        ("M1", "Muestreo: 10 de noviembre de 2025; recepción LASA: 11 de noviembre", "Estiércol fresco", "4: dos para Bioenergía y dos independientes para LASA", "Bioenergía: gravimetría; LASA: N total por Kjeldahl", "Conjuntos físicos disjuntos entre laboratorios"),
+        ("M1", "Recepción CIA: 10 de noviembre de 2025", "Estiércol precompostado", "4: dos para Bioenergía y dos independientes para CIA", "Bioenergía: gravimetría; CIA: N y C por Dumas", "Conjuntos físicos disjuntos entre laboratorios"),
+        ("M1", "Recepción CIA: 10 de noviembre de 2025", "Aguas verdes", "2", "CIA: N–NH₄, N–NO₃ y N ureico", "Especiación conservada únicamente para trazabilidad"),
+        ("M1", "Recepción CIA: 17 de noviembre de 2025", "Purines", "2", "CIA: N–NH₄, N–NO₃ y N ureico", "Especiación conservada únicamente para trazabilidad"),
+        ("M2", "Recepción LASA: 23 de julio de 2026", "Estiércol fresco", "3", "Bioenergía: gravimetría; LASA: N total por Kjeldahl", "Tres réplicas gravimétricas por muestra; el remanente de las mismas muestras se remitió a LASA"),
+        ("M2", "Recepción CIA: 23 de julio de 2026", "Estiércol precompostado", "3", "Bioenergía: gravimetría; CIA: N y C por Dumas", "Tres réplicas gravimétricas por muestra; el remanente de las mismas muestras se remitió a CIA"),
+        ("M2", "Recepción CIA: 23 de julio de 2026", "Aguas verdes", "3", "CIA: N total por Kjeldahl y colorimetría por análisis de inyección en flujo", "Estimador provisional líquido; uso de contraste"),
+        ("M2", "Recepción CIA: 27 de julio de 2026", "Purines", "3", "CIA: N total por Kjeldahl y colorimetría por análisis de inyección en flujo", "Estimador provisional líquido; uso de contraste"),
+    ]
+    return pd.DataFrame(
+        rows,
+        columns=[
+            "Campaña",
+            "Identificación temporal",
+            "Material",
+            "Muestras compuestas",
+            "Determinación y laboratorio",
+            "Relación física y condición de uso",
+        ],
+    )
+
+
+def experimental_parameter_table() -> pd.DataFrame:
+    """Resultados intermedios esenciales recuperados de la integración vigente."""
+
+    integration = pd.read_csv(
+        ROOT / "processed" / "muestreos_integracion_interjornada_provisional.csv",
+        encoding="utf-8-sig",
+    )
+    selected = {
+        ("estiércol fresco", "N total"): "Inicialización productiva de N total y TAN en A1, A3 y B1",
+        ("estiércol fresco", "materia seca"): "Conversión de sólidos volátiles a base húmeda y transformación A1→A2",
+        ("estiércol fresco", "cenizas"): "Transformación de masa A1→A2",
+        ("estiércol fresco", "sólidos volátiles"): "Estimación de CH₄ en A1, A3 y B1",
+        ("estiércol precompostado", "N total"): "Referencia experimental de A2; no reinicializa N total ni TAN",
+        ("estiércol precompostado", "materia seca"): "Conversión de sólidos volátiles a base húmeda, transformación A1→A2 y conversión autorizada de la referencia de N",
+        ("estiércol precompostado", "cenizas"): "Transformación de masa A1→A2",
+        ("estiércol precompostado", "sólidos volátiles"): "Estimación de CH₄ en A2",
+        ("aguas verdes", "N total"): "Referencia provisional de contraste; no reinicializa A3 ni A4",
+        ("purines", "N total"): "Referencia provisional de contraste; no reinicializa B1 ni B2",
+        ("estiércol precompostado", "carbono"): "Caracterización descriptiva; no se consume en el ACV",
+        ("estiércol precompostado", "relación C/N"): "Caracterización descriptiva; no se consume en el ACV",
+    }
+    rows: list[dict[str, str]] = []
+    for _, source in integration.iterrows():
+        key = (str(source["material"]), str(source["variable"]))
+        if key not in selected:
+            continue
+        base = str(source["unidad"])
+        if key == ("estiércol precompostado", "N total"):
+            base = "% en material acondicionado a 80 °C durante 48 h"
+        rows.append(
+            {
+                "Material o derivación": source["material"].capitalize(),
+                "Variable": "Relación C/N" if source["variable"] == "relación C/N" else source["variable"].capitalize(),
+                "Campañas elegibles": str(source["jornadas_elegibles"]).replace(";", "–"),
+                "Resultado provisional": results_source.fmt(float(source["valor_integrado_provisional"]), 4),
+                "Base o unidad": base,
+                "Función en el modelo": selected[key],
+            }
+        )
+    transformation = pd.read_csv(
+        ROOT / "processed" / "muestreos_transformacion_masa_interjornada.csv",
+        encoding="utf-8-sig",
+    )
+    integrated = transformation.loc[transformation["tipo_fila"] == "integracion"].iloc[0]
+    rows.append(
+        {
+            "Material o derivación": "Transformación de estiércol fresco a precompostado",
+            "Variable": "Razón de masa húmeda remanente",
+            "Campañas elegibles": str(integrated["jornadas_elegibles"]).replace(";", "–"),
+            "Resultado provisional": results_source.fmt(float(integrated["mass_ratio_integrado"]), 6),
+            "Base o unidad": "kg/kg",
+            "Función en el modelo": "Masa húmeda inferida que ingresa a A2; calculada primero por campaña y luego integrada con igual peso temporal",
+        }
+    )
+    return pd.DataFrame(rows)
 
 
 def add_dataframe(
@@ -706,27 +831,72 @@ def build_document() -> tuple[int, int, int, int]:
         decimals=2,
     )
 
-    document.add_heading("4.3 Muestreo e integración temporal", level=2)
+    document.add_heading("4.3 Diseño experimental, muestreo y análisis de laboratorio", level=2)
+    document.add_heading("4.3.1 Campañas y procedencia física de las muestras", level=3)
     add_text(
         document,
         [
-            "La jerarquía estadística fue réplica analítica, muestra compuesta, promedio de jornada e integración entre jornadas. Las réplicas analíticas no se trataron como observaciones temporales independientes y las jornadas recibieron igual peso temporal.",
-            "En M1 se analizaron, por cada sólido, dos muestras compuestas en Bioenergía y otras dos muestras compuestas físicamente independientes en el laboratorio externo: los Laboratorios de Servicios Analíticos de la Escuela de Química (LASA) de la Universidad de Costa Rica (UCR), para estiércol fresco, y el Laboratorio de Suelos y Foliares del Centro de Investigaciones Agronómicas (CIA), para precompostado. En M2 se conservaron tres muestras compuestas por sólido; Bioenergía realizó tres réplicas gravimétricas por muestra y el remanente de esas mismas muestras fue analizado por LASA o CIA.",
-            "Bioenergía determinó humedad y materia seca por gravimetría a 105 °C durante 16 h. El CIA determinó N y C del precompostado por Dumas sobre muestra seca o acondicionada a 80 °C durante 48 h. El porcentaje de N se combinó con la materia seca independiente de Bioenergía para construir la referencia de contraste en base húmeda de A2; C y C/N permanecieron como caracterización descriptiva, sin conversión húmeda ni uso productivo.",
-            "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2. En aguas verdes y purines, M1 correspondió a especiación y se conservó para trazabilidad; el N total líquido activo procedió de M2 mediante Kjeldahl. M3 permanece pendiente y se incorporará mediante la misma secuencia de procesamiento para producir la caracterización final.",
-            "La transformación de estiércol fresco a precompostado se calculó primero por jornada mediante materia seca y cenizas de ambos materiales; posteriormente se integraron los factores de jornada con igual peso temporal. La pérdida integrada se derivó del factor integrado.",
-            "Antes de cada campaña líquida, la tanqueta se vació el jueves por la tarde y acumuló material hasta el lunes por la mañana. Durante ese intervalo de acumulación previo al muestreo continuaron las entradas y ocurrieron dos lavados; no fue una carga cerrada ni un ensayo de almacenamiento estático. Esta preparación de muestra no sustituyó la frecuencia operativa representativa de aproximadamente tres días.",
+            "La caracterización primaria vigente procede exclusivamente de las campañas M1 y M2. La evidencia sitúa actividades de campo de M1 el 10 de noviembre de 2025; el informe de los Laboratorios de Servicios Analíticos de la Escuela de Química (LASA) identifica esa fecha para el muestreo de estiércol fresco y el 11 de noviembre para su recepción. Los informes del laboratorio agronómico consignan fechas de recepción específicas por material, que no se interpretaron automáticamente como fechas de muestreo. Para M2, la evidencia documental sitúa la preparación de campo el 20 de julio de 2026, las actividades de Bioenergía el 21 de julio y la recepción en LASA el 23 de julio. Estas referencias identifican la cronología documental disponible y no se generalizan a todos los materiales ni se intercambian con las fechas de análisis o emisión de los informes.",
+            "Se distinguieron submuestra, muestra compuesta y réplica analítica. Cada muestra compuesta sólida reunió aproximadamente 500 g a partir de cinco submuestras de cerca de 100 g. El estiércol fresco se tomó en cinco puntos aleatorios de la sala de espera donde permanecían las vacas antes del ordeño. El estiércol precompostado se tomó en cinco puntos aleatorios de la pila con mayor tiempo de permanencia, cuyo material estaba listo para alimentar las lombrices. Por tanto, esta segunda muestra representa la salida de A1 y la entrada a A2, no una muestra de lombricompost terminado.",
+            "Las aguas verdes y los purines se muestrearon en campañas separadas y en condiciones operativas distintas, aunque se utilizó la misma tanqueta. Antes de la toma, el contenido se removió manualmente desde el fondo durante aproximadamente 2 min con un rastrillo. Luego se reunieron cinco alícuotas consecutivas de cerca de 100 mL, tomadas con un vaso de laboratorio desde una misma abertura, hasta obtener aproximadamente 500 mL. Las dos aberturas de la tanqueta estaban muy próximas; el procedimiento no se interpreta como un muestreo espacial de zonas distantes.",
+            "Antes de cada muestreo líquido, la tanqueta se vació el jueves por la tarde y recibió entradas continuas hasta el lunes por la mañana; durante ese intervalo de acumulación previo al muestreo ocurrieron dos lavados de la sala de espera. La muestra representó una acumulación operacional dinámica y no una carga estática aislada. Esta condición específica de campaña se mantuvo separada de la frecuencia operativa anual, representada por el vaciado aproximado cada tres días.",
+            "En M1 se obtuvieron, para cada sólido, dos muestras compuestas destinadas a Bioenergía y otras dos muestras compuestas físicamente independientes destinadas al laboratorio externo: LASA para estiércol fresco y el Laboratorio de Suelos y Foliares del Centro de Investigaciones Agronómicas (CIA) para precompostado. En M2 se obtuvieron tres muestras compuestas por sólido; de cada una se tomaron tres réplicas para Bioenergía y el material remanente de esas mismas muestras se remitió a LASA o CIA. En M1 se recolectaron además dos muestras compuestas de cada líquido y en M2, tres. El Apéndice D presenta el diseño ejecutado sin reproducir las observaciones ni las réplicas crudas.",
         ],
     )
-    characterization = results_source.characterization_summary()
+
+    document.add_heading("4.3.2 Preparación, conservación y transporte", level=3)
+    add_text(
+        document,
+        [
+            "Las muestras se colocaron en recipientes de polipropileno para alimentos con capacidad aproximada de 750–900 mL, se etiquetaron y se transportaron desde Turrialba hasta la Universidad de Costa Rica en San Pedro dentro de una hielera con hielo. En M2, la identidad física compartida entre Bioenergía y los laboratorios externos se conservó tomando primero las porciones requeridas para la gravimetría y remitiendo después el material remanente de cada muestra compuesta.",
+        ],
+    )
+
+    document.add_heading("4.3.3 Determinaciones en Bioenergía", level=3)
+    add_text(
+        document,
+        [
+            "Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles en estiércol fresco y precompostado, con tres réplicas analíticas por muestra compuesta. Para humedad y materia seca se colocaron aproximadamente 10 g de muestra fresca por réplica en recipientes previamente pesados. Se registraron las masas del recipiente vacío y con muestra mediante balanza analítica; las porciones se secaron en estufa a 105 °C durante 16 h, se enfriaron en desecador y se pesaron nuevamente.",
+            "Para cenizas y sólidos volátiles se tomó aproximadamente 1 g de la muestra seca, se trató en mufla a 575 °C durante 4 h, se enfrió en desecador y se efectuó la pesada posterior. El registro operativo contemporáneo de M1 consigna además una ventana de operación de seis horas cuya composición no está desglosada. Para el tratamiento se adoptó la confirmación consolidada del ejecutor de cuatro horas a 575 °C; la ventana total se conserva como discrepancia documental y no se reinterpretó como exposición continua a la temperatura objetivo. Las cenizas correspondieron a la fracción mineral remanente y los sólidos volátiles a la fracción de la materia seca perdida durante la calcinación.",
+            "El procedimiento documenta funcionalmente una estufa de secado, una mufla, balanzas, crisoles y desecadores. No se consignan fabricante, modelo, placa o número de serie porque esa identificación no está confirmada. La ausencia de esos datos instrumentales no altera los tiempos, temperaturas, masas aproximadas ni secuencia de pesada documentados.",
+        ],
+    )
+
+    document.add_heading("4.3.4 Determinaciones en LASA y CIA", level=3)
+    add_text(
+        document,
+        [
+            "LASA determinó el N total del estiércol fresco mediante Kjeldahl. El procedimiento utilizó entre 0,2 g y 0,3 g de muestra homogénea por triplicado, digestión con mezcla catalítica, destilación por arrastre de vapor hacia una solución receptora y valoración con ácido sulfúrico 0,0500 mol/L. Los resultados se expresaron como porcentaje en masa del material presentado al laboratorio.",
+            "En M1, el CIA determinó por separado N–NH₄, N–NO₃ y N ureico en aguas verdes y purines. Estas especies se conservaron para trazabilidad y no se sumaron para reconstruir N total. En M2, el CIA determinó N total de ambos líquidos mediante digestión húmeda de 10 g con ácido sulfúrico por Kjeldahl, aforo a 250 mL y determinación colorimétrica mediante análisis por inyección en flujo. Los decimales internos almacenados se conservaron para el cálculo, sin atribuirles una precisión analítica formal mayor que la reportada por el laboratorio.",
+            "Para el precompostado, el CIA secó el material a 80 °C durante 48 h, lo molió, lo cribó a 1 mm y pesó aproximadamente 80–100 mg para determinar N y C por combustión seca de Dumas en un autoanalizador Elementar Vario Macro Cube. Este acondicionamiento no fue una determinación de humedad y no sustituyó la gravimetría independiente de Bioenergía a 105 °C durante 16 h.",
+            "El porcentaje integrado de N del precompostado se conservó en la base preparada por el CIA. Únicamente para construir la referencia experimental en base húmeda de A2 se combinó con la materia seca gravimétrica de Bioenergía. Esa referencia se utilizó como contraste: A2 recibió productivamente el N total y el nitrógeno amoniacal total propagados desde A1. El carbono y la relación C/N permanecieron como caracterización descriptiva, sin conversión a base húmeda ni consumo en el ACV.",
+        ],
+    )
+
+    document.add_heading("4.3.5 Integración M1–M2 y relación con el modelo", level=3)
+    add_text(
+        document,
+        [
+            "La jerarquía estadística fue réplica analítica, muestra compuesta, promedio de campaña e integración entre campañas. Primero se resumieron las réplicas dentro de cada muestra compuesta y las muestras dentro de cada campaña; después se integraron los promedios de las campañas elegibles. Las réplicas analíticas no se trataron como observaciones temporales independientes y M1 y M2 recibieron igual peso, aunque M2 contuviera más muestras y réplicas.",
+            "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2 mediante la media de sus promedios de campaña. Cuando una variable no fue compatible, no se forzó la combinación: en líquidos, M1 correspondió a especiación y se mantuvo como trazabilidad, mientras que el N total provisional procedió solo de M2 mediante Kjeldahl. No se aplicaron pruebas inferenciales.",
+            "La transformación de estiércol fresco a precompostado se calculó primero por campaña a partir de la materia seca y las cenizas de ambos materiales. Después se integraron las razones de M1 y M2 con igual peso temporal y la diferencia de masa se derivó de esa razón integrada; no se construyó a partir de un promedio global previo de las cuatro mediciones.",
+            "La secuencia experimental fue muestra, determinación, resultado analítico, resumen de campaña, integración M1–M2, parámetro experimental y consumo por una etapa o ecuación. La materia seca y los sólidos volátiles del estiércol fresco alimentaron las estimaciones de CH₄ de A1, A3 y B1; las variables equivalentes del precompostado alimentaron A2. La materia seca y las cenizas de ambos sólidos construyeron la transformación A1→A2. El N del estiércol fresco inicializó el N total en A1, A3 y B1, mientras que el N del precompostado y de los líquidos se conservó como contraste sin reinicializar las cadenas propagadas.",
+            "La corrida permanece identificada como PROVISIONAL M1–M2. M3 está pendiente y no interviene en los datos, parámetros, ecuaciones o resultados presentados en esta versión.",
+        ],
+    )
     table_2 = counters.table + 1
-    add_text(document, [f"La Tabla {table_2} resume los datos experimentales promovidos a la corrida provisional."])
+    add_text(
+        document,
+        [
+            f"La Tabla {table_2} sintetiza la relación entre el punto de muestreo, las determinaciones, el laboratorio y la función metodológica, sin duplicar la matriz general por etapa ni trasladar al cuerpo las réplicas crudas.",
+        ],
+    )
     table_2 = add_dataframe(
         document,
         profile,
         counters,
-        "Caracterización fisicoquímica provisional de los materiales analizados.",
-        characterization,
+        "Procedencia experimental, determinaciones y función metodológica de los materiales analizados.",
+        experimental_body_table(),
         decimals=3,
     )
 
@@ -985,6 +1155,7 @@ def build_document() -> tuple[int, int, int, int]:
         ],
     )
     document.add_heading("5.1 Caracterización y flujos del inventario", level=2)
+    characterization = results_source.characterization_summary()
     characterization_index = characterization.set_index("Tipo de muestra")
     fresh = characterization_index.loc["Estiércol fresco"]
     precomposted = characterization_index.loc["Estiércol precompostado"]
@@ -1293,6 +1464,41 @@ def build_document() -> tuple[int, int, int, int]:
         methodology_source.methodological_detail(),
         decimals=2,
     )
+
+    add_chapter(
+        document,
+        "Apéndice D. Trazabilidad experimental de las campañas M1–M2",
+    )
+    campaign_appendix_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {campaign_appendix_table} documenta el diseño físico ejecutado en M1 y M2, la relación entre muestras compartidas o independientes y la condición de uso de cada determinación. La vista resume la evidencia necesaria para reproducir el diseño sin reemplazar los registros analíticos primarios.",
+        ],
+    )
+    campaign_appendix_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Diseño de muestreo y distribución analítica de las campañas M1–M2.",
+        experimental_campaign_table(),
+        decimals=2,
+    )
+    parameter_appendix_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {parameter_appendix_table} reúne los resultados experimentales intermedios necesarios para seguir la construcción de los parámetros del modelo. Los valores corresponden a la integración vigente y se presentan redondeados solo para lectura; los cálculos conservan la precisión interna de sus fuentes.",
+        ],
+    )
+    parameter_appendix_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Resultados experimentales esenciales y función en el modelo.",
+        experimental_parameter_table(),
+        decimals=4,
+    )
     populate_acronym_list(document, acronym_marker)
     finalize_document_format(document, profile)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -1496,6 +1702,16 @@ def validate_document(
     )
     content_index = paragraph_texts.index("Contenido")
     math_paragraphs = [paragraph for paragraph in document.paragraphs if paragraph._p.xpath(".//m:oMath")]
+    table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]
+    campaign_scenario_mislabel = False
+    for value in acronym_paragraphs:
+        words = re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+", value)
+        if any(
+            left.casefold() in {"campaña", "campañas"} and right in {"A", "B"}
+            for left, right in zip(words, words[1:])
+        ):
+            campaign_scenario_mislabel = True
+            break
     checks: list[tuple[str, bool]] = [
         ("El DOCX abre como paquete válido", True),
         ("El objetivo general se conserva literalmente", OBJECTIVE_GENERAL in text),
@@ -1586,7 +1802,10 @@ def validate_document(
         ("ISO se presenta sin atribuirle siglas inglesas", acronym_by_code("ISO").first_mention in non_list_text and "ISO, por sus siglas en inglés" not in text),
         ("EMEP usa su denominación abreviada oficial sin expansión mecánica", acronym_by_code("EMEP").first_mention in non_list_text and "EMEP, por sus siglas en inglés" not in text),
         ("EEA conserva el tratamiento de sigla inglesa", acronym_by_code("EEA").first_mention in non_list_text),
-        ("No se usa campaña A/B para las alternativas", not re.search(r"\bcampa(?:ña|ñas)\s+(?:A|B|A\s+y\s+B)\b", non_list_text, re.IGNORECASE)),
+        (
+            "No se usa campaña A/B para las alternativas",
+            not campaign_scenario_mislabel,
+        ),
         ("No quedan anglicismos editoriales acordados", not re.search(r"\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b", non_list_text, re.IGNORECASE)),
         ("No quedan formas planas auditadas de unidades o fórmulas", not re.search(r"(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])", non_list_text)),
         ("Las magnitudes de superficie auditadas usan espacio y superíndice", all(value in non_list_text for value in ("15 m²", "60 m²", "81 m²"))),
@@ -1612,6 +1831,22 @@ def validate_document(
         ("El Escenario B se identifica como materializado temporalmente", "Escenario B" in text and "materializarlo temporalmente" in text),
         ("La tanqueta y el cañón tienen funciones distintas", "La tanqueta almacena" in text and "el cañón aplica" in text),
         ("Se distingue el intervalo previo al muestreo", all(term in text for term in ["jueves por la tarde", "lunes por la mañana", "entradas"])),
+        ("M1 y M2 se identifican como campañas experimentales elegibles", all(term in text for term in ["actividades de campo de M1 el 10 de noviembre de 2025", "Para M2", "M1 y M2 recibieron igual peso"])),
+        ("M3 permanece pendiente y fuera de los datos y parámetros", "M3 está pendiente y no interviene en los datos, parámetros, ecuaciones o resultados" in text),
+        ("La muestra de precompostado se ubica antes de A2", "representa la salida de A1 y la entrada a A2, no una muestra de lombricompost terminado" in text),
+        ("La procedencia física de sólidos y líquidos está documentada", all(term in text for term in ["sala de espera", "pila con mayor tiempo de permanencia", "cinco alícuotas consecutivas", "una misma abertura"])),
+        ("La distribución de laboratorios es coherente", all(term in text for term in ["LASA determinó el N total del estiércol fresco", "Para el precompostado, el CIA", "Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles"])),
+        ("El protocolo de Bioenergía conserva condiciones confirmadas", all(term in text for term in ["105 °C durante 16 h", "575 °C durante 4 h", "se enfrió en desecador", "tres réplicas analíticas por muestra compuesta"])),
+        ("La discrepancia documental de la mufla M1 se declara sin equiparar tiempos", all(term in text for term in ["ventana de operación de seis horas", "confirmación consolidada del ejecutor de cuatro horas", "no se reinterpretó como exposición continua"])),
+        ("Las bases analíticas del precompostado se mantienen separadas", all(term in text for term in ["80 °C durante 48 h", "no fue una determinación de humedad", "gravimetría independiente de Bioenergía a 105 °C durante 16 h"])),
+        ("El N del precompostado no reinicializa A2", "A2 recibió productivamente el N total y el nitrógeno amoniacal total propagados desde A1" in text),
+        ("El muestreo líquido no sustituye la frecuencia anual", "Esta condición específica de campaña se mantuvo separada de la frecuencia operativa anual" in text),
+        ("Los datos productivos y de contraste se distinguen", all(term in text for term in ["inicializó el N total en A1, A3 y B1", "se conservó como contraste sin reinicializar las cadenas propagadas"])),
+        ("La integración conserva la jerarquía y el peso temporal", all(term in text for term in ["réplica analítica, muestra compuesta, promedio de campaña e integración entre campañas", "M1 y M2 recibieron igual peso"])),
+        ("La transformación A1→A2 se calcula primero por campaña", "se calculó primero por campaña" in text and "no se construyó a partir de un promedio global previo" in text),
+        ("La trazabilidad experimental del cuerpo está presente", all(header in table_headers for header in ["Material", "Procedencia física", "Determinaciones", "Laboratorio", "Relación con el sistema", "Función metodológica"])),
+        ("El apéndice experimental contiene diseño y resultados esenciales", all(title in text for title in ["Diseño de muestreo y distribución analítica de las campañas M1–M2", "Resultados experimentales esenciales y función en el modelo"])),
+        ("La identificación instrumental no añade modelos no confirmados", "Elementar Vario Macro Cube" in text and "No se consignan fabricante, modelo, placa o número de serie porque esa identificación no está confirmada" in text),
         ("A1 se describe sin precisión falsa", "21 días" in text and "tres a cuatro semanas" in text),
         ("A2 se describe como operación regular posterior a A1", "13 semanas" in text and "operación regular" in text and "después de A1" in text),
         ("No se atribuye una muestra de lombricompost terminado", "no muestreó lombricompost terminado" in text),
@@ -1634,7 +1869,6 @@ def validate_document(
         and (match := re.fullmatch(r"\s*\((\d+)\)", paragraph.text))
     ]
     checks.append(("La numeración global de ecuaciones es continua", equation_numbers == list(range(1, expected_equations + 1))))
-    table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]
     checks.append(("Las tablas no duplican columnas de etapa", not ({"Etapa", "Nombre de etapa"} <= set(table_headers))))
 
     paragraph_text = "\n".join(paragraph.text for paragraph in document.paragraphs)

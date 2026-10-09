@@ -2,7 +2,7 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 15.
+- Tablas con numeración global: 17.
 - Figuras con numeración global: 7.
 - Ecuaciones con numeración global: 26.
 - Referencias integradas desde el registro bibliográfico: 43.
@@ -81,6 +81,22 @@
 - PASS — El Escenario B se identifica como materializado temporalmente.
 - PASS — La tanqueta y el cañón tienen funciones distintas.
 - PASS — Se distingue el intervalo previo al muestreo.
+- PASS — M1 y M2 se identifican como campañas experimentales elegibles.
+- PASS — M3 permanece pendiente y fuera de los datos y parámetros.
+- PASS — La muestra de precompostado se ubica antes de A2.
+- PASS — La procedencia física de sólidos y líquidos está documentada.
+- PASS — La distribución de laboratorios es coherente.
+- PASS — El protocolo de Bioenergía conserva condiciones confirmadas.
+- PASS — La discrepancia documental de la mufla M1 se declara sin equiparar tiempos.
+- PASS — Las bases analíticas del precompostado se mantienen separadas.
+- PASS — El N del precompostado no reinicializa A2.
+- PASS — El muestreo líquido no sustituye la frecuencia anual.
+- PASS — Los datos productivos y de contraste se distinguen.
+- PASS — La integración conserva la jerarquía y el peso temporal.
+- PASS — La transformación A1→A2 se calcula primero por campaña.
+- PASS — La trazabilidad experimental del cuerpo está presente.
+- PASS — El apéndice experimental contiene diseño y resultados esenciales.
+- PASS — La identificación instrumental no añade modelos no confirmados.
 - PASS — A1 se describe sin precisión falsa.
 - PASS — A2 se describe como operación regular posterior a A1.
 - PASS — No se atribuye una muestra de lombricompost terminado.
