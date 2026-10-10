@@ -33,9 +33,10 @@ la etiqueta **PROVISIONAL M1–M2**.
 La metodología y los insumos reproducibles para verificar externamente la
 caracterización EF 3.1 se encuentran en
 `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md` y
-`outputs/qa_qc_simapro_ef31/`. La verificación presencial continúa pendiente y
-no existen todavía resultados SimaPro. Esta unidad no altera el inventario, los
-factores, la arquitectura IMN ni los resultados científicos canónicos.
+`outputs/qa_qc_simapro_ef31/`. La sesión PROVISIONAL M1–M2 fue ejecutada el
+2026-10-07 y su evidencia quedó integrada. Esta unidad no altera el inventario,
+los factores, la arquitectura IMN ni los resultados científicos canónicos. La
+comprobación agregada deberá repetirse después de incorporar y validar M3.
 
 ## Siguiente unidad prevista
 
@@ -49,8 +50,8 @@ canónico, comprobará compatibilidad y regenerará en secuencia todas las capas
 - La caracterización definitiva, la discusión completa y las conclusiones finales permanecen bloqueadas hasta integrar y validar M3.
 - La trazabilidad final objetivos–resultados–conclusiones se realizará después de M3 sobre la corrida definitiva.
 - La normalización bibliográfica, editorial e institucional final requiere revisión académica del documento integral.
-- La verificación EF 3.1 requiere acceso presencial a una instalación UCR de
-  SimaPro y el registro de la versión y configuración disponibles.
+- La repetición definitiva de la verificación EF 3.1 requiere primero integrar
+  y validar M3 y después acceder nuevamente a la instalación UCR de SimaPro.
 
 ## Próximos hitos
 
@@ -62,9 +63,9 @@ canónico, comprobará compatibilidad y regenerará en secuencia todas las capas
 5. Efectuar la revisión editorial e institucional final del documento integral.
 6. Definir, si aporta valor después de M3, la evaluación cuantitativa mínima de sensibilidad para los supuestos
    dominantes, sin crear una ruta de cálculo paralela.
-7. Ejecutar los casos unitarios y la comprobación agregada EF 3.1 en SimaPro,
-   conservar la evidencia y, tras revisarla, incorporar metodología y resultados
-   limitados al QA/QC en el documento integral.
+7. Repetir la comprobación agregada EF 3.1 en SimaPro después de integrar M3 y,
+   tras una autorización específica, valorar la incorporación académica de los
+   resultados limitados al QA/QC en el documento integral.
 
 ## Paso de provisional a definitivo
 

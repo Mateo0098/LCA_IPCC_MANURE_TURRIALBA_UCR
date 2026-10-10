@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import sys
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -10,6 +14,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import generate_simapro_ef31_qa as qa  # noqa: E402
 from generate_simapro_ef31_qa import (  # noqa: E402
     build_observation_template,
     build_provisional_inventory,
@@ -67,6 +72,24 @@ class SimaProEF31QATests(unittest.TestCase):
             "evidencia_conservada",
         ]:
             self.assertTrue(template[column].eq("").all(), column)
+
+    def test_generator_does_not_depend_on_session_evidence(self) -> None:
+        with TemporaryDirectory(dir=ROOT) as temporary:
+            output_dir = Path(temporary) / "qa_output_without_session_evidence"
+            with patch.object(qa, "OUTPUT_DIR", output_dir), redirect_stdout(StringIO()):
+                qa.main()
+
+            expected = {
+                "casos_unitarios_python_ef31.csv",
+                "inventario_provisional_m1_m2_para_simapro.csv",
+                "resumen_python_provisional_m1_m2_ef31.csv",
+                "plantilla_registro_presencial_simapro.csv",
+                "MANIFIESTO_QA_QC.md",
+            }
+            self.assertEqual({path.name for path in output_dir.iterdir()}, expected)
+            manifest = (output_dir / "MANIFIESTO_QA_QC.md").read_text(encoding="utf-8")
+            self.assertIn("manifiesto de insumos", manifest)
+            self.assertNotIn("2026-10-07", manifest)
 
 
 if __name__ == "__main__":

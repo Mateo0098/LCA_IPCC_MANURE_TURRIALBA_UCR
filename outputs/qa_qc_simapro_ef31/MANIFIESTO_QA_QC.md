@@ -1,6 +1,6 @@
 # Manifiesto de insumos QA/QC Python–SimaPro EF 3.1
 
-Estado: **preparado; verificación presencial pendiente**.
+Estado: **insumos reproducibles generados para la corrida PROVISIONAL M1–M2**.
 
 Estos archivos se derivan de la corrida **PROVISIONAL M1–M2**. Python conserva la fuente de verdad; SimaPro se limita a una verificación externa de la caracterización de flujos elementales.
 
@@ -16,7 +16,7 @@ Estos archivos se derivan de la corrida **PROVISIONAL M1–M2**. Python conserva
 - La contribución eléctrica IMN agregada no se exporta como emisión elemental ni se recaracteriza.
 - No se incorporan procesos de fondo de electricidad o diésel.
 - No se reconstruyen los escenarios ni las etapas como procesos de SimaPro.
-- No existen resultados SimaPro en este manifiesto.
+- La ejecución, los resultados y la evidencia de sesiones presenciales se mantienen fuera de este manifiesto de insumos.
 
 ## Fuentes canónicas y SHA-256
 
@@ -24,4 +24,4 @@ Estos archivos se derivan de la corrida **PROVISIONAL M1–M2**. Python conserva
 - `processed/acv_foreground_intercambio.csv`: `f1c0be8e3d16bd44552505e7184f0c72253a0cd43b4314266746fefe238b9c49`
 - `processed/acv_impacto_por_etapa_escenario.csv`: `7857b3d15a537bfb83834a763182a24a01ebfb14d686e3cfa95e3f5d93ab567d`
 
-La regeneración se realiza con `scripts/generate_simapro_ef31_qa.py`. El protocolo permanente reside en `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md`.
+La regeneración se realiza con `scripts/generate_simapro_ef31_qa.py`. La plantilla original permanece en blanco y regenerable. El protocolo permanente y el estado de las verificaciones presenciales residen en `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md`.

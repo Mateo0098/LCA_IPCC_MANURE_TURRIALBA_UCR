@@ -19,8 +19,11 @@ No se modelan cadenas completas de fondo mediante ecoinvent. SimaPro se utiliza
 como herramienta externa de verificación independiente de la caracterización de
 emisiones elementales; no es dependencia del pipeline ni proveedor de un total
 a reimportar. La electricidad agregada IMN no se caracteriza de nuevo. El
-protocolo, los casos reproducibles y el estado pendiente de la visita se
-documentan en `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md`.
+protocolo, los casos reproducibles y el estado de la verificación se documentan
+en `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md`. La sesión presencial
+PROVISIONAL M1–M2 se ejecutó el 2026-10-07; su evidencia permanece separada de
+los resultados canónicos y la comprobación deberá repetirse después de integrar
+M3.
 La selección temporal y sectorial se documenta en la sección 15 de
 `DECISIONES_METODOLOGICAS_TFG.md`.
 
@@ -176,12 +179,17 @@ sin modificar el pipeline científico:
 ```powershell
 .venv\Scripts\python.exe scripts\generate_simapro_ef31_qa.py
 .venv\Scripts\python.exe -m unittest tests.test_simapro_ef31_qa
+.venv\Scripts\python.exe scripts\validate_simapro_session_evidence.py outputs\qa_qc_simapro_ef31\evidencia_sesion_2026-10-07
 ```
 
 El generador deriva casos unitarios y cantidades **PROVISIONAL M1–M2** desde las
 fuentes activas, comprueba sus subtotales contra los impactos canónicos y excluye
-la electricidad IMN agregada. No ejecuta SimaPro ni contiene resultados de una
-visita presencial.
+la electricidad IMN agregada. No ejecuta SimaPro, no inspecciona evidencia
+histórica ni reimporta resultados de la visita presencial. La evidencia fechada
+y el registro observado se conservan por separado en
+`outputs/qa_qc_simapro_ef31/`; su integridad se comprueba explícitamente con
+`scripts/validate_simapro_session_evidence.py` sin modificar la fuente de verdad
+Python.
 
 ## Incorporación futura de M3
 
