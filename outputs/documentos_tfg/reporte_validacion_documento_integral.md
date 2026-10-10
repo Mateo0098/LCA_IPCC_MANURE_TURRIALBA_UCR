@@ -2,7 +2,7 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 17.
+- Tablas con numeración global: 22.
 - Figuras con numeración global: 7.
 - Ecuaciones con numeración global: 26.
 - Entradas conservadas en el registro bibliográfico: 43.
@@ -102,6 +102,13 @@
 - PASS — La transformación A1→A2 se calcula primero por campaña.
 - PASS — La trazabilidad experimental del cuerpo está presente.
 - PASS — El apéndice experimental contiene diseño y resultados esenciales.
+- PASS — El apéndice de balances permite auditar la propagación de N total y TAN.
+- PASS — Las masas gestionadas por etapa son visibles.
+- PASS — Las pérdidas físicas de N permiten conciliar el balance por etapa.
+- PASS — Las rutas de emisiones se presentan de forma desagregada por etapa.
+- PASS — Las contribuciones climáticas de manejo, electricidad y diésel permanecen separadas.
+- PASS — Las emisiones físicas de la combustión del diésel son visibles.
+- PASS — La inconsistencia interna de N₂O en Jjagwe se declara sin cambiar el valor aprobado.
 - PASS — La identificación instrumental no añade modelos no confirmados.
 - PASS — A1 se describe sin precisión falsa.
 - PASS — A2 se describe como operación regular posterior a A1.

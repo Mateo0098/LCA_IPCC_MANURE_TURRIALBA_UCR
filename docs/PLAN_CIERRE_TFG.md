@@ -2,10 +2,12 @@
 
 ## Estado
 
-TFG en la primera unidad preparatoria de M3. Existe una corrida científica **PROVISIONAL M1–M2**
-y un documento integral provisional. La auditoría académica transversal final
-pre-M3 fue completada: el pipeline científico y computacional quedó validado y
-no se identificaron bloqueantes científicos ni de reproducibilidad.
+TFG en espera de M3. Existe una corrida científica **PROVISIONAL M1–M2** y un
+documento integral provisional. Las unidades documentales pre-M3 de
+reconciliación metodológica, marco teórico, referencias, metodología experimental
+y completitud de resultados y apéndices ya fueron ejecutadas. El pipeline
+científico y computacional permanece validado, sin bloqueantes científicos ni de
+reproducibilidad identificados para el estado provisional.
 
 ## Reconciliación documental final pre-M3
 
@@ -13,9 +15,8 @@ La auditoría confirmó la coherencia del pipeline completo, la comparabilidad d
 los escenarios, la conciliación de N total y TAN, la continuidad entre inventario,
 EF 3.1 e impactos, la integración de los recursos IMN y la correspondencia entre
 tablas, gráficos, resultados y conclusiones. Esta unidad cierra la reconciliación
-documental pre-M3 una vez validadas sus modificaciones; no modifica el modelo ni
-los resultados científicos. La evaluación supervisora de una eventual integración
-a `main` es posterior y no forma parte de esta unidad.
+documental científica pre-M3; las mejoras posteriores al integral se limitan a
+trazabilidad académica y no modifican el modelo ni los resultados científicos.
 
 ## Unidad preparatoria de M3
 
@@ -46,21 +47,23 @@ canónico, comprobará compatibilidad y regenerará en secuencia todas las capas
 
 - Dependencia principal: resultados analíticos de M3.
 - La caracterización definitiva, la discusión completa y las conclusiones finales permanecen bloqueadas hasta integrar y validar M3.
-- La normalización bibliográfica e institucional final requiere revisión académica del documento integral.
+- La verificación fotográfica y la selección de fotografías para el documento final permanecen pendientes.
+- La trazabilidad final objetivos–resultados–conclusiones se realizará después de M3 sobre la corrida definitiva.
+- La normalización bibliográfica, editorial e institucional final requiere revisión académica del documento integral.
 - La verificación EF 3.1 requiere acceso presencial a una instalación UCR de
   SimaPro y el registro de la versión y configuración disponibles.
 
 ## Próximos hitos
 
-1. Validar la reconciliación documental pre-M3 y evaluar de forma supervisora la
-   eventual integración de la rama a `main`.
-2. Ejecutar M3 conforme al contrato experimental y conservar la evidencia primaria.
-3. Incorporar las fuentes reales M3 mediante el pipeline vigente.
+1. Ejecutar M3 conforme al contrato experimental y conservar la evidencia primaria.
+2. Incorporar las fuentes reales M3 mediante el pipeline vigente.
+3. Completar la trazabilidad final entre objetivos, resultados y conclusiones.
 4. Completar la verificación final de las referencias marcadas como pendientes en
    `docs/REFERENCIAS_TFG.md`.
-5. Definir la evaluación cuantitativa mínima de sensibilidad para los supuestos
+5. Incorporar las fotografías seleccionadas y efectuar la revisión editorial e institucional final.
+6. Definir, si aporta valor después de M3, la evaluación cuantitativa mínima de sensibilidad para los supuestos
    dominantes, sin crear una ruta de cálculo paralela.
-6. Ejecutar los casos unitarios y la comprobación agregada EF 3.1 en SimaPro,
+7. Ejecutar los casos unitarios y la comprobación agregada EF 3.1 en SimaPro,
    conservar la evidencia y, tras revisarla, incorporar metodología y resultados
    limitados al QA/QC en el documento integral.
 

@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 from docx import Document
+from docx.enum.section import WD_ORIENT, WD_SECTION
 from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
@@ -96,6 +97,7 @@ EXPECTED_HEADINGS = [
     "Apéndice B. Matriz detallada de procedencia de los datos del inventario",
     "Apéndice C. Matriz detallada de trazabilidad metodológica por etapa A1–B2",
     "Apéndice D. Trazabilidad experimental de las campañas M1–M2",
+    "Apéndice E. Balances intermedios y emisiones desagregadas",
 ]
 
 REQUIRED_REFERENCE_KEYS = {
@@ -363,6 +365,199 @@ def experimental_parameter_table() -> pd.DataFrame:
         }
     )
     return pd.DataFrame(rows)
+
+
+def nitrogen_propagation_table() -> pd.DataFrame:
+    """Vista académica del balance canónico, sin recalcular sus magnitudes."""
+
+    ledger = pd.read_csv(
+        ROOT / "processed" / "reactive_n_ledger.csv",
+        encoding="utf-8-sig",
+    )
+    propagated = ledger["n_total_out_kg"].where(
+        ledger["n_total_out_kg"].notna(), ledger["n_returned_emep_kg"]
+    )
+    return pd.DataFrame(
+        {
+            "Etapa del sistema": ledger["stage"],
+            "N total de entrada (kg N/año)": ledger["n_total_in_kg"],
+            "TAN de entrada (kg N/año)": ledger["tan_in_kg"],
+            "N transferido o retornado según EMEP (kg N/año)": propagated,
+            "N residual del suelo después de pérdidas directas (kg N/año)": ledger[
+                "soil_n_remaining_after_direct_losses_kg"
+            ],
+            "TAN de salida (kg N/año)": ledger["tan_out_kg"],
+        }
+    )
+
+
+def nitrogen_direct_loss_table() -> pd.DataFrame:
+    """Pérdidas físicas del balance expresadas sobre una base común de N."""
+
+    ledger = pd.read_csv(
+        ROOT / "processed" / "reactive_n_ledger.csv",
+        encoding="utf-8-sig",
+    )
+    tan_basis = ledger["stage"].map(
+        {
+            "A1: Precomposteo": "TAN de entrada",
+            "A2: Lombricompostaje": "TAN de entrada",
+            "A3: Almacenamiento de aguas verdes": "TAN disponible después de mineralización",
+            "A4: Aplicación de aguas verdes en campos de pastoreo": "TAN de entrada a la aplicación",
+            "B1: Almacenamiento de purines": "TAN disponible después de mineralización",
+            "B2: Aplicación de purines en campo de pastoreo": "TAN de entrada a la aplicación",
+        }
+    )
+    return pd.DataFrame(
+        {
+            "Etapa del sistema": ledger["stage"],
+            "Base de TAN para las pérdidas": tan_basis,
+            "NH₃-N (kg N/año)": ledger["nh3_n_kg"],
+            "NOx-N (kg N/año)": ledger["nox_n_kg"],
+            "N₂-N (kg N/año)": ledger["n2_n_kg"],
+            "N₂O-N directo (kg N/año)": ledger["n2o_n_direct_kg"],
+            "N perdido en agua durante el manejo (kg N/año)": ledger["n_water_loss_kg"],
+            "N por lixiviación o escorrentía (kg N/año)": ledger["n_leach_runoff_kg"],
+        }
+    )
+
+
+def detailed_emission_table() -> pd.DataFrame:
+    """Desagrega rutas ya calculadas en la tabla canónica de emisiones."""
+
+    emissions = pd.read_csv(
+        ROOT / "outputs" / "tablas_tesis" / "tabla_06_emisiones_por_etapa.csv",
+        encoding="utf-8-sig",
+    )
+    emissions = emissions.loc[
+        ~emissions["sustancia"].astype(str).str.contains("diésel", case=False, na=False)
+    ].copy()
+    stages = (
+        emissions[["escenario", "etapa", "nombre_etapa"]]
+        .drop_duplicates()
+        .sort_values(["escenario", "etapa"])
+    )
+    rows: list[dict[str, str | float]] = []
+    for _, stage in stages.iterrows():
+        selected = emissions.loc[
+            (emissions["escenario"] == stage["escenario"])
+            & (emissions["etapa"] == stage["etapa"])
+        ]
+        values = {
+            "CH₄ (kg/año)": 0.0,
+            "N₂O directo (kg/año)": 0.0,
+            "N₂O indirecto por volatilización (kg/año)": 0.0,
+            "N₂O indirecto por lixiviación (kg/año)": 0.0,
+            "NH₃ (kg/año)": 0.0,
+            "NOx como NO₂ (kg/año)": 0.0,
+            "NO₃⁻ (kg/año)": 0.0,
+        }
+        for _, emission in selected.iterrows():
+            substance = str(emission["sustancia"])
+            description = str(emission["emision"]).casefold()
+            value = float(emission["valor"])
+            if substance == "CH4":
+                values["CH₄ (kg/año)"] = value
+            elif substance == "N2O" and (
+                "indirecto por volatilizacion" in description
+                or "indirecto por deposicion atmosferica" in description
+            ):
+                values["N₂O indirecto por volatilización (kg/año)"] = value
+            elif substance == "N2O" and "indirecto" in description and "lixiviacion" in description:
+                values["N₂O indirecto por lixiviación (kg/año)"] = value
+            elif substance == "N2O" and description.startswith("n2o directo"):
+                values["N₂O directo (kg/año)"] = value
+            elif substance == "NH3":
+                values["NH₃ (kg/año)"] = value
+            elif substance == "NOx":
+                values["NOx como NO₂ (kg/año)"] = value
+            elif substance == "NO3":
+                values["NO₃⁻ (kg/año)"] = value
+        rows.append(
+            {
+                "Etapa del sistema": f"{stage['escenario']}{int(stage['etapa'])}: "
+                + re.sub(r"^Etapa\s+\d+:\s*", "", str(stage["nombre_etapa"])),
+                **values,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def climate_contribution_table() -> pd.DataFrame:
+    """Recupera la desagregación climática ya calculada por el pipeline."""
+
+    totals = pd.read_csv(
+        ROOT / "processed" / "acv_impacto_total_por_escenario.csv",
+        encoding="utf-8-sig",
+    )
+    return totals[
+        [
+            "Escenario",
+            "clima_manejo_ef31_kg_co2eq",
+            "clima_electricidad_imn_kg_co2eq",
+            "clima_diesel_ef31_kg_co2eq",
+            "impacto_calentamiento_global_kg_co2eq",
+        ]
+    ].rename(
+        columns={
+            "clima_manejo_ef31_kg_co2eq": "Manejo del estiércol (kg CO₂-eq/año)",
+            "clima_electricidad_imn_kg_co2eq": "Electricidad (kg CO₂-eq/año)",
+            "clima_diesel_ef31_kg_co2eq": "Diésel (kg CO₂-eq/año)",
+            "impacto_calentamiento_global_kg_co2eq": "Cambio climático total (kg CO₂-eq/año)",
+        }
+    )
+
+
+def operational_resource_context() -> dict[str, float]:
+    """Magnitudes operativas únicas recuperadas de las salidas responsables."""
+
+    inventory = pd.read_csv(
+        ROOT / "processed" / "acv_inventario_recursos_operativos.csv",
+        encoding="utf-8-sig",
+    )
+    totals = pd.read_csv(
+        ROOT / "processed" / "acv_impacto_total_por_escenario.csv",
+        encoding="utf-8-sig",
+    )
+    electricity = inventory.loc[inventory["flujo"] == "Electricidad"].iloc[0]
+    diesel = inventory.loc[inventory["flujo"] == "Diésel"].iloc[0]
+    climate = totals.loc[totals["Escenario"] == "A"].iloc[0]
+    return {
+        "electricity_kwh": float(electricity["cantidad_anual"]),
+        "diesel_l": float(diesel["cantidad_anual"]),
+        "electricity_climate": float(climate["clima_electricidad_imn_kg_co2eq"]),
+        "diesel_climate": float(climate["clima_diesel_ef31_kg_co2eq"]),
+        "diesel_co2": float(diesel["co2_fosil_diesel_kg"]),
+        "diesel_ch4": float(diesel["ch4_fosil_diesel_kg"]),
+        "diesel_n2o": float(diesel["n2o_combustion_diesel_kg"]),
+    }
+
+
+def inventory_mass_table() -> pd.DataFrame:
+    """Masas activas por etapa recuperadas de la vista académica vigente."""
+
+    flows = results_source.flow_summary()
+    stage_codes = flows["Escenario"].astype(str) + flows["Etapa"].astype(int).astype(str)
+    stage_names = flows["Nombre de etapa"].astype(str).str.replace(
+        r"^Etapa\s+\d+:\s*", "", regex=True
+    )
+    meanings = {
+        "A1": "Estiércol fresco recolectado; masa húmeda anual",
+        "A2": "Precompostado de entrada; masa húmeda inferida mediante la transformación A1→A2",
+        "A3": "Fracción de boñiga incorporada a las aguas verdes; el agua se excluye de esta masa de actividad",
+        "A4": "Masa equivalente: agua de lavado + fracción de boñiga; no es masa de estiércol medida ni base de N",
+        "B1": "Estiércol fresco teóricamente depositado; el agua se excluye de esta masa de actividad",
+        "B2": "Masa equivalente: agua de lavado + boñiga; no es masa de estiércol medida ni base de N",
+    }
+    return pd.DataFrame(
+        {
+            "Etapa del sistema": stage_codes + ": " + stage_names,
+            "Masa gestionada (kg eq/año)": flows[
+                "Masa equivalente total (kg eq/año)"
+            ],
+            "Significado físico": stage_codes.map(meanings),
+        }
+    )
 
 
 def add_dataframe(
@@ -760,6 +955,7 @@ def build_document() -> tuple[int, int, int, int]:
     counters = EditorialCounters()
     methodology_context = methodology_source.methodology_context()
     result_context = results_source.results_context()
+    resource_context = operational_resource_context()
     reference_registry = read_reference_registry()
     references = visible_reference_entries(reference_registry)
 
@@ -1256,6 +1452,21 @@ def build_document() -> tuple[int, int, int, int]:
             "La distribución de flujos mantuvo el mismo flujo anual de referencia para ambos escenarios. La ruta A separó la fracción sólida recolectada de la fracción incorporada a las aguas verdes; la ruta B condujo el flujo completo al almacenamiento y posterior aplicación de purines.",
         ],
     )
+    mass_table_number = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {mass_table_number} presenta la masa húmeda o equivalente gestionada en cada etapa. En A4 y B2, la masa equivalente integra el agua de lavado con la fracción de estiércol correspondiente; no constituye la base para inicializar N total.",
+        ],
+    )
+    mass_table_number = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Masas anuales gestionadas por etapa.",
+        inventory_mass_table(),
+        decimals=6,
+    )
     figure_2 = counters.figure + 1
     add_text(document, [f"La Figura {figure_2} presenta la caracterización gravimétrica provisional."])
     figure_2 = add_figure(
@@ -1272,7 +1483,8 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Tabla {table_4} resume las emisiones del manejo y la Figura {figure_3} muestra la distribución de CH₄. Las contribuciones operativas de electricidad y diésel se incorporaron en el indicador de cambio climático, manteniendo separada su trazabilidad.",
+            f"La Tabla {table_4} resume las emisiones del manejo y la Figura {figure_3} muestra la distribución de CH₄. Las contribuciones operativas de electricidad y diésel se incorporaron en el indicador de cambio climático, manteniendo separada su trazabilidad. El Apéndice E presenta las rutas de N₂O directo e indirecto, NH₃, NOx y NO₃⁻ por etapa sin duplicar el inventario completo.",
+            f"La combustión de {results_source.fmt(resource_context['diesel_l'], 2)} L/año de diésel produjo {results_source.fmt(resource_context['diesel_co2'], 6)} kg/año de CO₂ fósil, {results_source.fmt(resource_context['diesel_ch4'], 6)} kg/año de CH₄ fósil y {results_source.fmt(resource_context['diesel_n2o'], 6)} kg/año de N₂O en cada escenario. Estas masas se caracterizaron después con EF 3.1 y permanecen separadas de las emisiones del manejo resumidas en la Tabla {table_4}.",
         ],
     )
     table_4 = add_dataframe(
@@ -1332,13 +1544,14 @@ def build_document() -> tuple[int, int, int, int]:
     document.add_heading("5.3.1 Resultados totales y comparación entre escenarios", level=3)
     totals = results_source.total_impact_summary()
     table_6 = counters.table + 1
-    table_7 = counters.table + 2
-    table_8 = counters.table + 3
+    table_resources = counters.table + 2
+    table_7 = counters.table + 3
+    table_8 = counters.table + 4
     figure_6 = counters.figure + 1
     add_text(
         document,
         [
-            f"La Tabla {table_6} presenta la magnitud anual y la Tabla {table_7} muestra los indicadores por unidad funcional. La Tabla {table_8} y la Figura {figure_6} presentan la comparación entre escenarios bajo la misma base funcional.",
+            f"La Tabla {table_6} presenta la magnitud anual y la Tabla {table_resources} separa el cambio climático del manejo, la electricidad y el diésel. La Tabla {table_7} muestra los indicadores por unidad funcional. La Tabla {table_8} y la Figura {figure_6} presentan la comparación entre escenarios bajo la misma base funcional.",
         ],
     )
     table_6 = add_dataframe(
@@ -1347,6 +1560,14 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Impactos ambientales anuales por escenario.",
         totals.iloc[:, :4],
+        decimals=6,
+    )
+    table_resources = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Contribuciones al cambio climático del manejo y los recursos operativos.",
+        climate_contribution_table(),
         decimals=6,
     )
     normalized_totals = totals[[totals.columns[0], *totals.columns[4:]]].copy()
@@ -1388,6 +1609,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             f"La Tabla {table_9} contrasta las estimaciones oficiales de A2: Lombricompostaje con Jjagwe et al. (2019) sobre una base material armonizada. El contraste apoya la interpretación, pero no sustituye el inventario oficial ni constituye una validación formal del modelo.",
+            "La fuente presenta una inconsistencia interna para N₂O: el resumen imprime 3,943 × 10⁻⁵ g/kg de materia seca, equivalentes matemáticamente a 0,03943 mg/kg, mientras la sección de resultados informa aproximadamente 40 mg/kg. La escala de la Figura 3 y el potencial de calentamiento global publicado de 324 kg CO₂-eq/t de residuo, calculado por los autores con factores de 1, 28 y 265 para CO₂, CH₄ y N₂O, respectivamente, son coherentes con el orden de decenas de miligramos. Conforme a la decisión metodológica vigente, el contraste conserva 39,43 mg/kg; esta selección documenta una inconsistencia editorial interna de la fuente y no modifica el inventario productivo de A2.",
         ],
     )
     table_9 = add_dataframe(
@@ -1406,7 +1628,9 @@ def build_document() -> tuple[int, int, int, int]:
         [
             f"Bajo la unidad funcional común, el {result_context['cg_comparison'].higher_label} presentó el mayor cambio climático y el {result_context['cg_comparison'].lower_label} el menor. La diferencia B menos A fue {results_source.fmt(result_context['cg_percentage'], 2)} % respecto al Escenario A.",
             f"En eutrofización terrestre, el {result_context['et_comparison'].higher_label} presentó el mayor indicador; en eutrofización marina, el {result_context['eu_comparison'].higher_label} presentó el mayor indicador. Estas comparaciones corresponden a categorías distintas y no se agregan entre sí.",
-            "La concentración del impacto en etapas distintas confirma que la interpretación debe considerar la estructura de cada alternativa, el almacenamiento, la aplicación al suelo y los consumos operativos. La evidencia provisional no permite generalizar una superioridad universal fuera de la lechería y de las condiciones modeladas.",
+            "La concentración del impacto en etapas distintas confirma que la interpretación debe considerar la estructura de cada alternativa. El predominio climático de A3 y B1 coincide con la concentración de CH₄ en el almacenamiento líquido; el predominio de eutrofización marina de A4 y B2 coincide con las pérdidas de NO₃⁻ de la aplicación al suelo. Para eutrofización terrestre, las emisiones atmosféricas de NH₃ y NOx permiten interpretar la importancia relativa de A1 y B2 sin atribuir causalidad fuera de las relaciones de caracterización aplicadas.",
+            f"Los dos escenarios incorporaron el mismo consumo anual de {results_source.fmt(resource_context['electricity_kwh'], 2)} kWh de electricidad y {results_source.fmt(resource_context['diesel_l'], 2)} L de diésel. Por ello, sus contribuciones operativas al cambio climático fueron iguales: {results_source.fmt(resource_context['electricity_climate'], 6)} kg CO₂-eq/año por electricidad y {results_source.fmt(resource_context['diesel_climate'], 6)} kg CO₂-eq/año por diésel. Estas cargas comunes no explican la diferencia entre escenarios, que se mantiene asociada con las emisiones del manejo dentro de la frontera estudiada.",
+            "La evidencia provisional no permite generalizar una superioridad universal fuera de la lechería y de las condiciones modeladas.",
         ],
     )
     document.add_heading("6.2 Contraste con la literatura", level=2)
@@ -1588,6 +1812,64 @@ def build_document() -> tuple[int, int, int, int]:
         "Resultados experimentales esenciales y función en el modelo.",
         experimental_parameter_table(),
         decimals=4,
+    )
+
+    appendix_section = document.add_section(WD_SECTION.NEW_PAGE)
+    portrait_width = appendix_section.page_width
+    portrait_height = appendix_section.page_height
+    appendix_section.orientation = WD_ORIENT.LANDSCAPE
+    appendix_section.page_width = portrait_height
+    appendix_section.page_height = portrait_width
+    add_chapter(
+        document,
+        "Apéndice E. Balances intermedios y emisiones desagregadas",
+        first=True,
+    )
+    nitrogen_appendix_table = counters.table + 1
+    add_text(
+        document,
+        [
+            "Las tres vistas de este apéndice se leen de manera secuencial y cumplen funciones distintas: primero se presenta la propagación contable en base N, después se detallan las pérdidas físicas también en base N y, por último, se muestran las emisiones expresadas como las especies moleculares utilizadas por el inventario.",
+            f"La Tabla {nitrogen_appendix_table} permite seguir la propagación del N total y del TAN entre las etapas conectadas. En A4 y B2, la columna de transferencia presenta el N retornado al suelo según EMEP; el N residual después de las pérdidas directas se conserva por separado y no lo sustituye.",
+        ],
+    )
+    nitrogen_appendix_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Propagación anual de N total y TAN por etapa.",
+        nitrogen_propagation_table(),
+        decimals=6,
+    )
+    nitrogen_loss_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {nitrogen_loss_table} expresa sobre una base común de N las pérdidas directas que permiten conciliar el N de entrada con la transferencia o el remanente de cada etapa. El N₂ se conserva en el balance físico, aunque no recibe caracterización en las categorías evaluadas.",
+        ],
+    )
+    nitrogen_loss_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Pérdidas físicas anuales de N por etapa.",
+        nitrogen_direct_loss_table(),
+        decimals=6,
+    )
+    emissions_appendix_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {emissions_appendix_table} desagrega las emisiones que explican los impactos por etapa. Los valores proceden de la tabla canónica de emisiones; la vista no añade rutas ni recalcula factores.",
+        ],
+    )
+    emissions_appendix_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Emisiones anuales desagregadas por etapa y ruta.",
+        detailed_emission_table(),
+        decimals=6,
     )
     populate_acronym_list(document, acronym_marker)
     finalize_document_format(document, profile)
@@ -1975,6 +2257,88 @@ def validate_document(
         ("La transformación A1→A2 se calcula primero por campaña", "se calculó primero por campaña" in text and "no se construyó a partir de un promedio global previo" in text),
         ("La trazabilidad experimental del cuerpo está presente", all(header in table_headers for header in ["Material", "Procedencia física", "Determinaciones", "Laboratorio", "Relación con el sistema", "Función metodológica"])),
         ("El apéndice experimental contiene diseño y resultados esenciales", all(title in text for title in ["Diseño de muestreo y distribución analítica de las campañas M1–M2", "Resultados experimentales esenciales y función en el modelo"])),
+        (
+            "El apéndice de balances permite auditar la propagación de N total y TAN",
+            all(
+                header in table_headers
+                for header in [
+                    "N total de entrada (kg N/año)",
+                    "TAN de entrada (kg N/año)",
+                    "N transferido o retornado según EMEP (kg N/año)",
+                    "TAN de salida (kg N/año)",
+                ]
+            ),
+        ),
+        (
+            "Las masas gestionadas por etapa son visibles",
+            all(
+                header in table_headers
+                for header in ["Masa gestionada (kg eq/año)", "Significado físico"]
+            )
+            and all(
+                term in text
+                for term in [
+                    "Estiércol fresco recolectado; masa húmeda anual",
+                    "Precompostado de entrada; masa húmeda inferida mediante la transformación A1→A2",
+                    "no es masa de estiércol medida ni base de N",
+                ]
+            ),
+        ),
+        (
+            "Las pérdidas físicas de N permiten conciliar el balance por etapa",
+            all(
+                header in table_headers
+                for header in [
+                    "NH₃-N (kg N/año)",
+                    "NOx-N (kg N/año)",
+                    "N₂-N (kg N/año)",
+                    "N₂O-N directo (kg N/año)",
+                    "N perdido en agua durante el manejo (kg N/año)",
+                    "N por lixiviación o escorrentía (kg N/año)",
+                    "Base de TAN para las pérdidas",
+                ]
+            ),
+        ),
+        (
+            "Las rutas de emisiones se presentan de forma desagregada por etapa",
+            all(
+                header in table_headers
+                for header in [
+                    "N₂O directo (kg/año)",
+                    "N₂O indirecto por volatilización (kg/año)",
+                    "N₂O indirecto por lixiviación (kg/año)",
+                    "NH₃ (kg/año)",
+                    "NO₃⁻ (kg/año)",
+                ]
+            ),
+        ),
+        (
+            "Las contribuciones climáticas de manejo, electricidad y diésel permanecen separadas",
+            all(
+                header in table_headers
+                for header in [
+                    "Manejo del estiércol (kg CO₂-eq/año)",
+                    "Electricidad (kg CO₂-eq/año)",
+                    "Diésel (kg CO₂-eq/año)",
+                ]
+            ),
+        ),
+        (
+            "Las emisiones físicas de la combustión del diésel son visibles",
+            all(term in text for term in ["kg/año de CO₂ fósil", "kg/año de CH₄ fósil", "kg/año de N₂O en cada escenario"]),
+        ),
+        (
+            "La inconsistencia interna de N₂O en Jjagwe se declara sin cambiar el valor aprobado",
+            all(
+                term in text
+                for term in [
+                    "3,943 × 10⁻⁵ g/kg",
+                    "0,03943 mg/kg",
+                    "39,43 mg/kg",
+                    "no modifica el inventario productivo de A2",
+                ]
+            ),
+        ),
         ("La identificación instrumental no añade modelos no confirmados", "Elementar Vario Macro Cube" in text and "No se consignan fabricante, modelo, placa o número de serie porque esa identificación no está confirmada" in text),
         ("A1 se describe sin precisión falsa", "21 días" in text and "tres a cuatro semanas" in text),
         ("A2 se describe como operación regular posterior a A1", "13 semanas" in text and "operación regular" in text and "después de A1" in text),
