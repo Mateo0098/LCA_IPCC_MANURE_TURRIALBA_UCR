@@ -1565,6 +1565,11 @@ def graphics_internal_title_diagnostics() -> dict[str, object]:
 def write_readme(master_hash_before: str, master_hash_after: str) -> None:
     main_fig_names = [name for name, _ in MAIN_FIGURES]
     appendix_fig_names = [name for name, _ in APPENDIX_FIGURES if (FIG_DIR / name).exists()]
+    integral_photo_fig_names = [
+        "fig_fotografica_sistema_fisico.jpg",
+        "fig_fotografica_muestreo_conservacion.jpg",
+        "fig_fotografica_bioenergia.jpg",
+    ]
     table_names = [path.name for path in TABLES.values() if path.suffix == ".csv"]
     readme = f"""# Documentos generados para el TFG
 
@@ -1587,6 +1592,7 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 - `scripts/generate_results_docx.py`
 - `scripts/generate_conclusions_docx.py`
 - `scripts/generate_integral_tfg_docx.py`
+- `scripts/generate_integral_photographic_figures.py`
 
 ## 3. Tablas utilizadas
 
@@ -1601,6 +1607,10 @@ Figuras principales:
 Figuras complementarias en apéndices:
 
 {chr(10).join(f"- `{name}`" for name in appendix_fig_names)}
+
+Figuras fotográficas del documento integral:
+
+{chr(10).join(f"- `recursos_integral/{name}`" for name in integral_photo_fig_names)}
 
 ## 5. Confirmaciones
 
@@ -1618,6 +1628,7 @@ Figuras complementarias en apéndices:
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
 - El documento integral se identifica expresamente como PROVISIONAL M1–M2 y se genera después de los tres módulos académicos.
 - El documento integral contiene 26 ecuaciones OMML seleccionadas por necesidad de reproducibilidad, con numeración global consecutiva y sin convertir la metodología en una transcripción exhaustiva del modelo.
+- El documento integral incorpora tres figuras fotográficas multipanel reproducibles para documentar el sistema físico, el muestreo y el trabajo en Bioenergía; los originales permanecen intactos.
 - No se modificó el documento maestro de referencia. Hash antes: `{master_hash_before}`. Hash después: `{master_hash_after}`.
 
 ## 6. Mejoras de formato académico aplicadas
@@ -1645,6 +1656,7 @@ Metodología:
 - Tabla de síntesis metodológica por etapa A1–B2.
 - Tabla de factores de caracterización resumidos.
 - Figura de masa equivalente total como apoyo metodológico.
+- Tres figuras fotográficas multipanel sobre el sistema físico, el muestreo y conservación, y el procedimiento en Bioenergía.
 
 Resultados:
 
@@ -1655,7 +1667,7 @@ Resultados:
 - Tabla de impactos ambientales por etapa.
 - Tabla de impactos ambientales totales por escenario.
 - Tabla de comparación de impactos entre escenarios.
-- Figuras principales 1 a 7.
+- Siete figuras principales de resultados.
 
 ## 7. Tablas y figuras enviadas a apéndices
 

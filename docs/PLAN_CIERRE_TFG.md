@@ -47,7 +47,6 @@ canónico, comprobará compatibilidad y regenerará en secuencia todas las capas
 
 - Dependencia principal: resultados analíticos de M3.
 - La caracterización definitiva, la discusión completa y las conclusiones finales permanecen bloqueadas hasta integrar y validar M3.
-- La verificación fotográfica y la selección de fotografías para el documento final permanecen pendientes.
 - La trazabilidad final objetivos–resultados–conclusiones se realizará después de M3 sobre la corrida definitiva.
 - La normalización bibliográfica, editorial e institucional final requiere revisión académica del documento integral.
 - La verificación EF 3.1 requiere acceso presencial a una instalación UCR de
@@ -60,7 +59,7 @@ canónico, comprobará compatibilidad y regenerará en secuencia todas las capas
 3. Completar la trazabilidad final entre objetivos, resultados y conclusiones.
 4. Completar la verificación final de las referencias marcadas como pendientes en
    `docs/REFERENCIAS_TFG.md`.
-5. Incorporar las fotografías seleccionadas y efectuar la revisión editorial e institucional final.
+5. Efectuar la revisión editorial e institucional final del documento integral.
 6. Definir, si aporta valor después de M3, la evaluación cuantitativa mínima de sensibilidad para los supuestos
    dominantes, sin crear una ruta de cálculo paralela.
 7. Ejecutar los casos unitarios y la comprobación agregada EF 3.1 en SimaPro,

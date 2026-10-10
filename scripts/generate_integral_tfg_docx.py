@@ -28,6 +28,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import generate_conclusions_docx as conclusions_source  # noqa: E402
+import generate_integral_photographic_figures as photographic_source  # noqa: E402
 import generate_methodology_docx as methodology_source  # noqa: E402
 import generate_results_docx as results_source  # noqa: E402
 from academic_text_utils import (  # noqa: E402
@@ -167,6 +168,7 @@ def validate_inputs() -> Path:
         raise FileNotFoundError(f"Faltan entradas para el documento integral: {missing}")
     methodology_source.validate_inputs()
     results_source.validate_inputs()
+    photographic_source.validate_sources()
     return reference
 
 
@@ -958,6 +960,7 @@ def build_document() -> tuple[int, int, int, int]:
     resource_context = operational_resource_context()
     reference_registry = read_reference_registry()
     references = visible_reference_entries(reference_registry)
+    photographic_source.generate_photographic_figures()
 
     for section in document.sections:
         header = section.header.paragraphs[0]
@@ -1107,6 +1110,19 @@ def build_document() -> tuple[int, int, int, int]:
         stage_table,
         decimals=2,
     )
+    system_photo_figure = counters.figure + 1
+    add_text(
+        document,
+        [
+            f"La Figura {system_photo_figure} aporta evidencia visual complementaria de los elementos físicos asociados con las rutas descritas. Las fotografías documentan las unidades observadas y no sustituyen la definición de fronteras ni los registros operativos empleados en el inventario.",
+        ],
+    )
+    system_photo_figure = add_figure(
+        document,
+        counters,
+        photographic_source.SYSTEM_PHOTO_FIGURE,
+        "Elementos físicos de las rutas de manejo estudiadas: (a) pila de precomposteo; (b) camas de lombricompostaje y tanques de almacenamiento del agua de lavado; (c) abertura de la tanqueta de almacenamiento con aguas verdes; y (d) cañón VAIA empleado para la aplicación de aguas verdes o purines al campo.",
+    )
 
     document.add_heading("4.3 Diseño experimental, muestreo y análisis de laboratorio", level=2)
     document.add_heading("4.3.1 Campañas y procedencia física de las muestras", level=3)
@@ -1128,6 +1144,19 @@ def build_document() -> tuple[int, int, int, int]:
             "Las muestras se colocaron en recipientes de polipropileno para alimentos con capacidad aproximada de 750–900 mL, se etiquetaron y se transportaron desde Turrialba hasta la Universidad de Costa Rica en San Pedro dentro de una hielera con hielo. En M2, la identidad física compartida entre Bioenergía y los laboratorios externos se conservó tomando primero las porciones requeridas para la gravimetría y remitiendo después el material remanente de cada muestra compuesta.",
         ],
     )
+    sampling_photo_figure = counters.figure + 1
+    add_text(
+        document,
+        [
+            f"La Figura {sampling_photo_figure} relaciona la toma de submuestras sólidas y líquidas con la preparación previa de la tanqueta y con las condiciones de conservación descritas. La evidencia fotográfica complementa el registro experimental y no permite identificar por sí sola si el líquido de la secuencia mostrada correspondía a aguas verdes o purines.",
+        ],
+    )
+    sampling_photo_figure = add_figure(
+        document,
+        counters,
+        photographic_source.SAMPLING_PHOTO_FIGURE,
+        "Procedimiento de muestreo y conservación de las muestras: (a) toma de una submuestra de estiércol fresco en la sala de espera; (b) vaso de laboratorio empleado para obtener las alícuotas líquidas; (c) rastrillo utilizado para remover previamente el contenido de la tanqueta; y (d) conservación de las muestras en una hielera con hielo para el transporte desde Turrialba hasta la UCR.",
+    )
 
     document.add_heading("4.3.3 Determinaciones en Bioenergía", level=3)
     add_text(
@@ -1137,6 +1166,19 @@ def build_document() -> tuple[int, int, int, int]:
             "Para cenizas y sólidos volátiles se tomó aproximadamente 1 g de la muestra seca, se trató en mufla a 575 °C durante 4 h, se enfrió en desecador y se efectuó la pesada posterior. El TFG adoptó este procedimiento con respaldo en el protocolo de Leitner et al. (2020), sin atribuirle el carácter de norma universal. El registro operativo contemporáneo de M1 consigna además una ventana de operación de seis horas cuya composición no está desglosada. Para el tratamiento se adoptó la confirmación consolidada del ejecutor de cuatro horas a 575 °C; la ventana total se conserva como discrepancia documental y no se reinterpretó como exposición continua a la temperatura objetivo. Las cenizas correspondieron a la fracción mineral remanente y los sólidos volátiles a la fracción de la materia seca perdida durante la calcinación.",
             "El procedimiento documenta funcionalmente una estufa de secado, una mufla, balanzas, crisoles y desecadores. No se consignan fabricante, modelo, placa o número de serie porque esa identificación no está confirmada. La ausencia de esos datos instrumentales no altera los tiempos, temperaturas, masas aproximadas ni secuencia de pesada documentados.",
         ],
+    )
+    bioenergy_photo_figure = counters.figure + 1
+    add_text(
+        document,
+        [
+            f"La Figura {bioenergy_photo_figure} documenta la disposición de porciones, las pesadas, la identificación de las réplicas y el uso del desecador durante el trabajo en Bioenergía. En la nomenclatura visible de M2, las letras A y B identifican materiales y no los escenarios del ACV.",
+        ],
+    )
+    bioenergy_photo_figure = add_figure(
+        document,
+        counters,
+        photographic_source.BIOENERGY_PHOTO_FIGURE,
+        "Evidencia del procedimiento fisicoquímico realizado en Bioenergía: (a) porciones de muestra dispuestas en recipientes durante M1; (b) balanza analítica utilizada para las pesadas; (c) identificación de recipientes de M2, donde A corresponde a estiércol fresco y B a estiércol precompostado, el primer dígito a la muestra compuesta y el segundo a la réplica analítica; y (d) muestras mantenidas en desecador antes de la pesada, sin que la fotografía permita distinguir si este enfriamiento concreto siguió al horno o a la mufla.",
     )
 
     document.add_heading("4.3.4 Determinaciones en LASA y CIA", level=3)
@@ -2234,6 +2276,7 @@ def validate_document(
         ("El MASTER conserva su hash registrado", master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256),
         ("La salida está fuera del directorio protegido", MASTER.parent not in OUT_DOCX.parents),
         ("Las fuentes reproducibles del diagrama de fronteras existen", SYSTEM_BOUNDARY_PNG.exists() and SYSTEM_BOUNDARY_SVG.exists()),
+        ("Las figuras fotográficas reproducibles existen", all(path.exists() for path in photographic_source.PHOTOGRAPHIC_FIGURES)),
         ("Las figuras insertadas coinciden con las previstas", len(document.inline_shapes) == expected_figures),
         ("Las tablas insertadas coinciden con las previstas", len(document.tables) == expected_tables),
         ("El Escenario A se identifica como operación habitual", "Escenario A" in text and "operación habitual" in text),
@@ -2246,6 +2289,8 @@ def validate_document(
         ("La procedencia física de sólidos y líquidos está documentada", all(term in text for term in ["sala de espera", "pila con mayor tiempo de permanencia", "cinco alícuotas consecutivas", "una misma abertura"])),
         ("La distribución de laboratorios es coherente", all(term in text for term in ["LASA determinó el N total del estiércol fresco", "Para el precompostado, el CIA", "Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles"])),
         ("El protocolo de Bioenergía conserva condiciones confirmadas", all(term in text for term in ["105 °C durante 16 h", "575 °C durante 4 h", "se enfrió en desecador", "tres réplicas analíticas por muestra compuesta"])),
+        ("Las fotografías de Bioenergía distinguen materiales y escenarios", all(term in text for term in ["A corresponde a estiércol fresco", "B a estiércol precompostado", "no los escenarios del ACV"])),
+        ("La incertidumbre del desecador se preserva", "sin que la fotografía permita distinguir si este enfriamiento concreto siguió al horno o a la mufla" in text),
         ("Leitner sustenta el procedimiento adoptado de sólidos volátiles", all(term in text for term in ["respaldo en el protocolo de Leitner et al. (2020)", "sin atribuirle el carácter de norma universal", "575 °C durante 4 h"])),
         ("Jjagwe sustenta las condiciones adoptadas de sólidos totales", "también empleadas por Jjagwe et al. (2019) para determinar sólidos totales" in text),
         ("La discrepancia documental de la mufla M1 se declara sin equiparar tiempos", all(term in text for term in ["ventana de operación de seis horas", "confirmación consolidada del ejecutor de cuatro horas", "no se reinterpretó como exposición continua"])),
@@ -2442,6 +2487,8 @@ def main() -> None:
         equation_count,
         reference_count,
     )
+    results_source.write_readme(master_hash_before, master_hash_after)
+    results_source.write_ef31_validation(master_hash_before, master_hash_after)
     print(f"Documento integral generado: {OUT_DOCX.relative_to(ROOT)}")
     print(f"Validación generada: {OUT_VALIDATION.relative_to(ROOT)}")
     print(f"MASTER sin cambios: {master_hash_after}")

@@ -19,6 +19,7 @@
 - `scripts/generate_results_docx.py`
 - `scripts/generate_conclusions_docx.py`
 - `scripts/generate_integral_tfg_docx.py`
+- `scripts/generate_integral_photographic_figures.py`
 
 ## 3. Tablas utilizadas
 
@@ -56,6 +57,12 @@ Figuras complementarias en apéndices:
 - `fig_14_comparacion_total_cambio_climatico.png`
 - `fig_16_comparacion_total_eutrofizacion_marina.png`
 
+Figuras fotográficas del documento integral:
+
+- `recursos_integral/fig_fotografica_sistema_fisico.jpg`
+- `recursos_integral/fig_fotografica_muestreo_conservacion.jpg`
+- `recursos_integral/fig_fotografica_bioenergia.jpg`
+
 ## 5. Confirmaciones
 
 - El nitrógeno total reportado en porcentaje se convierte a fracción másica antes de aplicar las ecuaciones.
@@ -72,6 +79,7 @@ Figuras complementarias en apéndices:
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
 - El documento integral se identifica expresamente como PROVISIONAL M1–M2 y se genera después de los tres módulos académicos.
 - El documento integral contiene 26 ecuaciones OMML seleccionadas por necesidad de reproducibilidad, con numeración global consecutiva y sin convertir la metodología en una transcripción exhaustiva del modelo.
+- El documento integral incorpora tres figuras fotográficas multipanel reproducibles para documentar el sistema físico, el muestreo y el trabajo en Bioenergía; los originales permanecen intactos.
 - No se modificó el documento maestro de referencia. Hash antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`. Hash después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 
 ## 6. Mejoras de formato académico aplicadas
@@ -99,6 +107,7 @@ Metodología:
 - Tabla de síntesis metodológica por etapa A1–B2.
 - Tabla de factores de caracterización resumidos.
 - Figura de masa equivalente total como apoyo metodológico.
+- Tres figuras fotográficas multipanel sobre el sistema físico, el muestreo y conservación, y el procedimiento en Bioenergía.
 
 Resultados:
 
@@ -109,7 +118,7 @@ Resultados:
 - Tabla de impactos ambientales por etapa.
 - Tabla de impactos ambientales totales por escenario.
 - Tabla de comparación de impactos entre escenarios.
-- Figuras principales 1 a 7.
+- Siete figuras principales de resultados.
 
 ## 7. Tablas y figuras enviadas a apéndices
 

@@ -3,7 +3,7 @@
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
 - Tablas con numeración global: 22.
-- Figuras con numeración global: 7.
+- Figuras con numeración global: 10.
 - Ecuaciones con numeración global: 26.
 - Entradas conservadas en el registro bibliográfico: 43.
 - Referencias citadas incluidas en la bibliografía visible: 40.
@@ -79,6 +79,7 @@
 - PASS — El MASTER conserva su hash registrado.
 - PASS — La salida está fuera del directorio protegido.
 - PASS — Las fuentes reproducibles del diagrama de fronteras existen.
+- PASS — Las figuras fotográficas reproducibles existen.
 - PASS — Las figuras insertadas coinciden con las previstas.
 - PASS — Las tablas insertadas coinciden con las previstas.
 - PASS — El Escenario A se identifica como operación habitual.
@@ -91,6 +92,8 @@
 - PASS — La procedencia física de sólidos y líquidos está documentada.
 - PASS — La distribución de laboratorios es coherente.
 - PASS — El protocolo de Bioenergía conserva condiciones confirmadas.
+- PASS — Las fotografías de Bioenergía distinguen materiales y escenarios.
+- PASS — La incertidumbre del desecador se preserva.
 - PASS — Leitner sustenta el procedimiento adoptado de sólidos volátiles.
 - PASS — Jjagwe sustenta las condiciones adoptadas de sólidos totales.
 - PASS — La discrepancia documental de la mufla M1 se declara sin equiparar tiempos.
