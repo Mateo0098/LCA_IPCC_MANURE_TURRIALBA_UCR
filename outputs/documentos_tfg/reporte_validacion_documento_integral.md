@@ -5,7 +5,8 @@
 - Tablas con numeración global: 17.
 - Figuras con numeración global: 7.
 - Ecuaciones con numeración global: 26.
-- Referencias integradas desde el registro bibliográfico: 43.
+- Entradas conservadas en el registro bibliográfico: 43.
+- Referencias citadas incluidas en la bibliografía visible: 40.
 - SHA-256 del MASTER antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 - SHA-256 del MASTER después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 
@@ -19,6 +20,9 @@
 - PASS — M3 se identifica como pendiente.
 - PASS — Las campañas M2/M3 no se confunden con unidades m²/m³.
 - PASS — La jerarquía académica prevista está completa.
+- PASS — La bibliografía visible coincide con las referencias citadas gobernadas.
+- PASS — Las candidatas internas no aparecen en la bibliografía visible.
+- PASS — El registro conserva 43 entradas clasificadas sin claves duplicadas.
 - PASS — La procedencia y el tratamiento se distinguen.
 - PASS — Los análisis externos del TFG se conservan como fuente primaria.
 - PASS — No se fuerza una fuente terciaria cuantitativa.
@@ -87,6 +91,8 @@
 - PASS — La procedencia física de sólidos y líquidos está documentada.
 - PASS — La distribución de laboratorios es coherente.
 - PASS — El protocolo de Bioenergía conserva condiciones confirmadas.
+- PASS — Leitner sustenta el procedimiento adoptado de sólidos volátiles.
+- PASS — Jjagwe sustenta las condiciones adoptadas de sólidos totales.
 - PASS — La discrepancia documental de la mufla M1 se declara sin equiparar tiempos.
 - PASS — Las bases analíticas del precompostado se mantienen separadas.
 - PASS — El N del precompostado no reinicializa A2.
@@ -101,6 +107,17 @@
 - PASS — A2 se describe como operación regular posterior a A1.
 - PASS — No se atribuye una muestra de lombricompost terminado.
 - PASS — El MCF se identifica como aproximación no medida a tres días.
+- PASS — El marco teórico separa inventario, modelado de emisiones y evaluación de impactos.
+- PASS — El marco teórico distingue factores metodológicos de datos de actividad.
+- PASS — El IPCC se presenta con sus funciones activas.
+- PASS — EMEP/EEA complementa y no sustituye al IPCC.
+- PASS — Komakech permanece acotado a NH₃ de A2.
+- PASS — EF 3.1 se describe como caracterización y no como generación de emisiones.
+- PASS — Python permanece como fuente productiva del ACV.
+- PASS — SimaPro se limita a verificación pendiente sin resultados atribuidos.
+- PASS — No se afirman resultados positivos inexistentes de SimaPro.
+- PASS — SimaPro no sustituye ni reconstruye el ACV productivo.
+- PASS — Los factores IMN conservan funciones diferenciadas.
 - PASS — No se presenta 3,5 días como parámetro canónico.
 - PASS — No hay rótulos duplicados.
 - PASS — La numeración global de tablas es continua.
@@ -119,4 +136,4 @@
 
 - La validación comprueba estructura, objetivos, identificación provisional, integridad del paquete, numeración editorial, rutas visibles, figuras, tablas e integridad del MASTER.
 - La revisión visual y la validación científica supervisora permanecen separadas de estas comprobaciones programáticas.
-- La bibliografía conserva estados de verificación en el registro integral; las entradas pendientes requieren cotejo antes del cierre final.
+- La bibliografía visible contiene únicamente las referencias citadas; las candidatas no utilizadas permanecen gobernadas en el registro integral.

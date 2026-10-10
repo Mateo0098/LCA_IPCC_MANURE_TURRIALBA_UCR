@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import sys
 import zipfile
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -99,6 +100,7 @@ EXPECTED_HEADINGS = [
 
 REQUIRED_REFERENCE_KEYS = {
     "Arfelli2023",
+    "Asman1998",
     "Baek2020",
     "Barrantes2019",
     "CalderonChaves2020",
@@ -107,7 +109,7 @@ REQUIRED_REFERENCE_KEYS = {
     "Curran2006",
     "Curran2013",
     "EMEPEEA2023",
-    "EuropeanCommission2022",
+    "AndreasiBassi2023",
     "Fernandez2014",
     "Garro2016",
     "Garza2021",
@@ -122,11 +124,13 @@ REQUIRED_REFERENCE_KEYS = {
     "Komakech2015",
     "Komakech2016",
     "Kupper2020",
+    "Leitner2020",
     "Lim2016",
     "Macktoobian2024",
     "MAG2018",
     "MARM2010",
     "Moller2004",
+    "Monteny1998",
     "NRCS2009",
     "RojasElizondo2020",
     "Salazar2012",
@@ -135,6 +139,12 @@ REQUIRED_REFERENCE_KEYS = {
     "VanderZaag2013",
     "VanderZaag2018",
     "Zhou2017",
+}
+
+INTERNAL_CANDIDATE_REFERENCE_KEYS = {
+    "Anton2004",
+    "Cordero2013",
+    "Ecobilan1999",
 }
 
 
@@ -546,11 +556,39 @@ def read_reference_registry() -> list[dict[str, str]]:
                 "notes": cells[5],
             }
         )
-    found = {entry["key"] for entry in entries}
+    keys = [entry["key"] for entry in entries]
+    duplicates = sorted(key for key, count in Counter(keys).items() if count > 1)
+    if duplicates:
+        raise RuntimeError(f"Hay claves bibliográficas duplicadas en el registro: {duplicates}")
+    found = set(keys)
     missing = sorted(REQUIRED_REFERENCE_KEYS - found)
     if missing:
         raise RuntimeError(f"Faltan referencias requeridas en el registro: {missing}")
+    missing_candidates = sorted(INTERNAL_CANDIDATE_REFERENCE_KEYS - found)
+    if missing_candidates:
+        raise RuntimeError(f"Faltan referencias candidatas gobernadas en el registro: {missing_candidates}")
+    unclassified = sorted(found - REQUIRED_REFERENCE_KEYS - INTERNAL_CANDIDATE_REFERENCE_KEYS)
+    if unclassified:
+        raise RuntimeError(
+            "Hay referencias sin clasificación visible/candidata en el registro: "
+            f"{unclassified}"
+        )
     return entries
+
+
+def visible_reference_entries(entries: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Devuelve únicamente las referencias con una cita vigente en el integral."""
+
+    visible = [entry for entry in entries if entry["key"] in REQUIRED_REFERENCE_KEYS]
+    visible_keys = {entry["key"] for entry in visible}
+    if visible_keys != REQUIRED_REFERENCE_KEYS:
+        missing = sorted(REQUIRED_REFERENCE_KEYS - visible_keys)
+        extra = sorted(visible_keys - REQUIRED_REFERENCE_KEYS)
+        raise RuntimeError(
+            f"La selección de bibliografía visible no coincide con las citas gobernadas; "
+            f"faltan={missing}, sobran={extra}"
+        )
+    return visible
 
 
 def conclusion_items() -> list[dict[str, str]]:
@@ -722,7 +760,8 @@ def build_document() -> tuple[int, int, int, int]:
     counters = EditorialCounters()
     methodology_context = methodology_source.methodology_context()
     result_context = results_source.results_context()
-    references = read_reference_registry()
+    reference_registry = read_reference_registry()
+    references = visible_reference_entries(reference_registry)
 
     for section in document.sections:
         header = section.header.paragraphs[0]
@@ -751,19 +790,61 @@ def build_document() -> tuple[int, int, int, int]:
     )
 
     add_chapter(document, "2. Marco teórico y antecedentes")
-    theoretical_blocks = [
+    inherited_theoretical_blocks = [
         ("2.1 Generación de excreta bovina", range(50, 55)),
         ("2.2 Métodos para el manejo de la excreta bovina", []),
         ("2.2.1 Lombricompostaje", [58]),
         ("2.2.2 Enmienda agrícola", [61]),
         ("2.3 Análisis de ciclo de vida e impacto ambiental", range(64, 72)),
-        ("2.4 Análisis de ciclo de vida del manejo del estiércol bovino", range(74, 78)),
-        ("2.5 Antecedentes", range(79, 88)),
     ]
-    for title, indexes in theoretical_blocks:
+    for title, indexes in inherited_theoretical_blocks:
         document.add_heading(title, level=2 if title.count(".") == 1 else 3)
         if indexes:
             add_master_paragraphs(document, master, indexes)
+
+    document.add_heading("2.4 Modelado de emisiones del manejo del estiércol", level=2)
+    add_text(
+        document,
+        [
+            "En este TFG se distinguen tres niveles que no deben confundirse. El inventario reúne datos de actividad, como masas de material, contenido de sólidos volátiles, N total, nitrógeno amoniacal total, electricidad y diésel. El modelado de emisiones relaciona esos datos con factores y aproximaciones metodológicas para estimar flujos elementales hacia el aire, el agua o el suelo. La evaluación de impactos se realiza después, al caracterizar los flujos elementales obtenidos. Por tanto, un factor de emisión no es una medición directa de la finca y un factor de caracterización no genera por sí mismo una emisión.",
+        ],
+    )
+    document.add_heading("2.4.1 Directrices para inventarios de gases de efecto invernadero", level=3)
+    add_text(
+        document,
+        [
+            "El Refinamiento de 2019 de las Directrices de 2006 del Grupo Intergubernamental de Expertos sobre el Cambio Climático (IPCC, por sus siglas en inglés) se adoptó porque actualiza el marco internacional para inventarios de gases de efecto invernadero y contiene métodos aplicables al manejo de estiércol y a las entradas orgánicas en suelos gestionados (IPCC, 2019). En las etapas de manejo A1, A2, A3 y B1, este marco permite estimar CH₄ y N₂O directo; en A4 y B2 permite representar el N₂O directo del suelo y las rutas indirectas asociadas con volatilización y con lixiviación o escorrentía. Estas estimaciones forman parte del inventario de emisiones y anteceden a la evaluación de impactos.",
+            "Para CH₄, B₀ expresa la capacidad máxima de producción de metano de los sólidos volátiles; el factor de conversión de metano (MCF, por sus siglas en inglés) representa la fracción de ese potencial que se alcanza bajo el sistema de manejo y las condiciones climáticas consideradas; y la fracción asignada al sistema de manejo de desechos animales (AWMS, por sus siglas en inglés) representa la parte de la corriente ya asignada que se maneja mediante el sistema correspondiente. La masa manejada y su fracción de sólidos volátiles son datos de actividad, mientras que B₀, MCF y AWMS cumplen una función metodológica. Estos factores no constituyen mediciones directas de la lechería.",
+            "Para las rutas de N, EF₃ relaciona el N que ingresa al sistema de manejo con el N₂O-N directo; EF₁ cumple la función equivalente para entradas orgánicas al suelo; EF₄ transforma en N₂O-N indirecto la deposición derivada de las pérdidas explícitas de NH₃-N y NOx-N; y EF₅ se aplica al N perdido por lixiviación o escorrentía. FracLEACH representa la fracción de N que sigue la ruta hídrica una vez que el N ha llegado al suelo. Las fracciones específicas de drenaje del manejo se mantienen separadas de esta última ruta. Así, los factores describen fenómenos y bases de actividad diferentes y se aplican únicamente en las etapas donde la ruta física está representada.",
+        ],
+    )
+    document.add_heading("2.4.2 Emisiones de N reactivo y guía europea de inventarios atmosféricos", level=3)
+    add_text(
+        document,
+        [
+            "El marco del IPCC se complementó con la Guía de inventarios de emisiones atmosféricas 2023 del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés) para representar rutas de N reactivo que el modelo vigente calcula de forma explícita (European Environment Agency, 2023). Esta guía conjunta no sustituye al IPCC: aporta factores de NH₃-N, NO-N o NOx-N y N₂-N, además de la mineralización previa del N orgánico en el almacenamiento líquido, mientras el IPCC conserva las rutas de CH₄, N₂O directo e indirecto y las pérdidas hídricas que le corresponden.",
+            "El nitrógeno amoniacal total constituye la base de actividad para las pérdidas atmosféricas de almacenamiento y manejo cuando así lo establece EMEP/EEA. La volatilización de NH₃ puede comenzar desde la excreción y continuar durante el almacenamiento y tratamiento del estiércol; una vez emitido, el NH₃ participa en procesos de transporte y deposición atmosférica (Asman et al., 1998; Monteny y Erisman, 1998). En A1 se utilizan relaciones para almacenamiento sólido; en A3 y B1 se representan el almacenamiento líquido y la mineralización previa; y en A4 y B2 se distinguen los factores propios de aplicación al suelo. Las masas explícitas de NH₃-N y NOx-N alimentan después la ruta indirecta de N₂O del IPCC mediante EF₄. El N₂ se conserva como pérdida física del balance de N, pero no recibe caracterización ambiental en las categorías evaluadas.",
+            "A2 constituye una excepción acotada. Komakech et al. (2016) aporta la aproximación experimental adoptada para estimar NH₃ a partir de la masa húmeda de residuo que ingresa a la etapa. Esta relación no sustituye las aproximaciones EMEP/EEA utilizadas para NO y N₂, no se extiende a otras rutas o etapas y no reinicializa las reservas propagadas de N total y nitrógeno amoniacal total.",
+        ],
+    )
+    document.add_heading("2.5 Evaluación de impactos y factores nacionales", level=2)
+    document.add_heading("2.5.1 Método de Huella Ambiental 3.1", level=3)
+    add_text(
+        document,
+        [
+            "El método de Huella Ambiental 3.1 (EF 3.1, por sus siglas en inglés) pertenece a la fase de Evaluación del Impacto del Ciclo de Vida. Su función es aplicar factores de caracterización que relacionan la masa de cada flujo elemental, su compartimento ambiental y una categoría de impacto con un indicador común (Andreasi Bassi et al., 2023). En este TFG se utilizan únicamente cambio climático, eutrofización terrestre y eutrofización marina, expresadas respectivamente en kg CO₂-eq, mol N-eq y kg N-eq. El potencial de calentamiento global (PCG) mencionado en los antecedentes corresponde al indicador climático utilizado por los estudios allí resumidos.",
+            "La secuencia conceptual es flujo elemental por factor de caracterización igual a contribución a la categoría de impacto. Emitir una masa de CH₄, N₂O, NH₃, NOx o NO₃⁻ pertenece al inventario modelado; convertirla en una contribución potencial a cambio climático o eutrofización pertenece a la caracterización. EF 3.1 no estima ni genera las emisiones. La implementación productiva y reproducible de esta relación se realiza en Python a partir de la identidad del flujo, el compartimento y la categoría.",
+        ],
+    )
+    document.add_heading("2.5.2 Factores oficiales nacionales para recursos operativos", level=3)
+    add_text(
+        document,
+        [
+            "Los factores oficiales del Instituto Meteorológico Nacional permiten representar los consumos energéticos con información nacional pertinente para Costa Rica (IMN, 2026). Su función depende del recurso. Para la electricidad se utiliza un factor agregado de consumo que entrega directamente una contribución de cambio climático y no se vuelve a caracterizar con EF 3.1. Para el diésel se emplean factores físicos de combustión que convierten el volumen consumido en masas de CO₂ fósil, CH₄ fósil y N₂O; estas emisiones elementales sí se caracterizan posteriormente con EF 3.1. La separación evita recaracterizar la electricidad o mezclar factores nacionales de inventario con factores de evaluación de impacto.",
+        ],
+    )
+    document.add_heading("2.6 Antecedentes", level=2)
+    add_master_paragraphs(document, master, range(79, 88))
 
     add_chapter(document, "3. Objetivos")
     document.add_heading("3.1 Objetivo general", level=2)
@@ -856,8 +937,8 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles en estiércol fresco y precompostado, con tres réplicas analíticas por muestra compuesta. Para humedad y materia seca se colocaron aproximadamente 10 g de muestra fresca por réplica en recipientes previamente pesados. Se registraron las masas del recipiente vacío y con muestra mediante balanza analítica; las porciones se secaron en estufa a 105 °C durante 16 h, se enfriaron en desecador y se pesaron nuevamente.",
-            "Para cenizas y sólidos volátiles se tomó aproximadamente 1 g de la muestra seca, se trató en mufla a 575 °C durante 4 h, se enfrió en desecador y se efectuó la pesada posterior. El registro operativo contemporáneo de M1 consigna además una ventana de operación de seis horas cuya composición no está desglosada. Para el tratamiento se adoptó la confirmación consolidada del ejecutor de cuatro horas a 575 °C; la ventana total se conserva como discrepancia documental y no se reinterpretó como exposición continua a la temperatura objetivo. Las cenizas correspondieron a la fracción mineral remanente y los sólidos volátiles a la fracción de la materia seca perdida durante la calcinación.",
+            "Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles en estiércol fresco y precompostado, con tres réplicas analíticas por muestra compuesta. Para humedad y materia seca se colocaron aproximadamente 10 g de muestra fresca por réplica en recipientes previamente pesados. Se registraron las masas del recipiente vacío y con muestra mediante balanza analítica; las porciones se secaron en estufa a 105 °C durante 16 h, se enfriaron en desecador y se pesaron nuevamente. Este TFG adoptó esas condiciones experimentales, también empleadas por Jjagwe et al. (2019) para determinar sólidos totales en estiércol bovino.",
+            "Para cenizas y sólidos volátiles se tomó aproximadamente 1 g de la muestra seca, se trató en mufla a 575 °C durante 4 h, se enfrió en desecador y se efectuó la pesada posterior. El TFG adoptó este procedimiento con respaldo en el protocolo de Leitner et al. (2020), sin atribuirle el carácter de norma universal. El registro operativo contemporáneo de M1 consigna además una ventana de operación de seis horas cuya composición no está desglosada. Para el tratamiento se adoptó la confirmación consolidada del ejecutor de cuatro horas a 575 °C; la ventana total se conserva como discrepancia documental y no se reinterpretó como exposición continua a la temperatura objetivo. Las cenizas correspondieron a la fracción mineral remanente y los sólidos volátiles a la fracción de la materia seca perdida durante la calcinación.",
             "El procedimiento documenta funcionalmente una estufa de secado, una mufla, balanzas, crisoles y desecadores. No se consignan fabricante, modelo, placa o número de serie porque esa identificación no está confirmada. La ausencia de esos datos instrumentales no altera los tiempos, temperaturas, masas aproximadas ni secuencia de pesada documentados.",
         ],
     )
@@ -1137,13 +1218,22 @@ def build_document() -> tuple[int, int, int, int]:
         "Masa equivalente total por etapa y escenario.",
     )
 
-    document.add_heading("4.7 Supuestos, consistencia y limitaciones", level=2)
+    document.add_heading("4.8 Verificación independiente de la caracterización", level=2)
+    add_text(
+        document,
+        [
+            "SimaPro es un programa informático especializado en análisis de ciclo de vida que permite trabajar con inventarios y métodos de evaluación de impacto. En este TFG su función se limita a una verificación independiente de la caracterización EF 3.1 implementada en Python. Python permanece como fuente productiva y reproducible del inventario, la estimación de emisiones, la caracterización, la agregación, la normalización y los resultados canónicos.",
+            "La verificación se ha preparado mediante casos unitarios y cantidades elementales de la corrida PROVISIONAL M1–M2, pero su ejecución presencial en SimaPro permanece pendiente. No se reconstruirá el ACV completo ni los escenarios y etapas como procesos en ese programa; tampoco se incluirá la contribución eléctrica agregada del IMN como si fuera un flujo elemental. No se presentan resultados, concordancias ni discrepancias Python–SimaPro porque aún no existe evidencia de ejecución. La versión de SimaPro y la configuración exacta del método deberán registrarse cuando se realice la comprobación.",
+        ],
+    )
+
+    document.add_heading("4.9 Supuestos, consistencia y limitaciones", level=2)
     add_text(
         document,
         [
             "Los supuestos dominantes incluyen la equivalencia entre litro de agua y kilogramo equivalente, la extrapolación anual de las operaciones, la generación teórica de estiércol durante la permanencia en sala, la conservación de cenizas, la asignación de sistemas de manejo y sus factores, la relación TAN/N inicial y la representación del almacenamiento líquido mediante un MCF de 38 %.",
             "La consistencia se controló mediante balances de masa y nitrógeno, normalización común, trazabilidad entre integración experimental y parámetros activos, sumas por etapa y escenario, y comprobaciones de dirección, signo, unidad, dominancia y redondeo de las comparaciones narrativas.",
-            "Las limitaciones principales son la representatividad temporal de M1–M2, la ausencia de una medición directa del MCF para aproximadamente tres días de residencia, la transferibilidad de Komakech, la representatividad de las categorías IPCC y del factor EMEP de N₂ en A2, la masa húmeda inferida de A2 y la ausencia de un balance cerrado de agua y sólidos. Son incertidumbres científicas de la arquitectura aprobada, no decisiones metodológicas abiertas ni impedimentos para el modelo pre-M3.",
+            "Las limitaciones principales son la representatividad temporal de M1–M2, la ausencia de una medición directa del MCF para aproximadamente tres días de residencia y la incertidumbre documentada para los factores de conversión de metano de la guía IPCC (VanderZaag, 2018), la transferibilidad de Komakech, la representatividad de las categorías IPCC y del factor EMEP de N₂ en A2, la masa húmeda inferida de A2 y la ausencia de un balance cerrado de agua y sólidos. Son incertidumbres científicas de la arquitectura aprobada, no decisiones metodológicas abiertas ni impedimentos para el modelo pre-M3.",
         ],
     )
 
@@ -1374,7 +1464,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "La bibliografía se consolida desde el registro integral versionado. La normalización editorial y la verificación de las entradas marcadas como pendientes deberán completarse antes de la versión final.",
+            "La bibliografía reúne únicamente las fuentes citadas en el documento y se consolida desde el registro integral versionado. La normalización editorial y la verificación de las entradas marcadas como pendientes deberán completarse antes de la versión final.",
         ],
     )
     for entry in references:
@@ -1700,6 +1790,29 @@ def validate_document(
         for index, value in enumerate(paragraph_texts[list_index + 1 :], start=list_index + 1)
         if value == "1. Introducción"
     )
+    references_index = next(
+        index
+        for index, value in enumerate(paragraph_texts[body_intro_index + 1 :], start=body_intro_index + 1)
+        if value == "9. Referencias"
+    )
+    appendix_index = next(
+        index
+        for index, value in enumerate(paragraph_texts[references_index + 1 :], start=references_index + 1)
+        if value.startswith("Apéndice A.")
+    )
+    reference_registry = read_reference_registry()
+    visible_references = visible_reference_entries(reference_registry)
+    expected_reference_texts = [entry["reference"] for entry in visible_references]
+    candidate_reference_texts = [
+        entry["reference"]
+        for entry in reference_registry
+        if entry["key"] in INTERNAL_CANDIDATE_REFERENCE_KEYS
+    ]
+    bibliography_paragraphs = [
+        value
+        for value in paragraph_texts[references_index + 1 : appendix_index]
+        if value and not value.startswith("La bibliografía reúne únicamente")
+    ]
     content_index = paragraph_texts.index("Contenido")
     math_paragraphs = [paragraph for paragraph in document.paragraphs if paragraph._p.xpath(".//m:oMath")]
     table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]
@@ -1721,6 +1834,20 @@ def validate_document(
         ("M3 se identifica como pendiente", "M3" in text and "pendiente" in text.lower()),
         ("Las campañas M2/M3 no se confunden con unidades m²/m³", not campaign_unit_corruptions),
         ("La jerarquía académica prevista está completa", all(title in text for title in EXPECTED_HEADINGS)),
+        (
+            "La bibliografía visible coincide con las referencias citadas gobernadas",
+            bibliography_paragraphs == expected_reference_texts
+            and len(bibliography_paragraphs) == expected_references == 40,
+        ),
+        (
+            "Las candidatas internas no aparecen en la bibliografía visible",
+            not any(reference in bibliography_paragraphs for reference in candidate_reference_texts),
+        ),
+        (
+            "El registro conserva 43 entradas clasificadas sin claves duplicadas",
+            len(reference_registry) == 43
+            and len({entry["key"] for entry in reference_registry}) == 43,
+        ),
         ("La procedencia y el tratamiento se distinguen", "La procedencia y el tratamiento se registraron por separado" in text),
         ("Los análisis externos del TFG se conservan como fuente primaria", "servicio analítico externo" in text and "Primaria" in text),
         ("No se fuerza una fuente terciaria cuantitativa", "no se asignó a ninguna entrada cuantitativa activa" in text),
@@ -1837,6 +1964,8 @@ def validate_document(
         ("La procedencia física de sólidos y líquidos está documentada", all(term in text for term in ["sala de espera", "pila con mayor tiempo de permanencia", "cinco alícuotas consecutivas", "una misma abertura"])),
         ("La distribución de laboratorios es coherente", all(term in text for term in ["LASA determinó el N total del estiércol fresco", "Para el precompostado, el CIA", "Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles"])),
         ("El protocolo de Bioenergía conserva condiciones confirmadas", all(term in text for term in ["105 °C durante 16 h", "575 °C durante 4 h", "se enfrió en desecador", "tres réplicas analíticas por muestra compuesta"])),
+        ("Leitner sustenta el procedimiento adoptado de sólidos volátiles", all(term in text for term in ["respaldo en el protocolo de Leitner et al. (2020)", "sin atribuirle el carácter de norma universal", "575 °C durante 4 h"])),
+        ("Jjagwe sustenta las condiciones adoptadas de sólidos totales", "también empleadas por Jjagwe et al. (2019) para determinar sólidos totales" in text),
         ("La discrepancia documental de la mufla M1 se declara sin equiparar tiempos", all(term in text for term in ["ventana de operación de seis horas", "confirmación consolidada del ejecutor de cuatro horas", "no se reinterpretó como exposición continua"])),
         ("Las bases analíticas del precompostado se mantienen separadas", all(term in text for term in ["80 °C durante 48 h", "no fue una determinación de humedad", "gravimetría independiente de Bioenergía a 105 °C durante 16 h"])),
         ("El N del precompostado no reinicializa A2", "A2 recibió productivamente el N total y el nitrógeno amoniacal total propagados desde A1" in text),
@@ -1851,6 +1980,17 @@ def validate_document(
         ("A2 se describe como operación regular posterior a A1", "13 semanas" in text and "operación regular" in text and "después de A1" in text),
         ("No se atribuye una muestra de lombricompost terminado", "no muestreó lombricompost terminado" in text),
         ("El MCF se identifica como aproximación no medida a tres días", "MCF de 38 %" in text and "aproximación conservadora del IPCC" in text and "No corresponde a una medición específica" in text),
+        ("El marco teórico separa inventario, modelado de emisiones y evaluación de impactos", all(term in text for term in ["El inventario reúne datos de actividad", "El modelado de emisiones relaciona esos datos", "La evaluación de impactos se realiza después"])),
+        ("El marco teórico distingue factores metodológicos de datos de actividad", all(term in text for term in ["son datos de actividad", "cumplen una función metodológica", "no constituyen mediciones directas de la lechería"])),
+        ("El IPCC se presenta con sus funciones activas", all(term in text for term in ["B₀ expresa", "EF₃ relaciona", "EF₁ cumple", "EF₄ transforma", "EF₅ se aplica", "FracLEACH representa"])),
+        ("EMEP/EEA complementa y no sustituye al IPCC", all(term in text for term in ["Esta guía conjunta no sustituye al IPCC", "nitrógeno amoniacal total constituye la base de actividad", "almacenamiento líquido", "aplicación al suelo"])),
+        ("Komakech permanece acotado a NH₃ de A2", all(term in text for term in ["A2 constituye una excepción acotada", "masa húmeda de residuo que ingresa a la etapa", "no sustituye las aproximaciones EMEP/EEA", "no reinicializa las reservas propagadas"])),
+        ("EF 3.1 se describe como caracterización y no como generación de emisiones", all(term in text for term in ["pertenece a la fase de Evaluación del Impacto del Ciclo de Vida", "flujo elemental por factor de caracterización", "EF 3.1 no estima ni genera las emisiones"])),
+        ("Python permanece como fuente productiva del ACV", all(term in text for term in ["La implementación productiva y reproducible de esta relación se realiza en Python", "Python permanece como fuente productiva y reproducible del inventario"])),
+        ("SimaPro se limita a verificación pendiente sin resultados atribuidos", all(term in text for term in ["su función se limita a una verificación independiente", "su ejecución presencial en SimaPro permanece pendiente", "No se presentan resultados, concordancias ni discrepancias Python–SimaPro"])),
+        ("No se afirman resultados positivos inexistentes de SimaPro", not any(term in text for term in ["SimaPro confirmó", "SimaPro demostró", "SimaPro reprodujo", "resultados de SimaPro mostraron", "se obtuvo en SimaPro"])),
+        ("SimaPro no sustituye ni reconstruye el ACV productivo", all(term in text for term in ["No se reconstruirá el ACV completo", "Python permanece como fuente productiva y reproducible"])),
+        ("Los factores IMN conservan funciones diferenciadas", all(term in text for term in ["Para la electricidad se utiliza un factor agregado de consumo", "Para el diésel se emplean factores físicos de combustión", "sí se caracterizan posteriormente con EF 3.1"])),
         ("No se presenta 3,5 días como parámetro canónico", "3,5 días" not in text and "3.5 días" not in text),
     ]
 
@@ -1895,7 +2035,8 @@ def validate_document(
         f"- Tablas con numeración global: {expected_tables}.",
         f"- Figuras con numeración global: {expected_figures}.",
         f"- Ecuaciones con numeración global: {expected_equations}.",
-        f"- Referencias integradas desde el registro bibliográfico: {expected_references}.",
+        f"- Entradas conservadas en el registro bibliográfico: {len(reference_registry)}.",
+        f"- Referencias citadas incluidas en la bibliografía visible: {expected_references}.",
         f"- SHA-256 del MASTER antes: `{master_hash_before}`.",
         f"- SHA-256 del MASTER después: `{master_hash_after}`.",
         "",
@@ -1916,7 +2057,7 @@ def validate_document(
             "",
             "- La validación comprueba estructura, objetivos, identificación provisional, integridad del paquete, numeración editorial, rutas visibles, figuras, tablas e integridad del MASTER.",
             "- La revisión visual y la validación científica supervisora permanecen separadas de estas comprobaciones programáticas.",
-            "- La bibliografía conserva estados de verificación en el registro integral; las entradas pendientes requieren cotejo antes del cierre final.",
+            "- La bibliografía visible contiene únicamente las referencias citadas; las candidatas no utilizadas permanecen gobernadas en el registro integral.",
         ]
     )
     OUT_VALIDATION.write_text("\n".join(lines) + "\n", encoding="utf-8")
