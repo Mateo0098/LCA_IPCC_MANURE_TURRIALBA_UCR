@@ -91,12 +91,12 @@
 - PASS — La muestra de precompostado se ubica antes de A2.
 - PASS — La procedencia física de sólidos y líquidos está documentada.
 - PASS — La distribución de laboratorios es coherente.
-- PASS — El protocolo de Bioenergía conserva condiciones confirmadas.
-- PASS — Las fotografías de Bioenergía distinguen materiales y escenarios.
+- PASS — El protocolo del Laboratorio de Bioenergía conserva condiciones confirmadas.
+- PASS — Las fotografías del Laboratorio de Bioenergía distinguen materiales y escenarios.
 - PASS — La incertidumbre del desecador se preserva.
 - PASS — Leitner sustenta el procedimiento adoptado de sólidos volátiles.
 - PASS — Jjagwe sustenta las condiciones adoptadas de sólidos totales.
-- PASS — La discrepancia documental de la mufla M1 se declara sin equiparar tiempos.
+- PASS — La discusión histórica de seis horas no aparece en el manuscrito.
 - PASS — Las bases analíticas del precompostado se mantienen separadas.
 - PASS — El N del precompostado no reinicializa A2.
 - PASS — El muestreo líquido no sustituye la frecuencia anual.

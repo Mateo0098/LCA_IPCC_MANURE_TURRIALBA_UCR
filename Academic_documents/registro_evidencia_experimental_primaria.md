@@ -4,7 +4,7 @@
 
 Este registro conserva la descripción factual del muestreo, la operación observada de los escenarios y los análisis ejecutados antes de M3. Su finalidad es sostener la futura redacción académica sin depender de interpretaciones visuales ni de la arquitectura informática del repositorio. No modifica resultados, parámetros, ecuaciones ni decisiones metodológicas del ACV.
 
-Las afirmaciones identificadas como **confirmación del investigador** fueron suministradas por Mateo Cerdas Barboza, quien realizó el muestreo y los análisis fisicoquímicos en Bioenergía. La confirmación se consolidó el 20 de septiembre de 2026. Los informes de CIA y LASA, los libros de trabajo de Bioenergía y la metadata EXIF se utilizan como evidencias documentales complementarias; no sustituyen el testimonio del investigador sobre las operaciones que ejecutó.
+Las afirmaciones identificadas como **confirmación del investigador** fueron suministradas por Mateo Cerdas Barboza, quien realizó el muestreo y los análisis fisicoquímicos en el Laboratorio de Bioenergía de la Escuela de Ingeniería de Biosistemas de la Universidad de Costa Rica. La confirmación se consolidó el 20 de septiembre de 2026. Los informes de CIA y LASA, los libros de trabajo del Laboratorio de Bioenergía y la metadata EXIF se utilizan como evidencias documentales complementarias; no sustituyen el testimonio del investigador sobre las operaciones que ejecutó.
 
 ## Términos usados
 
@@ -82,27 +82,27 @@ La tanqueta posee dos aberturas muy próximas. Las alícuotas no se distribuyero
 
 | Material | Muestras compuestas | Destino y relación entre muestras |
 |---|---:|---|
-| Estiércol fresco | 4 | Dos muestras compuestas independientes para Bioenergía y otras dos muestras compuestas independientes para LASA. |
-| Estiércol precompostado | 4 | Dos muestras compuestas independientes para Bioenergía y otras dos muestras compuestas independientes para CIA. |
+| Estiércol fresco | 4 | Dos muestras compuestas independientes para el Laboratorio de Bioenergía y otras dos muestras compuestas independientes para LASA. |
+| Estiércol precompostado | 4 | Dos muestras compuestas independientes para el Laboratorio de Bioenergía y otras dos muestras compuestas independientes para CIA. |
 | Aguas verdes | 2 | Enviadas a CIA. |
 | Purines | 2 | Enviados a CIA. |
 
-**Confirmación del investigador.** En M1, las muestras sólidas analizadas en Bioenergía no fueron las mismas muestras compuestas enviadas a LASA o CIA. Las letras `A` y `B` usadas en Bioenergía identificaron estiércol fresco y estiércol precompostado, respectivamente; no designaron escenarios del ACV.
+**Confirmación del investigador.** En M1, las muestras sólidas analizadas en el Laboratorio de Bioenergía no fueron las mismas muestras compuestas enviadas a LASA o CIA. Las letras `A` y `B` usadas en el laboratorio identificaron estiércol fresco y estiércol precompostado, respectivamente; no designaron escenarios del ACV.
 
 ### M2
 
 | Material | Muestras compuestas | Destino y relación entre muestras |
 |---|---:|---|
-| Estiércol fresco | 3 | De cada muestra se tomaron las réplicas requeridas en Bioenergía y el material remanente se envió a LASA. |
-| Estiércol precompostado | 3 | De cada muestra se tomaron las réplicas requeridas en Bioenergía y el material remanente se envió a CIA. |
+| Estiércol fresco | 3 | De cada muestra se tomaron las réplicas requeridas en el Laboratorio de Bioenergía y el material remanente se envió a LASA. |
+| Estiércol precompostado | 3 | De cada muestra se tomaron las réplicas requeridas en el Laboratorio de Bioenergía y el material remanente se envió a CIA. |
 | Aguas verdes | 3 | Enviadas a CIA. |
 | Purines | 3 | Enviados a CIA. |
 
-**Confirmación del investigador.** En M2, Bioenergía y los laboratorios externos trabajaron a partir de las mismas muestras compuestas sólidas. Para la nomenclatura de Bioenergía, la letra identifica el material, el primer dígito la muestra compuesta y el segundo la réplica analítica; por ejemplo, `A11` es estiércol fresco, muestra compuesta 1, réplica analítica 1. La secuencia registrada continúa hasta `B33`.
+**Confirmación del investigador.** En M2, el Laboratorio de Bioenergía y los laboratorios externos trabajaron a partir de las mismas muestras compuestas sólidas. En la nomenclatura del Laboratorio de Bioenergía, la letra identifica el material, el primer dígito la muestra compuesta y el segundo la réplica analítica; por ejemplo, `A11` es estiércol fresco, muestra compuesta 1, réplica analítica 1. La secuencia registrada continúa hasta `B33`.
 
 No se reconstruyen identificadores individuales adicionales cuando no son necesarios para explicar el diseño.
 
-## Procedimiento fisicoquímico en Bioenergía
+## Procedimiento fisicoquímico en el Laboratorio de Bioenergía
 
 **Confirmación del investigador.** Mateo realizó personalmente las determinaciones en estiércol fresco y estiércol precompostado. Se utilizaron tres réplicas analíticas por muestra compuesta.
 
@@ -116,12 +116,13 @@ No se reconstruyen identificadores individuales adicionales cuando no son necesa
 
 ### Cenizas y sólidos volátiles
 
-1. Se tomó aproximadamente 1 g de la muestra seca.
-2. La porción se trató en mufla a 575 °C durante 4 h.
-3. El recipiente se enfrió en desecador antes de la pesada posterior.
-4. Las masas registradas se utilizaron para determinar cenizas y sólidos volátiles.
+1. Se tomó aproximadamente 1 g de la muestra seca y se colocó en un crisol limpio, seco y previamente pesado.
+2. Se registró la masa del crisol vacío y la masa del crisol con la porción seca.
+3. La porción se trató en mufla a 575 °C durante 4 h.
+4. El crisol se enfrió en desecador antes de la pesada final.
+5. La masa de cenizas se obtuvo por diferencia respecto de la masa del crisol vacío; los sólidos volátiles se calcularon a partir de la pérdida de masa de la porción seca durante la incineración.
 
-Los tiempos y temperaturas de 105 °C durante 16 h y 575 °C durante 4 h están confirmados y no constituyen pendientes de M3. Los libros `Material_laboratorio_copy_to_work_python.xlsx` y `muestreo2_solidos_volatiles.xlsx` contienen las masas primarias y describen esos procedimientos, aunque la hoja `Procedure` del libro M2 conserva rótulos heredados incorrectos sobre el número de muestras y determinaciones; los datos M2 y la confirmación del investigador establecen tres muestras compuestas por material y tres réplicas analíticas por muestra. La hoja `Equipement` del libro M1 contiene además una anotación histórica de seis horas de operación de la mufla que contradice el tratamiento confirmado de 575 °C durante 4 h. Esa anotación requiere revisión documental futura —por ejemplo, para determinar si incluyó calentamiento o enfriamiento—, pero no convierte el tiempo de tratamiento confirmado en una incertidumbre.
+Los tiempos y temperaturas de 105 °C durante 16 h y 575 °C durante 4 h están confirmados y no constituyen pendientes de M3. Los libros `Material_laboratorio_copy_to_work_python.xlsx` y `muestreo2_solidos_volatiles.xlsx` contienen las masas primarias y describen esos procedimientos, aunque la hoja `Procedure` del libro M2 conserva rótulos heredados incorrectos sobre el número de muestras y determinaciones; los datos M2 y la confirmación del investigador establecen tres muestras compuestas por material y tres réplicas analíticas por muestra. La hoja `Equipement` del libro M1 conserva una anotación histórica de seis horas de operación de la mufla. Este registro se mantiene para trazabilidad, pero no se utiliza para definir el tiempo efectivo de incineración porque la hoja `Procedure` de ambas campañas y la confirmación del investigador establecen 575 °C durante 4 h. La diferencia documental no se desarrolla en el manuscrito académico.
 
 ## Determinación de N y C del precompostado en CIA
 
@@ -130,8 +131,8 @@ La aclaración del CIA suministrada por el investigador establece expresamente: 
 En consecuencia:
 
 - para el TFG, el porcentaje de N del precompostado se tratará como referido a la muestra seca acondicionada por CIA a 80 °C durante 48 h;
-- este acondicionamiento es distinto del procedimiento gravimétrico de Bioenergía a 105 °C durante 16 h;
-- el secado CIA no se utilizará para reconstruir la humedad ni sustituye la determinación de humedad o materia seca realizada en Bioenergía;
+- este acondicionamiento es distinto del procedimiento gravimétrico del Laboratorio de Bioenergía a 105 °C durante 16 h;
+- el secado CIA no se utilizará para reconstruir la humedad ni sustituye la determinación de humedad o materia seca realizada en el Laboratorio de Bioenergía;
 - la base metodológica del N del precompostado no se presentará como incertidumbre abierta.
 
 La configuración de ingestión vigente, `scripts/sampling_ingestion_config.py`, conserva además la metodología oficial del CIA suministrada por el investigador: el abono sólido se seca a 80 °C durante 48 h, se muele, se criba a 1 mm y se determinan N y C por combustión seca de Dumas. Esta fuente documenta que el mismo acondicionamiento se aplicó a la determinación de C; esa afirmación no se deriva únicamente de la aclaración específica sobre N. El carbono se conserva como caracterización descriptiva según las decisiones vigentes.
@@ -145,24 +146,26 @@ Las fechas cumplen funciones distintas y no deben intercambiarse:
 - la fecha de análisis corresponde a la ejecución del ensayo;
 - la fecha de emisión corresponde a la expedición del informe.
 
-La metadata EXIF sitúa las actividades de campo de M1 el 10 de noviembre de 2025 y las actividades de Bioenergía asociadas entre el 10 y el 11 de noviembre. El informe LASA 129-25 identifica el muestreo del estiércol fresco el 10 de noviembre y la recepción el 11 de noviembre de 2025. Para M2, la metadata EXIF documenta preparación de campo el 20 de julio de 2026 y actividades de Bioenergía el 21 de julio; el informe LASA 043-26 registra recepción el 23 de julio de 2026. Estas concordancias apoyan la cronología sin convertir fechas administrativas en elementos centrales de la metodología.
+En M1, la metadata EXIF documenta las actividades de campo del 10 de noviembre de 2025 y el trabajo asociado en el Laboratorio de Bioenergía entre el 10 y el 11 de noviembre. El informe LASA 129-25 identifica el muestreo del estiércol fresco el 10 de noviembre, su recepción el 11 de noviembre, el análisis del 13 al 14 de noviembre y la emisión del informe el 19 de noviembre. Los informes CIA registran la recepción del precompostado y las aguas verdes el 10 de noviembre y su emisión el 21 de noviembre; para los purines registran recepción el 17 de noviembre y emisión el 28 de noviembre.
+
+En M2, la metadata EXIF documenta la preparación de campo el 20 de julio de 2026 y actividades en el Laboratorio de Bioenergía el 21 de julio. El informe LASA 043-26 registra recepción el 23 de julio, análisis entre el 24 de julio y el 4 de agosto y emisión el 5 de agosto. Los informes CIA registran recepción del precompostado y las aguas verdes el 23 de julio y emisión el 30 de julio; para los purines registran recepción el 27 de julio y emisión el 6 de agosto. Los informes CIA consultados no consignan una fecha independiente de ejecución del análisis; por ello sus fechas de emisión no se presentan como fechas analíticas. Ninguna fecha de recepción se convierte por inferencia en fecha de muestreo.
 
 ## Incertidumbres y pendientes reales para M3
 
 - Ejecutar y documentar M3 con la estructura compatible y los criterios de
   completitud definidos en `docs/CONTRATO_EXPERIMENTAL_M3.md`; este registro se
   actualizará después con hechos ejecutados y no con datos planificados.
-- Confirmar, si resulta académicamente pertinente, fabricante, modelo, placa o número de serie del horno, la mufla y la balanza analítica utilizados en Bioenergía.
+- Confirmar, si resulta académicamente pertinente, fabricante, modelo, placa o número de serie del horno, la mufla y la balanza analítica utilizados en el Laboratorio de Bioenergía.
 - Mantener explícita la incertidumbre fotográfica de F031: no se recuerda si esa bandeja concreta corresponde al secado o a la determinación de sólidos volátiles.
 - Mantener explícita la ausencia de zona horaria EXIF en F001–F013; no corregirla por inferencia.
 
-No quedan pendientes los tiempos o temperaturas de Bioenergía ni el acondicionamiento CIA del N del precompostado. Tampoco queda pendiente la distinción física entre tanqueta y cañón VAIA, el procedimiento de muestreo líquido o la diferencia entre el diseño de M1 y M2.
+No quedan pendientes los tiempos o temperaturas del Laboratorio de Bioenergía ni el acondicionamiento CIA del N del precompostado. Tampoco queda pendiente la distinción física entre tanqueta y cañón VAIA, el procedimiento de muestreo líquido o la diferencia entre el diseño de M1 y M2.
 
 ## Fuentes relacionadas
 
 - `Academic_documents/evidencia_fotografica/catalogo_fotografico.md`: relación entre imágenes, metadata, observación visual y confirmación del investigador.
-- `Academic_documents/resultados CIA y LASA muestreo 1/Material_laboratorio_copy_to_work_python.xlsx`: masas primarias y registro del procedimiento de Bioenergía para M1.
-- `Academic_documents/resultados CIA y LASA muestreo 2/muestreo2_solidos_volatiles.xlsx`: masas primarias y registro del procedimiento de Bioenergía para M2.
+- `Academic_documents/resultados CIA y LASA muestreo 1/Material_laboratorio_copy_to_work_python.xlsx`: masas primarias y registro del procedimiento del Laboratorio de Bioenergía para M1.
+- `Academic_documents/resultados CIA y LASA muestreo 2/muestreo2_solidos_volatiles.xlsx`: masas primarias y registro del procedimiento del Laboratorio de Bioenergía para M2.
 - Informes CIA y LASA conservados en `Academic_documents/resultados CIA y LASA muestreo 1/` y `Academic_documents/resultados CIA y LASA muestreo 2/`.
 - `scripts/sampling_ingestion_config.py`: asociación vigente entre informes, materiales, jornadas y métodos analíticos; conserva la metodología oficial CIA suministrada por el investigador.
 - `docs/CONTRATO_EXPERIMENTAL_M3.md`: contrato preparatorio y checklist para

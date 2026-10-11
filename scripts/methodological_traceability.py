@@ -167,7 +167,7 @@ def build_detailed_rows() -> list[dict[str, str]]:
                  "Fracción de sólidos volátiles en base húmeda", "M02",
                  "f_SV,húmeda = (%SV/100) × (%MS/100)", "Masa húmeda de estiércol de la etapa",
                  "Materia seca y sólidos volátiles integrados", "Primaria; mediciones experimentales M1–M2 integradas",
-                 "Determinaciones gravimétricas de Bioenergía", "Entrada de la ecuación de CH₄", CODE_SOURCES["DRY"]))
+                 "Determinaciones gravimétricas del Laboratorio de Bioenergía", "Entrada de la ecuación de CH₄", CODE_SOURCES["DRY"]))
         add(_row(code, "Generación del inventario", "Producción de metano durante el manejo",
                  "CH₄ biogénico", "E01", "m_CH4 = m_manejada × f_SV,húmeda × B₀ × ρ_CH4 × (MCF/100) × AWMS",
                  "Masa húmeda y fracción de sólidos volátiles de la etapa", "B₀; densidad de CH₄; MCF; AWMS",

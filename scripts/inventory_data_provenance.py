@@ -171,7 +171,7 @@ def build_provenance_rows() -> list[dict[str, str]]:
             "procedencia_academica": "Primaria",
             "subtipo_procedencia": "Medición experimental del TFG y servicio analítico externo sobre sus muestras",
             "tratamiento_tfg": "Medido; resumido por muestra y jornada; integrado estadísticamente cuando es compatible",
-            "fuente_concreta": "Muestreo del investigador, Bioenergía y reportes CIA/LASA de las muestras del TFG",
+            "fuente_concreta": "Muestreo del investigador, Laboratorio de Bioenergía y reportes CIA/LASA de las muestras del TFG",
             "uso_metodologico": "Caracterización, parámetros experimentales y referencias de contraste del inventario",
         },
         {
@@ -248,7 +248,7 @@ def build_provenance_rows() -> list[dict[str, str]]:
             "procedencia_academica": "Primaria",
             "subtipo_procedencia": "Derivación a partir de mediciones experimentales del TFG",
             "tratamiento_tfg": "Calculado por jornada e integrado estadísticamente",
-            "fuente_concreta": "Materia seca y cenizas determinadas en Bioenergía durante M1 y M2",
+            "fuente_concreta": "Materia seca y cenizas determinadas en el Laboratorio de Bioenergía durante M1 y M2",
             "uso_metodologico": "Conversión de masa húmeda entre A1 y A2",
         },
         {
