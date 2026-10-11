@@ -82,6 +82,15 @@ def test_unreferenced_operational_assumptions_are_not_primary_sources() -> None:
     assert "contexto operativo" in row["fuente_concreta"]
 
 
+def test_operational_communications_identify_key_informant_and_limits() -> None:
+    row = rows_by_id()["field_operations"]
+    assert row["procedencia_academica"] == "Primaria"
+    assert "Saúl Brenes Gamboa" in row["fuente_concreta"]
+    assert "personal operativo" in row["subtipo_procedencia"]
+    assert "estimación operativa aproximada" in row["tratamiento_tfg"]
+    assert "medición" not in row["tratamiento_tfg"].casefold()
+
+
 def test_mixed_families_keep_inherited_and_separable_provenance() -> None:
     rows = rows_by_id()
     for family in ("calculated_inventory_flows", "propagated_nitrogen"):

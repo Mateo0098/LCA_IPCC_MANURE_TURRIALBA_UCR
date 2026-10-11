@@ -28,7 +28,8 @@ derivado.
 | Categoría | Subtipo gobernado | Criterio de uso en este TFG | Ejemplos vigentes |
 |---|---|---|---|
 | Primaria | Medición experimental del TFG | Muestreo, determinación o análisis realizado específicamente para este estudio. Un servicio analítico externo conserva este carácter cuando analiza muestras del TFG. | Muestreo del investigador; determinaciones de Bioenergía; informes CIA y LASA de M1–M2. |
-| Primaria | Observación o registro de campo | Observación directa, comunicación operacional, registro de campo o característica observada en una placa durante el estudio. | Frecuencias y tiempos de operación; potencia nominal observada en la bomba. |
+| Primaria | Observación directa | Característica o condición verificada presencialmente por el investigador, sin inferir una medición que no se realizó. | Potencia nominal observada en la placa de la bomba. |
+| Primaria | Comunicación de campo | Información operativa comunicada presencialmente por un informante clave, incluidas estimaciones obtenidas mediante consulta al personal encargado. | Tiempos y frecuencias comunicados por Saúl Brenes Gamboa; no son mediciones instrumentadas. |
 | Secundaria | Datos publicados del sitio | Información preexistente de la misma lechería, publicada antes de su uso en el TFG. | Parámetros operativos de Sánchez-Romero y Brenes-Gamboa (2026). |
 | Secundaria | Guía o documento oficial | Factores y procedimientos de organismos técnicos utilizados para estimar inventario o impacto. | IPCC, EMEP/EEA, IMN y Environmental Footprint 3.1. |
 | Secundaria | Literatura científica cuantitativa | Artículos o tesis previas usados como parámetro, aproximación o contraste. | Factor de Komakech et al. (2016) aplicado en A2. |
@@ -53,8 +54,8 @@ heredadas se normalizan así:
 
 | Etiqueta existente | Procedencia académica | Tratamiento normalizado |
 |---|---|---|
-| `primario_campo` / `Dato primario de campo` | Primaria: observación o registro de campo | Observado o comunicado; puede anualizarse después. |
-| `observado_placa` / `Observado en placa` | Primaria: observación directa de equipo | Observado. |
+| `primario_campo` / `Comunicación primaria de campo` | Primaria: comunicación presencial con informante clave | Comunicado como estimación operativa; puede anualizarse después. |
+| `observado_placa` / `Observación directa` | Primaria: observación directa de equipo | Observado. |
 | `dato_publicado` | Secundaria: datos publicados del sitio | Publicado. |
 | `supuesto_estudio` / `supuesto_tfg` con base empírica o bibliográfica directa | La de la evidencia que sustenta el supuesto | Supuesto del estudio. |
 | `supuesto_estudio` sin base empírica o bibliográfica directa | No aplica: supuesto del estudio | Supuesto del estudio. |
@@ -125,13 +126,23 @@ por 1 kg. Se distingue de la **masa de actividad** de cada etapa, de la
 equivalente puede servir para un contraste de concentración por dilución, pero
 no crea una segunda entrada física de N.
 
+La masa funcional de referencia de aproximadamente 26 278,7 kg/año es un
+**resultado calculado**, no un dato publicado directamente. Sánchez-Romero y
+Brenes-Gamboa (2026) aportan la masa viva media, la población, la permanencia en
+sala, el estiércol recolectado por animal y el total anual recolectado. El TFG
+adopta por separado el 7 % de la masa viva por día como supuesto de generación,
+prorratea esa generación por 3,5/24, obtiene la fracción recolectada a partir de
+2,7 kg/animal y divide los 17 525,1 kg/año publicados entre dicha fracción. La
+precisión completa se conserva en el cálculo; la presentación académica se
+redondea de acuerdo con la precisión de las entradas.
+
 ## Condiciones físicas y temporales
 
 | Condición | Significado académico | Naturaleza | Fuente responsable | Uso en el modelo | Efecto numérico |
 |---|---|---|---|---|---|
-| A1: aproximadamente 3–4 semanas | Precomposteo observado entre 21 días y cerca de un mes; no equivale a una medición exacta de 28 días. | Dato físico observado/confirmado y descripción contextual | `Academic_documents/registro_evidencia_experimental_primaria.md`; `DECISIONES_METODOLOGICAS_TFG.md` | Contextualiza A1; no escala factores IPCC o EMEP/EEA. | No directo |
+| A1: aproximadamente 3–4 semanas | Duración habitual comunicada entre 21 días y cerca de un mes; no equivale a seguimiento cronometrado ni a una medición exacta de 28 días. | Comunicación primaria de campo con informante clave | `Academic_documents/registro_evidencia_experimental_primaria.md`; registro retrospectivo de operaciones; `DECISIONES_METODOLOGICAS_TFG.md` | Contextualiza A1; no escala factores IPCC o EMEP/EEA. | No directo |
 | A2: aproximadamente 13 semanas | Operación regular desde el ingreso del material precompostado a las camas; excluye A1. No describe la edad de una muestra ni un producto final muestreado. | Dato operativo confirmado y respaldo bibliográfico del proceso en el mismo lombricario | Registro primario; Vargas Sarmiento (2023), sección 5.2.2.1, p. 14, y sección 6.1.3, p. 25 | Contextualiza A2; no escala factores IPCC, EMEP/EEA o Komakech. | No directo |
-| Vaciado de la tanqueta cada ~3 días | Frecuencia operativa representativa para almacenamiento y aplicación, con dos lavados por ciclo. | Dato operativo comunicado | Nota de campo del 25-08-2026; `processed/acv_parametros_operativos.csv` | Anualiza bomba y tractor/cañón. | Sí, solo inventario energético |
+| Vaciado de la tanqueta cada ~3 días | Frecuencia operativa representativa para almacenamiento y aplicación, con dos lavados por ciclo. | Comunicación primaria de campo con Saúl Brenes Gamboa, basada en consulta al personal operativo | Registro retrospectivo respaldado por la visita del 25-08-2026; `processed/acv_parametros_operativos.csv` | Anualiza bomba y tractor/cañón. | Sí, solo inventario energético |
 | Jueves por la tarde–lunes por la mañana | Intervalo de acumulación previo a cada muestreo líquido, con entradas continuas y dos lavados; no fue una carga estática. | Condición específica de campaña | `Academic_documents/registro_evidencia_experimental_primaria.md` | Describe la procedencia de las muestras; no sustituye la frecuencia operativa. | No |
 | MCF de 38 % en A3/B1 | Proxy IPCC de un mes para almacenamiento líquido en clima tropical húmedo; no es un MCF medido a tres días. | Supuesto o proxy metodológico | `DECISIONES_METODOLOGICAS_TFG.md`; tabla de factores IPCC | Factor activo de CH₄ sin escalado temporal lineal. | Sí |
 | Mineralización de 10 % en A3/B1 | Aproximación EMEP por defecto, no escalada por tres días. | Supuesto o proxy metodológico | `DECISIONES_METODOLOGICAS_TFG.md`; parámetros del ledger | Actualiza TAN antes de las pérdidas de almacenamiento. | Sí |
@@ -164,7 +175,7 @@ no crea una segunda entrada física de N.
 | `impacto_calentamiento_global_kg_co2eq` | Cambio climático total del escenario | Total combinado IMN–EF; electricidad agregada y emisiones elementales caracterizadas. | kg CO₂-eq/año | Inventarios de manejo y recursos; factores IMN y EF separados | manejo + electricidad + diésel | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario, gráficos | Cambio climático total |
 | `impacto_eutrofizacion_terrestre_mol_neq` | Eutrofización terrestre | NH₃ y NOx atmosféricos caracterizados mediante EF 3.1. | mol N-eq/año | Inventario explícito y factores EF 3.1 | NH₃×13,47 + NOx×4,26 | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario | Categoría independiente |
 | `impacto_eutrofizacion_marina_kg_neq` | Eutrofización marina | NH₃, NOx y NO₃⁻ a agua dulce caracterizados mediante EF 3.1. | kg N-eq/año | Inventario explícito y factores EF 3.1 | NH₃×0,092 + NOx×0,389 + NO₃⁻×0,226 | `scripts/compute_acv_impact_equivalents.py` | Impactos por etapa y escenario | NO₃⁻ ya está en masa molecular |
-| Inventario operativo | Electricidad y diésel foreground | Consumos físicos anualizados y normalizados. Los 30 min por vaciado son una duración aproximada comunicada por operarios, no una medición instrumentada; el consumo de 3 L/h es un supuesto del estudio. | kWh/año; L/año | Nota de campo, placa, comunicación personal y supuestos identificados | Ecuaciones parametrizadas | `scripts/compute_operational_inventory.py` | Inventario operativo y exportación foreground | Tratamiento climático IMN y EF 3.1 |
+| Inventario operativo | Electricidad y diésel foreground | Consumos físicos anualizados y normalizados. Los 30 min por vaciado son una estimación aproximada comunicada por Saúl Brenes Gamboa después de consultar al personal operativo, no una medición instrumentada; el consumo de 3 L/h es un supuesto del estudio. | kWh/año; L/año | Comunicación primaria de campo, placa, publicación y supuestos identificados | Ecuaciones parametrizadas | `scripts/compute_operational_inventory.py` | Inventario operativo y exportación foreground | Tratamiento climático IMN y EF 3.1 |
 | `ch4_total_kg` | CH₄ total por etapa para impacto | CH₄ biogénico del manejo; excluye el CH₄ fósil de diésel. | kg CH₄/año | `processed/ACV_resumen_emisiones.csv` | `CH4_ec1` convertido a numérico | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
 | `n2o_total_kg` | N₂O total por etapa para impacto | Suma de N₂O del manejo directo e indirecto; excluye combustión. | kg N₂O/año | `processed/ACV_resumen_emisiones.csv` | `N2O_ec14 + N2O_ec2 + N2O_ec5 + N2O_ec6 + N2O_ec16 + N2O_ec18` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |
 | `nh3_total_kg` | NH₃ total por etapa para impacto | Suma de columnas de NH₃ desde manejo de estiércol y suelos gestionados. | kg NH₃/año | `processed/ACV_resumen_emisiones.csv` | `NH3_ec12 + NH3_ec20` | `scripts/compute_acv_impact_equivalents.py` | `processed/acv_impacto_por_etapa_escenario.csv` | Resultados de emisiones e impactos |

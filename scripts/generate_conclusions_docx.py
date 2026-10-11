@@ -287,7 +287,7 @@ def build_conclusions(
             "objective": "OE1",
             "text": (
                 "El inventario de ciclo de vida representó y cuantificó las rutas diferenciadas de manejo del estiércol en "
-                f"los dos escenarios, a partir de un flujo anual común de {number(reference_flow, 6)} kg de estiércol fresco. "
+                f"los dos escenarios, a partir de un flujo anual común de aproximadamente {number(reference_flow, 1)} kg de estiércol fresco. "
                 f"En el Escenario A, {number(100 * collected_fraction, 2)} % ingresó a la ruta sólida mediante A1: Precomposteo; "
                 "posteriormente, la masa resultante continuó hacia A2: Lombricompostaje, mientras que "
                 f"{number(100 * remainder_fraction, 2)} % se incorporó a las aguas verdes. En el Escenario B, el "

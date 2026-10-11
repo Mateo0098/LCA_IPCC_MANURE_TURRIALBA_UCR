@@ -14,13 +14,35 @@ Las afirmaciones identificadas como **confirmación del investigador** fueron su
 - **Tanqueta:** estructura de almacenamiento de aguas verdes o purines y punto desde el que se tomaron las muestras líquidas.
 - **Cañón VAIA:** equipo móvil empleado para aplicar aguas verdes o purines al campo. Es distinto de la tanqueta.
 
+## Procedencia retrospectiva de la información operativa
+
+**Confirmación del investigador.** Saúl Brenes Gamboa es el administrador y
+responsable académico de la lechería estudiada, además de miembro del comité
+asesor del TFG. Durante las giras de campo, el investigador consultó
+presencialmente con Saúl las condiciones operativas del sistema. Cuando un
+parámetro no estaba respaldado por una medición instrumental o un registro
+documental suficiente, Saúl consultó al personal encargado de las operaciones
+habituales y posteriormente comunicó al investigador la estimación obtenida.
+
+Esta cadena —personal operativo → Saúl Brenes Gamboa → investigador— se
+clasifica como comunicación primaria de campo con un informante clave. Los
+valores así obtenidos son estimaciones operativas aproximadas, no mediciones
+directas realizadas por Saúl o por los operarios. La confirmación se documentó
+retrospectivamente durante la preparación académica previa a M3; no constituye
+una nueva visita, una entrevista formal ni una bitácora contemporánea.
+
+La potencia nominal de la bomba observada en su placa, los datos publicados por
+Sánchez-Romero y Brenes-Gamboa (2026), las determinaciones experimentales y los
+supuestos de eficiencia de la bomba o consumo horario de diésel conservan sus
+procedencias independientes y no se atribuyen a Saúl.
+
 ## Operación real del sistema
 
 ### Escenario A
 
 **Confirmación del investigador.** El Escenario A corresponde al funcionamiento habitual de la lechería. El estiércol sólido se desvía hacia la ruta de precomposteo y lombricompostaje. El material que permanece en el piso se incorpora al agua de lavado y forma las aguas verdes que llegan por el canal a la tanqueta.
 
-El material precompostado se tomó de la pila con mayor tiempo de permanencia, es decir, la pila cuyo material estaba listo para alimentar las lombrices. El precomposteo observado duraba aproximadamente entre 21 días y un mes.
+El material precompostado se tomó de la pila con mayor tiempo de permanencia, es decir, la pila cuyo material estaba listo para alimentar las lombrices. La duración habitual del precomposteo, comunicada durante las consultas operativas, se estimó entre aproximadamente 21 días y un mes; no se obtuvo mediante un seguimiento cronometrado de lotes individuales.
 
 La operación regular de lombricompostaje duraba aproximadamente 13 semanas desde que el material, después de completar el precomposteo, ingresaba a las camas. Esta duración corresponde a A2 y excluye las aproximadamente tres a cuatro semanas de A1. Describe el proceso habitual y no la edad del material precompostado muestreado. El investigador no tomó muestras del lombricompost terminado.
 

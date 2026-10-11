@@ -64,8 +64,8 @@ MACROFAMILY_DEFINITIONS = (
     {
         "macrofamilia": "Observaciones y registros operativos de la finca",
         "family_ids": ("field_operations", "equipment_plate"),
-        "procedencia_general": "Primaria: observación, comunicación y registro de campo",
-        "tratamiento_general": "Observado, comunicado o anualizado",
+        "procedencia_general": "Primaria: observación directa o comunicación presencial de campo",
+        "tratamiento_general": "Observado, comunicado como estimación operativa o anualizado",
         "funcion_icv": "Representar tiempos, frecuencias y características nominales de equipos",
     },
     {
@@ -144,8 +144,11 @@ def build_provenance_rows() -> list[dict[str, str]]:
 
     experimental_variables = sorted({row["variable"] for row in integration})
     experimental_materials = sorted({row["material"] for row in integration})
-    field_rows = [row for row in operational if row["tipo_dato"] == "Dato primario de campo"]
-    plate_rows = [row for row in operational if row["tipo_dato"] == "Observado en placa"]
+    field_rows = [
+        row for row in operational
+        if row["tipo_dato"] == "Comunicación primaria de campo"
+    ]
+    plate_rows = [row for row in operational if row["tipo_dato"] == "Observación directa"]
     field_assumptions = [
         row for row in operational
         if row["tipo_dato"] == "Supuesto del estudio" and row["parametro"] != "model_year_days"
@@ -173,13 +176,13 @@ def build_provenance_rows() -> list[dict[str, str]]:
         },
         {
             "id_familia": "field_operations",
-            "variable_o_familia": "Tiempos, frecuencias y operación observada de la finca",
+            "variable_o_familia": "Tiempos y frecuencias habituales comunicados para la operación de la finca",
             "etapas": _scope(field_rows),
             "valor_o_tipo_informacion": f"{len(field_rows)} parámetros operativos de campo",
             "procedencia_academica": "Primaria",
-            "subtipo_procedencia": "Observación o registro de campo específico del estudio",
-            "tratamiento_tfg": "Observado o comunicado; anualizado de forma reproducible",
-            "fuente_concreta": "Nota de campo y comunicación con operarios del 25 de agosto de 2026",
+            "subtipo_procedencia": "Comunicación presencial con informante clave basada en consulta al personal operativo",
+            "tratamiento_tfg": "Comunicado como estimación operativa aproximada; anualizado de forma reproducible",
+            "fuente_concreta": "Saúl Brenes Gamboa, administrador de la lechería; registro retrospectivo respaldado por la visita de campo del 25 de agosto de 2026",
             "uso_metodologico": "Duración y frecuencia de bombeo, almacenamiento y aplicación",
         },
         {
@@ -355,7 +358,14 @@ def validate_provenance_rows(rows: list[dict[str, str]]) -> None:
         }
 
     evidence = ACTIVE_SOURCES["primary_evidence"].read_text(encoding="utf-8")
-    for phrase in ("Mateo realizó personalmente", "Bioenergía", "CIA", "LASA"):
+    for phrase in (
+        "Mateo realizó personalmente",
+        "Saúl Brenes Gamboa",
+        "comunicación primaria de campo",
+        "Bioenergía",
+        "CIA",
+        "LASA",
+    ):
         assert phrase in evidence, f"Falta evidencia primaria esperada: {phrase}"
 
 

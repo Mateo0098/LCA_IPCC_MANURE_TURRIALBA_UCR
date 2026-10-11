@@ -7,7 +7,7 @@ Este documento interno registra decisiones metodológicas validadas por el inves
 ## 2. Unidad funcional
 
 - La unidad funcional es **1 kg de estiércol fresco manejado**.
-- El flujo anual común de referencia es aproximadamente 26 278,725181 kg de estiércol fresco/año.
+- El flujo anual común de referencia es aproximadamente 26 278,7 kg de estiércol fresco/año; la precisión completa se conserva internamente para los cálculos.
 - El flujo anual representa la escala operacional utilizada para anualizar el inventario; no redefine la unidad funcional.
 - No debe describirse la unidad funcional como estiércol únicamente recolectado ni como 1 kg/año.
 
@@ -74,9 +74,10 @@ para A4.
 ### A1: Precomposteo
 
 A1 representa el precomposteo del estiércol paleado durante aproximadamente
-tres a cuatro semanas. La duración observada varió entre 21 días y cerca de un
-mes; por tanto, cuatro semanas constituye una descripción representativa y no
-una medición exacta de 28 días. La pila permanece sin volteo
+tres a cuatro semanas. La duración habitual comunicada varió entre 21 días y
+cerca de un mes; por tanto, cuatro semanas constituye una descripción
+representativa y no una medición instrumentada ni un seguimiento exacto de 28
+días. La pila permanece sin volteo
 mecánico y sin aireación forzada. Durante esta etapa existe pérdida de humedad y
 drenaje. El drenaje no dispone de una infraestructura estable de tratamiento y,
 para la frontera del sistema modelado, termina depositándose sobre el suelo

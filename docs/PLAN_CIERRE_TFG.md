@@ -2,21 +2,47 @@
 
 ## Estado
 
-TFG en espera de M3. Existe una corrida científica **PROVISIONAL M1–M2** y un
-documento integral provisional. Las unidades documentales pre-M3 de
-reconciliación metodológica, marco teórico, referencias, metodología experimental
-y completitud de resultados y apéndices ya fueron ejecutadas. El pipeline
-científico y computacional permanece validado, sin bloqueantes científicos ni de
-reproducibilidad identificados para el estado provisional.
+Existe una corrida científica **PROVISIONAL M1–M2** y un documento integral
+provisional. La preparación académica del manuscrito previa a M3 se encuentra en
+curso y se organiza mediante las observaciones OBS-01 a OBS-16. M3 dispone
+parcialmente de evidencia física —un libro gravimétrico todavía no declarado,
+validado ni integrado—, mientras continúan pendientes las demás fuentes
+analíticas previstas. La integración definitiva M3 → SimaPro permanece
+pendiente.
 
-## Reconciliación documental final pre-M3
+El pipeline científico y computacional conserva su estado provisional validado.
+La sesión Python–SimaPro PROVISIONAL M1–M2 ya fue ejecutada y deberá repetirse
+después de integrar M3. La revisión académica en curso puede identificar mejoras
+de procedencia, presentación o interpretación sin que ello implique modificar
+automáticamente el modelo o sus resultados.
 
-La auditoría confirmó la coherencia del pipeline completo, la comparabilidad de
-los escenarios, la conciliación de N total y TAN, la continuidad entre inventario,
-EF 3.1 e impactos, la integración de los recursos IMN y la correspondencia entre
-tablas, gráficos, resultados y conclusiones. Esta unidad cierra la reconciliación
-documental científica pre-M3; las mejoras posteriores al integral se limitan a
-trazabilidad académica y no modifican el modelo ni los resultados científicos.
+## Preparación académica del manuscrito previa a M3
+
+La auditoría integral de la Unidad 0 confirmó la arquitectura reproducible e
+identificó correcciones académicas y científicas que deben resolverse antes de la
+integración final. Las unidades de preparación no retiran la etiqueta
+PROVISIONAL M1–M2 ni anticipan resultados de M3 o de la repetición de SimaPro.
+
+### Seguimiento compacto de observaciones
+
+| ID | Unidad responsable | Estado actual | Fuente documental responsable |
+|---|---|---|---|
+| OBS-01 | Unidad 1 | Pendiente | Generador integral y reglas de redacción académica |
+| OBS-02 | Unidad 1 | Pendiente | Generador integral y registro bibliográfico |
+| OBS-03 | Unidad 1 | Pendiente | Generador integral y documentación de gobierno |
+| OBS-04 | Unidad 2 | Implementada; revisión académica pendiente | Generadores académicos, diccionario de trazabilidad y fuente operativa publicada |
+| OBS-05 | Unidad 2 | Implementada; revisión académica pendiente | Registro primario, parámetros operativos y decisiones metodológicas |
+| OBS-06 | Unidad 2 | Implementada; revisión académica pendiente | Registro primario, matriz de procedencia y generadores académicos |
+| OBS-07 | Unidad 3 | Pendiente | Registro primario y generador integral |
+| OBS-08 | Unidad 4 | Pendiente | Generador integral y reglas de formato Word |
+| OBS-09 | Unidad 4 | Pendiente de verificación visual | Generador integral y reglas de formato Word |
+| OBS-10 | Unidad 3 | Pendiente | Catálogo fotográfico y generador de figuras integrales |
+| OBS-11 | Unidad 1/3 | Pendiente | Registro primario y generadores académicos |
+| OBS-12 | Unidad 3 | Pendiente | Registro primario y generador integral |
+| OBS-13 | Unidad 3 | Pendiente de evidencia | Catálogo fotográfico y registro primario |
+| OBS-14 | Unidad 4 | Pendiente | Generadores académicos y reglas de formato Word |
+| OBS-15 | Unidad 4 | Pendiente | Registro bibliográfico, factores IMN y generadores académicos |
+| OBS-16 | Unidad 5 | Diseño pendiente; cierre dependiente de M3 | Decisiones metodológicas, ledger de N y fuentes experimentales |
 
 ## Unidad preparatoria de M3
 
@@ -25,8 +51,10 @@ criterios de completitud se documentan en `docs/CONTRATO_EXPERIMENTAL_M3.md`.
 La preparación no declara M3 disponible ni modifica resultados. La ingestión
 queda protegida contra una declaración parcial de fuentes.
 
-M3 continúa `no_disponible`; esta preparación no autoriza simularla ni retirar
-la etiqueta **PROVISIONAL M1–M2**.
+M3 continúa `no_disponible` para el pipeline porque no se ha declarado el
+conjunto completo de fuentes. La existencia física parcial de un libro no
+autoriza simular la campaña, integrarla ni retirar la etiqueta **PROVISIONAL
+M1–M2**.
 
 ## Unidad activa independiente: QA/QC Python–SimaPro de EF 3.1
 
@@ -38,11 +66,13 @@ caracterización EF 3.1 se encuentran en
 los factores, la arquitectura IMN ni los resultados científicos canónicos. La
 comprobación agregada deberá repetirse después de incorporar y validar M3.
 
-## Siguiente unidad prevista
+## Siguiente transición científica prevista
 
-Después de ejecutar M3 y recibir el libro de Bioenergía y los informes CIA/LASA,
-la siguiente unidad incorporará exclusivamente las fuentes reales al pipeline
-canónico, comprobará compatibilidad y regenerará en secuencia todas las capas.
+Después de completar y revisar las unidades académicas pre-M3, la incorporación
+de M3 utilizará exclusivamente las fuentes reales completas del pipeline
+canónico, comprobará su compatibilidad y regenerará en secuencia todas las
+capas. La unidad académica que siga a la presente será definida por Mateo y
+ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
 
 ## Dependencias y bloqueos
 

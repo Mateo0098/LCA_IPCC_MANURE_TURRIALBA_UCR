@@ -663,6 +663,15 @@ def validate_inventory_data_provenance() -> None:
     assert experimental["procedencia_academica"] == "Primaria"
     assert "CIA/LASA" in experimental["fuente_concreta"]
 
+    operational_communications = next(
+        row for row in generated
+        if row["variable_o_familia"]
+        == "Tiempos y frecuencias habituales comunicados para la operación de la finca"
+    )
+    assert operational_communications["procedencia_academica"] == "Primaria"
+    assert "Saúl Brenes Gamboa" in operational_communications["fuente_concreta"]
+    assert "estimación operativa aproximada" in operational_communications["tratamiento_tfg"]
+
     operational_assumptions = next(
         row for row in generated
         if row["variable_o_familia"] == "Eficiencia de bomba, consumo de diésel y anualización operativa"
@@ -700,7 +709,10 @@ def validate_inventory_data_provenance() -> None:
         assert "procedencia académica" in lowered
         assert "tratamiento" in lowered
         assert "ninguna entrada cuantitativa activa" in lowered
-        assert "según la taxonomía adoptada para este tfg" in lowered
+        assert "saúl brenes gamboa" in lowered
+        assert "entrevista formal" in lowered or "entrevistas formales" in lowered
+        assert "resultado calculado" in lowered
+        assert "no fueron mediciones" in lowered or "no como datos comunicados" in lowered
         assert "factor medido, observado" not in lowered
         assert "medido, observado, publicado, supuesto" in lowered
         assert "EMEP/EEA Air Pollutant Emission Inventory Guidebook 2023" in body
