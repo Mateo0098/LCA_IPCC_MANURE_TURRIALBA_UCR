@@ -600,6 +600,8 @@ def add_figure(
     counters: EditorialCounters,
     file_name: str | Path,
     description: str,
+    *,
+    page_break_before: bool = False,
 ) -> int:
     image = Path(file_name)
     if not image.is_absolute():
@@ -609,10 +611,15 @@ def add_figure(
     counters.figure += 1
     caption_start = len(document.paragraphs)
     add_master_caption(document, f"Figura {counters.figure}. {description}")
-    for caption_paragraph in document.paragraphs[caption_start:]:
+    caption_paragraphs = document.paragraphs[caption_start:]
+    if page_break_before and caption_paragraphs:
+        caption_paragraphs[0].paragraph_format.page_break_before = True
+    for caption_paragraph in caption_paragraphs:
+        caption_paragraph.paragraph_format.keep_together = True
         caption_paragraph.paragraph_format.keep_with_next = True
     paragraph = document.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    paragraph.paragraph_format.keep_together = True
     paragraph.add_run().add_picture(str(image), width=Inches(6.0))
     return counters.figure
 
@@ -1142,7 +1149,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "Las muestras se colocaron en recipientes de polipropileno para alimentos con capacidad aproximada de 750–900 mL, se etiquetaron y se transportaron desde Turrialba hasta la Universidad de Costa Rica en San Pedro dentro de una hielera con hielo. En M2, la identidad física compartida entre el Laboratorio de Bioenergía y los laboratorios externos se conservó tomando primero las porciones requeridas para la gravimetría y remitiendo después el material remanente de cada muestra compuesta.",
+            "Las porciones sólidas se pesaron durante el muestreo con una balanza electrónica de campo A&D EJ-610. La fotografía de una pesada representativa no documenta por sí sola las cinco porciones sucesivas que formaron cada muestra compuesta. Las muestras se colocaron en recipientes de polipropileno para alimentos con capacidad aproximada de 750–900 mL, se etiquetaron y se transportaron desde Turrialba hasta la Universidad de Costa Rica en San Pedro dentro de una hielera con hielo. En M2, la identidad física compartida entre el Laboratorio de Bioenergía y los laboratorios externos se conservó tomando primero las porciones requeridas para la gravimetría y remitiendo después el material remanente de cada muestra compuesta.",
         ],
     )
     sampling_photo_figure = counters.figure + 1
@@ -1156,7 +1163,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         counters,
         photographic_source.SAMPLING_PHOTO_FIGURE,
-        "Procedimiento de muestreo y conservación de las muestras: (a) toma de una submuestra de estiércol fresco en la sala de espera; (b) vaso de laboratorio empleado para obtener las alícuotas líquidas; (c) rastrillo utilizado para remover previamente el contenido de la tanqueta; y (d) conservación de las muestras en una hielera con hielo para el transporte desde Turrialba hasta la UCR.",
+        "Procedimiento de muestreo y conservación de las muestras: (a) pesada representativa de una porción sólida con la balanza electrónica de campo; (b) vaso de precipitados de 150 mL empleado para obtener las alícuotas líquidas; (c) rastrillo utilizado para remover previamente el contenido de la tanqueta; y (d) recipientes y bolsas conservados con hielo dentro de una hielera durante el transporte desde Turrialba hasta la UCR. El panel (a) no muestra las cinco porciones sucesivas de una muestra compuesta.",
     )
 
     document.add_heading("4.3.3 Determinaciones en el Laboratorio de Bioenergía", level=3)
@@ -1165,21 +1172,22 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "El Laboratorio de Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles en estiércol fresco y precompostado, con tres réplicas analíticas por muestra compuesta. Para humedad y materia seca se colocaron aproximadamente 10 g de muestra fresca por réplica en recipientes limpios, secos y previamente pesados. Mediante balanza analítica se registraron por separado la masa del recipiente vacío y la masa del recipiente con la muestra fresca. Las porciones se secaron en estufa a 105 °C durante 16 h, se enfriaron en desecador y se pesaron nuevamente para obtener la masa seca por diferencia y calcular gravimétricamente la materia seca y la humedad. Estas condiciones experimentales también fueron empleadas por Jjagwe et al. (2019) para determinar sólidos totales en estiércol bovino.",
             "Para determinar cenizas y sólidos volátiles se transfirió aproximadamente 1 g del material seco a un crisol limpio, seco y previamente pesado. Se registraron la masa del crisol vacío y la masa del crisol con la porción seca; luego se incineró la muestra en mufla a 575 °C durante 4 h, se enfrió el crisol en desecador y se realizó la pesada final. La masa de cenizas se obtuvo como la diferencia entre la masa final y la masa del crisol vacío; los sólidos volátiles correspondieron a la fracción de la masa seca perdida durante la incineración. El procedimiento se apoyó en Leitner et al. (2020), sin atribuirle el carácter de norma universal.",
-            "El procedimiento documenta funcionalmente una estufa de secado, una mufla, balanzas, crisoles y desecadores. No se consignan fabricante, modelo, placa o número de serie porque esa identificación no está confirmada. La ausencia de esos datos instrumentales no altera los tiempos, temperaturas, masas aproximadas ni secuencia de pesada documentados.",
+            "Entre los equipos utilizados y documentados fotográficamente se encuentran una balanza analítica OHAUS PR Series, un horno de secado cuya carcasa presenta la inscripción OF-22 y una mufla Yamato con la identificación visible F0810CR. La inscripción OF-22 no se interpreta como fabricante ni como confirmación independiente del modelo, y no se infieren números de serie ni exactitudes instrumentales. Las temperaturas y los tiempos experimentales proceden de los registros del procedimiento, no de las pantallas visibles en las fotografías.",
         ],
     )
     bioenergy_photo_figure = counters.figure + 1
     add_text(
         document,
         [
-            f"La Figura {bioenergy_photo_figure} documenta la disposición de porciones, las pesadas, la identificación de las réplicas y el uso del desecador durante el trabajo en el Laboratorio de Bioenergía. En la nomenclatura visible de M2, las letras A y B identifican materiales y no los escenarios del ACV.",
+            f"La Figura {bioenergy_photo_figure} presenta los principales equipos utilizados para las pesadas, el secado, la incineración y el enfriamiento en desecador. Las fotografías fueron tomadas en octubre de 2026 como documentación instrumental posterior del procedimiento común; no se atribuyen a M1 o M2 los materiales visibles ni se incorporan resultados de M3.",
         ],
     )
     bioenergy_photo_figure = add_figure(
         document,
         counters,
         photographic_source.BIOENERGY_PHOTO_FIGURE,
-        "Evidencia del procedimiento fisicoquímico realizado en el Laboratorio de Bioenergía: (a) porciones de muestra dispuestas en recipientes durante M1; (b) balanza analítica utilizada para las pesadas; (c) identificación de recipientes de M2, donde A corresponde a estiércol fresco y B a estiércol precompostado, el primer dígito a la muestra compuesta y el segundo a la réplica analítica; y (d) muestras mantenidas en desecador antes de la pesada, sin que la fotografía permita distinguir si este enfriamiento concreto siguió al horno o a la mufla.",
+        "Equipos utilizados en el procedimiento fisicoquímico del Laboratorio de Bioenergía, fotografiados en octubre de 2026 como documentación instrumental posterior: (a) balanza analítica OHAUS PR Series; (b) horno de secado con la inscripción OF-22 en la carcasa; (c) mufla Yamato F0810CR; y (d) crisoles dentro de un desecador cerrado. Las imágenes documentan los equipos y el procedimiento común, pero no identifican los materiales visibles con M1 o M2 ni establecen resultados o condiciones experimentales a partir de las pantallas.",
+        page_break_before=True,
     )
 
     document.add_heading("4.3.4 Determinaciones en LASA y CIA", level=3)
@@ -2293,8 +2301,9 @@ def validate_document(
         ("La procedencia física de sólidos y líquidos está documentada", all(term in text for term in ["sala de espera", "pila con mayor tiempo de permanencia", "cinco alícuotas consecutivas", "una misma abertura"])),
         ("La distribución de laboratorios es coherente", all(term in text for term in ["LASA determinó el N total del estiércol fresco", "Para el precompostado, el CIA", "El Laboratorio de Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles"])),
         ("El protocolo del Laboratorio de Bioenergía conserva condiciones confirmadas", all(term in text for term in ["105 °C durante 16 h", "575 °C durante 4 h", "se enfrió el crisol en desecador", "tres réplicas analíticas por muestra compuesta"])),
-        ("Las fotografías del Laboratorio de Bioenergía distinguen materiales y escenarios", all(term in text for term in ["A corresponde a estiércol fresco", "B a estiércol precompostado", "no los escenarios del ACV"])),
-        ("La incertidumbre del desecador se preserva", "sin que la fotografía permita distinguir si este enfriamiento concreto siguió al horno o a la mufla" in text),
+        ("La evidencia fotográfica posterior no se atribuye a M1 o M2", all(term in text for term in ["Las fotografías fueron tomadas en octubre de 2026", "no se atribuyen a M1 o M2", "ni se incorporan resultados de M3"])),
+        ("La identificación instrumental permanece limitada a lo verificable", all(term in text for term in ["OHAUS PR Series", "inscripción OF-22", "Yamato", "F0810CR", "no se infieren números de serie ni exactitudes instrumentales"])),
+        ("La figura de muestreo identifica el recipiente, el rastrillo y la conservación", all(term in text for term in ["vaso de precipitados de 150 mL", "rastrillo utilizado", "conservados con hielo", "no muestra las cinco porciones sucesivas"])),
         ("Leitner sustenta el procedimiento adoptado de sólidos volátiles", all(term in text for term in ["El procedimiento se apoyó en Leitner et al. (2020)", "sin atribuirle el carácter de norma universal", "575 °C durante 4 h"])),
         ("Jjagwe sustenta las condiciones adoptadas de sólidos totales", "también fueron empleadas por Jjagwe et al. (2019) para determinar sólidos totales" in text),
         ("La discusión histórica de seis horas no aparece en el manuscrito", "seis horas" not in text.lower()),
@@ -2388,7 +2397,7 @@ def validate_document(
                 ]
             ),
         ),
-        ("La identificación instrumental no añade modelos no confirmados", "Elementar Vario Macro Cube" in text and "No se consignan fabricante, modelo, placa o número de serie porque esa identificación no está confirmada" in text),
+        ("La identificación instrumental no añade modelos no confirmados", all(term in text for term in ["Elementar Vario Macro Cube", "inscripción OF-22", "no se interpreta como fabricante ni como confirmación independiente del modelo", "no se infieren números de serie ni exactitudes instrumentales"])),
         ("A1 se describe sin precisión falsa", "21 días" in text and "tres a cuatro semanas" in text),
         ("A2 se describe como operación regular posterior a A1", "13 semanas" in text and "operación regular" in text and "después de A1" in text),
         ("No se atribuye una muestra de lombricompost terminado", "no muestreó lombricompost terminado" in text),

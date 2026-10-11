@@ -124,6 +124,12 @@ No se reconstruyen identificadores individuales adicionales cuando no son necesa
 
 Los tiempos y temperaturas de 105 °C durante 16 h y 575 °C durante 4 h están confirmados y no constituyen pendientes de M3. Los libros `Material_laboratorio_copy_to_work_python.xlsx` y `muestreo2_solidos_volatiles.xlsx` contienen las masas primarias y describen esos procedimientos, aunque la hoja `Procedure` del libro M2 conserva rótulos heredados incorrectos sobre el número de muestras y determinaciones; los datos M2 y la confirmación del investigador establecen tres muestras compuestas por material y tres réplicas analíticas por muestra. La hoja `Equipement` del libro M1 conserva una anotación histórica de seis horas de operación de la mufla. Este registro se mantiene para trazabilidad, pero no se utiliza para definir el tiempo efectivo de incineración porque la hoja `Procedure` de ambas campañas y la confirmación del investigador establecen 575 °C durante 4 h. La diferencia documental no se desarrolla en el manuscrito académico.
 
+### Identificación instrumental y contexto fotográfico posterior
+
+**Confirmación del investigador.** La balanza no analítica A&D EJ-610 se utilizó en el módulo lechero para pesar las porciones sólidas durante el muestreo. En el Laboratorio de Bioenergía se utilizaron una balanza analítica OHAUS PR Series, el horno de secado cuya carcasa presenta la inscripción `OF-22` y la mufla Yamato con identificación visible `F0810CR`. La inscripción del horno no se convierte por sí sola en confirmación de fabricante o modelo formal; tampoco se infieren números de serie ni exactitudes instrumentales.
+
+Las fotografías F039–F046 fueron aportadas para documentar estos equipos, los crisoles y los desecadores. Sus nombres corresponden a octubre de 2026 y no contienen metadata EXIF. Como fueron tomadas durante el periodo en que ya se realizaban actividades asociadas con M3, se emplean únicamente como documentación posterior del instrumental y del procedimiento común. No se presentan como registro contemporáneo de M1 o M2, no permiten asignar los materiales visibles a una campaña o etapa térmica concreta y no incorporan resultados de M3. Las lecturas visibles en pantallas tampoco sustituyen los tiempos y temperaturas confirmados en los registros experimentales.
+
 ## Determinación de N y C del precompostado en CIA
 
 La aclaración del CIA suministrada por el investigador establece expresamente: «Con respecto al porcentaje de N, este se determinó en la muestra secada a 80 °C durante 48 horas».
@@ -155,7 +161,7 @@ En M2, la metadata EXIF documenta la preparación de campo el 20 de julio de 202
 - Ejecutar y documentar M3 con la estructura compatible y los criterios de
   completitud definidos en `docs/CONTRATO_EXPERIMENTAL_M3.md`; este registro se
   actualizará después con hechos ejecutados y no con datos planificados.
-- Confirmar, si resulta académicamente pertinente, fabricante, modelo, placa o número de serie del horno, la mufla y la balanza analítica utilizados en el Laboratorio de Bioenergía.
+- Confirmar únicamente si aparece evidencia documental independiente sobre el fabricante o el modelo formal del horno con inscripción `OF-22`; no es un requisito para integrar los resultados M3.
 - Mantener explícita la incertidumbre fotográfica de F031: no se recuerda si esa bandeja concreta corresponde al secado o a la determinación de sólidos volátiles.
 - Mantener explícita la ausencia de zona horaria EXIF en F001–F013; no corregirla por inferencia.
 

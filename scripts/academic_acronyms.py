@@ -102,7 +102,11 @@ IGNORED_ACRONYM_CANDIDATES: dict[str, str] = {
     "TAN/N": "relación entre variables científicas",
     "MCF/100": "factor expresado como fracción en una ecuación",
     "MS/100": "porcentaje convertido a fracción en una ecuación",
+    "EJ-610": "identificación de una balanza de campo",
+    "OF-22": "inscripción visible en un horno de secado",
+    "OHAUS": "marca de una balanza analítica",
     "SV/100": "porcentaje convertido a fracción en una ecuación",
+    "PR": "denominación de serie de una balanza analítica",
     "VAIA": "marca del equipo",
     "VS": "símbolo de variable en una ecuación",
 }

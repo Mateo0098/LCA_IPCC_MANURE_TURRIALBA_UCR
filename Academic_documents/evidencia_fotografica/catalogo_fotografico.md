@@ -15,24 +15,24 @@ No se asignan M1/M2, escenarios, materiales, procedimientos, laboratorios ni ide
 
 ## Resumen del conjunto
 
-- Fotografías: **38**.
-- Formato: **38 JPEG con extensión `.jpg`**.
-- Tamaño total: **167 471 748 bytes (159,71 MiB)**.
-- Dimensiones: 25 archivos de 4080 × 3060 px y 13 de 4160 × 3120 px.
-- Cámara/teléfono en EXIF: 25 archivos `samsung Galaxy A55 5G`; 13 archivos `motorola moto g play (2021)`.
-- Fecha/hora de captura: `DateTimeOriginal` presente en los 38 archivos.
+- Fotografías: **46**.
+- Formato: **46 JPEG con extensión `.jpg`**.
+- Tamaño total: **172 051 568 bytes (164,08 MiB)**.
+- Dimensiones: 25 archivos de 4080 × 3060 px, 13 de 4160 × 3120 px, uno de 2048 × 1536 px y siete de 1536 × 2048 px.
+- Cámara/teléfono en EXIF: 25 archivos `samsung Galaxy A55 5G`; 13 archivos `motorola moto g play (2021)`; ocho archivos sin identificación EXIF de cámara.
+- Fecha/hora de captura: `DateTimeOriginal` presente en 38 archivos y ausente en F039–F046.
 - Zona horaria EXIF: `−06:00` en los 25 Samsung; ausente en los 13 Motorola.
 - GPS: **no se encontraron coordenadas GPS embebidas**.
-- Orientación EXIF: 16 normal, 21 rotada 90° en sentido horario y 1 rotada 180°.
-- Duplicados exactos: ninguno; los 38 SHA-256 son únicos.
+- Orientación EXIF: 16 normal, 21 rotada 90° en sentido horario, 1 rotada 180° y 8 sin campo de orientación.
+- Duplicados exactos: ninguno; los 46 SHA-256 son únicos.
 - Posibles duplicados: no se detectaron coincidencias fuertes con hash perceptual conservador. F025 y F026 muestran el mismo interior de una hielera con encuadres consecutivos, pero son archivos visualmente distintos y se conservan ambos.
 - Archivo de mayor tamaño: F014, 8 675 333 bytes (8,27 MiB).
 
-Las fechas de creación y modificación del sistema de archivos corresponden al 20-09-2026, cuando el conjunto fue copiado al repositorio; **no se usan como fecha de captura**. La cronología se construye con EXIF.
+Las fechas de creación y modificación del sistema de archivos corresponden a las copias locales del conjunto; **no se usan como fecha de captura**. La cronología de F001–F038 se construye con EXIF. En F039–F046, que carecen de EXIF, la fecha se conserva como parte del nombre original y por la confirmación del investigador, sin tratar la hora codificada en el nombre como metadata independiente.
 
 ## Criterio de agrupamiento cronológico
 
-Se creó un grupo cuando las fotografías comparten fecha EXIF y la separación entre capturas consecutivas no supera 30 minutos. Una separación mayor inicia otro grupo. Es una regla documental para reducir preguntas, no una identificación experimental. Los archivos Motorola carecen de zona horaria EXIF; su hora se conserva sin asignarle zona.
+Para F001–F038 se creó un grupo cuando las fotografías comparten fecha EXIF y la separación entre capturas consecutivas no supera 30 minutos. Una separación mayor inicia otro grupo. F039–F046 se agrupan por la fecha codificada en el nombre original y confirmada por el investigador, porque no contienen EXIF. Es una regla documental para reducir preguntas, no una identificación experimental. Los archivos Motorola carecen de zona horaria EXIF; su hora se conserva sin asignarle zona.
 
 ## Grupos cronológicos y observaciones neutrales
 
@@ -120,13 +120,38 @@ Se creó un grupo cuando las fotografías comparten fecha EXIF y la separación 
 - **CONFIRMACIÓN DEL INVESTIGADOR:** F038 muestra muestras dentro de un desecador. El desecador se utilizaba después del horno y después de la mufla para enfriar las muestras antes de pesarlas. Durante la secuencia posterior al inicio del secado, las muestras se mantenían protegidas en desecadores para minimizar la absorción de humedad.
 - **INCERTIDUMBRE:** la fotografía por sí sola no permite distinguir si esta permanencia concreta siguió al horno o a la mufla.
 
+### G13 — 05-10-2026, hora codificada en el nombre original, sin EXIF
+
+- **HECHO DOCUMENTAL/METADATA:** F039–F042; cuatro fotografías JPEG sin metadata EXIF. Los nombres originales codifican la fecha 05-10-2026 y el investigador confirma que forman parte de la documentación fotográfica aportada en octubre de 2026.
+- **OBSERVACIÓN VISUAL:** F039 muestra una balanza amarilla y negra identificable como `A&D EJ-610`; F040, una balanza analítica `OHAUS PR Series`; F041, un horno blanco con panel celeste y la inscripción visible `OF-22`; y F042, una mufla `Yamato` cuya identificación visible se transcribe como `F0810CR`.
+- **CONFIRMACIÓN DEL INVESTIGADOR:** F039 corresponde a la balanza no analítica utilizada para pesar porciones durante el muestreo en el módulo lechero. F040 corresponde a una balanza analítica utilizada en el Laboratorio de Bioenergía. F041 corresponde al horno utilizado para secar las muestras y F042 a la mufla utilizada para la incineración.
+- **CONTEXTO TEMPORAL:** las imágenes fueron tomadas en octubre de 2026, durante el periodo en que ya se realizaban actividades asociadas con M3. Se utilizan como documentación posterior de equipos y del procedimiento común; no demuestran que la operación fotografiada corresponda a M1 o M2 ni incorporan resultados de M3.
+- **INCERTIDUMBRE:** `OF-22` se conserva como inscripción visible en la carcasa; no se confirma por esa sola evidencia el fabricante ni que la inscripción sea el modelo formal. No se infieren números de serie ni exactitudes instrumentales.
+
+### G14 — 06-10-2026, hora codificada en el nombre original, sin EXIF
+
+- **HECHO DOCUMENTAL/METADATA:** F043–F044; dos fotografías JPEG sin metadata EXIF. Los nombres originales codifican la fecha 06-10-2026 y el investigador confirma su contexto de octubre de 2026.
+- **OBSERVACIÓN VISUAL:** F043 muestra crisoles con material dentro de un desecador cerrado; F044 ofrece una vista cercana de los crisoles y su contenido con la cubierta retirada.
+- **CONFIRMACIÓN DEL INVESTIGADOR:** las fotografías documentan crisoles y el desecador utilizados en el Laboratorio de Bioenergía.
+- **CONTEXTO TEMPORAL:** las fotografías son posteriores a M1 y M2 y pueden mostrar material asociado con M3. Por ello no se usan para atribuir resultados, masas, materiales o etapas térmicas concretas a M1 o M2.
+- **INCERTIDUMBRE:** las imágenes no permiten determinar por sí solas si el material visible corresponde al secado o a la incineración ni a qué campaña o muestra pertenece.
+
+### G15 — 07-10-2026, hora codificada en el nombre original, sin EXIF
+
+- **HECHO DOCUMENTAL/METADATA:** F045–F046; dos fotografías JPEG sin metadata EXIF. Los nombres originales codifican la fecha 07-10-2026 y el investigador confirma su contexto de octubre de 2026.
+- **OBSERVACIÓN VISUAL:** F045 muestra crisoles colocados dentro de un desecador cerrado. F046 muestra una segunda vista de la mufla `Yamato`, con la identificación `F0810CR` y la pantalla de control más visibles.
+- **CONFIRMACIÓN DEL INVESTIGADOR:** F045 documenta el uso de crisoles y desecador; F046 corresponde a la misma mufla utilizada para la incineración.
+- **CONTEXTO TEMPORAL:** las fotografías documentan equipos y un procedimiento común de laboratorio, no resultados ni condiciones específicas de M1 o M2. Los valores visibles en la pantalla de F046 no se utilizan para establecer la temperatura experimental.
+- **INCERTIDUMBRE:** F045 no permite asignar el contenido visible a una campaña, muestra o etapa térmica concreta.
+
 ## Incertidumbres de identificación vigentes
 
 - F001 no cuenta con una interpretación adicional confirmada.
 - En F031 no se recuerda si la bandeja correspondía al secado o a la determinación de sólidos volátiles; no se afirma que la fotografía muestre recipientes dentro de un equipo térmico.
 - En F038 no puede distinguirse visualmente si el enfriamiento concreto ocurrió después del horno o después de la mufla.
 - F001–F013 no contienen zona horaria EXIF; sus horas se conservan tal como están embebidas.
-- Los fabricantes, modelos y números de serie de horno, mufla y balanzas no se completan por inferencia visual.
+- F039–F046 no contienen EXIF; las fechas y horas de sus nombres no se presentan como metadata de captura.
+- La inscripción `OF-22` no confirma por sí sola fabricante o modelo formal del horno. No se infieren números de serie ni exactitudes instrumentales.
 
 ## Inventario técnico de fotografías
 
@@ -172,6 +197,14 @@ La fecha “Captura EXIF” procede de `DateTimeOriginal`; “sin zona EXIF” s
 | F036 | G11 | `20260721_104251.jpg` | 4 777 616 B | 4080 × 3060 px | 2026-07-21 10:42:51.509−06:00 | samsung Galaxy A55 5G | 90° horario | ausente |
 | F037 | G11 | `20260721_104525.jpg` | 3 678 834 B | 4080 × 3060 px | 2026-07-21 10:45:25.987−06:00 | samsung Galaxy A55 5G | 90° horario | ausente |
 | F038 | G12 | `20260721_171948.jpg` | 3 460 964 B | 4080 × 3060 px | 2026-07-21 17:19:48.539−06:00 | samsung Galaxy A55 5G | 90° horario | ausente |
+| F039 | G13 | `20261005_093414.jpg` | 572 464 B | 2048 × 1536 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
+| F040 | G13 | `20261005_150442.jpg` | 559 859 B | 1536 × 2048 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
+| F041 | G13 | `20261005_162757.jpg` | 520 364 B | 1536 × 2048 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
+| F042 | G13 | `20261005_164707.jpg` | 562 530 B | 1536 × 2048 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
+| F043 | G14 | `20261006_104129.jpg` | 634 230 B | 1536 × 2048 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
+| F044 | G14 | `20261006_104135.jpg` | 696 772 B | 1536 × 2048 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
+| F045 | G15 | `20261007_123558.jpg` | 551 233 B | 1536 × 2048 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
+| F046 | G15 | `20261007_124451.jpg` | 482 368 B | 1536 × 2048 px | ausente; fecha conservada en el nombre original | ausente | ausente | ausente |
 
 ### Software EXIF por conjunto
 
@@ -179,6 +212,7 @@ La fecha “Captura EXIF” procede de `DateTimeOriginal`; “sin zona EXIF” s
 - F014: `A556EXXS8BYE1`.
 - F015–F031: `A556EXXSABYG2`.
 - F032–F038: `A556EXXSFDZF2`.
+- F039–F046: el campo `Software` no está presente.
 
 ## Timestamps del sistema de archivos
 
@@ -224,10 +258,18 @@ Estos timestamps se registran por completitud forense. Todos son posteriores a l
 | F036 | 2026-09-20 12:19:45 −06:00 | 2026-09-20 12:18:01 −06:00 |
 | F037 | 2026-09-20 12:19:45 −06:00 | 2026-09-20 12:18:00 −06:00 |
 | F038 | 2026-09-20 12:19:45 −06:00 | 2026-09-20 12:18:00 −06:00 |
+| F039 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
+| F040 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
+| F041 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
+| F042 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
+| F043 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
+| F044 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
+| F045 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
+| F046 | 2026-10-11 20:32:20 −06:00 | 2026-10-11 14:34:46 −06:00 |
 
 ## Manifiesto SHA-256 de originales
 
-El manifiesto permite comprobar identidad y detectar duplicados exactos. Su hash agregado inicial, calculado sobre `nombre<TAB>tamaño<TAB>SHA-256` ordenado por nombre, es `654c6d30509fc6067cd87dac2e0fa7bcff1d6ce81d42fa2b2e8cbc155da45fa2`.
+El manifiesto permite comprobar identidad y detectar duplicados exactos. Su hash agregado vigente, calculado sobre `nombre<TAB>tamaño<TAB>SHA-256` ordenado por nombre y sin salto final, es `fd194f0a61076fb4c0464b809c67db04a635f6a69ac3e864aeecb43ba1b7ce50`.
 
 ```text
 0b136d752a3809666304819fb2a2646376f669dfbf49a2cfe655befd9e9d703b  IMG_20240729_091751820.jpg
@@ -268,6 +310,14 @@ ecabc426d454d9a1e525e7522e4870e3cc3ec28cd28e6ed7a07e455db7401b03  20260721_10322
 b4cb222cccaf85d8267e07f7e71234728780f959679183464826710be366bafc  20260721_104251.jpg
 e292de6feb001a1e32834addb33f54119a3492b0d6e25118840b77355c7076fb  20260721_104525.jpg
 a74517f20bb72153ce2bf195075d60da24840b5399d0a7cc8f501297078c176b  20260721_171948.jpg
+f8718d92c595c6af6796dbb758364c5bb58b64b82910bdf14b9efc41eae152c0  20261005_093414.jpg
+8a505c68b18dbfd787eb3800cbdff9b1cf3c63ac6b087431b76824f13cbb2cdd  20261005_150442.jpg
+5568f23498d8af4ffc7111f967864680f30cc5936f0f2a4cf962b4f015b667c4  20261005_162757.jpg
+202e7405ab2ead242797266d6f48757f406b7e758a18e352b74c72b8bb805789  20261005_164707.jpg
+d403ff690901f0d875a9e55a16a17e1cac7e4f504c3cec347165215fb27406ca  20261006_104129.jpg
+92e493250894fa485b2c1378a267182a049095313498734919fa01c03420f54d  20261006_104135.jpg
+0cdfd48214a2bad580a4cec87432e364b54e6126b670248d4de9c678447929d3  20261007_123558.jpg
+59a6b1de4677f1cb6de8658b63888ac3c040db7b1bff8c2705142bc7b1337e4d  20261007_124451.jpg
 ```
 
 ## Estado de duplicados y almacenamiento
@@ -275,12 +325,12 @@ a74517f20bb72153ce2bf195075d60da24840b5399d0a7cc8f501297078c176b  20260721_17194
 - No hay duplicados exactos por SHA-256.
 - No se detectaron posibles duplicados fuertes mediante hash perceptual de diferencia con umbral conservador de seis bits.
 - Las fotografías consecutivas de una misma vista se consideran evidencia distinta mientras no exista decisión del investigador; no se elimina ninguna.
-- El conjunto es técnicamente manejable en Git ordinario: 159,71 MiB totales y ningún archivo supera 8,27 MiB. Sin embargo, el aumento de aproximadamente 160 MiB es material para el tamaño del repositorio y debe revisarse antes de incorporarlo en un commit.
+- El conjunto es técnicamente manejable en Git ordinario: 164,08 MiB totales y ningún archivo supera 8,27 MiB. El aumento acumulado es material para el tamaño del repositorio; en esta unidad los ocho originales nuevos añaden aproximadamente 4,37 MiB y su incorporación fue autorizada expresamente.
 - No se configura Git LFS ni se modifica la estrategia de almacenamiento en esta etapa.
 
 ## Estado de identificación
 
-Las identificaciones suministradas por Mateo se incorporaron en G01–G12 y sustituyen las preguntas ya resueltas. Permanecen abiertas únicamente las incertidumbres enumeradas en la sección «Incertidumbres de identificación vigentes». En particular, la ausencia de zona horaria embebida en F001–F013 no se corrige por inferencia y los modelos o números de serie de equipos no se completan sin evidencia adicional.
+Las identificaciones suministradas por Mateo se incorporaron en G01–G15 y sustituyen las preguntas ya resueltas. Permanecen abiertas únicamente las incertidumbres enumeradas en la sección «Incertidumbres de identificación vigentes». En particular, la ausencia de zona horaria embebida en F001–F013 y la ausencia total de EXIF en F039–F046 no se corrigen por inferencia; tampoco se completan números de serie, exactitudes instrumentales o la identificación formal del horno a partir de la inscripción `OF-22`.
 
 ## Mantenimiento del catálogo
 

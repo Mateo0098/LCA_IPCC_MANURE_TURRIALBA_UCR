@@ -73,6 +73,12 @@ PHOTO_SPECS = {
         # Elimina el rostro y conserva manos, recipiente, guantes y punto de toma.
         crop=(0.12, 0.47, 0.96, 0.96),
     ),
+    "F020": PhotoSpec(
+        "F020",
+        "20251110_084739.jpg",
+        "8a532544a0c2d45e8503f854b20386bf730516f92ee80b7a6f9fbbab894e9f86",
+        contain=True,
+    ),
     "F021": PhotoSpec(
         "F021",
         "20251110_105840.jpg",
@@ -83,7 +89,8 @@ PHOTO_SPECS = {
         "F022",
         "20251110_111758.jpg",
         "368b400937222ad6b4234746dfa5fbf4294286f52b327c7f16b51aeb4a37233d",
-        crop=(0.16, 0.18, 0.88, 0.96),
+        # Conserva la cabeza y el mango para que el instrumento sea reconocible.
+        contain=True,
     ),
     "F025": PhotoSpec(
         "F025",
@@ -115,6 +122,54 @@ PHOTO_SPECS = {
         "a74517f20bb72153ce2bf195075d60da24840b5399d0a7cc8f501297078c176b",
         crop=(0.03, 0.06, 0.93, 0.94),
     ),
+    "F039": PhotoSpec(
+        "F039",
+        "20261005_093414.jpg",
+        "f8718d92c595c6af6796dbb758364c5bb58b64b82910bdf14b9efc41eae152c0",
+        contain=True,
+    ),
+    "F040": PhotoSpec(
+        "F040",
+        "20261005_150442.jpg",
+        "8a505c68b18dbfd787eb3800cbdff9b1cf3c63ac6b087431b76824f13cbb2cdd",
+        contain=True,
+    ),
+    "F041": PhotoSpec(
+        "F041",
+        "20261005_162757.jpg",
+        "5568f23498d8af4ffc7111f967864680f30cc5936f0f2a4cf962b4f015b667c4",
+        contain=True,
+    ),
+    "F042": PhotoSpec(
+        "F042",
+        "20261005_164707.jpg",
+        "202e7405ab2ead242797266d6f48757f406b7e758a18e352b74c72b8bb805789",
+        contain=True,
+    ),
+    "F043": PhotoSpec(
+        "F043",
+        "20261006_104129.jpg",
+        "d403ff690901f0d875a9e55a16a17e1cac7e4f504c3cec347165215fb27406ca",
+        contain=True,
+    ),
+    "F044": PhotoSpec(
+        "F044",
+        "20261006_104135.jpg",
+        "92e493250894fa485b2c1378a267182a049095313498734919fa01c03420f54d",
+        contain=True,
+    ),
+    "F045": PhotoSpec(
+        "F045",
+        "20261007_123558.jpg",
+        "0cdfd48214a2bad580a4cec87432e364b54e6126b670248d4de9c678447929d3",
+        contain=True,
+    ),
+    "F046": PhotoSpec(
+        "F046",
+        "20261007_124451.jpg",
+        "59a6b1de4677f1cb6de8658b63888ac3c040db7b1bff8c2705142bc7b1337e4d",
+        contain=True,
+    ),
 }
 
 
@@ -125,11 +180,11 @@ FIGURE_SPECS = (
     ),
     FigureSpec(
         SAMPLING_PHOTO_FIGURE,
-        tuple(PHOTO_SPECS[key] for key in ("F019", "F021", "F022", "F025")),
+        tuple(PHOTO_SPECS[key] for key in ("F020", "F021", "F022", "F025")),
     ),
     FigureSpec(
         BIOENERGY_PHOTO_FIGURE,
-        tuple(PHOTO_SPECS[key] for key in ("F029", "F030", "F036", "F038")),
+        tuple(PHOTO_SPECS[key] for key in ("F040", "F041", "F042", "F045")),
     ),
 )
 

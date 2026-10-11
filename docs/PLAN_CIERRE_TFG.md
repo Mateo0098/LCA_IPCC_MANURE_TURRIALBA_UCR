@@ -36,10 +36,10 @@ PROVISIONAL M1–M2 ni anticipan resultados de M3 o de la repetición de SimaPro
 | OBS-07 | Unidad 3A | Implementada; revisión supervisora pendiente | Registro primario y generador integral |
 | OBS-08 | Unidad 4 | Pendiente | Generador integral y reglas de formato Word |
 | OBS-09 | Unidad 4 | Pendiente de verificación visual | Generador integral y reglas de formato Word |
-| OBS-10 | Unidad 3B | Preparación completada; integración fotográfica pendiente | Catálogo fotográfico y generador de figuras integrales |
+| OBS-10 | Unidad 3B | Implementada; revisión supervisora pendiente | Catálogo fotográfico y generador de figuras integrales |
 | OBS-11 | Unidad 3A | Implementada; revisión supervisora pendiente | Registro primario y generadores académicos |
 | OBS-12 | Unidad 3A | Implementada; revisión supervisora pendiente | Registro primario y generadores académicos |
-| OBS-13 | Unidad 3B | Preparación completada; integración fotográfica y evidencia adicional pendientes | Catálogo fotográfico y registro primario |
+| OBS-13 | Unidad 3B | Implementada con límite de identificación del horno; revisión supervisora pendiente | Catálogo fotográfico, registro primario y generador de figuras integrales |
 | OBS-14 | Unidad 4 | Pendiente | Generadores académicos y reglas de formato Word |
 | OBS-15 | Unidad 4 | Pendiente | Registro bibliográfico, factores IMN y generadores académicos |
 | OBS-16 | Unidad 5 | Diseño pendiente; cierre dependiente de M3 | Decisiones metodológicas, ledger de N y fuentes experimentales |

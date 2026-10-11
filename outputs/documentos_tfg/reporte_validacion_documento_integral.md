@@ -92,8 +92,9 @@
 - PASS — La procedencia física de sólidos y líquidos está documentada.
 - PASS — La distribución de laboratorios es coherente.
 - PASS — El protocolo del Laboratorio de Bioenergía conserva condiciones confirmadas.
-- PASS — Las fotografías del Laboratorio de Bioenergía distinguen materiales y escenarios.
-- PASS — La incertidumbre del desecador se preserva.
+- PASS — La evidencia fotográfica posterior no se atribuye a M1 o M2.
+- PASS — La identificación instrumental permanece limitada a lo verificable.
+- PASS — La figura de muestreo identifica el recipiente, el rastrillo y la conservación.
 - PASS — Leitner sustenta el procedimiento adoptado de sólidos volátiles.
 - PASS — Jjagwe sustenta las condiciones adoptadas de sólidos totales.
 - PASS — La discusión histórica de seis horas no aparece en el manuscrito.
@@ -140,7 +141,7 @@
 
 - Entradas registradas y utilizadas: 28.
 - Candidatos no registrados: ninguno.
-- Exclusiones clasificadas disponibles: 30.
+- Exclusiones clasificadas disponibles: 34.
 
 ## Alcance de la validación
 
