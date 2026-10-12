@@ -2,7 +2,7 @@
 
 ## Propósito, alcance y procedencia
 
-Este registro conserva la descripción factual del muestreo, la operación observada de los escenarios y los análisis ejecutados antes de M3. Su finalidad es sostener la futura redacción académica sin depender de interpretaciones visuales ni de la arquitectura informática del repositorio. No modifica resultados, parámetros, ecuaciones ni decisiones metodológicas del ACV.
+Este registro conserva la descripción factual del muestreo, la operación observada de los escenarios, los análisis ejecutados para M1 y M2 y el estado documental disponible de M3. Su finalidad es sostener la futura redacción académica sin depender de interpretaciones visuales ni de la arquitectura informática del repositorio. No modifica resultados, parámetros, ecuaciones ni decisiones metodológicas del ACV.
 
 Las afirmaciones identificadas como **confirmación del investigador** fueron suministradas por Mateo Cerdas Barboza, quien realizó el muestreo y los análisis fisicoquímicos en el Laboratorio de Bioenergía de la Escuela de Ingeniería de Biosistemas de la Universidad de Costa Rica. La confirmación se consolidó el 20 de septiembre de 2026. Los informes de CIA y LASA, los libros de trabajo del Laboratorio de Bioenergía y la metadata EXIF se utilizan como evidencias documentales complementarias; no sustituyen el testimonio del investigador sobre las operaciones que ejecutó.
 
@@ -156,11 +156,20 @@ En M1, la metadata EXIF documenta las actividades de campo del 10 de noviembre d
 
 En M2, la metadata EXIF documenta la preparación de campo el 20 de julio de 2026 y actividades en el Laboratorio de Bioenergía el 21 de julio. El informe LASA 043-26 registra recepción el 23 de julio, análisis entre el 24 de julio y el 4 de agosto y emisión el 5 de agosto. Los informes CIA registran recepción del precompostado y las aguas verdes el 23 de julio y emisión el 30 de julio; para los purines registran recepción el 27 de julio y emisión el 6 de agosto. Los informes CIA consultados no consignan una fecha independiente de ejecución del análisis; por ello sus fechas de emisión no se presentan como fechas analíticas. Ninguna fecha de recepción se convierte por inferencia en fecha de muestreo.
 
-## Incertidumbres y pendientes reales para M3
+## Estado documental y pendientes reales de M3
 
-- Ejecutar y documentar M3 con la estructura compatible y los criterios de
-  completitud definidos en `docs/CONTRATO_EXPERIMENTAL_M3.md`; este registro se
-  actualizará después con hechos ejecutados y no con datos planificados.
+En octubre de 2026 se realizaron actividades asociadas con M3. El libro
+`muestreo3_solidos_volatiles.xlsx` conserva evidencia gravimétrica parcial del
+estiércol fresco y el precompostado, y las fotografías F039–F046 documentan el
+periodo de trabajo experimental sin permitir atribuir resultados o etapas
+térmicas concretas. Estas fuentes no demuestran por sí solas que se hayan
+muestreado o analizado todos los materiales previstos. M3 continúa sin fuentes
+declaradas en la ingestión productiva y no forma parte de la corrida
+PROVISIONAL M1–M2.
+
+- Completar y documentar las actividades experimentales pendientes, reunir las
+  fuentes analíticas requeridas y verificar su suficiencia y compatibilidad con
+  los criterios de `docs/CONTRATO_EXPERIMENTAL_M3.md` antes de integrar M3.
 - Confirmar únicamente si aparece evidencia documental independiente sobre el fabricante o el modelo formal del horno con inscripción `OF-22`; no es un requisito para integrar los resultados M3.
 - Mantener explícita la incertidumbre fotográfica de F031: no se recuerda si esa bandeja concreta corresponde al secado o a la determinación de sólidos volátiles.
 - Mantener explícita la ausencia de zona horaria EXIF en F001–F013; no corregirla por inferencia.
@@ -172,9 +181,10 @@ No quedan pendientes los tiempos o temperaturas del Laboratorio de Bioenergía n
 - `Academic_documents/evidencia_fotografica/catalogo_fotografico.md`: relación entre imágenes, metadata, observación visual y confirmación del investigador.
 - `Academic_documents/resultados CIA y LASA muestreo 1/Material_laboratorio_copy_to_work_python.xlsx`: masas primarias y registro del procedimiento del Laboratorio de Bioenergía para M1.
 - `Academic_documents/resultados CIA y LASA muestreo 2/muestreo2_solidos_volatiles.xlsx`: masas primarias y registro del procedimiento del Laboratorio de Bioenergía para M2.
+- `Academic_documents/resultados CIA y LASA muestreo 3/muestreo3_solidos_volatiles.xlsx`: evidencia gravimétrica parcial disponible para M3; todavía no declarada, validada ni integrada.
 - Informes CIA y LASA conservados en `Academic_documents/resultados CIA y LASA muestreo 1/` y `Academic_documents/resultados CIA y LASA muestreo 2/`.
 - `scripts/sampling_ingestion_config.py`: asociación vigente entre informes, materiales, jornadas y métodos analíticos; conserva la metodología oficial CIA suministrada por el investigador.
 - `docs/CONTRATO_EXPERIMENTAL_M3.md`: contrato preparatorio y checklist para
-  ejecutar M3 sin convertir el plan en evidencia realizada.
+  completar e incorporar M3 sin convertir el plan en evidencia realizada.
 - `DECISIONES_METODOLOGICAS_TFG.md`: decisiones científicas vigentes sobre integración, bases analíticas y uso posterior de los datos.
 - `Academic_documents/references/en_campo_primario/nota_campo_operaciones_2026-08-25.md`: fuente separada para tiempos de operación y datos de equipos comunicados por operarios.

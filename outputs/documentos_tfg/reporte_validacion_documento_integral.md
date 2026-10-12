@@ -17,7 +17,7 @@
 - PASS — El primer objetivo específico se conserva literalmente.
 - PASS — El segundo objetivo específico se conserva literalmente.
 - PASS — La etiqueta PROVISIONAL M1–M2 es visible.
-- PASS — M3 se identifica como pendiente.
+- PASS — El estado de M3 distingue evidencia parcial, completitud analítica e integración.
 - PASS — Las campañas M1, M2 y M3 se definen antes de su desarrollo metodológico.
 - PASS — Los escenarios y las etapas A1–A4 y B1–B2 se presentan antes del marco metodológico.
 - PASS — El PCG se define sin remitir a antecedentes posteriores.
@@ -91,7 +91,7 @@
 - PASS — La tanqueta y el cañón tienen funciones distintas.
 - PASS — Se distingue el intervalo previo al muestreo.
 - PASS — M1 y M2 se identifican como campañas experimentales elegibles.
-- PASS — M3 permanece pendiente y fuera de los datos y parámetros.
+- PASS — M3 tiene evidencia gravimétrica parcial, pero permanece fuera de la corrida productiva.
 - PASS — La muestra de precompostado se ubica antes de A2.
 - PASS — La procedencia física de sólidos y líquidos está documentada.
 - PASS — La distribución de laboratorios es coherente.

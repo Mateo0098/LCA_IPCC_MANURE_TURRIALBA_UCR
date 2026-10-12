@@ -85,7 +85,8 @@ ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
 
 ## Próximos hitos
 
-1. Ejecutar M3 conforme al contrato experimental y conservar la evidencia primaria.
+1. Completar y documentar las actividades experimentales pendientes de M3,
+   reunir el paquete analítico requerido y verificar su suficiencia y compatibilidad.
 2. Incorporar las fuentes reales M3 mediante el pipeline vigente.
 3. Completar la trazabilidad final entre objetivos, resultados y conclusiones.
 4. Completar la verificación final de las referencias marcadas como pendientes en

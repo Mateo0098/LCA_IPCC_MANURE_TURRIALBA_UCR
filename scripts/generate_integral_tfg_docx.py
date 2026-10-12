@@ -897,8 +897,9 @@ def add_title_page(document: Document, profile, master: Document) -> None:
     status.paragraph_format.space_before = Pt(18)
     note = document.add_paragraph(style="Portada centrada")
     note.add_run(
-        "Resultados provisionales basados en las dos primeras campañas experimentales. "
-        "La tercera campaña permanece pendiente."
+        "Resultados provisionales basados exclusivamente en las dos primeras campañas "
+        "experimentales. La tercera campaña cuenta con trabajo experimental realizado y "
+        "evidencia parcial, aún no validada para su integración."
     ).italic = True
     date = document.add_paragraph(style="Portada centrada")
     date.add_run("Turrialba, Costa Rica\nSeptiembre de 2026")
@@ -929,7 +930,7 @@ def add_preliminaries(document: Document):
     add_text(
         document,
         [
-            "Este trabajo final de graduación (TFG) presenta resultados, discusión y conclusiones provisionales basados en la primera y la segunda campañas experimentales, designadas M1 y M2, respectivamente. La tercera campaña experimental (M3) permanece pendiente y no forma parte de los datos, parámetros, ecuaciones ni resultados presentados. Su incorporación futura puede modificar las magnitudes, comparaciones e interpretaciones.",
+            "Este trabajo final de graduación (TFG) presenta resultados, discusión y conclusiones provisionales basados en la primera y la segunda campañas experimentales, designadas M1 y M2, respectivamente. La tercera campaña experimental (M3) cuenta con actividades de campo y laboratorio realizadas y evidencia gravimétrica parcial. El paquete analítico requerido todavía no está completo ni validado para su integración en el análisis de ciclo de vida; por ello, M3 no forma parte de los datos, parámetros, ecuaciones ni resultados presentados. Su incorporación futura puede modificar las magnitudes, comparaciones e interpretaciones.",
             "El alcance provisional permite interpretar de forma conjunta la caracterización experimental, el inventario del ciclo de vida, las emisiones estimadas y los indicadores de impacto, sin atribuir carácter definitivo a la comparación entre alternativas.",
         ],
     )
@@ -987,7 +988,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "El estudio aplicó el análisis de ciclo de vida (ACV) a dos alternativas de manejo del estiércol en la lechería. El Escenario A representa la operación habitual y comprende A1: Precomposteo, A2: Lombricompostaje, A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo. El Escenario B representa el manejo conjunto de los residuos líquidos y sólidos y comprende B1: Almacenamiento de purines y B2: Aplicación de purines en campo de pastoreo. Los códigos A1–A4 y B1–B2 identifican etapas productivas y no campañas experimentales.",
-            "La evaluación abarcó cambio climático, eutrofización terrestre y eutrofización marina. La evidencia experimental se organizó por campañas de muestreo: M1 corresponde a la primera campaña y M2 a la segunda; ambas sustentan los resultados provisionales. M3 designa la tercera campaña prevista, todavía no integrada y, por tanto, ausente de los resultados actuales.",
+            "La evaluación abarcó cambio climático, eutrofización terrestre y eutrofización marina. La evidencia experimental se organizó por campañas de muestreo: M1 corresponde a la primera campaña y M2 a la segunda; ambas sustentan los resultados provisionales. M3 corresponde a la tercera campaña, con trabajo experimental realizado y evidencia parcial disponible; sus fuentes analíticas todavía no están completas ni validadas para integrarlas al ACV. Por tanto, los resultados actuales corresponden exclusivamente a M1 y M2.",
         ],
     )
 
@@ -1205,7 +1206,7 @@ def build_document() -> tuple[int, int, int, int]:
             "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2 mediante la media de sus promedios de campaña. Cuando una variable no fue compatible, no se forzó la combinación: en líquidos, M1 correspondió a especiación y se mantuvo como trazabilidad, mientras que el N total provisional procedió solo de M2 mediante Kjeldahl. No se aplicaron pruebas inferenciales.",
             "La transformación de estiércol fresco a precompostado se calculó primero por campaña a partir de la materia seca y las cenizas de ambos materiales. Después se integraron las razones de M1 y M2 con igual peso temporal y la diferencia de masa se derivó de esa razón integrada; no se construyó a partir de un promedio global previo de las cuatro mediciones.",
             "La secuencia experimental fue muestra, determinación, resultado analítico, resumen de campaña, integración M1–M2, parámetro experimental y consumo por una etapa o ecuación. La materia seca y los sólidos volátiles del estiércol fresco alimentaron las estimaciones de CH₄ de A1, A3 y B1; las variables equivalentes del precompostado alimentaron A2. La materia seca y las cenizas de ambos sólidos construyeron la transformación A1→A2. El N del estiércol fresco inicializó el N total en A1, A3 y B1, mientras que el N del precompostado y de los líquidos se conservó como contraste sin reinicializar las cadenas propagadas.",
-            "La caracterización permanece identificada como PROVISIONAL M1–M2. M3 está pendiente y no interviene en los datos, parámetros, ecuaciones o resultados presentados.",
+            "La caracterización permanece identificada como PROVISIONAL M1–M2. Aunque M3 cuenta con trabajo experimental realizado y evidencia gravimétrica parcial, el paquete analítico todavía no está completo ni validado; por tanto, M3 no interviene en los datos, parámetros, ecuaciones o resultados presentados.",
         ],
     )
     table_2 = counters.table + 1
@@ -2194,7 +2195,17 @@ def validate_document(
         ("El primer objetivo específico se conserva literalmente", OBJECTIVE_SPECIFIC_1 in text),
         ("El segundo objetivo específico se conserva literalmente", OBJECTIVE_SPECIFIC_2 in text),
         ("La etiqueta PROVISIONAL M1–M2 es visible", PROVISIONAL_LABEL in text),
-        ("M3 se identifica como pendiente", "M3" in text and "pendiente" in text.lower()),
+        (
+            "El estado de M3 distingue evidencia parcial, completitud analítica e integración",
+            all(
+                phrase in manuscript_text
+                for phrase in (
+                    "trabajo experimental realizado y evidencia parcial disponible",
+                    "paquete analítico requerido todavía no está completo ni validado",
+                    "M3 no forma parte de los datos, parámetros, ecuaciones ni resultados presentados",
+                )
+            ),
+        ),
         (
             "Las campañas M1, M2 y M3 se definen antes de su desarrollo metodológico",
             campaign_definition_index < content_index < methodology_campaign_index
@@ -2202,8 +2213,8 @@ def validate_document(
                 phrase in manuscript_text
                 for phrase in (
                     "primera y la segunda campañas experimentales, designadas M1 y M2",
-                    "La tercera campaña experimental (M3) permanece pendiente",
-                    "M3 designa la tercera campaña prevista, todavía no integrada",
+                    "La tercera campaña experimental (M3) cuenta con actividades de campo y laboratorio realizadas",
+                    "M3 corresponde a la tercera campaña, con trabajo experimental realizado y evidencia parcial disponible",
                 )
             ),
         ),
@@ -2362,7 +2373,12 @@ def validate_document(
         ("La tanqueta y el cañón tienen funciones distintas", "La tanqueta almacena" in text and "el cañón aplica" in text),
         ("Se distingue el intervalo previo al muestreo", all(term in text for term in ["jueves por la tarde", "lunes por la mañana", "entradas"])),
         ("M1 y M2 se identifican como campañas experimentales elegibles", all(term in text for term in ["En M1, las fotografías de campo", "En M2, las fotografías documentan", "M1 y M2 recibieron igual peso"])),
-        ("M3 permanece pendiente y fuera de los datos y parámetros", "M3 está pendiente y no interviene en los datos, parámetros, ecuaciones o resultados" in text),
+        (
+            "M3 tiene evidencia gravimétrica parcial, pero permanece fuera de la corrida productiva",
+            "M3 cuenta con trabajo experimental realizado y evidencia gravimétrica parcial" in text
+            and "el paquete analítico todavía no está completo ni validado" in text
+            and "M3 no interviene en los datos, parámetros, ecuaciones o resultados presentados" in text,
+        ),
         ("La muestra de precompostado se ubica antes de A2", "representa la salida de A1 y la entrada a A2, no una muestra de lombricompost terminado" in text),
         ("La procedencia física de sólidos y líquidos está documentada", all(term in text for term in ["sala de espera", "pila con mayor tiempo de permanencia", "cinco alícuotas consecutivas", "una misma abertura"])),
         ("La distribución de laboratorios es coherente", all(term in text for term in ["LASA determinó el N total del estiércol fresco", "Para el precompostado, el CIA", "El Laboratorio de Bioenergía determinó humedad, materia seca, cenizas y sólidos volátiles"])),
