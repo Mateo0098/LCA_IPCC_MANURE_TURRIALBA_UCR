@@ -897,7 +897,8 @@ def add_title_page(document: Document, profile, master: Document) -> None:
     status.paragraph_format.space_before = Pt(18)
     note = document.add_paragraph(style="Portada centrada")
     note.add_run(
-        "Documento integral de trabajo para revisión académica. La jornada M3 permanece pendiente."
+        "Resultados provisionales basados en las dos primeras campañas experimentales. "
+        "La tercera campaña permanece pendiente."
     ).italic = True
     date = document.add_paragraph(style="Portada centrada")
     date.add_run("Turrialba, Costa Rica\nSeptiembre de 2026")
@@ -928,8 +929,8 @@ def add_preliminaries(document: Document):
     add_text(
         document,
         [
-            "Este trabajo final de graduación (TFG) integra la propuesta académica original con la metodología ejecutada y los productos regenerables de la corrida vigente. Los resultados, la discusión y las conclusiones corresponden a la integración PROVISIONAL M1–M2. La incorporación de M3 actualizará la caracterización y puede modificar las magnitudes, comparaciones e interpretaciones presentadas.",
-            "El documento maestro aprobado se conserva como fuente protegida de continuidad académica y formato. La presente versión establece una ruta editorial única hacia el TFG final sin alterar ese documento original.",
+            "Este trabajo final de graduación (TFG) presenta resultados, discusión y conclusiones provisionales basados en la primera y la segunda campañas experimentales, designadas M1 y M2, respectivamente. La tercera campaña experimental (M3) permanece pendiente y no forma parte de los datos, parámetros, ecuaciones ni resultados presentados. Su incorporación futura puede modificar las magnitudes, comparaciones e interpretaciones.",
+            "El alcance provisional permite interpretar de forma conjunta la caracterización experimental, el inventario del ciclo de vida, las emisiones estimadas y los indicadores de impacto, sin atribuir carácter definitivo a la comparación entre alternativas.",
         ],
     )
     document.add_heading("Contenido", level=1)
@@ -980,18 +981,13 @@ def build_document() -> tuple[int, int, int, int]:
     add_chapter(document, "1. Introducción")
     document.add_heading("1.1 Justificación", level=2)
     add_master_paragraphs(document, master, range(28, 37))
-    add_text(
-        document,
-        [
-            "Las cifras contextuales y referencias heredadas de la propuesta se conservan en esta versión para mantener continuidad académica; su cotejo bibliográfico final se encuentra identificado en el registro integral de referencias.",
-        ],
-    )
     document.add_heading("1.2 Delimitación del problema", level=2)
     add_master_paragraphs(document, master, [39, 40])
     add_text(
         document,
         [
-            "El estudio aplicó el análisis de ciclo de vida (ACV) a dos alternativas del manejo de estiércol en la lechería: el Escenario A, que integra la ruta sólida de precomposteo y lombricompostaje con la ruta de aguas verdes, y el Escenario B, que representa el almacenamiento y la aplicación directa de purines. La evaluación abarcó cambio climático, eutrofización terrestre y eutrofización marina. En esta etapa documental, la evidencia disponible integra M1 y M2 y mantiene pendiente M3.",
+            "El estudio aplicó el análisis de ciclo de vida (ACV) a dos alternativas de manejo del estiércol en la lechería. El Escenario A representa la operación habitual y comprende A1: Precomposteo, A2: Lombricompostaje, A3: Almacenamiento de aguas verdes y A4: Aplicación de aguas verdes en campos de pastoreo. El Escenario B representa el manejo conjunto de los residuos líquidos y sólidos y comprende B1: Almacenamiento de purines y B2: Aplicación de purines en campo de pastoreo. Los códigos A1–A4 y B1–B2 identifican etapas productivas y no campañas experimentales.",
+            "La evaluación abarcó cambio climático, eutrofización terrestre y eutrofización marina. La evidencia experimental se organizó por campañas de muestreo: M1 corresponde a la primera campaña y M2 a la segunda; ambas sustentan los resultados provisionales. M3 designa la tercera campaña prevista, todavía no integrada y, por tanto, ausente de los resultados actuales.",
         ],
     )
 
@@ -1038,8 +1034,8 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "El método de Huella Ambiental 3.1 (EF 3.1, por sus siglas en inglés) pertenece a la fase de Evaluación del Impacto del Ciclo de Vida. Su función es aplicar factores de caracterización que relacionan la masa de cada flujo elemental, su compartimento ambiental y una categoría de impacto con un indicador común (Andreasi Bassi et al., 2023). En este TFG se utilizan únicamente cambio climático, eutrofización terrestre y eutrofización marina, expresadas respectivamente en kg CO₂-eq, mol N-eq y kg N-eq. El potencial de calentamiento global (PCG) mencionado en los antecedentes corresponde al indicador climático utilizado por los estudios allí resumidos.",
-            "La secuencia conceptual es flujo elemental por factor de caracterización igual a contribución a la categoría de impacto. Emitir una masa de CH₄, N₂O, NH₃, NOx o NO₃⁻ pertenece al inventario modelado; convertirla en una contribución potencial a cambio climático o eutrofización pertenece a la caracterización. EF 3.1 no estima ni genera las emisiones. La implementación productiva y reproducible de esta relación se realiza en Python a partir de la identidad del flujo, el compartimento y la categoría.",
+            "El método de Huella Ambiental 3.1 (EF 3.1, por sus siglas en inglés) pertenece a la fase de Evaluación del Impacto del Ciclo de Vida. Su función es aplicar factores de caracterización que relacionan la masa de cada flujo elemental, su compartimento ambiental y una categoría de impacto con un indicador común (Andreasi Bassi et al., 2023). En este TFG se utilizan únicamente cambio climático, eutrofización terrestre y eutrofización marina, expresadas respectivamente en kg CO₂-eq, mol N-eq y kg N-eq. El potencial de calentamiento global (PCG) expresa, en una base común de CO₂ equivalente, la contribución relativa de los gases de efecto invernadero al cambio climático durante el horizonte temporal definido por el método.",
+            "La secuencia conceptual es flujo elemental por factor de caracterización igual a contribución a la categoría de impacto. Emitir una masa de CH₄, N₂O, NH₃, NOx o NO₃⁻ pertenece al inventario modelado; convertirla en una contribución potencial a cambio climático o eutrofización pertenece a la caracterización. EF 3.1 no estima ni genera las emisiones. Esta relación se implementó de forma reproducible en Python a partir de la identidad del flujo, el compartimento y la categoría; SimaPro se delimitó como herramienta de verificación independiente y no como fuente sustitutiva del inventario o de los resultados calculados en Python.",
         ],
     )
     document.add_heading("2.5.2 Factores oficiales nacionales para recursos operativos", level=3)
@@ -1090,7 +1086,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Figura {boundary_figure} reconstruye los diagramas conceptuales de la propuesta con la nomenclatura y las conexiones vigentes. En el Escenario A, la fracción paleada y la fracción remanente siguen rutas físicamente separadas; en el Escenario B, el flujo común completo continúa por almacenamiento y aplicación. Los consumos de electricidad y diésel se asignan a las etapas operativas correspondientes.",
+            f"La Figura {boundary_figure} representa las fronteras y conexiones físicas de las alternativas evaluadas. En el Escenario A, la fracción paleada y la fracción remanente siguen rutas físicamente separadas; en el Escenario B, el flujo común completo continúa por almacenamiento y aplicación. Los consumos de electricidad y diésel se asignan a las etapas operativas correspondientes.",
         ],
     )
     boundary_figure = add_figure(
@@ -1106,7 +1102,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Tabla {table_1} presenta la jerarquía de etapas utilizada en todo el documento integral. En los gráficos por etapa se emplean las claves A1–A4 y B1–B2 definidas en esta tabla.",
+            f"La Tabla {table_1} sintetiza la jerarquía de etapas presentada en la introducción y utilizada en todo el manuscrito. En los gráficos por etapa se emplean las claves A1–A4 y B1–B2.",
         ],
     )
     table_1 = add_dataframe(
@@ -1209,7 +1205,7 @@ def build_document() -> tuple[int, int, int, int]:
             "Para los sólidos metodológicamente comparables, la integración provisional combinó M1 y M2 mediante la media de sus promedios de campaña. Cuando una variable no fue compatible, no se forzó la combinación: en líquidos, M1 correspondió a especiación y se mantuvo como trazabilidad, mientras que el N total provisional procedió solo de M2 mediante Kjeldahl. No se aplicaron pruebas inferenciales.",
             "La transformación de estiércol fresco a precompostado se calculó primero por campaña a partir de la materia seca y las cenizas de ambos materiales. Después se integraron las razones de M1 y M2 con igual peso temporal y la diferencia de masa se derivó de esa razón integrada; no se construyó a partir de un promedio global previo de las cuatro mediciones.",
             "La secuencia experimental fue muestra, determinación, resultado analítico, resumen de campaña, integración M1–M2, parámetro experimental y consumo por una etapa o ecuación. La materia seca y los sólidos volátiles del estiércol fresco alimentaron las estimaciones de CH₄ de A1, A3 y B1; las variables equivalentes del precompostado alimentaron A2. La materia seca y las cenizas de ambos sólidos construyeron la transformación A1→A2. El N del estiércol fresco inicializó el N total en A1, A3 y B1, mientras que el N del precompostado y de los líquidos se conservó como contraste sin reinicializar las cadenas propagadas.",
-            "La corrida permanece identificada como PROVISIONAL M1–M2. M3 está pendiente y no interviene en los datos, parámetros, ecuaciones o resultados presentados en esta versión.",
+            "La caracterización permanece identificada como PROVISIONAL M1–M2. M3 está pendiente y no interviene en los datos, parámetros, ecuaciones o resultados presentados.",
         ],
     )
     table_2 = counters.table + 1
@@ -1232,7 +1228,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "El Inventario de Ciclo de Vida se levantó mediante seis componentes complementarios: caracterización experimental; observaciones y registros operativos de la finca; datos previamente publicados cuando fueron necesarios; factores metodológicos oficiales o de literatura; supuestos explícitos; y cálculos, integraciones y transformaciones reproducibles dentro del flujo de trabajo.",
+            "El Inventario de Ciclo de Vida se levantó mediante seis componentes complementarios: caracterización experimental; observaciones y registros operativos de la finca; datos previamente publicados cuando fueron necesarios; factores metodológicos oficiales o de literatura; supuestos explícitos; y cálculos, integraciones y transformaciones reproducibles.",
             "La procedencia y el tratamiento se registraron por separado. Se clasificaron como mediciones experimentales los resultados obtenidos específicamente de las muestras del TFG, incluidos los servicios analíticos de CIA y LASA. Las características verificadas presencialmente, como la potencia nominal indicada en la placa de la bomba, se clasificaron como observaciones directas.",
             "Los parámetros operativos sin mediciones instrumentales o registros documentales suficientes se obtuvieron mediante consultas presenciales con Saúl Brenes Gamboa, administrador y responsable académico de la lechería. Cuando fue necesario, él consultó al personal encargado de las operaciones habituales y comunicó posteriormente las estimaciones al investigador. Esta información se trató como comunicación primaria de campo con un informante clave, no como una entrevista formal ni como mediciones realizadas por Saúl o por los operarios. Sus valores aproximados representan el conocimiento operativo disponible y conservan la incertidumbre asociada con la ausencia de registros instrumentales.",
             "Los datos preexistentes de la misma lechería y los factores del IPCC, del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés), del IMN y de Environmental Footprint 3.1 se clasificaron como secundarios con subtipos que identifican su función. La eficiencia de la bomba de 0,80 y el consumo de diésel de 3 L/h se mantuvieron como supuestos de modelación: no fueron mediciones ni se atribuyeron al informante. En cambio, los 686,5 L/día de agua de lavado procedieron de Sánchez-Romero y Brenes-Gamboa (2026), y la potencia nominal de 1,5 kW se obtuvo de la placa del equipo.",
@@ -1420,7 +1416,7 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "El método de Huella Ambiental 3.1 (EF 3.1, por sus siglas en inglés), desarrollado por la Comisión Europea y su Centro Común de Investigación (JRC, por sus siglas en inglés), se aplicó a las emisiones directas. El cambio climático se expresó en kg CO₂-eq, la eutrofización terrestre en mol N-eq y la eutrofización marina en kg N-eq; las categorías se interpretaron por separado.",
             "La electricidad de la bomba se evaluó con el factor agregado de consumo del IMN para 2025 como aproximación temporal del patrón observado en 2026. La combustión de diésel se representó mediante masas físicas de CO₂ fósil, CH₄ fósil y N₂O obtenidas con factores IMN y caracterizadas con EF 3.1. No se incorporaron cadenas completas de fondo.",
-            "Los factores, la asignación de sistemas y los consumos operativos corresponden a las decisiones metodológicas vigentes. Esta integración documental no recalculó ni modificó el ACV.",
+            "Los factores, la asignación de sistemas y los consumos operativos se aplicaron de forma consistente con la definición del inventario y con las funciones metodológicas descritas para el IPCC, EMEP/EEA, EF 3.1 y el IMN.",
             "En A3/B1, el MCF de 38 % se mantuvo como aproximación conservadora del IPCC de la categoría tabulada de un mes para clima tropical húmedo. No corresponde a una medición específica del MCF para la residencia operativa de tres días y no se escaló como 38 % × 3/30. La mineralización EMEP del 10 % tampoco se escaló por tres días. El tiempo físico de operación, el intervalo específico de preparación de las muestras y la duración tabulada de la aproximación metodológica se trataron como conceptos distintos.",
             "El B₀ de 0,24 m³ CH₄/kg SV se mantuvo como valor por defecto del IPCC para ganado lechero de alta productividad en otras regiones. La evidencia histórica del mismo Módulo Lechero publicada por Conejo-Morales y WingChing-Jones (2020) respalda esa clasificación, pero no constituye una medición local de B₀ ni demuestra la productividad actual de 2026. El valor por defecto de baja productividad no sustituyó el valor central aprobado; la dependencia de B₀ respecto de la especie y la dieta permanece como incertidumbre paramétrica.",
         ],
@@ -1472,8 +1468,8 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "SimaPro es un programa informático especializado en análisis de ciclo de vida que permite trabajar con inventarios y métodos de evaluación de impacto. En este TFG su función se limita a una verificación independiente de la caracterización EF 3.1 implementada en Python. Python permanece como fuente productiva y reproducible del inventario, la estimación de emisiones, la caracterización, la agregación, la normalización y los resultados canónicos.",
-            "La verificación se ha preparado mediante casos unitarios y cantidades elementales de la corrida PROVISIONAL M1–M2, pero su ejecución presencial en SimaPro permanece pendiente. No se reconstruirá el ACV completo ni los escenarios y etapas como procesos en ese programa; tampoco se incluirá la contribución eléctrica agregada del IMN como si fuera un flujo elemental. No se presentan resultados, concordancias ni discrepancias Python–SimaPro porque aún no existe evidencia de ejecución. La versión de SimaPro y la configuración exacta del método deberán registrarse cuando se realice la comprobación.",
+            "SimaPro es un programa informático especializado en análisis de ciclo de vida que permite trabajar con inventarios y métodos de evaluación de impacto. En este TFG su función se limita a una verificación independiente de la caracterización EF 3.1 implementada en Python. En Python se realizaron de forma reproducible el inventario, la estimación de emisiones, la caracterización, la agregación, la normalización y los resultados presentados.",
+            "La comprobación independiente utiliza casos unitarios y cantidades elementales del análisis PROVISIONAL M1–M2. No reconstruye el ACV completo ni los escenarios y etapas como procesos en SimaPro, ni incorpora la contribución eléctrica agregada del IMN como si fuera un flujo elemental. El manuscrito no presenta resultados, concordancias ni discrepancias de la comparación Python–SimaPro y ninguna conclusión depende de esa comprobación.",
         ],
     )
 
@@ -1483,7 +1479,7 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "Los supuestos dominantes incluyen la equivalencia entre litro de agua y kilogramo equivalente, la extrapolación anual de las operaciones, la generación teórica de estiércol durante la permanencia en sala, la conservación de cenizas, la asignación de sistemas de manejo y sus factores, la relación TAN/N inicial y la representación del almacenamiento líquido mediante un MCF de 38 %.",
             "La consistencia se controló mediante balances de masa y nitrógeno, normalización común, trazabilidad entre integración experimental y parámetros activos, sumas por etapa y escenario, y comprobaciones de dirección, signo, unidad, dominancia y redondeo de las comparaciones narrativas.",
-            "Las limitaciones principales son la representatividad temporal de M1–M2, la ausencia de una medición directa del MCF para aproximadamente tres días de residencia y la incertidumbre documentada para los factores de conversión de metano de la guía IPCC (VanderZaag, 2018), la transferibilidad de Komakech, la representatividad de las categorías IPCC y del factor EMEP de N₂ en A2, la masa húmeda inferida de A2 y la ausencia de un balance cerrado de agua y sólidos. Son incertidumbres científicas de la arquitectura aprobada, no decisiones metodológicas abiertas ni impedimentos para el modelo pre-M3.",
+            "Las limitaciones principales son la representatividad temporal de M1–M2, la ausencia de una medición directa del MCF para aproximadamente tres días de residencia y la incertidumbre documentada para los factores de conversión de metano de la guía IPCC (VanderZaag, 2018), la transferibilidad de Komakech, la representatividad de las categorías IPCC y del factor EMEP de N₂ en A2, la masa húmeda inferida de A2 y la ausencia de un balance cerrado de agua y sólidos. Estas fuentes de incertidumbre delimitan la interpretación de los resultados provisionales M1–M2.",
         ],
     )
 
@@ -1491,7 +1487,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "Todos los resultados de este capítulo corresponden a la corrida PROVISIONAL M1–M2. No constituyen una caracterización definitiva ni anticipan los resultados de M3.",
+            "Todos los resultados de este capítulo corresponden a la integración PROVISIONAL M1–M2. No constituyen una caracterización definitiva ni anticipan los resultados de M3.",
         ],
     )
     document.add_heading("5.1 Caracterización y flujos del inventario", level=2)
@@ -1703,7 +1699,7 @@ def build_document() -> tuple[int, int, int, int]:
         [
             f"La comprobación disponible para A2 varió el factor de N₂-N respecto al TAN entre 0 y 0,30. Frente al caso central de 0,30, el cambio máximo observado en el N total remanente equivalió a {results_source.fmt(maximum_change, 2)} % del N total de entrada. La Tabla {table_10} documenta esta comprobación de aseguramiento de la calidad; no constituye un análisis de sensibilidad completo de los impactos.",
             "Los supuestos con mayor capacidad material de afectar la comparación son el MCF del almacenamiento líquido, la caracterización de materia seca, sólidos volátiles y N después de M3, la relación TAN/N inicial, los factores de A2, la duración y frecuencia de los consumos operativos y los factores asociados a la aplicación al suelo.",
-            "Después de M3 y antes de la interpretación final podrá evaluarse si una sensibilidad acotada de las aproximaciones de alta influencia, en particular N₂ de A2 y NH₃ de Komakech, aporta valor suficiente. Su ausencia no impide validar el modelo pre-M3. La consistencia continuará verificándose mediante cierre de balances, igualdad del flujo funcional e integridad temporal de la corrida.",
+            "Después de M3 y antes de la interpretación final podrá evaluarse si una sensibilidad acotada de las aproximaciones de alta influencia, en particular N₂ de A2 y NH₃ de Komakech, aporta valor suficiente. Su ausencia no impide interpretar el modelo provisional. La consistencia continuará verificándose mediante cierre de balances, igualdad del flujo funcional e integridad temporal del análisis.",
         ],
     )
     table_10 = add_dataframe(
@@ -1719,7 +1715,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "Las siguientes conclusiones corresponden exclusivamente a la corrida PROVISIONAL M1–M2. M3 puede modificar las magnitudes, las etapas dominantes y la comparación; por tanto, estas conclusiones no representan el cierre experimental del TFG.",
+            "Las siguientes conclusiones corresponden exclusivamente a la integración PROVISIONAL M1–M2. M3 puede modificar las magnitudes, las etapas dominantes y la comparación; por tanto, estas conclusiones no representan el cierre experimental del TFG.",
         ],
     )
     conclusions = conclusion_items()
@@ -1742,7 +1738,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "La bibliografía reúne únicamente las fuentes citadas en el documento y se consolida desde el registro integral versionado. La normalización editorial y la verificación de las entradas marcadas como pendientes deberán completarse antes de la versión final.",
+            "La bibliografía reúne las fuentes citadas para sustentar el contexto, la metodología y la interpretación de los resultados.",
         ],
     )
     for entry in references:
@@ -1821,7 +1817,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Tabla {methodology_appendix_table} permite seguir cada etapa individualmente desde el proceso y el dato de actividad hasta la relación de cálculo, la fuente metodológica y la salida utilizada posteriormente. Las relaciones se recuperan de las fuentes responsables vigentes y no constituyen un modelo paralelo.",
+            f"La Tabla {methodology_appendix_table} permite seguir cada etapa individualmente desde el proceso y el dato de actividad hasta la relación de cálculo, la fuente metodológica y la salida utilizada posteriormente. Las relaciones corresponden al método aplicado en el estudio y no constituyen un modelo paralelo.",
         ],
     )
     methodology_appendix_table = add_dataframe(
@@ -1841,7 +1837,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Tabla {campaign_appendix_table} documenta el diseño físico ejecutado en M1 y M2, la relación entre muestras compartidas o independientes y la condición de uso de cada determinación. La vista resume la evidencia necesaria para reproducir el diseño sin reemplazar los registros analíticos primarios.",
+            f"La Tabla {campaign_appendix_table} documenta el diseño físico ejecutado en M1 y M2, la relación entre muestras compartidas o independientes y la condición de uso de cada determinación. La tabla resume la evidencia necesaria para reproducir el diseño sin reemplazar los registros analíticos primarios.",
         ],
     )
     campaign_appendix_table = add_dataframe(
@@ -1856,7 +1852,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Tabla {parameter_appendix_table} reúne los resultados experimentales intermedios necesarios para seguir la construcción de los parámetros del modelo. Los valores corresponden a la integración vigente y se presentan redondeados solo para lectura; los cálculos conservan la precisión interna de sus fuentes.",
+            f"La Tabla {parameter_appendix_table} reúne los resultados experimentales intermedios necesarios para seguir la construcción de los parámetros del modelo. Los valores corresponden a la integración provisional M1–M2 y se presentan redondeados solo para lectura; los cálculos conservan la precisión interna de sus fuentes.",
         ],
     )
     parameter_appendix_table = add_dataframe(
@@ -2147,9 +2143,40 @@ def validate_document(
     bibliography_paragraphs = [
         value
         for value in paragraph_texts[references_index + 1 : appendix_index]
-        if value and not value.startswith("La bibliografía reúne únicamente")
+        if value and not value.startswith("La bibliografía reúne ")
     ]
     content_index = paragraph_texts.index("Contenido")
+    scenario_definition_index = next(
+        index
+        for index, value in enumerate(paragraph_texts)
+        if "Los códigos A1–A4 y B1–B2 identifican etapas productivas" in value
+    )
+    theoretical_model_index = paragraph_texts.index(
+        "2.4 Modelado de emisiones del manejo del estiércol"
+    )
+    campaign_definition_index = next(
+        index
+        for index, value in enumerate(paragraph_texts)
+        if "primera y la segunda campañas experimentales, designadas M1 y M2" in value
+    )
+    methodology_campaign_index = paragraph_texts.index(
+        "4.3.1 Campañas y procedencia física de las muestras"
+    )
+    manuscript_paragraphs = (
+        paragraph_texts[: references_index + 1] + paragraph_texts[appendix_index:]
+    )
+    manuscript_text = "\n".join(manuscript_paragraphs)
+    editorial_process_phrases = (
+        "se conserva la formulación de la propuesta",
+        "en esta versión integrada",
+        "la evidencia reconstruida indica",
+        "según la auditoría",
+        "productos regenerables de la corrida vigente",
+        "documento maestro aprobado se conserva",
+        "ruta editorial única",
+        "registro integral versionado",
+        "esta integración documental no recalculó",
+    )
     math_paragraphs = [paragraph for paragraph in document.paragraphs if paragraph._p.xpath(".//m:oMath")]
     table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]
     campaign_scenario_mislabel = False
@@ -2168,6 +2195,45 @@ def validate_document(
         ("El segundo objetivo específico se conserva literalmente", OBJECTIVE_SPECIFIC_2 in text),
         ("La etiqueta PROVISIONAL M1–M2 es visible", PROVISIONAL_LABEL in text),
         ("M3 se identifica como pendiente", "M3" in text and "pendiente" in text.lower()),
+        (
+            "Las campañas M1, M2 y M3 se definen antes de su desarrollo metodológico",
+            campaign_definition_index < content_index < methodology_campaign_index
+            and all(
+                phrase in manuscript_text
+                for phrase in (
+                    "primera y la segunda campañas experimentales, designadas M1 y M2",
+                    "La tercera campaña experimental (M3) permanece pendiente",
+                    "M3 designa la tercera campaña prevista, todavía no integrada",
+                )
+            ),
+        ),
+        (
+            "Los escenarios y las etapas A1–A4 y B1–B2 se presentan antes del marco metodológico",
+            content_index < scenario_definition_index < theoretical_model_index
+            and all(
+                stage in paragraph_texts[scenario_definition_index]
+                for stage in (
+                    "A1: Precomposteo",
+                    "A2: Lombricompostaje",
+                    "A3: Almacenamiento de aguas verdes",
+                    "A4: Aplicación de aguas verdes en campos de pastoreo",
+                    "B1: Almacenamiento de purines",
+                    "B2: Aplicación de purines en campo de pastoreo",
+                )
+            ),
+        ),
+        (
+            "El PCG se define sin remitir a antecedentes posteriores",
+            "El potencial de calentamiento global (PCG) expresa" in manuscript_text
+            and "PCG) mencionado en los antecedentes" not in manuscript_text,
+        ),
+        (
+            "No queda lenguaje editorial del proceso de elaboración",
+            not any(
+                phrase.casefold() in manuscript_text.casefold()
+                for phrase in editorial_process_phrases
+            ),
+        ),
         ("Las campañas M2/M3 no se confunden con unidades m²/m³", not campaign_unit_corruptions),
         ("La jerarquía académica prevista está completa", all(title in text for title in EXPECTED_HEADINGS)),
         (
@@ -2408,10 +2474,10 @@ def validate_document(
         ("EMEP/EEA complementa y no sustituye al IPCC", all(term in text for term in ["Esta guía conjunta no sustituye al IPCC", "nitrógeno amoniacal total constituye la base de actividad", "almacenamiento líquido", "aplicación al suelo"])),
         ("Komakech permanece acotado a NH₃ de A2", all(term in text for term in ["A2 constituye una excepción acotada", "masa húmeda de residuo que ingresa a la etapa", "no sustituye las aproximaciones EMEP/EEA", "no reinicializa las reservas propagadas"])),
         ("EF 3.1 se describe como caracterización y no como generación de emisiones", all(term in text for term in ["pertenece a la fase de Evaluación del Impacto del Ciclo de Vida", "flujo elemental por factor de caracterización", "EF 3.1 no estima ni genera las emisiones"])),
-        ("Python permanece como fuente productiva del ACV", all(term in text for term in ["La implementación productiva y reproducible de esta relación se realiza en Python", "Python permanece como fuente productiva y reproducible del inventario"])),
-        ("SimaPro se limita a verificación pendiente sin resultados atribuidos", all(term in text for term in ["su función se limita a una verificación independiente", "su ejecución presencial en SimaPro permanece pendiente", "No se presentan resultados, concordancias ni discrepancias Python–SimaPro"])),
+        ("Python conserva la responsabilidad de los cálculos del ACV", all(term in text for term in ["Esta relación se implementó de forma reproducible en Python", "En Python se realizaron de forma reproducible el inventario"])),
+        ("SimaPro se limita a verificación independiente sin resultados atribuidos", all(term in text for term in ["su función se limita a una verificación independiente", "El manuscrito no presenta resultados, concordancias ni discrepancias de la comparación Python–SimaPro", "ninguna conclusión depende de esa comprobación"])),
         ("No se afirman resultados positivos inexistentes de SimaPro", not any(term in text for term in ["SimaPro confirmó", "SimaPro demostró", "SimaPro reprodujo", "resultados de SimaPro mostraron", "se obtuvo en SimaPro"])),
-        ("SimaPro no sustituye ni reconstruye el ACV productivo", all(term in text for term in ["No se reconstruirá el ACV completo", "Python permanece como fuente productiva y reproducible"])),
+        ("SimaPro no sustituye ni reconstruye el ACV calculado en Python", all(term in text for term in ["no como fuente sustitutiva del inventario o de los resultados calculados en Python", "No reconstruye el ACV completo"])),
         ("Los factores IMN conservan funciones diferenciadas", all(term in text for term in ["Para la electricidad se utiliza un factor agregado de consumo", "Para el diésel se emplean factores físicos de combustión", "sí se caracterizan posteriormente con EF 3.1"])),
         ("No se presenta 3,5 días como parámetro canónico", "3,5 días" not in text and "3.5 días" not in text),
     ]

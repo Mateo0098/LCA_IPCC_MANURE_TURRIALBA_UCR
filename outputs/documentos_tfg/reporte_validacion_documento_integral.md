@@ -18,6 +18,10 @@
 - PASS — El segundo objetivo específico se conserva literalmente.
 - PASS — La etiqueta PROVISIONAL M1–M2 es visible.
 - PASS — M3 se identifica como pendiente.
+- PASS — Las campañas M1, M2 y M3 se definen antes de su desarrollo metodológico.
+- PASS — Los escenarios y las etapas A1–A4 y B1–B2 se presentan antes del marco metodológico.
+- PASS — El PCG se define sin remitir a antecedentes posteriores.
+- PASS — No queda lenguaje editorial del proceso de elaboración.
 - PASS — Las campañas M2/M3 no se confunden con unidades m²/m³.
 - PASS — La jerarquía académica prevista está completa.
 - PASS — La bibliografía visible coincide con las referencias citadas gobernadas.
@@ -124,10 +128,10 @@
 - PASS — EMEP/EEA complementa y no sustituye al IPCC.
 - PASS — Komakech permanece acotado a NH₃ de A2.
 - PASS — EF 3.1 se describe como caracterización y no como generación de emisiones.
-- PASS — Python permanece como fuente productiva del ACV.
-- PASS — SimaPro se limita a verificación pendiente sin resultados atribuidos.
+- PASS — Python conserva la responsabilidad de los cálculos del ACV.
+- PASS — SimaPro se limita a verificación independiente sin resultados atribuidos.
 - PASS — No se afirman resultados positivos inexistentes de SimaPro.
-- PASS — SimaPro no sustituye ni reconstruye el ACV productivo.
+- PASS — SimaPro no sustituye ni reconstruye el ACV calculado en Python.
 - PASS — Los factores IMN conservan funciones diferenciadas.
 - PASS — No se presenta 3,5 días como parámetro canónico.
 - PASS — No hay rótulos duplicados.
