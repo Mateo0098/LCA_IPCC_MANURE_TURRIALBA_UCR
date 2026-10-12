@@ -1700,11 +1700,26 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
     documents.extend(path for path in [CONCLUSIONS_DOCX, INTEGRAL_DOCX] if path.exists())
     texts = []
     omml_counts: dict[str, int] = {}
+    formal_omml_counts: dict[str, int] = {}
+    equation_definition_checks: dict[str, bool] = {}
     for path in documents:
         doc = Document(path)
         texts.append("\n".join([p.text for p in doc.paragraphs] +
-                               [c.text for t in doc.tables for r in t.rows for c in r.cells]))
+                                [c.text for t in doc.tables for r in t.rows for c in r.cells]))
         omml_counts[path.name] = len(doc.element.body.xpath(".//m:oMath"))
+        formal_indexes = [
+            index
+            for index, paragraph in enumerate(doc.paragraphs)
+            if paragraph._p.xpath(".//m:oMath")
+            and re.fullmatch(r"\s*\(\d+\)", paragraph.text)
+        ]
+        formal_omml_counts[path.name] = len(formal_indexes)
+        equation_definition_checks[path.name] = bool(formal_indexes) and all(
+            index + 1 < len(doc.paragraphs)
+            and doc.paragraphs[index + 1].text.startswith("Donde:")
+            and bool(doc.paragraphs[index + 1]._p.xpath(".//m:oMath"))
+            for index in formal_indexes
+        )
     combined = "\n".join(texts)
     integral_text = texts[documents.index(INTEGRAL_DOCX)]
     integral_validation = INTEGRAL_VALIDATION_OUT.read_text(encoding="utf-8")
@@ -1727,7 +1742,8 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         "- MCF de 38 % descrito como aproximación conservadora del IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.",
         "- Ausencia de 3,5 días como parámetro canónico de anualización: Sí.",
         f"- Ecuaciones de metodología en OMML: {'Sí' if omml_counts.get(METHODOLOGY_DOCX.name, 0) > 0 else 'No'} ({omml_counts.get(METHODOLOGY_DOCX.name, 0)} objetos).",
-        f"- Ecuaciones integrales seleccionadas en OMML: {'Sí' if omml_counts.get(INTEGRAL_DOCX.name, 0) == 26 else 'No'} ({omml_counts.get(INTEGRAL_DOCX.name, 0)} objetos).",
+        f"- Ecuaciones integrales seleccionadas en OMML: {'Sí' if formal_omml_counts.get(INTEGRAL_DOCX.name, 0) == 26 else 'No'} ({formal_omml_counts.get(INTEGRAL_DOCX.name, 0)} ecuaciones numeradas; {omml_counts.get(INTEGRAL_DOCX.name, 0) - formal_omml_counts.get(INTEGRAL_DOCX.name, 0)} símbolos OMML en definiciones).",
+        f"- Definiciones posteriores de símbolos y unidades en el integral: {'Sí' if equation_definition_checks.get(INTEGRAL_DOCX.name, False) else 'No'}.",
         f"- Ausencia de sintaxis LaTeX visible: {'Sí' if not re.search(r'\\(?:frac|mathrm|times|sum|left|right)|_\{', combined) else 'No'}.",
         f"- Ausencia de anglicismos editoriales acordados en prosa visible: {'Sí' if not re.search(r'\b(?:benchmark|ledger|pool|subpool|default|pipeline|proxy|proxies|QA)\b', combined, re.IGNORECASE) else 'No'}.",
         f"- Ausencia de formas planas auditadas (`m2`, `m3`, `kgCO2`, `gPO4-3`): {'Sí' if not re.search(r'(?<![\w])(?:m2|m3|kg\s*CO2|g\s*PO4-?3)(?![\w])', combined) else 'No'}.",

@@ -266,11 +266,27 @@ Las ecuaciones deben:
 - evitar imágenes;
 - ocultar por completo la sintaxis fuente LaTeX;
 - alinear su número mediante tabulación o estructura estable, no mediante espacios manuales;
-- estar precedidas por prosa que introduzca o defina la expresión, sin crear párrafos redundantes.
+- estar precedidas por prosa breve que explique el propósito de la relación;
+- estar seguidas, cuando introduzcan símbolos o unidades, por un párrafo
+  `Donde:` que presente los símbolos con notación matemática nativa y defina su
+  significado físico y sus unidades;
+- distinguir el texto introductorio de las definiciones posteriores, sin crear
+  glosarios repetitivos ni trasladar nombres internos del código a la prosa;
+- mantener como matemática nativa los subíndices, superíndices, barras,
+  sombreros e índices de los símbolos también cuando aparezcan en las
+  definiciones; no representar esas variables mediante guiones bajos visibles.
 
 La conversión canónica es `LaTeX canónico → MathML → OMML` mediante la utilidad
 compartida del repositorio. Los generadores no deben mantener implementaciones
 paralelas de esa conversión.
+
+Las relaciones consecutivas pueden compartir definiciones cuando la proximidad
+haga inequívoca la notación. Las unidades deben permitir comprobar la
+coherencia dimensional y distinguir porcentajes de fracciones adimensionales,
+kg de N de kg de una especie molecular y masas físicas de unidades equivalentes
+de impacto. Los símbolos matemáticos insertados dentro de un párrafo también
+son OMML, pero no se contabilizan como ecuaciones formales ni alteran su
+numeración global.
 
 Los cambios de formato nunca deben alterar factores, variables, operadores, valores ni resultados.
 
@@ -298,6 +314,10 @@ Cuando se regeneren los documentos, `outputs/documentos_tfg/reporte_validacion_d
 - prosa anterior a cada tabla, figura y ecuación formal;
 - etiquetas A1–A4 y B1–B2 en gráficos por etapa;
 - ecuaciones OMML seleccionables, editables, sin imágenes ni LaTeX visible;
+- prosa introductoria antes de cada ecuación formal y definiciones posteriores
+  de símbolos y unidades con notación OMML cuando correspondan;
+- conteo de las ecuaciones formales separado de los símbolos matemáticos OMML
+  insertados dentro de los párrafos de definición;
 - conservación de valores numéricos, cálculos y resultados;
 - consistencia de dirección, signo, porcentaje, unidad, dominancia y redondeo en comparaciones narrativas;
 - conservación del hash del MASTER antes y después de la generación;

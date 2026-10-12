@@ -38,6 +38,9 @@
 - PASS — No hay etapas con decimales.
 - PASS — No hay delimitadores visibles de ecuaciones.
 - PASS — Las ecuaciones formales seleccionadas son objetos OMML.
+- PASS — Cada ecuación formal tiene definiciones posteriores con símbolos OMML.
+- PASS — Las definiciones matemáticas declaran unidades o naturaleza adimensional.
+- PASS — No quedan variables con guion bajo en la prosa de las definiciones.
 - PASS — No hay ecuaciones OMML duplicadas.
 - PASS — Las relaciones obligatorias de masa están cubiertas.
 - PASS — La transformación A1→A2 conserva cálculo por jornada e integración temporal.

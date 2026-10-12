@@ -493,7 +493,19 @@ def validate_documents_and_conclusions() -> None:
         ("integral", integral_document),
     ):
         validate_campaign_table_columns(document, document_name)
-    assert len(integral_document.element.body.xpath(".//m:oMath")) == 26
+    formal_equation_indexes = [
+        index
+        for index, paragraph in enumerate(integral_document.paragraphs)
+        if paragraph._p.xpath(".//m:oMath")
+        and re.fullmatch(r"\s*\(\d+\)", paragraph.text)
+    ]
+    assert len(formal_equation_indexes) == 26
+    assert all(
+        index + 1 < len(integral_document.paragraphs)
+        and integral_document.paragraphs[index + 1].text.startswith("Donde:")
+        and integral_document.paragraphs[index + 1]._p.xpath(".//m:oMath")
+        for index in formal_equation_indexes
+    )
     assert "Lista de siglas y abreviaturas" in integral_text
     assert "nitrógeno amoniacal total (TAN, por sus siglas en inglés)" in integral_text
     assert "Centro de Investigaciones Agronómicas (CIA)" in integral_text

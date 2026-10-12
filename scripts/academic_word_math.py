@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from docx import Document
+from docx.text.paragraph import Paragraph
 from docx.enum.text import WD_TAB_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.shared import Inches
@@ -39,4 +40,32 @@ def add_word_equation(
     paragraph._p.append(latex_to_omml(latex_expression))
     if number is not None:
         paragraph.add_run(f"\t({number})")
+    return paragraph
+
+
+def add_inline_math(paragraph: Paragraph, latex_expression: str):
+    """Inserta un símbolo OMML editable dentro de un párrafo de prosa."""
+    omml = latex_to_omml(latex_expression)
+    paragraph._p.append(omml)
+    return omml
+
+
+def add_symbol_definitions(
+    document: Document,
+    definitions: list[tuple[str, str]],
+    *,
+    style: str = "Normal",
+):
+    """Añade un párrafo «Donde:» con símbolos OMML y definiciones académicas."""
+    if not definitions:
+        return None
+    paragraph = document.add_paragraph(style=style)
+    paragraph.paragraph_format.keep_together = True
+    paragraph.add_run("Donde: ").bold = True
+    for index, (symbol_latex, explanation) in enumerate(definitions):
+        if index:
+            paragraph.add_run("; ")
+        add_inline_math(paragraph, symbol_latex)
+        paragraph.add_run(f" {explanation.rstrip('.;')}")
+    paragraph.add_run(".")
     return paragraph
