@@ -435,6 +435,17 @@ flujos anuales de estiércol y agua de lavado. Es una comparación diagnóstica 
 plausibilidad química, no una validación estricta de M2, porque no reconstruye
 la dilución, lluvia, animales, residencia ni posibles reboses del día muestreado.
 
+Las salidas auxiliares distinguen dos referencias de masa que no son mediciones
+directas. En A1, el benchmark parcial combina el N analítico del precompostado,
+su conversión a base húmeda y la masa A2 inferida por conservación supuesta de
+cenizas. En A3/B1, la referencia se construye multiplicando la concentración M2
+por la masa anual teórica de mezcla A4/B2; no representa una descarga medida.
+La comparación histórica denominada en el nombre de archivo
+`comparacion_ipcc_actual_vs_n_propagado.csv` contrasta una formulación anterior
+de referencia con el ledger secuencial vigente. “Actual” forma parte del nombre
+heredado del artefacto y no significa observación real, modelo vigente ni
+validación experimental.
+
 ## 8. Decisiones que no deben cambiarse automáticamente
 
 No deben cambiarse automáticamente:

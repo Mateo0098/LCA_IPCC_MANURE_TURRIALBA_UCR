@@ -126,6 +126,15 @@ por 1 kg. Se distingue de la **masa de actividad** de cada etapa, de la
 equivalente puede servir para un contraste de concentración por dilución, pero
 no crea una segunda entrada física de N.
 
+En la auditoría auxiliar del ledger, `derived_n_reference_kg` designa una
+cantidad calculada y nunca una masa medida directamente. Para A1 corresponde al
+benchmark parcial construido con N del precompostado y masa A2 inferida; para
+A3/B1 corresponde al escenario teórico que multiplica la concentración M2 por
+la mezcla anual A4/B2. `model_minus_derived_reference_kg` y
+`relative_difference_vs_derived_reference_pct` comparan el modelo con esas
+referencias derivadas. El cierre matemático y estas diferencias son controles
+QA/QC; no constituyen validación experimental ni identifican pérdidas físicas.
+
 La masa funcional de referencia de aproximadamente 26 278,7 kg/año es un
 **resultado calculado**, no un dato publicado directamente. Sánchez-Romero y
 Brenes-Gamboa (2026) aportan la masa viva media, la población, la permanencia en

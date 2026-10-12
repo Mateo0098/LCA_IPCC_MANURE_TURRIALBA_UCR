@@ -61,9 +61,11 @@ class ManagementRow:
     n_total_out_kg: float
     tan_out_kg: float
     non_tan_n_out_kg: float
-    experimental_n_comparable_kg: float | None
-    model_minus_experimental_kg: float | None
-    relative_difference_pct: float | None
+    derived_n_reference_kg: float | None
+    derived_reference_kind: str
+    derived_reference_basis: str
+    model_minus_derived_reference_kg: float | None
+    relative_difference_vs_derived_reference_pct: float | None
     frac_gas_modelled: float
     frac_gas_ms_benchmark: float
     frac_gas_difference: float
@@ -105,7 +107,9 @@ def _management_stage(
     *, chain: str, stage: str, n_total_in: float, tan_in: float,
     mineralised_n: float, nh3_n: float, no_n: float, n2_n: float,
     n2o_n_direct: float, water_n_loss: float, frac_gas_benchmark: float,
-    ef4: float, ef5: float, experimental_n: float | None = None,
+    ef4: float, ef5: float, derived_reference_n: float | None = None,
+    derived_reference_kind: str = "no_aplica",
+    derived_reference_basis: str = "Sin referencia derivada para esta etapa.",
     soil_frac_leach: float = 0.0,
 ) -> ManagementRow:
     if not 0.0 <= tan_in <= n_total_in:
@@ -129,13 +133,18 @@ def _management_stage(
     indirect_vol_n = precursor * ef4
     soil_leach_n = water_n_loss * soil_frac_leach
     indirect_leach_n = soil_leach_n * ef5
-    difference = None if experimental_n is None else n_total_out - experimental_n
-    relative = None if experimental_n in (None, 0.0) else difference / experimental_n * 100.0
+    difference = None if derived_reference_n is None else n_total_out - derived_reference_n
+    relative = (
+        None
+        if derived_reference_n in (None, 0.0)
+        else difference / derived_reference_n * 100.0
+    )
     frac_gas = precursor / n_total_in if n_total_in else 0.0
     return ManagementRow(
         chain, stage, n_total_in, tan_in, non_tan_in, mineralised_n,
         tan_available, nh3_n, no_n, n2_n, n2o_n_direct, water_n_loss,
-        n_total_out, tan_out, non_tan_out, experimental_n, difference, relative,
+        n_total_out, tan_out, non_tan_out, derived_reference_n,
+        derived_reference_kind, derived_reference_basis, difference, relative,
         frac_gas, frac_gas_benchmark, frac_gas - frac_gas_benchmark,
         indirect_vol_n, indirect_vol_n * KG_N_TO_N2O, soil_leach_n,
         indirect_leach_n, indirect_leach_n * KG_N_TO_N2O,
@@ -183,7 +192,7 @@ def build_ledger() -> tuple[list[ManagementRow], list[ApplicationRow], dict[str,
     fresh_n_a1 = float(masses[("A", 1)]["masa_total_kg_eq"]) * fresh_fraction
     fresh_n_a3 = float(masses[("A", 3)]["masa_total_kg_eq"]) * fresh_fraction
     fresh_n_b1 = float(masses[("B", 1)]["masa_total_kg_eq"]) * fresh_fraction
-    experimental = {
+    derived_references = {
         "A2": float(masses[("A", 2)]["masa_total_kg_eq"]) * wet_n_fraction(chemistry[("A", 2)]),
         "A4": float(masses[("A", 4)]["masa_total_kg_eq"]) * wet_n_fraction(chemistry[("A", 4)]),
         "B2": float(masses[("B", 2)]["masa_total_kg_eq"]) * wet_n_fraction(chemistry[("B", 2)]),
@@ -197,7 +206,13 @@ def build_ledger() -> tuple[list[ManagementRow], list[ApplicationRow], dict[str,
         n2o_n_direct=fresh_n_a1 * p["a1_ef3"],
         water_n_loss=fresh_n_a1 * p["a1_frac_leach_ms"],
         frac_gas_benchmark=p["a1_frac_gas_ms_benchmark"], ef4=p["ef4_ipcc"],
-        ef5=p["ef5_ipcc"], experimental_n=experimental["A2"],
+        ef5=p["ef5_ipcc"], derived_reference_n=derived_references["A2"],
+        derived_reference_kind="benchmark_parcial_masa_a2_inferida",
+        derived_reference_basis=(
+            "N Dumas del precompostado convertido a base húmeda y multiplicado "
+            "por la masa A2 inferida mediante conservación supuesta de cenizas; "
+            "no es una masa de salida medida directamente."
+        ),
         soil_frac_leach=p["soil_frac_leach"],
     )
     a2_mass = float(masses[("A", 2)]["masa_total_kg_eq"])
@@ -211,7 +226,7 @@ def build_ledger() -> tuple[list[ManagementRow], list[ApplicationRow], dict[str,
         frac_gas_benchmark=p["a2_frac_gas_ms_benchmark"], ef4=p["ef4_ipcc"], ef5=p["ef5_ipcc"],
     )
 
-    def slurry(chain: str, stage: str, n_total: float, experimental_n: float) -> ManagementRow:
+    def slurry(chain: str, stage: str, n_total: float, derived_reference_n: float) -> ManagementRow:
         tan = n_total * p["fresh_manure_tan_fraction"]
         mineralised = (n_total - tan) * p["emep_slurry_mineralisation_fraction"]
         tan_available = tan + mineralised
@@ -223,14 +238,20 @@ def build_ledger() -> tuple[list[ManagementRow], list[ApplicationRow], dict[str,
             n2_n=tan_available * p["emep_slurry_n2_n_fraction_tan"],
             n2o_n_direct=n_total * p["slurry_ef3"], water_n_loss=0.0,
             frac_gas_benchmark=p["slurry_frac_gas_ms_benchmark"],
-            ef4=p["ef4_ipcc"], ef5=p["ef5_ipcc"], experimental_n=experimental_n,
+            ef4=p["ef4_ipcc"], ef5=p["ef5_ipcc"],
+            derived_reference_n=derived_reference_n,
+            derived_reference_kind="escenario_teorico_dilucion_liquida_m2",
+            derived_reference_basis=(
+                "Concentración experimental M2 multiplicada por la masa anual "
+                "teórica de mezcla; no es una descarga ni una masa anual de N medida."
+            ),
         )
 
-    a3 = slurry("A3→A4", "A3: Almacenamiento de aguas verdes", fresh_n_a3, experimental["A4"])
-    b1 = slurry("B1→B2", "B1: Almacenamiento de purines", fresh_n_b1, experimental["B2"])
+    a3 = slurry("A3→A4", "A3: Almacenamiento de aguas verdes", fresh_n_a3, derived_references["A4"])
+    b1 = slurry("B1→B2", "B1: Almacenamiento de purines", fresh_n_b1, derived_references["B2"])
     a4 = _soil_application("A3→A4", "A4: Aplicación de aguas verdes en campos de pastoreo", a3.n_total_out_kg, a3.tan_out_kg, p)
     b2 = _soil_application("B1→B2", "B2: Aplicación de purines en campo de pastoreo", b1.n_total_out_kg, b1.tan_out_kg, p)
-    return [a1, a2, a3, b1], [a4, b2], experimental
+    return [a1, a2, a3, b1], [a4, b2], derived_references
 
 
 def concentration_comparison(applications: list[ApplicationRow]) -> list[dict[str, float | str]]:
@@ -239,66 +260,89 @@ def concentration_comparison(applications: list[ApplicationRow]) -> list[dict[st
     for row, key in zip(applications, (("A", 4), ("B", 2)), strict=True):
         mixture_mass = float(masses[key]["masa_total_kg_eq"])
         model_fraction = row.n_applic_kg / mixture_mass
-        experimental_pct = float(chemistry[key]["n_ex_pct"])
+        measured_m2_pct = float(chemistry[key]["n_ex_pct"])
         model_pct = model_fraction * 100.0
-        difference = model_pct - experimental_pct
+        difference = model_pct - measured_m2_pct
         output.append({
             "stage": row.stage,
-            "manure_mass_kg": float(masses[key]["boniga_kg"]),
-            "washing_water_l": float(masses[key]["agua_l"]),
-            "theoretical_mixture_mass_kg": mixture_mass,
+            "manure_mass_kg_per_year": float(masses[key]["boniga_kg"]),
+            "washing_water_l_per_year": float(masses[key]["agua_l"]),
+            "theoretical_annual_mixture_mass_kg": mixture_mass,
             "propagated_n_kg_per_year": row.n_applic_kg,
-            "modelled_n_mass_fraction": model_fraction,
-            "modelled_n_pct": model_pct,
-            "experimental_n_pct": experimental_pct,
-            "absolute_difference_percentage_points": difference,
-            "relative_difference_pct": difference / experimental_pct * 100.0,
-            "interpretation": "Comparación teórica/diagnóstica por dilución del flujo anual; no valida estrictamente la muestra M2.",
+            "modelled_n_mass_fraction_on_theoretical_mixture": model_fraction,
+            "modelled_n_pct_on_theoretical_mixture": model_pct,
+            "measured_m2_n_pct": measured_m2_pct,
+            "difference_model_minus_m2_percentage_points": difference,
+            "relative_difference_vs_m2_pct": difference / measured_m2_pct * 100.0,
+            "measured_basis": "Concentración de N total medida por CIA en muestras M2.",
+            "modelled_basis": (
+                "N propagado dividido entre una masa anual teórica de mezcla; "
+                "no usa una descarga real de efluente medida."
+            ),
+            "interpretation": (
+                "Contraste diagnóstico de concentración y dilución. La diferencia "
+                "no demuestra una pérdida física de N, no valida factores EMEP/EEA "
+                "y no constituye una validación experimental del flujo anual."
+            ),
         })
     return output
 
 
-def climate_comparison(management: list[ManagementRow], applications: list[ApplicationRow], experimental: dict[str, float]) -> list[dict[str, float | str]]:
+def climate_comparison(
+    management: list[ManagementRow],
+    applications: list[ApplicationRow],
+    derived_references: dict[str, float],
+) -> list[dict[str, float | str]]:
     p, _, _ = load_inputs()
     by_stage = {row.stage[:2]: row for row in management}
     app_by_stage = {row.stage[:2]: row for row in applications}
     comparisons: list[dict[str, float | str]] = []
 
-    def append(stage: str, current_n: float, propagated_n: float, current_direct_n: float,
-               current_indirect_n: float, propagated_direct_n: float,
-               propagated_indirect_n: float, note: str) -> None:
-        current_n2o = (current_direct_n + current_indirect_n) * KG_N_TO_N2O
-        propagated_n2o = (propagated_direct_n + propagated_indirect_n) * KG_N_TO_N2O
-        current_climate = current_n2o * p["gwp_n2o"]
-        propagated_climate = propagated_n2o * p["gwp_n2o"]
+    def append(
+        stage: str,
+        reference_n: float,
+        sequential_n: float,
+        reference_direct_n: float,
+        reference_indirect_n: float,
+        sequential_direct_n: float,
+        sequential_indirect_n: float,
+        note: str,
+    ) -> None:
+        reference_n2o = (reference_direct_n + reference_indirect_n) * KG_N_TO_N2O
+        sequential_n2o = (sequential_direct_n + sequential_indirect_n) * KG_N_TO_N2O
+        reference_climate = reference_n2o * p["gwp_n2o"]
+        sequential_climate = sequential_n2o * p["gwp_n2o"]
         comparisons.append({
-            "stage": stage, "current_n_input_kg": current_n, "propagated_n_input_kg": propagated_n,
-            "n_input_absolute_difference_kg": propagated_n - current_n,
-            "n_input_relative_difference_pct": (propagated_n / current_n - 1.0) * 100.0,
-            "current_direct_n2o_kg": current_direct_n * KG_N_TO_N2O,
-            "propagated_direct_n2o_kg": propagated_direct_n * KG_N_TO_N2O,
-            "current_indirect_n2o_kg": current_indirect_n * KG_N_TO_N2O,
-            "propagated_indirect_n2o_kg": propagated_indirect_n * KG_N_TO_N2O,
-            "current_n2o_climate_kg_co2_eq": current_climate,
-            "propagated_n2o_climate_kg_co2_eq": propagated_climate,
-            "climate_absolute_difference_kg_co2_eq": propagated_climate - current_climate,
-            "climate_relative_difference_pct": (propagated_climate / current_climate - 1.0) * 100.0,
+            "stage": stage,
+            "comparison_scope": "Comparación entre formulación anterior de referencia y formulación secuencial vigente; no es validación experimental.",
+            "reference_formulation_n_input_kg": reference_n,
+            "sequential_formulation_n_input_kg": sequential_n,
+            "n_input_absolute_difference_kg": sequential_n - reference_n,
+            "n_input_relative_difference_pct": (sequential_n / reference_n - 1.0) * 100.0,
+            "reference_formulation_direct_n2o_kg": reference_direct_n * KG_N_TO_N2O,
+            "sequential_formulation_direct_n2o_kg": sequential_direct_n * KG_N_TO_N2O,
+            "reference_formulation_indirect_n2o_kg": reference_indirect_n * KG_N_TO_N2O,
+            "sequential_formulation_indirect_n2o_kg": sequential_indirect_n * KG_N_TO_N2O,
+            "reference_formulation_n2o_climate_kg_co2_eq": reference_climate,
+            "sequential_formulation_n2o_climate_kg_co2_eq": sequential_climate,
+            "climate_absolute_difference_kg_co2_eq": sequential_climate - reference_climate,
+            "climate_relative_difference_pct": (sequential_climate / reference_climate - 1.0) * 100.0,
             "comparison_note": note,
         })
 
     a2 = by_stage["A2"]
-    append(a2.stage, experimental["A2"], a2.n_total_in_kg,
-           experimental["A2"] * p["a2_ef3"], experimental["A2"] * p["a2_frac_gas_ms_benchmark"] * p["ef4_ipcc"],
+    append(a2.stage, derived_references["A2"], a2.n_total_in_kg,
+           derived_references["A2"] * p["a2_ef3"], derived_references["A2"] * p["a2_frac_gas_ms_benchmark"] * p["ef4_ipcc"],
            a2.n2o_n_direct_ipcc_kg, a2.n2o_n_indirect_vol_kg,
-           "Actual: N experimental y FracGasMS; propagado: N de A1 y precursor explícito Komakech+EMEP.")
+           "Formulación anterior de referencia: benchmark parcial derivado de A2 y FracGasMS; formulación secuencial vigente: N de A1 y precursor explícito Komakech+EMEP. Ninguna diferencia constituye una medición directa de pérdida.")
     for key in ("A4", "B2"):
         app = app_by_stage[key]
-        current_n = experimental[key]
+        current_n = derived_references[key]
         current_indirect = current_n * (p["soil_frac_gas_current"] * p["ef4_ipcc"] + p["soil_frac_leach"] * p["ef5_ipcc"])
         target_indirect = app.n2o_n_indirect_vol_kg + app.n2o_n_indirect_leach_kg
         append(app.stage, current_n, app.n_applic_kg, current_n * p["soil_ef1"], current_indirect,
                app.n2o_n_direct_soil_kg, target_indirect,
-               "Actual: medición y volatilización histórica; propagado: N/TAN de almacenamiento y NH3-N+NOx-N explícitos.")
+               "Formulación anterior de referencia: masa de N construida con concentración M2 y mezcla anual teórica, más volatilización histórica; formulación secuencial vigente: N/TAN de almacenamiento y NH3-N+NOx-N explícitos. La referencia no es una masa anual observada.")
     return comparisons
 
 
@@ -483,7 +527,7 @@ def _write(path: Path, rows: list[dict[str, object]]) -> None:
 
 
 def main() -> None:
-    management, applications, experimental = build_ledger()
+    management, applications, _ = build_ledger()
     validate(management, applications)
     _write(PRODUCTIVE_LEDGER, productive_ledger_rows(management, applications))
     residuals = [abs(row.mass_balance_residual_kg) for row in management + applications]

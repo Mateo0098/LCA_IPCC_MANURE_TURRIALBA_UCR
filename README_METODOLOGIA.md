@@ -300,6 +300,17 @@ Los factores, unidades y ubicaciones bibliográficas del ledger residen en
 `processed/reactive_n_ledger_parameters.csv`; su salida física productiva es
 `processed/reactive_n_ledger.csv`.
 
+Las salidas de `outputs/auditoria_n_reactivo/` son productos auxiliares de
+QA/QC y no alimentan el inventario. `ledger_secuencial_n_tan.csv` distingue el
+benchmark parcial A1 —N del precompostado combinado con masa A2 inferida— de las
+referencias A3/B1 construidas con concentración M2 y mezcla anual teórica. En
+`comparacion_concentracion_diluida.csv`, la concentración modelada usa N
+propagado y una masa teórica; no usa una descarga real medida. El nombre
+histórico `comparacion_ipcc_actual_vs_n_propagado.csv` se conserva por
+compatibilidad, pero sus encabezados comparan una formulación anterior de
+referencia con la formulación secuencial vigente. Ninguna de estas salidas es
+una validación experimental de pérdidas o de factores EMEP/EEA.
+
 La vista académica que enlaza cada etapa A1–B2 con sus fenómenos, relaciones de
 cálculo, datos de actividad, factores, procedencias y usos posteriores se genera
 mediante `scripts/methodological_traceability.py` y se publica en

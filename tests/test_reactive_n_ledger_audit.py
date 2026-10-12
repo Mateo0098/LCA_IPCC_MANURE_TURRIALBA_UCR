@@ -15,7 +15,7 @@ SPEC.loader.exec_module(MODULE)
 
 class ReactiveNLedgerTests(unittest.TestCase):
     def setUp(self):
-        self.management, self.applications, self.experimental = MODULE.build_ledger()
+        self.management, self.applications, self.derived_references = MODULE.build_ledger()
         self.m = {row.stage[:2]: row for row in self.management}
         self.a = {row.stage[:2]: row for row in self.applications}
         self.p, _, _ = MODULE.load_inputs()
@@ -132,8 +132,42 @@ class ReactiveNLedgerTests(unittest.TestCase):
     def test_diluted_concentration_reproduces_mass_flow(self):
         comparisons = MODULE.concentration_comparison(self.applications)
         for item, app in zip(comparisons, self.applications, strict=True):
-            reconstructed = item["modelled_n_mass_fraction"] * item["theoretical_mixture_mass_kg"]
+            reconstructed = (
+                item["modelled_n_mass_fraction_on_theoretical_mixture"]
+                * item["theoretical_annual_mixture_mass_kg"]
+            )
             self.assertAlmostEqual(reconstructed, app.n_applic_kg)
+
+    def test_auxiliary_references_distinguish_inferred_and_theoretical_masses(self):
+        self.assertEqual(
+            self.m["A1"].derived_reference_kind,
+            "benchmark_parcial_masa_a2_inferida",
+        )
+        for key in ("A3", "B1"):
+            self.assertEqual(
+                self.m[key].derived_reference_kind,
+                "escenario_teorico_dilucion_liquida_m2",
+            )
+            self.assertIn("no es una descarga", self.m[key].derived_reference_basis)
+
+    def test_liquid_concentration_comparison_is_explicitly_diagnostic(self):
+        for item in MODULE.concentration_comparison(self.applications):
+            self.assertIn("M2", item["measured_basis"])
+            self.assertIn("masa anual teórica", item["modelled_basis"])
+            self.assertIn("no valida factores EMEP/EEA", item["interpretation"])
+            self.assertNotIn("experimental_n_pct", item)
+
+    def test_formulation_comparison_does_not_call_reference_actual(self):
+        rows = MODULE.climate_comparison(
+            self.management,
+            self.applications,
+            self.derived_references,
+        )
+        for item in rows:
+            self.assertIn("reference_formulation_n_input_kg", item)
+            self.assertIn("sequential_formulation_n_input_kg", item)
+            self.assertNotIn("current_n_input_kg", item)
+            self.assertIn("no es validación experimental", item["comparison_scope"])
 
     def test_application_water_and_liquid_benchmarks_do_not_reset_productive_n(self):
         params, chemistry, masses = MODULE.load_inputs()
@@ -253,9 +287,9 @@ class ReactiveNLedgerTests(unittest.TestCase):
         self.assertEqual(self.m["A2"].tan_in_kg, self.m["A1"].tan_out_kg)
 
     def test_intermediate_measurements_do_not_reset_productive_inputs(self):
-        self.assertNotAlmostEqual(self.m["A2"].n_total_in_kg, self.experimental["A2"])
-        self.assertNotAlmostEqual(self.a["A4"].n_applic_kg, self.experimental["A4"])
-        self.assertNotAlmostEqual(self.a["B2"].n_applic_kg, self.experimental["B2"])
+        self.assertNotAlmostEqual(self.m["A2"].n_total_in_kg, self.derived_references["A2"])
+        self.assertNotAlmostEqual(self.a["A4"].n_applic_kg, self.derived_references["A4"])
+        self.assertNotAlmostEqual(self.a["B2"].n_applic_kg, self.derived_references["B2"])
 
     def test_indirect_n2o_is_not_subtracted_from_nitrate(self):
         for row in self.applications:

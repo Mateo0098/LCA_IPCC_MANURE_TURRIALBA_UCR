@@ -42,7 +42,7 @@ PROVISIONAL M1–M2 ni anticipan resultados de M3 o de la repetición de SimaPro
 | OBS-13 | Unidad 3B | Implementada con límite de identificación del horno; revisión supervisora pendiente | Catálogo fotográfico, registro primario y generador de figuras integrales |
 | OBS-14 | Unidad 4 | Pendiente | Generadores académicos y reglas de formato Word |
 | OBS-15 | Unidad 4 | Pendiente | Registro bibliográfico, factores IMN y generadores académicos |
-| OBS-16 | Unidad 5 | Diseño pendiente; cierre dependiente de M3 | Decisiones metodológicas, ledger de N y fuentes experimentales |
+| OBS-16 | Unidades 5A–5B | Diagnóstico 5A validado y saneamiento semántico 5B implementado; cierre científico definitivo pendiente de M3 | Decisiones metodológicas, ledger de N, salidas auxiliares QA/QC y fuentes experimentales |
 
 ## Unidad preparatoria de M3
 
