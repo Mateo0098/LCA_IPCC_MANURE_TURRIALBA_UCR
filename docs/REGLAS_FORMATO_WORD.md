@@ -232,6 +232,19 @@ Correcto: “Los factores empleados en las estimaciones se detallan en el Apénd
 
 No se debe modificar la numeración de apéndices para hacerla coincidir con el MASTER.
 
+Las matrices de apéndice cuya amplitud impida una lectura normal deben resolverse
+en el mismo documento mediante orientación horizontal por secciones y, cuando sea
+necesario, mediante vistas temáticas enlazadas por una clave estable. Los
+encabezados se repiten en cada página y el cuerpo no se reduce por debajo de 9 pt.
+La división editorial debe conservar todas las filas y relaciones de la fuente
+canónica; al terminar el apéndice se restablece la orientación que corresponda al
+contenido siguiente.
+
+Las notas de tabla deben distinguir expresamente, cuando exista riesgo de
+confusión, entre cero cuantitativo, exclusión por frontera metodológica, valor no
+aplicable y ausencia de información. Una nota explicativa no autoriza a cambiar
+el inventario ni a incorporar flujos nuevos.
+
 ## 10. Siglas y abreviaturas
 
 Las siglas gobernadas por los documentos se mantienen en un único registro

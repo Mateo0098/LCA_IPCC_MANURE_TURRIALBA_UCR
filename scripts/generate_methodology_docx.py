@@ -537,6 +537,12 @@ def characterization_factors() -> pd.DataFrame:
     ]
     out = factors[cols].copy()
     out = out.loc[factors["tipo_factor"].isin(["Factor de caracterización EF 3.1", "Factor IMN por actividad"])].drop_duplicates()
+    if "referencia_metodologica" in out.columns:
+        out["referencia_metodologica"] = out["referencia_metodologica"].astype(str).str.replace(
+            "interiores 15a edición / 2025",
+            "interiores 15.ª edición, 2025",
+            regex=False,
+        )
     return out.rename(
         columns={
             "sistema_o_compuesto": "Sustancia",

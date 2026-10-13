@@ -2,7 +2,7 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 22.
+- Tablas con numeración global: 23.
 - Figuras con numeración global: 10.
 - Ecuaciones con numeración global: 26.
 - Entradas conservadas en el registro bibliográfico: 43.
@@ -17,6 +17,7 @@
 - PASS — El primer objetivo específico se conserva literalmente.
 - PASS — El segundo objetivo específico se conserva literalmente.
 - PASS — La etiqueta PROVISIONAL M1–M2 es visible.
+- PASS — La portada identifica una fecha editorial provisional coherente.
 - PASS — El estado de M3 distingue evidencia parcial, completitud analítica e integración.
 - PASS — Las campañas M1, M2 y M3 se definen antes de su desarrollo metodológico.
 - PASS — Los escenarios y las etapas A1–A4 y B1–B2 se presentan antes del marco metodológico.
@@ -24,6 +25,11 @@
 - PASS — No queda lenguaje editorial del proceso de elaboración.
 - PASS — Las campañas M2/M3 no se confunden con unidades m²/m³.
 - PASS — La jerarquía académica prevista está completa.
+- PASS — Todos los apéndices se mencionan en el cuerpo antes de aparecer.
+- PASS — El Apéndice C se divide en dos vistas completas y enlazadas.
+- PASS — El Apéndice C usa sección horizontal y el Apéndice D vuelve a vertical.
+- PASS — La referencia IMN conserva la discrepancia editorial verificable.
+- PASS — Las notas de las tablas de factores y emisiones distinguen edición, cero y frontera.
 - PASS — La bibliografía visible coincide con las referencias citadas gobernadas.
 - PASS — Las candidatas internas no aparecen en la bibliografía visible.
 - PASS — El registro conserva 43 entradas clasificadas sin claves duplicadas.

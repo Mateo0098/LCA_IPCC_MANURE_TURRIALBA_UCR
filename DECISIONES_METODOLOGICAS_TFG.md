@@ -153,8 +153,10 @@ La fuente documental oficial consultada directamente es
 `Academic_documents/references/FactoresEmision-GEI-2026.pdf`. En la taxonomía
 académica del inventario corresponde a una fuente secundaria de tipo oficial,
 no a evidencia primaria levantada específicamente para el TFG.
-Se preserva la discrepancia editorial: portada 16.ª edición, 2026; páginas
-interiores 15a edición / 2025. Los factores y metadatos residen únicamente en
+Se preserva la discrepancia editorial: portada 16.ª edición, 2026; encabezados
+de las páginas interiores 2–10, 15.ª edición / 2025. La identificación
+bibliográfica principal sigue la portada y declara la divergencia interior en
+una nota. Los factores y metadatos residen únicamente en
 `processed/acv_factores_imn_recursos_operativos.csv`, incluyendo páginas,
 categorías, unidades originales, incertidumbres y hash del PDF. ND no significa cero.
 

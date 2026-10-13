@@ -59,6 +59,7 @@ from reference_docx_utils import (  # noqa: E402
 
 
 PROVISIONAL_LABEL = "PROVISIONAL M1–M2"
+COVER_VERSION_DATE = "octubre de 2026"
 MASTER = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 REFERENCES = ROOT / "docs" / "REFERENCIAS_TFG.md"
 SENSITIVITY = ROOT / "outputs" / "auditoria_n_reactivo" / "sensibilidad_n2_a2.csv"
@@ -94,7 +95,7 @@ EXPECTED_HEADINGS = [
     "7. Conclusiones provisionales",
     "8. Recomendaciones",
     "9. Referencias",
-    "Apéndice A. Trazabilidad entre objetivos y evidencia provisional",
+    "Apéndice A. Correspondencia entre objetivos, resultados y conclusiones provisionales",
     "Apéndice B. Matriz detallada de procedencia de los datos del inventario",
     "Apéndice C. Matriz detallada de trazabilidad metodológica por etapa A1–B2",
     "Apéndice D. Trazabilidad experimental de las campañas M1–M2",
@@ -570,6 +571,9 @@ def add_dataframe(
     dataframe: pd.DataFrame,
     *,
     decimals: int = 4,
+    font_size_pt: float | None = None,
+    column_widths_inches: list[float] | None = None,
+    body_alignment: WD_ALIGN_PARAGRAPH | None = None,
 ) -> int:
     counters.table += 1
     caption_start = len(document.paragraphs)
@@ -592,7 +596,53 @@ def add_dataframe(
             table_header.set(qn("w:val"), "true")
             tr_properties.append(table_header)
     format_table_like_master(table, profile)
+    if column_widths_inches is not None:
+        if len(column_widths_inches) != len(dataframe.columns):
+            raise ValueError("La cantidad de anchos no coincide con las columnas de la tabla.")
+        table.autofit = False
+        for row in table.rows:
+            for cell, width in zip(row.cells, column_widths_inches):
+                cell.width = Inches(width)
+    if font_size_pt is not None or body_alignment is not None:
+        for row_index, row in enumerate(table.rows):
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    if body_alignment is not None and row_index > 0:
+                        paragraph.alignment = body_alignment
+                    if font_size_pt is not None:
+                        for run in paragraph.runs:
+                            run.font.size = Pt(font_size_pt)
     return counters.table
+
+
+def add_table_note(document: Document, text: str) -> None:
+    """Añade una nota académica inmediatamente después de una tabla."""
+
+    style_name = "Nota de tabla"
+    if style_name not in document.styles:
+        style = document.styles.add_style(style_name, WD_STYLE_TYPE.PARAGRAPH)
+        style.font.name = "Times New Roman"
+        style.font.size = Pt(10)
+        style.paragraph_format.first_line_indent = Pt(0)
+        style.paragraph_format.left_indent = Pt(0)
+        style.paragraph_format.space_before = Pt(3)
+        style.paragraph_format.space_after = Pt(6)
+        style.paragraph_format.line_spacing = 1.0
+    paragraph = document.add_paragraph(style=style_name)
+    paragraph.add_run("Nota. ").bold = True
+    paragraph.add_run(clean_academic_label(text))
+
+
+def add_oriented_section(document: Document, orientation: WD_ORIENT):
+    """Inicia una sección en página nueva con la orientación solicitada."""
+
+    section = document.add_section(WD_SECTION.NEW_PAGE)
+    if section.orientation != orientation:
+        width, height = section.page_width, section.page_height
+        section.orientation = orientation
+        section.page_width = height
+        section.page_height = width
+    return section
 
 
 def add_figure(
@@ -909,7 +959,9 @@ def add_title_page(document: Document, profile, master: Document) -> None:
         "evidencia parcial, aún no validada para su integración."
     ).italic = True
     date = document.add_paragraph(style="Portada centrada")
-    date.add_run("Turrialba, Costa Rica\nSeptiembre de 2026")
+    date.add_run(
+        f"Turrialba, Costa Rica\nVersión provisional actualizada en {COVER_VERSION_DATE}"
+    )
 
     # Espaciado estructural de los bloques de portada. La cadena keep-with-next
     # conserva el conjunto en una página sin párrafos vacíos ni saltos internos.
@@ -1653,7 +1705,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Tabla {table_3} documenta los factores visibles principales y la Figura {figure_1} muestra la escala operacional de los flujos.",
+            f"La Tabla {table_3} documenta los factores visibles principales y la Figura {figure_1} muestra la escala operacional de los flujos. La fuente del Instituto Meteorológico Nacional se identifica por su portada como 16.ª edición de 2026; sin embargo, los encabezados de las páginas interiores 2–10 indican 15.ª edición de 2025. Esta discrepancia editorial se conserva de forma explícita y no modifica los factores seleccionados.",
         ],
     )
     table_3 = add_dataframe(
@@ -1663,6 +1715,10 @@ def build_document() -> tuple[int, int, int, int]:
         "Factores de emisión IMN y caracterización EF 3.1.",
         factor_table,
         decimals=4,
+    )
+    add_table_note(
+        document,
+        "La identificación bibliográfica principal sigue la portada del documento del IMN (16.ª edición, 2026); la identificación interior divergente (15.ª edición, 2025) se informa para permitir la verificación de las páginas citadas. Los valores y sus unidades permanecen sin cambios.",
     )
     figure_1 = add_figure(
         document,
@@ -1751,6 +1807,10 @@ def build_document() -> tuple[int, int, int, int]:
         "Emisiones anuales del manejo por escenario y sustancia.",
         emissions,
         decimals=4,
+    )
+    add_table_note(
+        document,
+        "El valor 0,0000 de CO₂ expresa que esta tabla resume las emisiones del manejo del estiércol y que esa ruta no incorpora CO₂ dentro del inventario aprobado; no representa ausencia de información. El CO₂ fósil de la combustión del diésel se cuantifica por separado y se incorpora al indicador de cambio climático, sin añadir CO₂ biogénico.",
     )
     figure_3 = add_figure(
         document,
@@ -1930,6 +1990,12 @@ def build_document() -> tuple[int, int, int, int]:
         paragraph = document.add_paragraph(style="Normal")
         paragraph.add_run(f"Conclusión provisional {index}. ").bold = True
         paragraph.add_run(item["text"])
+    add_text(
+        document,
+        [
+            "El Apéndice A, Correspondencia entre objetivos, resultados y conclusiones provisionales, sintetiza la relación entre los objetivos del estudio y la evidencia presentada sin duplicar los resultados numéricos de las tablas principales.",
+        ],
+    )
 
     add_chapter(document, "8. Recomendaciones")
     add_text(
@@ -1955,7 +2021,7 @@ def build_document() -> tuple[int, int, int, int]:
 
     add_chapter(
         document,
-        "Apéndice A. Trazabilidad entre objetivos y evidencia provisional",
+        "Apéndice A. Correspondencia entre objetivos, resultados y conclusiones provisionales",
     )
     traceability = pd.DataFrame(
         [
@@ -1991,14 +2057,16 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         profile,
         counters,
-        "Trazabilidad entre objetivos y evidencia provisional.",
+        "Correspondencia entre objetivos, resultados y conclusiones provisionales.",
         traceability,
         decimals=2,
     )
 
+    add_oriented_section(document, WD_ORIENT.LANDSCAPE)
     add_chapter(
         document,
         "Apéndice B. Matriz detallada de procedencia de los datos del inventario",
+        first=True,
     )
     provenance_appendix_table = counters.table + 1
     add_text(
@@ -2014,31 +2082,79 @@ def build_document() -> tuple[int, int, int, int]:
         "Matriz detallada de procedencia y tratamiento de los datos del inventario.",
         methodology_source.provenance_detail(),
         decimals=2,
+        font_size_pt=9,
+        column_widths_inches=[1.25, 0.70, 0.95, 0.85, 1.00, 1.15, 1.40, 1.75],
+        body_alignment=WD_ALIGN_PARAGRAPH.LEFT,
     )
 
     add_chapter(
         document,
         "Apéndice C. Matriz detallada de trazabilidad metodológica por etapa A1–B2",
     )
-    methodology_appendix_table = counters.table + 1
+    methodology_detail = methodology_source.methodological_detail()
+    calculation_columns = [
+        "Escenario",
+        "Etapa del sistema",
+        "Fase metodológica",
+        "Proceso o fenómeno modelado",
+        "Variable o flujo calculado",
+        "Ecuación",
+        "Relación de cálculo",
+    ]
+    source_columns = [
+        "Escenario",
+        "Etapa del sistema",
+        "Ecuación",
+        "Dato de actividad",
+        "Parámetro o factor",
+        "Procedencia del dato o factor",
+        "Fuente metodológica",
+        "Salida o uso posterior",
+    ]
+    methodology_calculation_table = counters.table + 1
+    methodology_source_table = counters.table + 2
     add_text(
         document,
         [
-            f"La Tabla {methodology_appendix_table} permite seguir cada etapa individualmente desde el proceso y el dato de actividad hasta la relación de cálculo, la fuente metodológica y la salida utilizada posteriormente. Las relaciones corresponden al método aplicado en el estudio y no constituyen un modelo paralelo.",
+            f"Las Tablas {methodology_calculation_table} y {methodology_source_table} presentan dos vistas complementarias de la misma matriz. La primera identifica el proceso, la variable y la relación de cálculo; la segunda enlaza cada ecuación con sus datos de actividad, factores, procedencia, fuente y uso posterior. La clave formada por escenario, etapa y ecuación permite leer ambas vistas de manera conjunta. Las relaciones corresponden al método aplicado en el estudio y no constituyen un modelo paralelo.",
         ],
     )
-    methodology_appendix_table = add_dataframe(
+    methodology_calculation_table = add_dataframe(
         document,
         profile,
         counters,
-        "Matriz detallada de trazabilidad metodológica por etapa A1–B2.",
-        methodology_source.methodological_detail(),
+        "Procesos, variables y relaciones de cálculo por etapa A1–B2.",
+        methodology_detail[calculation_columns],
         decimals=2,
+        font_size_pt=9,
+        column_widths_inches=[0.65, 1.10, 1.00, 1.50, 1.40, 0.65, 2.75],
+        body_alignment=WD_ALIGN_PARAGRAPH.LEFT,
+    )
+    add_table_note(
+        document,
+        "La columna Ecuación contiene el identificador estable que vincula esta vista con la tabla siguiente; la división es exclusivamente editorial y conserva las 66 relaciones de la matriz canónica.",
+    )
+    methodology_source_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Datos, factores, fuentes y uso posterior por etapa A1–B2.",
+        methodology_detail[source_columns],
+        decimals=2,
+        font_size_pt=9,
+        column_widths_inches=[0.65, 1.10, 0.65, 1.20, 1.20, 1.10, 1.45, 1.70],
+        body_alignment=WD_ALIGN_PARAGRAPH.LEFT,
+    )
+    add_table_note(
+        document,
+        "Cada fila corresponde a la misma combinación de escenario, etapa y ecuación presentada en la tabla anterior; no se han agregado, eliminado ni recalculado relaciones metodológicas.",
     )
 
+    add_oriented_section(document, WD_ORIENT.PORTRAIT)
     add_chapter(
         document,
         "Apéndice D. Trazabilidad experimental de las campañas M1–M2",
+        first=True,
     )
     campaign_appendix_table = counters.table + 1
     add_text(
@@ -2071,12 +2187,7 @@ def build_document() -> tuple[int, int, int, int]:
         decimals=4,
     )
 
-    appendix_section = document.add_section(WD_SECTION.NEW_PAGE)
-    portrait_width = appendix_section.page_width
-    portrait_height = appendix_section.page_height
-    appendix_section.orientation = WD_ORIENT.LANDSCAPE
-    appendix_section.page_width = portrait_height
-    appendix_section.page_height = portrait_width
+    add_oriented_section(document, WD_ORIENT.LANDSCAPE)
     add_chapter(
         document,
         "Apéndice E. Balances intermedios y emisiones desagregadas",
@@ -2358,6 +2469,14 @@ def validate_document(
         for index, value in enumerate(paragraph_texts[references_index + 1 :], start=references_index + 1)
         if value.startswith("Apéndice A.")
     )
+    body_before_appendices = "\n".join(paragraph_texts[body_intro_index:references_index])
+    appendix_mentions = {
+        "Apéndice A": "Correspondencia entre objetivos, resultados y conclusiones provisionales",
+        "Apéndice B": "Matriz detallada de procedencia de los datos del inventario",
+        "Apéndice C": "Matriz detallada de trazabilidad metodológica por etapa A1–B2",
+        "Apéndice D": "diseño ejecutado",
+        "Apéndice E": "rutas de N₂O directo e indirecto",
+    }
     reference_registry = read_reference_registry()
     visible_references = visible_reference_entries(reference_registry)
     expected_reference_texts = [entry["reference"] for entry in visible_references]
@@ -2421,6 +2540,11 @@ def validate_document(
         ("El segundo objetivo específico se conserva literalmente", OBJECTIVE_SPECIFIC_2 in text),
         ("La etiqueta PROVISIONAL M1–M2 es visible", PROVISIONAL_LABEL in text),
         (
+            "La portada identifica una fecha editorial provisional coherente",
+            f"Versión provisional actualizada en {COVER_VERSION_DATE}" in text
+            and "Septiembre de 2026" not in text,
+        ),
+        (
             "El estado de M3 distingue evidencia parcial, completitud analítica e integración",
             all(
                 phrase in manuscript_text
@@ -2472,6 +2596,52 @@ def validate_document(
         ),
         ("Las campañas M2/M3 no se confunden con unidades m²/m³", not campaign_unit_corruptions),
         ("La jerarquía académica prevista está completa", all(title in text for title in EXPECTED_HEADINGS)),
+        (
+            "Todos los apéndices se mencionan en el cuerpo antes de aparecer",
+            all(code in body_before_appendices and description in body_before_appendices for code, description in appendix_mentions.items()),
+        ),
+        (
+            "El Apéndice C se divide en dos vistas completas y enlazadas",
+            len(document.tables) >= 18
+            and (len(document.tables[16].rows), len(document.tables[16].columns)) == (67, 7)
+            and (len(document.tables[17].rows), len(document.tables[17].columns)) == (67, 8)
+            and all(
+                phrase in text
+                for phrase in (
+                    "Procesos, variables y relaciones de cálculo por etapa A1–B2",
+                    "Datos, factores, fuentes y uso posterior por etapa A1–B2",
+                    "conserva las 66 relaciones de la matriz canónica",
+                )
+            ),
+        ),
+        (
+            "El Apéndice C usa sección horizontal y el Apéndice D vuelve a vertical",
+            [section.orientation for section in document.sections]
+            == [WD_ORIENT.PORTRAIT, WD_ORIENT.LANDSCAPE, WD_ORIENT.PORTRAIT, WD_ORIENT.LANDSCAPE],
+        ),
+        (
+            "La referencia IMN conserva la discrepancia editorial verificable",
+            all(
+                phrase in text
+                for phrase in (
+                    "16.ª edición de 2026",
+                    "páginas interiores 2–10 indican 15.ª edición de 2025",
+                    "la identificación interior divergente",
+                )
+            ),
+        ),
+        (
+            "Las notas de las tablas de factores y emisiones distinguen edición, cero y frontera",
+            all(
+                phrase in text
+                for phrase in (
+                    "Los valores y sus unidades permanecen sin cambios",
+                    "El valor 0,0000 de CO₂ expresa que esta tabla resume las emisiones del manejo del estiércol",
+                    "no representa ausencia de información",
+                    "sin añadir CO₂ biogénico",
+                )
+            ),
+        ),
         (
             "La bibliografía visible coincide con las referencias citadas gobernadas",
             bibliography_paragraphs == expected_reference_texts

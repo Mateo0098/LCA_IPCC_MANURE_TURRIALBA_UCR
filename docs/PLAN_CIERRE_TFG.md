@@ -34,14 +34,14 @@ PROVISIONAL M1–M2 ni anticipan resultados de M3 o de la repetición de SimaPro
 | OBS-05 | Unidad 2 | Cerrada tras revisión supervisora | Registro primario, parámetros operativos y decisiones metodológicas |
 | OBS-06 | Unidad 2 | Cerrada tras revisión supervisora | Registro primario, matriz de procedencia y generadores académicos |
 | OBS-07 | Unidad 3A | Cerrada tras revisión supervisora | Registro primario y generador integral |
-| OBS-08 | Unidad 4B | Pendiente | Generador integral y reglas de formato Word |
-| OBS-09 | Unidad 4B | Pendiente de verificación visual | Generador integral y reglas de formato Word |
+| OBS-08 | Unidad 4B | Implementada; revisión supervisora pendiente | Generador integral y reglas de formato Word |
+| OBS-09 | Unidad 4B | Implementada; revisión supervisora pendiente | Generador integral y reglas de formato Word |
 | OBS-10 | Unidad 3B | Cerrada tras revisión supervisora | Catálogo fotográfico y generador de figuras integrales |
 | OBS-11 | Unidad 3A | Cerrada tras revisión supervisora | Registro primario y generadores académicos |
 | OBS-12 | Unidad 3A | Cerrada tras revisión supervisora | Registro primario y generadores académicos |
 | OBS-13 | Unidad 3B | Cerrada tras revisión supervisora; se conserva el límite de identificación del horno | Catálogo fotográfico, registro primario y generador de figuras integrales |
-| OBS-14 | Unidad 4A | Implementada; revisión supervisora pendiente | Generador integral, utilidad OMML y reglas de formato Word |
-| OBS-15 | Unidad 4B | Pendiente | Registro bibliográfico, factores IMN y generadores académicos |
+| OBS-14 | Unidad 4A | Cerrada tras revisión supervisora | Generador integral, utilidad OMML y reglas de formato Word |
+| OBS-15 | Unidad 4B | Implementada; revisión supervisora pendiente | Registro bibliográfico, factores IMN y generadores académicos |
 | OBS-16 | Unidades 5A–5B | Diagnóstico 5A y saneamiento semántico 5B cerrados tras revisión supervisora; integración y evaluación científica definitiva pendientes después de M3 | Decisiones metodológicas, ledger de N, salidas auxiliares QA/QC y fuentes experimentales |
 
 ## Unidad preparatoria de M3
@@ -79,7 +79,7 @@ ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
 - Dependencia principal: resultados analíticos de M3.
 - La caracterización definitiva, la discusión completa y las conclusiones finales permanecen bloqueadas hasta integrar y validar M3.
 - La trazabilidad final objetivos–resultados–conclusiones se realizará después de M3 sobre la corrida definitiva.
-- La normalización bibliográfica, editorial e institucional final requiere revisión académica del documento integral.
+- La verificación bibliográfica, editorial e institucional final de las fuentes aún marcadas como pendientes requiere revisión académica del documento integral.
 - La repetición definitiva de la verificación EF 3.1 requiere primero integrar
   y validar M3 y después acceder nuevamente a la instalación UCR de SimaPro.
 
