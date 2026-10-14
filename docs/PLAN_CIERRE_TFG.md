@@ -3,8 +3,10 @@
 ## Estado
 
 Existe una corrida científica **PROVISIONAL M1–M2** y un documento integral
-provisional. La preparación académica del manuscrito previa a M3 se encuentra en
-curso y se organiza mediante las observaciones OBS-01 a OBS-16. M3 dispone
+provisional. La preparación académica del manuscrito previa a M3 quedó cerrada
+en la Unidad 6 tras la auditoría integral y la corrección supervisada de sus
+hallazgos editoriales y documentales. Este cierre no finaliza el TFG ni retira
+su carácter provisional. M3 dispone
 parcialmente de evidencia física —un libro gravimétrico todavía no declarado,
 validado ni integrado—, mientras continúan pendientes las demás fuentes
 analíticas previstas. La integración definitiva M3 → SimaPro permanece
@@ -12,9 +14,9 @@ pendiente.
 
 El pipeline científico y computacional conserva su estado provisional validado.
 La sesión Python–SimaPro PROVISIONAL M1–M2 ya fue ejecutada y deberá repetirse
-después de integrar M3. La revisión académica en curso puede identificar mejoras
-de procedencia, presentación o interpretación sin que ello implique modificar
-automáticamente el modelo o sus resultados.
+después de integrar M3. Las revisiones posteriores pueden identificar mejoras
+menores de procedencia, presentación o interpretación sin que ello implique
+modificar automáticamente el modelo o sus resultados.
 
 ## Preparación académica del manuscrito previa a M3
 
@@ -34,14 +36,14 @@ PROVISIONAL M1–M2 ni anticipan resultados de M3 o de la repetición de SimaPro
 | OBS-05 | Unidad 2 | Cerrada tras revisión supervisora | Registro primario, parámetros operativos y decisiones metodológicas |
 | OBS-06 | Unidad 2 | Cerrada tras revisión supervisora | Registro primario, matriz de procedencia y generadores académicos |
 | OBS-07 | Unidad 3A | Cerrada tras revisión supervisora | Registro primario y generador integral |
-| OBS-08 | Unidad 4B | Implementada; revisión supervisora pendiente | Generador integral y reglas de formato Word |
-| OBS-09 | Unidad 4B | Implementada; revisión supervisora pendiente | Generador integral y reglas de formato Word |
+| OBS-08 | Unidad 4B | Cerrada tras revisión supervisora en la Unidad 6 | Generador integral y reglas de formato Word |
+| OBS-09 | Unidad 4B | Cerrada tras revisión supervisora en la Unidad 6 | Generador integral y reglas de formato Word |
 | OBS-10 | Unidad 3B | Cerrada tras revisión supervisora | Catálogo fotográfico y generador de figuras integrales |
 | OBS-11 | Unidad 3A | Cerrada tras revisión supervisora | Registro primario y generadores académicos |
 | OBS-12 | Unidad 3A | Cerrada tras revisión supervisora | Registro primario y generadores académicos |
 | OBS-13 | Unidad 3B | Cerrada tras revisión supervisora; se conserva el límite de identificación del horno | Catálogo fotográfico, registro primario y generador de figuras integrales |
 | OBS-14 | Unidad 4A | Cerrada tras revisión supervisora | Generador integral, utilidad OMML y reglas de formato Word |
-| OBS-15 | Unidad 4B | Implementada; revisión supervisora pendiente | Registro bibliográfico, factores IMN y generadores académicos |
+| OBS-15 | Unidad 4B | Cerrada tras revisión supervisora en la Unidad 6 | Registro bibliográfico, factores IMN y generadores académicos |
 | OBS-16 | Unidades 5A–5B | Diagnóstico 5A y saneamiento semántico 5B cerrados tras revisión supervisora; integración y evaluación científica definitiva pendientes después de M3 | Decisiones metodológicas, ledger de N, salidas auxiliares QA/QC y fuentes experimentales |
 
 ## Unidad preparatoria de M3
@@ -68,8 +70,8 @@ comprobación agregada deberá repetirse después de incorporar y validar M3.
 
 ## Siguiente transición científica prevista
 
-Después de completar y revisar las unidades académicas pre-M3, la incorporación
-de M3 utilizará exclusivamente las fuentes reales completas del pipeline
+Con la preparación académica pre-M3 cerrada, la incorporación de M3 utilizará
+exclusivamente las fuentes reales completas del pipeline
 canónico, comprobará su compatibilidad y regenerará en secuencia todas las
 capas. La unidad académica que siga a la presente será definida por Mateo y
 ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
@@ -79,7 +81,9 @@ ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
 - Dependencia principal: resultados analíticos de M3.
 - La caracterización definitiva, la discusión completa y las conclusiones finales permanecen bloqueadas hasta integrar y validar M3.
 - La trazabilidad final objetivos–resultados–conclusiones se realizará después de M3 sobre la corrida definitiva.
-- La verificación bibliográfica, editorial e institucional final de las fuentes aún marcadas como pendientes requiere revisión académica del documento integral.
+- La verificación bibliográfica restante se limita a las fuentes activas aún
+  marcadas de forma específica en `docs/REFERENCIAS_TFG.md`; no reabre las
+  referencias ya cotejadas ni impide el cierre académico provisional pre-M3.
 - La repetición definitiva de la verificación EF 3.1 requiere primero integrar
   y validar M3 y después acceder nuevamente a la instalación UCR de SimaPro.
 
@@ -89,9 +93,10 @@ ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
    reunir el paquete analítico requerido y verificar su suficiencia y compatibilidad.
 2. Incorporar las fuentes reales M3 mediante el pipeline vigente.
 3. Completar la trazabilidad final entre objetivos, resultados y conclusiones.
-4. Completar la verificación final de las referencias marcadas como pendientes en
-   `docs/REFERENCIAS_TFG.md`.
-5. Efectuar la revisión editorial e institucional final del documento integral.
+4. Completar, antes de la versión definitiva, los pendientes bibliográficos
+   específicos conservados en `docs/REFERENCIAS_TFG.md`.
+5. Efectuar después de M3 la revisión editorial e institucional final del
+   documento integral definitivo.
 6. Definir, si aporta valor después de M3, la evaluación cuantitativa mínima de sensibilidad para los supuestos
    dominantes, sin crear una ruta de cálculo paralela.
 7. Repetir la comprobación agregada EF 3.1 en SimaPro después de integrar M3 y,

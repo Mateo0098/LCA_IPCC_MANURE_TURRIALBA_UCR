@@ -10,6 +10,10 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
+# Mantiene estables los identificadores internos de recorte del SVG sin
+# modificar su geometría ni su apariencia.
+SVG_HASHSALT = "lca-ipcc-manure-turrialba-ucr"
+matplotlib.rcParams["svg.hashsalt"] = SVG_HASHSALT
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -152,6 +156,338 @@ INTERNAL_CANDIDATE_REFERENCE_KEYS = {
 }
 
 
+# El MASTER es una referencia protegida y no se corrige directamente. Estos
+# reemplazos se limitan a párrafos heredados concretos cuya redacción fue
+# revisada durante la Unidad 6; conservan cifras, citas y significado.
+MASTER_PARAGRAPH_OVERRIDES = {
+    29: (
+        "La situación actual y futura de la ganadería depende de la presión ejercida por las fuerzas "
+        "del mercado, influidas por factores como el cambio climático y el incremento de la demanda "
+        "de alimentos. Estos factores están promoviendo el uso de tecnologías limpias, que incluyen "
+        "la implementación de nuevos recursos forrajeros, la reducción de gases de efecto invernadero "
+        "y el manejo de residuos (Ministerio de Agricultura y Ganadería [MAG], 2018). Uno de los "
+        "principales inconvenientes de esta actividad son los residuos generados, ya que se calcula "
+        "que un rebaño de 20 vacas puede producir más de 500 kg de estiércol al día (Salazar, 2012)."
+    ),
+    32: (
+        "No obstante, el uso de purines o del estiércol bovino sin tratamiento previo influye en la "
+        "calidad del aire al aumentar las emisiones de amoníaco y óxido nitroso (Hou et al., 2015; "
+        "Zhou et al., 2017). Por su parte, el lombricompostaje, así como otros procesos de compostaje, "
+        "genera óxido nitroso, amoníaco y metano (IMN, 2021; Komakech et al., 2016). Por lo tanto, "
+        "estas prácticas contribuyen a las emisiones globales de gases de efecto invernadero (GEI). "
+        "Según el Instituto Meteorológico Nacional (IMN, 2021), las emisiones del sector agricultura "
+        "en 2017 fueron de 2962,8 Gg de CO₂ eq, de las cuales el 7 % correspondió a la categoría "
+        "denominada gestión del estiércol. En ese mismo año, la emisión de metano de esta categoría "
+        "fue de 1,841 Gg de CH₄, de la cual el 11,6 % fue generado por el ganado de leche."
+    ),
+    33: (
+        "Por otra parte, la gestión inadecuada de estos residuos puede generar problemas ambientales, "
+        "como la contaminación del suelo y de las aguas subterráneas. Además, puede causar "
+        "eutrofización en cuerpos de agua debido al alto contenido de materia orgánica y nutrientes, "
+        "como nitrógeno y fósforo, que se desplazan por escorrentía e infiltración (Baek et al., 2020)."
+    ),
+    35: (
+        "Es fundamental investigar el impacto ambiental de los métodos de tratamiento de los residuos "
+        "generados en esta actividad para tomar decisiones informadas, basadas en datos concretos, que "
+        "ayuden a reducir los efectos negativos sobre el medio ambiente y la salud humana. Asimismo, "
+        "es crucial fomentar alternativas para una gestión adecuada de los residuos y contribuir al "
+        "cumplimiento de la Agenda 2030 y sus objetivos de desarrollo sostenible, entre ellos el 3, "
+        "salud y bienestar; el 6, agua limpia y saneamiento; el 12, producción y consumo responsables; "
+        "y el 13, acción por el clima."
+    ),
+    36: (
+        "Además de reducir el impacto ambiental, la producción sostenible en lecherías busca disminuir "
+        "los costos de producción y aprovechar los recursos de manera eficiente, considerando que el "
+        "52 % de los costos de la producción lechera corresponde a la alimentación del ganado. A medida "
+        "que se adopte una gestión adecuada de los recursos forrajeros disponibles y se utilicen "
+        "alimentos producidos localmente, aumentarán las oportunidades de reducir los costos de "
+        "producción de leche (Barrantes, 2019). Las iniciativas que consideran los ejes económico, "
+        "social y ambiental han mostrado resultados favorables en otras lecherías de la comunidad y "
+        "permiten a los productores contribuir a la conservación de los ecosistemas y los recursos "
+        "hídricos mediante el manejo integral de la cosecha, el suelo y los desechos. Se ha reportado "
+        "una reducción del 50 % en la factura de fertilizantes como resultado del aprovechamiento de "
+        "los residuos de la actividad productiva como fertilizantes orgánicos en las fincas "
+        "(Fernández, 2014)."
+    ),
+    39: (
+        "El procesamiento del estiércol practicado en la lechería de la Sede del Atlántico consiste en "
+        "recolectar los residuos sólidos y líquidos para implementar estrategias orientadas a reducir "
+        "el impacto ambiental. La mayor parte del estiércol generado durante las labores de ordeño se "
+        "destina al lombricompostaje, como se describe en Vargas Sarmiento (2023). Una parte menor, "
+        "generalmente estiércol líquido conocido como aguas verdes, se recolecta y acumula durante dos "
+        "o tres días en un tanque para luego aplicarla en el campo como enmienda agrícola."
+    ),
+    40: (
+        "Sin embargo, no se dispone de datos sobre los GEI o los lixiviados emitidos por el "
+        "procesamiento del estiércol bovino mediante lombricompostaje en la lechería de la Sede del "
+        "Atlántico, ni por su almacenamiento y aplicación directa en los campos de pastoreo. Por ello, "
+        "la lechería de la Sede del Atlántico, como finca modelo, debe generar información que permita "
+        "conocer el impacto ambiental derivado del manejo de residuos mediante estas dos prácticas."
+    ),
+    50: (
+        "De acuerdo con el Ministerio de Medio Ambiente y Medio Rural y Marino de España (2010), las "
+        "características de las excretas de los animales varían ampliamente según diversos factores. "
+        "Entre ellos destacan las condiciones del alojamiento, como la superficie disponible por "
+        "animal y el ancho y diseño de los pasillos; el tipo de animal, por ejemplo, vaca lechera, "
+        "novilla o ganado de engorde; y la composición de la dieta, con predominio de ensilado de maíz, "
+        "hierba o heno. Otros factores son la cantidad y calidad del material absorbente utilizado en "
+        "las camas, la frecuencia y el método de encamado, la regularidad de la limpieza y la "
+        "disponibilidad de mano de obra. Estos aspectos influyen directamente en la consistencia y "
+        "fluidez de las excretas y, por tanto, en el sistema de recolección, transporte y almacenamiento "
+        "de los residuos."
+    ),
+    52: (
+        "De acuerdo con el Servicio de Conservación de Recursos Naturales de los Estados Unidos "
+        "(NRCS, 2009), el Departamento de Agricultura de los Estados Unidos (USDA) clasifica las "
+        "excretas bovinas según el porcentaje de materia seca (MS). Se reconocen tres categorías: "
+        "sólidas (más del 20 % de MS), semisólidas (10–22 % de MS) y líquidas o semilíquidas (0–15 % "
+        "de MS). Los residuos sólidos pueden almacenarse en pilas y manipularse con un cargador frontal "
+        "de tractor. Los residuos líquidos requieren bombas de succión o la adición de material "
+        "absorbente para facilitar su manejo. Por su parte, los residuos semisólidos presentan "
+        "variabilidad según el tipo de sólidos y su rango de MS (10–20 %), por lo que el porcentaje de "
+        "MS no determina de manera uniforme sus propiedades de manejo."
+    ),
+    58: (
+        "El lombricompostaje, que consiste en la biodegradación de residuos orgánicos mediante "
+        "lombrices y microorganismos, se ha identificado como una tecnología efectiva y relativamente "
+        "económica para el manejo del estiércol bovino. Esta técnica también se considera un proceso "
+        "bioecológicamente sostenible, ya que produce recursos biológicos renovables con valor "
+        "agregado. De este modo se generan tanto lombricompost, un producto rico en nutrientes para "
+        "las plantas, como biomasa de lombrices, que puede emplearse como alimento para animales, aves "
+        "o en acuicultura (Komakech et al., 2014)."
+    ),
+    61: (
+        "En las fincas dedicadas a la ganadería lechera en Costa Rica se ha utilizado durante varios "
+        "años la práctica de aplicar purines a los campos de pastoreo. Estos pueden incluir estiércol, "
+        "aguas de lavado, agua de lluvia, restos de alimento balanceado y desechos de cama, entre otros "
+        "(IMN, 2021). Rojas y Elizondo (2020) describieron esta práctica como una alternativa ecológica "
+        "a la aplicación de fertilizantes químicos para aportar nutrientes a los forrajes destinados "
+        "a la alimentación animal. Los purines pueden aplicarse manualmente con palas y cubetas "
+        "o mediante una bomba de aspersión; la elección depende de las condiciones específicas de "
+        "manejo del estiércol en cada finca (Callejo, 2020)."
+    ),
+    64: (
+        "El ACV es una herramienta que evalúa de forma integral los impactos ambientales asociados "
+        "con un producto, proceso o actividad humana, desde la obtención de materias primas, su "
+        "producción y uso hasta el manejo de los residuos. Aunque enfrenta limitaciones, como "
+        "dificultades de interpretación pese al marco general establecido por la Organización "
+        "Internacional de Normalización (ISO), su capacidad para ofrecer una visión global lo hace útil "
+        "para la gestión ambiental (Curran, 2013)."
+    ),
+    65: (
+        "Una de las perspectivas utilizadas en el ACV es la de «cuna a tumba», que evalúa los sistemas "
+        "desde la extracción de materias primas hasta la creación del producto y el retorno final de "
+        "los materiales al entorno. Este análisis considera interdependiente cada etapa de la vida de "
+        "un producto, de modo que una operación afecta a la siguiente. El ACV permite estimar impactos "
+        "ambientales acumulativos y abarca etapas que suelen omitirse en análisis tradicionales, como "
+        "la extracción de materias primas, el transporte y la eliminación del producto. Al considerar "
+        "el ciclo de vida completo, ofrece una visión detallada de los aspectos ambientales y una "
+        "comprensión más precisa de las compensaciones asociadas con la selección de productos y "
+        "procesos (Curran, 2006)."
+    ),
+    66: (
+        "La metodología de ACV para sistemas de gestión de residuos, conforme a la norma ISO 14040 "
+        "(International Organization for Standardization, 2006), comprende cuatro fases "
+        "interrelacionadas. La primera es la definición clara del objetivo y el alcance del estudio, "
+        "que incluye la selección de una unidad funcional, entendida como una descripción cuantificada "
+        "del desempeño del sistema de producto. En esta fase se identifican los escenarios que se "
+        "compararán y las categorías de impacto ambiental que se evaluarán (Macktoobian, 2024)."
+    ),
+    67: (
+        "En la segunda fase se elabora un inventario de entradas y salidas de energía y materiales, así "
+        "como de emisiones al ambiente, mediante el análisis del Inventario del Ciclo de Vida (ICV). "
+        "Esto abarca actividades como la extracción de materias primas, el transporte, el procesamiento "
+        "y la disposición de residuos, junto con los insumos de energía y materiales involucrados. El "
+        "análisis de ICV depende de factores como el tipo y la cantidad de recursos naturales utilizados, "
+        "los materiales empleados en la fabricación, los modos de transporte, el uso del producto a lo "
+        "largo de su vida útil y su método final de eliminación. La influencia de estos elementos puede "
+        "variar según la región: un área puede carecer de recursos para fabricar un producto específico, "
+        "mientras otra puede emplear tecnologías distintas o depender en mayor medida de fuentes "
+        "renovables o de combustibles fósiles. Estas diferencias regionales pueden influir en los "
+        "supuestos y restricciones necesarios del estudio de ACV (Curran, 2006)."
+    ),
+    68: (
+        "La tercera fase es la Evaluación del Impacto del Ciclo de Vida (EICV), en la cual se estiman "
+        "los impactos ambientales potenciales asociados con las entradas y emisiones identificadas. "
+        "Esta fase analiza la relevancia de factores como las emisiones de gases de efecto invernadero, "
+        "el consumo de energía, el uso de agua y la generación de residuos (Macktoobian, 2024)."
+    ),
+    69: (
+        "De acuerdo con Macktoobian (2024), los indicadores se obtienen mediante una serie de pasos "
+        "sugeridos por las normas ISO, algunos obligatorios y otros opcionales. Los pasos obligatorios "
+        "incluyen la definición y clasificación de categorías de impacto y la caracterización; entre "
+        "los opcionales se encuentran la normalización y la ponderación. Las categorías se seleccionan "
+        "para representar los efectos de las emisiones y del consumo de recursos naturales durante la "
+        "producción, el uso y la disposición del proceso evaluado. En la mayoría de las metodologías de "
+        "EICV, estos flujos se relacionan con tres áreas principales de protección: la calidad del "
+        "ecosistema, la salud humana y los recursos naturales. Estas áreas se vinculan con indicadores "
+        "de punto medio y de punto final."
+    ),
+    70: (
+        "La cuarta fase corresponde a la interpretación de los resultados y facilita una toma de "
+        "decisiones más informada por parte de los interesados. Puede incluir la comparación del "
+        "desempeño ambiental de distintos sistemas de gestión de residuos y la identificación de "
+        "oportunidades de mejora. El análisis de sensibilidad permite evaluar si las incertidumbres de "
+        "los datos o de los métodos seleccionados afectan los resultados y las conclusiones, con el "
+        "propósito de aumentar la confianza en su correspondencia con el objetivo del estudio. Puede "
+        "realizarse mediante escenarios hipotéticos que modifican sistemáticamente parámetros de "
+        "entrada o mediante simulaciones de Monte Carlo (Macktoobian, 2024)."
+    ),
+    71: (
+        "Según Macktoobian (2024), realizar un ACV puede ser exigente en términos de recursos y tiempo. "
+        "Su exhaustividad depende de las decisiones del estudio; sin embargo, la recolección y la "
+        "disponibilidad de datos pueden representar un desafío e influir considerablemente en la "
+        "precisión de los resultados. Por ello, es esencial considerar la disponibilidad de datos, la "
+        "duración del estudio y los recursos financieros en relación con los beneficios esperados."
+    ),
+    74: (
+        "El Refinamiento de 2019 de las Directrices de 2006 del Grupo Intergubernamental de Expertos "
+        "sobre el Cambio Climático (IPCC, por sus siglas en inglés) proporciona una metodología "
+        "estandarizada para estimar las emisiones de GEI. Se organiza en diversos sectores, incluido el "
+        "agrícola, y resulta fundamental para desarrollar inventarios en categorías de impacto como el "
+        "cambio climático. Las directrices desglosan las emisiones por categorías y subcategorías; para "
+        "este proyecto son pertinentes la gestión del estiércol y los suelos gestionados, pues permiten "
+        "cuantificar emisiones directas de metano (CH₄) y óxido nitroso (N₂O), así como emisiones "
+        "indirectas relacionadas con la volatilización y la lixiviación de compuestos nitrogenados, "
+        "como amoníaco (NH₃) y nitratos (NO₃⁻)."
+    ),
+    75: (
+        "En el contexto del ACV, las metodologías del IPCC (2019) no solo permiten estimar la "
+        "contribución de estas emisiones al cambio climático, sino también aportar datos sobre el "
+        "nitrógeno perdido del sistema que contribuye a la eutrofización. De esta manera, las directrices "
+        "facilitan una aproximación sistemática y detallada para evaluar el impacto ambiental del "
+        "manejo del estiércol en categorías clave del inventario."
+    ),
+    76: (
+        "Según el IPCC (2019), las emisiones indirectas se originan en pérdidas de nitrógeno en formas "
+        "volátiles, principalmente amoníaco (NH₃) y óxidos de nitrógeno (NOx). La fracción de nitrógeno "
+        "orgánico que se mineraliza como nitrógeno amoniacal durante la recolección y el almacenamiento "
+        "del estiércol depende principalmente de la disponibilidad de oxígeno, el tiempo y la "
+        "temperatura. Formas simples de nitrógeno orgánico, como la urea en mamíferos y el ácido úrico "
+        "en aves de corral, se mineralizan rápidamente y pueden transformarse en amoníaco en condiciones "
+        "alcalinas. Debido a su alta volatilidad, el amoníaco se dispersa con facilidad en el aire "
+        "circundante (Asman et al., 1998; Monteny y Erisman, 1998). Las pérdidas de nitrógeno comienzan "
+        "en el punto de excreción de las áreas de producción animal, como las salas de ordeño, y "
+        "continúan durante el almacenamiento y el tratamiento. Concluyen cuando los productos del "
+        "sistema de gestión se disponen, en su mayoría, sobre suelos gestionados."
+    ),
+    79: (
+        "En general, la reutilización de residuos sólidos mediante procesos de compostaje y "
+        "lombricompostaje genera efectos ambientales favorables (Lim et al., 2016). Mediante un ACV "
+        "aplicado al manejo de residuos municipales, Komakech et al. (2015) concluyeron que un sistema "
+        "de digestión anaeróbica (DA) presentó mejor desempeño que el compostaje. En comparación con el "
+        "lombricompostaje, la digestión anaerobia mostró diferencias de 104 kWh/t, 28,6 kg CO₂-eq/t y "
+        "126,4 g PO₄³⁻-eq/t en uso de energía, cambio climático y eutrofización, respectivamente. No "
+        "obstante, los sistemas de compostaje son más sencillos de implementar y, en cambio climático, "
+        "el lombricompostaje supera al depósito en rellenos sanitarios. Además, su manejo eficiente "
+        "puede reducir las emisiones y mejorar el desempeño climático."
+    ),
+    80: (
+        "Macktoobian (2024) realizó un ACV detallado del lombricompostaje de residuos orgánicos "
+        "municipales, con una unidad funcional de 1 kg de lombricompost, datos de la base Ecoinvent y "
+        "el método ReCiPe. El estudio cuantificó las contribuciones al cambio climático, la "
+        "eutrofización de agua dulce y la eutrofización marina. El proceso produjo 0,10999 kg CO₂-eq "
+        "para cambio climático, 1,18 × 10⁻⁸ kg P-eq para eutrofización de agua dulce y 2,17 × 10⁻⁹ kg "
+        "N-eq para eutrofización marina. Los resultados resaltaron el potencial del lombricompost como "
+        "opción sostenible frente a los fertilizantes convencionales en la producción de cultivos."
+    ),
+    81: (
+        "A continuación se resume la literatura reciente sobre ACV aplicada a sistemas de gestión de "
+        "estiércol bovino que incluyen almacenamiento de purines, aplicación en campo como enmienda "
+        "agrícola o lombricompostaje. Para los estudios revisados se identificaron la meta y el alcance, "
+        "la unidad funcional, las fronteras del sistema, el inventario, la evaluación de impactos y los "
+        "resultados más relevantes."
+    ),
+    82: (
+        "Komakech et al. (2016) evaluaron un sistema de manejo de excretas mediante lombricompostaje en "
+        "Kampala, Uganda, y lo compararon con dos escenarios: la práctica habitual de desechar las "
+        "excretas a cielo abierto y su utilización como fertilizante en jardines. Se consideraron el "
+        "cambio climático y la eutrofización. La unidad funcional fue una tonelada de residuos "
+        "animales libres de impurezas, procesada para generar un fertilizante de alta calidad. El "
+        "alcance comenzó con la recepción de los residuos y concluyó con la aplicación del fertilizante "
+        "en el campo. Para el inventario se cuantificaron los insumos de materiales y energía, así como "
+        "las emisiones y los productos generados en cada etapa y sistema, mediante datos de mediciones "
+        "y literatura especializada."
+    ),
+    83: (
+        "La evaluación de impactos estimó el cambio climático y la eutrofización de cada sistema. Los "
+        "factores de emisión directa del lombricompostaje fueron 10,8 g, 62,3 g y 12,8 g por megagramo "
+        "de residuos orgánicos para metano, óxido nitroso y amoníaco, respectivamente. El sistema "
+        "mostró un desempeño favorable en cambio climático y eutrofización; sin embargo, la disposición "
+        "inadecuada del lombricompost generado podría aumentar el riesgo de eutrofización."
+    ),
+    84: (
+        "Komakech et al. (2016) analizaron las emisiones gaseosas directas de CH₄, N₂O y NH₃ de "
+        "sistemas de lombricompostaje con estiércol bovino como sustrato. Sin embargo, las emisiones se "
+        "midieron una sola vez durante un ciclo completo, por lo que no se obtuvo información sobre su "
+        "variación entre etapas. El estudio de Jjagwe et al. (2019) se llevó a cabo para abordar esta "
+        "limitación."
+    ),
+    86: (
+        "El resumen de Jjagwe et al. (2019) imprime emisiones acumuladas de 102 g CO₂/kg de residuo, "
+        "7,6 g CH₄/kg de residuo y 3,943 × 10⁻⁵ g N₂O/kg de residuo en base seca, además de indicar que "
+        "no se detectó NH₃. La cifra impresa de N₂O no coincide con la escala presentada en los "
+        "resultados del artículo; por ello, el contraste de este TFG conserva el valor aprobado de "
+        "39,43 mg N₂O/kg y documenta la discrepancia en la sección de resultados, sin tratarla como una "
+        "validación del modelo. En comparación con otros métodos de manejo, el lombricompostaje mostró "
+        "potencial para conservar nutrientes y reducir emisiones de gases de efecto invernadero. Estos "
+        "resultados son relevantes porque los datos de emisiones y distribución de nutrientes pueden "
+        "ser útiles para gestores de residuos, especialistas ambientales y responsables de políticas "
+        "públicas, así como para la aplicación de la metodología de ACV."
+    ),
+    100: (
+        "La lechería de la Sede del Atlántico se ubicó aproximadamente a 630 m s. n. m., en las "
+        "coordenadas 9°54'12,5\" N y 83°40'16,6\" O del sistema WGS84. Para la región de Turrialba, "
+        "Calderón y Chaves (2020) informaron una precipitación total anual promedio de 2.375,6 mm y, "
+        "en los meses más cálidos, promedios mensuales de temperatura máxima entre 28,2 °C y 28,5 °C. "
+        "La lechería funcionó como un proyecto de vinculación remunerada externa, dedicado a la "
+        "producción y venta de leche para fortalecer la investigación y la transferencia tecnológica "
+        "dirigida a productores de Turrialba y Jiménez. La producción se realizó con semovientes de raza "
+        "Jersey adaptados a las condiciones tropicales de bajura."
+    ),
+    101: (
+        "El procesamiento estudiado correspondió al estiércol del ganado bovino, manejado mediante "
+        "lombricompostaje y mediante la producción de aguas verdes para su aplicación en campos de "
+        "pastoreo. Vargas Sarmiento (2023) describió previamente la operación y otros detalles del "
+        "lombricario en pilas. El área funcional total fue de 156 m², distribuida entre precomposteo, "
+        "camas y secado, con superficies de 15 m², 60 m² y 81 m², respectivamente. El piso del área y "
+        "las paredes de las camas se construyeron con cemento y mampostería de bloques de 12 × 20 × "
+        "40 cm, respectivamente. La sección de precomposteo midió 10,3 m de largo, 0,64 m de ancho y "
+        "1,7 m de profundidad, con un volumen de 11,25 m³. Las camas tuvieron una longitud total de "
+        "21,5 m, un ancho de 1,62 m y una profundidad de 0,425 m; se dividieron en cinco unidades, una "
+        "de ellas con la mitad del ancho indicado, y alcanzaron un volumen total de 13,3 m³."
+    ),
+    102: (
+        "La recolección de residuos se realizó durante la limpieza del área de estancia donde los "
+        "bovinos esperaban recibir los cuidados rutinarios. Los residuos sólidos se recolectaron "
+        "manualmente con palas y se transportaron en cubetas hacia la zona de precomposteo. El material "
+        "remanente, principalmente líquido, se incorporó al agua utilizada para lavar el piso y formó "
+        "las aguas verdes. Estas fluyeron por gravedad a través del drenaje y se acumularon en una "
+        "tanqueta, donde permanecieron durante dos o tres días."
+    ),
+}
+
+ACADEMIC_REGRESSION_PHRASES = (
+    "Influenciadas por factores",
+    "De las cuales el 7%",
+    "Mientras que la emisión",
+    "como describe en Sarmiento",
+    "lombriompost",
+    "ganadería lecheras",
+    "depende las condiciones",
+    "Aunque el ACV enfrenta",
+    "Abarcando etapas",
+    "Proporcionando una comprensión",
+    "escenarios comparar",
+    "Según (Macktoobian",
+    "Y lo comparo",
+    "Sin embargo, si el lombricompost",
+    "por que los datos",
+    "fue descrito anteriormente por Sarmiento",
+    "fueron acumulados en un tanque",
+)
+
+
 @dataclass
 class EditorialCounters:
     table: int = 0
@@ -188,7 +524,12 @@ def add_text(document: Document, paragraphs: list[str]) -> None:
 def add_master_paragraphs(document: Document, master: Document, indexes: range | list[int]) -> None:
     values = []
     for index in indexes:
-        value = master.paragraphs[index].text.strip()
+        original = master.paragraphs[index].text.strip()
+        value = MASTER_PARAGRAPH_OVERRIDES.get(index, original)
+        if index in MASTER_PARAGRAPH_OVERRIDES and value == original:
+            raise RuntimeError(
+                f"La corrección académica gobernada del párrafo {index} no produjo cambios."
+            )
         if index == 28:
             value = value.replace(
                 "Instituto Nacional de Estadística y Censo [INEC]",
@@ -578,7 +919,9 @@ def add_dataframe(
     counters.table += 1
     caption_start = len(document.paragraphs)
     add_master_caption(document, f"Tabla {counters.table}. {description}")
-    for paragraph in document.paragraphs[caption_start:]:
+    caption_paragraphs = document.paragraphs[caption_start:]
+    for paragraph in caption_paragraphs:
+        paragraph.paragraph_format.keep_together = True
         paragraph.paragraph_format.keep_with_next = True
     table = document.add_table(rows=1, cols=len(dataframe.columns))
     for column_index, column in enumerate(dataframe.columns):
@@ -596,6 +939,14 @@ def add_dataframe(
             table_header.set(qn("w:val"), "true")
             tr_properties.append(table_header)
     format_table_like_master(table, profile)
+    # Word respeta de forma más fiable la unión rótulo–tabla cuando la cadena
+    # keep-with-next alcanza el encabezado y la primera fila de datos.
+    if len(table.rows) > 1:
+        for row in table.rows[:2]:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    paragraph.paragraph_format.keep_together = True
+                    paragraph.paragraph_format.keep_with_next = True
     if column_widths_inches is not None:
         if len(column_widths_inches) != len(dataframe.columns):
             raise ValueError("La cantidad de anchos no coincide con las columnas de la tabla.")
@@ -790,7 +1141,8 @@ def generate_system_boundary_figure() -> None:
     fig.subplots_adjust(left=0.03, right=0.97, top=0.98, bottom=0.03, hspace=0.10)
     INTEGRAL_FIG_DIR.mkdir(parents=True, exist_ok=True)
     fig.savefig(SYSTEM_BOUNDARY_PNG, dpi=300, bbox_inches="tight", metadata={"Date": None})
-    fig.savefig(SYSTEM_BOUNDARY_SVG, bbox_inches="tight", metadata={"Date": None})
+    with matplotlib.rc_context({"svg.hashsalt": SVG_HASHSALT}):
+        fig.savefig(SYSTEM_BOUNDARY_SVG, bbox_inches="tight", metadata={"Date": None})
     plt.close(fig)
     svg_lines = SYSTEM_BOUNDARY_SVG.read_text(encoding="utf-8").splitlines()
     SYSTEM_BOUNDARY_SVG.write_text(
@@ -1857,7 +2209,6 @@ def build_document() -> tuple[int, int, int, int]:
         "fig_12_impactos_eutrofizacion_terrestre_etapa.png",
         "Eutrofización terrestre EF 3.1 por etapa y escenario.",
     )
-    document.add_page_break()
     document.add_heading("5.3.1 Resultados totales y comparación entre escenarios", level=3)
     totals = results_source.total_impact_summary()
     table_6 = counters.table + 1
@@ -2383,9 +2734,9 @@ def validate_document(
 
     document = Document(str(OUT_DOCX))
     text = all_document_text(document)
-    academic_text = text.split("9. Referencias", 1)[0]
     listed_acronyms, acronym_paragraphs = acronym_list_state(document)
     non_list_text = "\n".join(acronym_paragraphs)
+    academic_text = non_list_text
     campaign_unit_corruptions = find_campaign_unit_corruptions(text)
     expected_acronyms = [entry.code for entry in used_acronyms(non_list_text)]
     first_mentions_ok = first_mentions_are_valid(acronym_paragraphs)
@@ -2680,6 +3031,40 @@ def validate_document(
             ),
         ),
         ("No hay errores visibles de codificación", not any(marker in text for marker in ["AnÃ", "metodologÃ", "estiÃ", "nitrÃ", "�"])),
+        (
+            "No reaparecen errores objetivos de los bloques heredados corregidos",
+            not any(
+                phrase.casefold() in academic_text.casefold()
+                for phrase in ACADEMIC_REGRESSION_PHRASES
+            ),
+        ),
+        (
+            "Las citas heredadas corregidas corresponden al registro bibliográfico",
+            all(
+                citation in academic_text
+                for citation in (
+                    "Vargas Sarmiento (2023)",
+                    "Rojas y Elizondo (2020)",
+                    "Komakech et al. (2015)",
+                    "International Organization for Standardization, 2006",
+                )
+            )
+            and "Sarmiento (2023)" not in academic_text.replace("Vargas Sarmiento (2023)", "")
+            and "Rojas (2020)" not in academic_text
+            and "Komakech (2015)" not in academic_text,
+        ),
+        (
+            "La primera mención cuantitativa de Jjagwe advierte la discrepancia sin cambiar el contraste",
+            all(
+                phrase in academic_text
+                for phrase in (
+                    "El resumen de Jjagwe et al. (2019) imprime emisiones acumuladas",
+                    "La cifra impresa de N₂O no coincide con la escala presentada en los resultados del artículo",
+                    "39,43 mg N₂O/kg",
+                    "sin tratarla como una validación del modelo",
+                )
+            ),
+        ),
         ("Las unidades anuales conservan la tilde", not re.search(r"/(?:ano|aNo)\b", text)),
         ("No hay etapas con decimales", not re.search(r"\b[AB][1-4][,.]0+\b", text)),
         ("No hay delimitadores visibles de ecuaciones", "\\[" not in text and "\\]" not in text and "$$" not in text),

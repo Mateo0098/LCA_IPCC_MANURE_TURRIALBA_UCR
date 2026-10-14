@@ -40,6 +40,9 @@
 - PASS — No hay rutas internas visibles.
 - PASS — No hay etiquetas técnicas internas prohibidas.
 - PASS — No hay errores visibles de codificación.
+- PASS — No reaparecen errores objetivos de los bloques heredados corregidos.
+- PASS — Las citas heredadas corregidas corresponden al registro bibliográfico.
+- PASS — La primera mención cuantitativa de Jjagwe advierte la discrepancia sin cambiar el contraste.
 - PASS — Las unidades anuales conservan la tilde.
 - PASS — No hay etapas con decimales.
 - PASS — No hay delimitadores visibles de ecuaciones.
