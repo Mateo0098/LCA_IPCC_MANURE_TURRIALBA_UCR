@@ -5,6 +5,7 @@ import sys
 import zipfile
 from collections import Counter
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 
 import matplotlib
@@ -67,6 +68,12 @@ COVER_VERSION_DATE = "octubre de 2026"
 MASTER = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 REFERENCES = ROOT / "docs" / "REFERENCIAS_TFG.md"
 SENSITIVITY = ROOT / "outputs" / "auditoria_n_reactivo" / "sensibilidad_n2_a2.csv"
+SIMAPRO_DIR = ROOT / "outputs" / "qa_qc_simapro_ef31"
+SIMAPRO_UNIT_REGISTRY = SIMAPRO_DIR / "registro_presencial_simapro_2026-10-07.csv"
+SIMAPRO_PYTHON_SUMMARY = SIMAPRO_DIR / "resumen_python_provisional_m1_m2_ef31.csv"
+SIMAPRO_AGGREGATE_REGISTRY = (
+    SIMAPRO_DIR / "registro_comparacion_agregada_simapro_2026-10-07.csv"
+)
 OUT_DIR = ROOT / "outputs" / "documentos_tfg"
 OUT_DOCX = OUT_DIR / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx"
 OUT_VALIDATION = OUT_DIR / "reporte_validacion_documento_integral.md"
@@ -104,6 +111,7 @@ EXPECTED_HEADINGS = [
     "Apéndice C. Matriz detallada de trazabilidad metodológica por etapa A1–B2",
     "Apéndice D. Trazabilidad experimental de las campañas M1–M2",
     "Apéndice E. Balances intermedios y emisiones desagregadas",
+    "Apéndice F. Trazabilidad de la verificación independiente Python–SimaPro",
 ]
 
 REQUIRED_REFERENCE_KEYS = {
@@ -499,7 +507,13 @@ def validate_inputs() -> Path:
     reference = get_reference_docx_path(ROOT)
     if reference != MASTER:
         raise RuntimeError("La ruta validada del MASTER no coincide con la esperada.")
-    required = [REFERENCES, SENSITIVITY]
+    required = [
+        REFERENCES,
+        SENSITIVITY,
+        SIMAPRO_UNIT_REGISTRY,
+        SIMAPRO_PYTHON_SUMMARY,
+        SIMAPRO_AGGREGATE_REGISTRY,
+    ]
     missing = [path.relative_to(ROOT) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Faltan entradas para el documento integral: {missing}")
@@ -1236,6 +1250,192 @@ def sensitivity_summary() -> tuple[pd.DataFrame, float]:
     )
     maximum = float(source["change_vs_central_pct_n_total_in"].abs().max())
     return table, maximum
+
+
+def simapro_aggregate_comparison() -> pd.DataFrame:
+    """Cruza resultados Python regenerables con observaciones SimaPro fechadas."""
+
+    python = pd.read_csv(
+        SIMAPRO_PYTHON_SUMMARY, encoding="utf-8-sig", dtype=str, keep_default_na=False
+    )
+    observed = pd.read_csv(
+        SIMAPRO_AGGREGATE_REGISTRY, encoding="utf-8-sig", dtype=str, keep_default_na=False
+    )
+    keys = ["escenario", "categoria_ef31"]
+    expected_keys = {
+        (scenario, category)
+        for scenario in ("A", "B")
+        for category in (
+            "Cambio climático",
+            "Eutrofización marina",
+            "Eutrofización terrestre",
+        )
+    }
+    if len(python) != 6 or len(observed) != 6:
+        raise RuntimeError("La comparación agregada Python–SimaPro debe contener seis filas.")
+    if set(map(tuple, python[keys].to_numpy())) != expected_keys:
+        raise RuntimeError("El resumen Python no contiene las seis combinaciones esperadas.")
+    if set(map(tuple, observed[keys].to_numpy())) != expected_keys:
+        raise RuntimeError("El registro SimaPro no contiene las seis combinaciones esperadas.")
+    if python.duplicated(keys).any() or observed.duplicated(keys).any():
+        raise RuntimeError("La comparación agregada contiene claves duplicadas.")
+    if not python["corrida_python"].eq(PROVISIONAL_LABEL).all():
+        raise RuntimeError("El resumen Python no corresponde a PROVISIONAL M1–M2.")
+    if not observed["corrida_python"].eq(PROVISIONAL_LABEL).all():
+        raise RuntimeError("El registro SimaPro no corresponde a PROVISIONAL M1–M2.")
+    if not observed["fecha_verificacion"].eq("2026-10-07").all():
+        raise RuntimeError("El registro agregado no corresponde a la sesión del 2026-10-07.")
+    if not observed["clasificacion_A_H"].eq("A").all():
+        raise RuntimeError("Las seis comparaciones agregadas deben conservar clasificación A.")
+
+    python_columns = keys + [
+        "corrida_python",
+        "resultado_python_esperado",
+        "unidad_resultado",
+        "alcance",
+    ]
+    observed_columns = keys + [
+        "corrida_python",
+        "fecha_verificacion",
+        "resultado_simapro_observado",
+        "unidad_resultado",
+        "clasificacion_A_H",
+        "evidencia_conservada",
+    ]
+    merged = python[python_columns].merge(
+        observed[observed_columns],
+        on=keys,
+        how="inner",
+        validate="one_to_one",
+        suffixes=("_python", "_simapro"),
+    )
+    if not (
+        merged["unidad_resultado_python"] == merged["unidad_resultado_simapro"]
+    ).all():
+        raise RuntimeError("Las unidades Python y SimaPro no coinciden.")
+    if not merged["alcance"].str.contains("electricidad IMN excluida", regex=False).all():
+        raise RuntimeError("El resumen Python no declara la exclusión de electricidad IMN.")
+
+    evidence_root = SIMAPRO_DIR.resolve()
+    for relative in merged["evidencia_conservada"]:
+        evidence = (SIMAPRO_DIR / relative).resolve()
+        if evidence_root not in evidence.parents or not evidence.is_file():
+            raise RuntimeError(f"No existe la evidencia agregada declarada: {relative}")
+
+    merged["diferencia_calculada"] = [
+        Decimal(simapro) - Decimal(python_value)
+        for simapro, python_value in zip(
+            merged["resultado_simapro_observado"],
+            merged["resultado_python_esperado"],
+        )
+    ]
+    order = {
+        ("A", "Cambio climático"): 0,
+        ("A", "Eutrofización marina"): 1,
+        ("A", "Eutrofización terrestre"): 2,
+        ("B", "Cambio climático"): 3,
+        ("B", "Eutrofización marina"): 4,
+        ("B", "Eutrofización terrestre"): 5,
+    }
+    merged["orden"] = [order[(row.escenario, row.categoria_ef31)] for row in merged.itertuples()]
+    return merged.sort_values("orden").reset_index(drop=True)
+
+
+def simapro_aggregate_academic_table() -> pd.DataFrame:
+    comparison = simapro_aggregate_comparison()
+
+    def decimal_comma(value: object) -> str:
+        return format(value, "f").replace(".", ",")
+
+    categories = [
+        f"{row.categoria_ef31} ({row.unidad_resultado_python})"
+        for row in comparison.itertuples()
+    ]
+    return pd.DataFrame(
+        {
+            "Escenario": comparison["escenario"],
+            "Categoría y unidad": categories,
+            "Python": comparison["resultado_python_esperado"].str.replace(".", ",", regex=False),
+            "SimaPro": comparison["resultado_simapro_observado"].str.replace(".", ",", regex=False),
+            "Diferencia (SimaPro − Python)": [
+                decimal_comma(value) for value in comparison["diferencia_calculada"]
+            ],
+            "Clasificación": comparison["clasificacion_A_H"],
+        }
+    )
+
+
+def simapro_unit_academic_table() -> pd.DataFrame:
+    """Vista académica de las nueve combinaciones verificadas en la sesión."""
+
+    source = pd.read_csv(
+        SIMAPRO_UNIT_REGISTRY, encoding="utf-8-sig", dtype=str, keep_default_na=False
+    )
+    expected_ids = {f"EF31-U{index:02d}" for index in range(1, 10)}
+    if len(source) != 9 or set(source["id_caso"]) != expected_ids:
+        raise RuntimeError("El registro presencial no conserva los nueve casos EF 3.1.")
+    if source.duplicated("id_caso").any():
+        raise RuntimeError("El registro presencial contiene casos duplicados.")
+    if not source["version_simapro"].eq("10.4.0.0 Educational").all():
+        raise RuntimeError("La versión SimaPro del registro presencial cambió.")
+    if not source["nombre_metodo_simapro"].eq("Environmental Footprint 3.1 (adapted)").all():
+        raise RuntimeError("El método SimaPro del registro presencial cambió.")
+    if not source["version_metodo_simapro"].eq("V1.05").all():
+        raise RuntimeError("La versión del método SimaPro cambió.")
+    observable = source["resultado_simapro_observado"].ne("")
+    if int(observable.sum()) != 7:
+        raise RuntimeError("El registro presencial debe conservar siete resultados observables.")
+    if source.loc[observable, "clasificacion_A_H"].value_counts().to_dict() != {"A": 6, "B": 1}:
+        raise RuntimeError("La distribución A/B de los resultados unitarios cambió.")
+
+    labels = {
+        "EF31-U01": "CH₄ biogénico",
+        "EF31-U02": "N₂O",
+        "EF31-U03": "NH₃",
+        "EF31-U04": "NH₃",
+        "EF31-U05": "NOx como NO₂",
+        "EF31-U06": "NOx como NO₂",
+        "EF31-U07": "NO₃⁻",
+        "EF31-U08": "CO₂ fósil",
+        "EF31-U09": "CH₄ fósil",
+    }
+    rows: list[dict[str, str]] = []
+    for row in source.itertuples():
+        python_factor = f"{row.factor_python.replace('.', ',')} {row.unidad_factor_python}"
+        observed_factor = (
+            f"{row.factor_simapro_observado.replace('.', ',')} {row.unidad_factor_python}"
+        )
+        if row.resultado_simapro_observado:
+            observed_value = (
+                f"{observed_factor}; resultado: "
+                f"{row.resultado_simapro_observado.replace('.', ',')} {row.unidad_resultado}"
+            )
+            classification = row.clasificacion_A_H
+            explanation = (
+                "Redondeo visible del resultado; el factor observado fue 13,47."
+                if row.id_caso == "EF31-U03"
+                else "Concordancia dentro de la precisión observada."
+            )
+        else:
+            if Decimal(row.factor_python) != Decimal(row.factor_simapro_observado):
+                raise RuntimeError(f"El factor inspeccionado no coincide en {row.id_caso}.")
+            observed_value = f"{observed_factor}; sin resultado unitario independiente"
+            classification = "A para el factor"
+            explanation = "Factor inspeccionado directamente; no se ejecutó un proceso unitario."
+        rows.append(
+            {
+                "Flujo": labels[row.id_caso],
+                "Compartimento y subcompartimento": (
+                    f"{row.compartimento_referencia.capitalize()}; {row.subcompartimento_referencia}"
+                ),
+                "Categoría": row.categoria_ef31,
+                "Factor Python": python_factor,
+                "Observación en SimaPro": observed_value,
+                "Clasificación": classification,
+                "Explicación": explanation,
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def committee_from_master(master: Document) -> list[tuple[str, str]]:
@@ -2083,8 +2283,10 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "SimaPro es un programa informático especializado en análisis de ciclo de vida que permite trabajar con inventarios y métodos de evaluación de impacto. En este TFG su función se limita a una verificación independiente de la caracterización EF 3.1 implementada en Python. En Python se realizaron de forma reproducible el inventario, la estimación de emisiones, la caracterización, la agregación, la normalización y los resultados presentados.",
-            "La comprobación independiente utiliza casos unitarios y cantidades elementales del análisis PROVISIONAL M1–M2. No reconstruye el ACV completo ni los escenarios y etapas como procesos en SimaPro, ni incorpora la contribución eléctrica agregada del IMN como si fuera un flujo elemental. El manuscrito no presenta resultados, concordancias ni discrepancias de la comparación Python–SimaPro y ninguna conclusión depende de esa comprobación.",
+            "La verificación independiente tuvo como propósito el aseguramiento y control de la calidad de la caracterización EF 3.1 implementada en Python. Python permaneció como fuente de verdad del inventario, la estimación de emisiones, la caracterización, la agregación, la normalización y los resultados canónicos. SimaPro no se utilizó para construir el inventario ni para sustituir esos cálculos.",
+            "La sesión se efectuó el 7 de octubre de 2026 con SimaPro 10.4.0.0 Educational, instalación UCR 004, en el proyecto local MATEO_TFG_TESTING y con el método Environmental Footprint 3.1 (adapted) V1.05. Se inspeccionaron directamente las nueve combinaciones activas de flujo, compartimento y categoría. Además, se ejecutaron de extremo a extremo cinco procesos unitarios de 1 kg para N₂O, CH₄ biogénico, NH₃, NOx y NO₃⁻. Los factores de CO₂ fósil y CH₄ fósil se inspeccionaron directamente, pero no se ejecutaron procesos unitarios independientes para esos dos flujos.",
+            "Después de los casos unitarios se compararon por escenario los subtotales de cambio climático, eutrofización marina y eutrofización terrestre obtenidos con las mismas cantidades elementales. La diferencia se definió como el resultado SimaPro menos el resultado Python y, cuando el resultado Python era distinto de cero, la diferencia relativa se calculó respecto de este. La clasificación A identificó identidad o concordancia dentro de la precisión mostrada; B, diferencias explicables por precisión o redondeo; y C–H reservaron, respectivamente, diferencias de versión o configuración, identidad del flujo, compartimento, unidad o conversión, ausencia de correspondencia verificable y discrepancia no resuelta.",
+            "La comprobación excluyó la contribución eléctrica agregada del IMN, los procesos de fondo y la normalización respecto de la unidad funcional dentro de SimaPro. Tampoco reconstruyó las etapas A1–A4 y B1–B2 como procesos del programa. Por ello, el valor climático comparado corresponde exclusivamente al subtotal caracterizable con EF 3.1: incluye los flujos elementales del manejo y las emisiones fósiles del diésel, pero no el total climático publicado por el ACV, que incorpora además la electricidad IMN. Todo el ejercicio conserva carácter PROVISIONAL M1–M2.",
         ],
     )
 
@@ -2289,6 +2491,39 @@ def build_document() -> tuple[int, int, int, int]:
         decimals=6,
     )
 
+    document.add_heading("5.5 Resultados de la verificación independiente Python–SimaPro", level=2)
+    document.add_heading("5.5.1 Comprobación de factores y casos unitarios", level=3)
+    add_text(
+        document,
+        [
+            "Se inspeccionaron las nueve combinaciones activas de factores EF 3.1 y se ejecutaron cinco procesos unitarios. Estos cinco procesos produjeron siete resultados de categoría observables, porque NH₃ y NOx contribuyen tanto a eutrofización terrestre como marina. Seis resultados recibieron clasificación A por concordancia dentro de la precisión mostrada. El resultado terrestre de NH₃ fue visible como 13,5 mol N-eq frente al factor 13,47 mol N-eq/kg NH₃ y recibió clasificación B por redondeo de presentación. No quedó ninguna discrepancia científica sin resolver.",
+            "Los factores de CO₂ fósil y CH₄ fósil coincidieron en la inspección directa, aunque no contaron con procesos unitarios independientes. El Apéndice F, Trazabilidad de la verificación independiente Python–SimaPro, presenta las nueve combinaciones sin confundirlas con nueve procesos ejecutados.",
+        ],
+    )
+    document.add_heading("5.5.2 Comparación agregada PROVISIONAL M1–M2", level=3)
+    simapro_table_number = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {simapro_table_number} compara los seis subtotales obtenidos con Python y observados en SimaPro. Las diferencias se calcularon como SimaPro menos Python; las seis comparaciones recibieron clasificación A por concordancia dentro de la precisión mostrada.",
+            "En cambio climático, la comparación no utiliza el total publicado del ACV. Utiliza el subtotal verificable mediante EF 3.1, compuesto por los flujos elementales del manejo y las emisiones fósiles del diésel. La contribución eléctrica agregada del IMN está excluida de ambos lados de esta comprobación; por tanto, estos valores climáticos no deben compararse ni sustituirse por el total climático que aparece en las tablas principales del ACV.",
+        ],
+    )
+    simapro_table_number = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Comparación agregada de la caracterización EF 3.1 entre Python y SimaPro.",
+        simapro_aggregate_academic_table(),
+        decimals=12,
+        font_size_pt=8.5,
+        column_widths_inches=[0.55, 1.65, 1.35, 1.05, 1.45, 0.55],
+    )
+    add_table_note(
+        document,
+        "Resultados de la sesión del 7 de octubre de 2026. El subtotal de cambio climático excluye la electricidad agregada del IMN y no equivale al cambio climático total publicado por el ACV. Todas las diferencias corresponden a SimaPro menos Python.",
+    )
+
     add_chapter(document, "6. Discusión provisional")
     document.add_heading("6.1 Interpretación de la comparación", level=2)
     add_text(
@@ -2329,6 +2564,15 @@ def build_document() -> tuple[int, int, int, int]:
         decimals=4,
     )
 
+    document.add_heading("6.4 Alcance de la verificación Python–SimaPro", level=2)
+    add_text(
+        document,
+        [
+            "La concordancia observada permite afirmar únicamente que, para los flujos, compartimentos y categorías comprobados, la caracterización EF 3.1 implementada en Python fue consistente con la caracterización observada de forma independiente en SimaPro dentro de la precisión disponible. La diferencia del caso terrestre de NH₃, visible como 13,5 frente a 13,47, se explica por la presentación redondeada del resultado unitario: el factor 13,47 fue observado directamente y no se identificó una diferencia metodológica.",
+            "Esta comprobación no valida el inventario, la exactitud de los factores IPCC o EMEP/EEA, la representatividad experimental, la contribución eléctrica agregada del IMN, los procesos de fondo ni la superioridad general de un escenario. Tampoco comprende M3. Su alcance es exclusivamente la consistencia de la caracterización EF 3.1 de los flujos incluidos en la corrida PROVISIONAL M1–M2.",
+        ],
+    )
+
     add_chapter(document, "7. Conclusiones provisionales")
     add_text(
         document,
@@ -2344,6 +2588,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
+            "Como comprobación complementaria, la caracterización EF 3.1 implementada en Python presentó concordancia con la verificación independiente mediante SimaPro para los flujos examinados y dentro de la precisión disponible. Este resultado no sustituye las conclusiones ambientales del ACV ni amplía el alcance provisional M1–M2.",
             "El Apéndice A, Correspondencia entre objetivos, resultados y conclusiones provisionales, sintetiza la relación entre los objetivos del estudio y la evidencia presentada sin duplicar los resultados numéricos de las tablas principales.",
         ],
     )
@@ -2353,6 +2598,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "Incorporar M3 mediante la misma secuencia de ingestión, integración, ACV, tablas, figuras y documentos, y mantener la etiqueta provisional hasta completar las validaciones cruzadas.",
+            "Repetir la comparación agregada Python–SimaPro después de integrar y validar M3, antes de tratar la verificación como una comprobación definitiva de la caracterización EF 3.1.",
             "Priorizar, después de M3, una evaluación cuantitativa acotada del MCF del almacenamiento líquido y de los supuestos que controlan las etapas dominantes. Documentar como limitaciones los supuestos que no puedan resolverse con evidencia suficiente.",
             "Cotejar las referencias bibliográficas pendientes contra sus fuentes primarias y revisar institucionalmente la portada, los preliminares y la presentación final antes de generar el PDF de entrega.",
         ],
@@ -2589,6 +2835,33 @@ def build_document() -> tuple[int, int, int, int]:
         "Emisiones anuales desagregadas por etapa y ruta.",
         detailed_emission_table(),
         decimals=6,
+    )
+
+    add_chapter(
+        document,
+        "Apéndice F. Trazabilidad de la verificación independiente Python–SimaPro",
+    )
+    simapro_appendix_table = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {simapro_appendix_table} resume las nueve combinaciones activas inspeccionadas y distingue los resultados unitarios de la inspección directa de factores. La evidencia gráfica completa de la sesión se conserva separadamente como respaldo del aseguramiento de la calidad y no se reproduce en el manuscrito.",
+        ],
+    )
+    simapro_appendix_table = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Factores y resultados unitarios de la verificación EF 3.1.",
+        simapro_unit_academic_table(),
+        decimals=4,
+        font_size_pt=8,
+        column_widths_inches=[0.75, 1.15, 1.10, 1.15, 2.10, 0.85, 1.65],
+        body_alignment=WD_ALIGN_PARAGRAPH.LEFT,
+    )
+    add_table_note(
+        document,
+        "La clasificación A indica concordancia exacta o dentro de la precisión mostrada; B indica una diferencia explicable por precisión o redondeo. En CO₂ fósil y CH₄ fósil la clasificación se limita al factor inspeccionado porque no se ejecutó un proceso unitario independiente.",
     )
     populate_acronym_list(document, acronym_marker)
     finalize_document_format(document, profile)
@@ -2827,6 +3100,7 @@ def validate_document(
         "Apéndice C": "Matriz detallada de trazabilidad metodológica por etapa A1–B2",
         "Apéndice D": "diseño ejecutado",
         "Apéndice E": "rutas de N₂O directo e indirecto",
+        "Apéndice F": "nueve combinaciones sin confundirlas con nueve procesos ejecutados",
     }
     reference_registry = read_reference_registry()
     visible_references = visible_reference_entries(reference_registry)
@@ -2875,6 +3149,7 @@ def validate_document(
     )
     math_paragraphs = formal_math_paragraphs
     table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]
+    aggregate_academic = simapro_aggregate_academic_table()
     campaign_scenario_mislabel = False
     for value in acronym_paragraphs:
         words = re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+", value)
@@ -2953,9 +3228,9 @@ def validate_document(
         ),
         (
             "El Apéndice C se divide en dos vistas completas y enlazadas",
-            len(document.tables) >= 18
-            and (len(document.tables[16].rows), len(document.tables[16].columns)) == (67, 7)
-            and (len(document.tables[17].rows), len(document.tables[17].columns)) == (67, 8)
+            len(document.tables) >= 19
+            and (len(document.tables[17].rows), len(document.tables[17].columns)) == (67, 7)
+            and (len(document.tables[18].rows), len(document.tables[18].columns)) == (67, 8)
             and all(
                 phrase in text
                 for phrase in (
@@ -3294,10 +3569,64 @@ def validate_document(
         ("EMEP/EEA complementa y no sustituye al IPCC", all(term in text for term in ["Esta guía conjunta no sustituye al IPCC", "nitrógeno amoniacal total constituye la base de actividad", "almacenamiento líquido", "aplicación al suelo"])),
         ("Komakech permanece acotado a NH₃ de A2", all(term in text for term in ["A2 constituye una excepción acotada", "masa húmeda de residuo que ingresa a la etapa", "no sustituye las aproximaciones EMEP/EEA", "no reinicializa las reservas propagadas"])),
         ("EF 3.1 se describe como caracterización y no como generación de emisiones", all(term in text for term in ["pertenece a la fase de Evaluación del Impacto del Ciclo de Vida", "flujo elemental por factor de caracterización", "EF 3.1 no estima ni genera las emisiones"])),
-        ("Python conserva la responsabilidad de los cálculos del ACV", all(term in text for term in ["Esta relación se implementó de forma reproducible en Python", "En Python se realizaron de forma reproducible el inventario"])),
-        ("SimaPro se limita a verificación independiente sin resultados atribuidos", all(term in text for term in ["su función se limita a una verificación independiente", "El manuscrito no presenta resultados, concordancias ni discrepancias de la comparación Python–SimaPro", "ninguna conclusión depende de esa comprobación"])),
-        ("No se afirman resultados positivos inexistentes de SimaPro", not any(term in text for term in ["SimaPro confirmó", "SimaPro demostró", "SimaPro reprodujo", "resultados de SimaPro mostraron", "se obtuvo en SimaPro"])),
-        ("SimaPro no sustituye ni reconstruye el ACV calculado en Python", all(term in text for term in ["no como fuente sustitutiva del inventario o de los resultados calculados en Python", "No reconstruye el ACV completo"])),
+        ("Python conserva la responsabilidad de los cálculos del ACV", all(term in text for term in ["Esta relación se implementó de forma reproducible en Python", "Python permaneció como fuente de verdad del inventario"])),
+        (
+            "SimaPro se limita a la verificación independiente documentada",
+            all(
+                term in text
+                for term in [
+                    "SimaPro no se utilizó para construir el inventario ni para sustituir esos cálculos",
+                    "nueve combinaciones activas de flujo, compartimento y categoría",
+                    "cinco procesos unitarios de 1 kg",
+                    "No quedó ninguna discrepancia científica sin resolver",
+                ]
+            ),
+        ),
+        (
+            "La verificación unitaria conserva su alcance y clasificación",
+            all(
+                term in text
+                for term in [
+                    "siete resultados de categoría observables",
+                    "Seis resultados recibieron clasificación A",
+                    "13,5 mol N-eq frente al factor 13,47 mol N-eq/kg NH₃",
+                    "clasificación B por redondeo de presentación",
+                ]
+            ),
+        ),
+        (
+            "Las seis comparaciones agregadas proceden de los registros estructurados",
+            all(
+                value in text
+                for column in ("Python", "SimaPro", "Diferencia (SimaPro − Python)")
+                for value in aggregate_academic[column]
+            )
+            and simapro_aggregate_comparison()["clasificacion_A_H"].eq("A").all(),
+        ),
+        (
+            "El subtotal climático SimaPro no se confunde con el total del ACV",
+            all(
+                term in text
+                for term in [
+                    "el valor climático comparado corresponde exclusivamente al subtotal caracterizable con EF 3.1",
+                    "La contribución eléctrica agregada del IMN está excluida de ambos lados",
+                    "no equivale al cambio climático total publicado por el ACV",
+                ]
+            ),
+        ),
+        (
+            "La interpretación de la concordancia permanece delimitada",
+            all(
+                term in text
+                for term in [
+                    "permite afirmar únicamente que",
+                    "no valida el inventario",
+                    "Tampoco comprende M3",
+                    "Repetir la comparación agregada Python–SimaPro después de integrar y validar M3",
+                ]
+            ),
+        ),
+        ("SimaPro no sustituye ni reconstruye el ACV calculado en Python", all(term in text for term in ["no como fuente sustitutiva del inventario o de los resultados calculados en Python", "Tampoco reconstruyó las etapas A1–A4 y B1–B2"])),
         ("Los factores IMN conservan funciones diferenciadas", all(term in text for term in ["Para la electricidad se utiliza un factor agregado de consumo", "Para el diésel se emplean factores físicos de combustión", "sí se caracterizan posteriormente con EF 3.1"])),
         ("No se presenta 3,5 días como parámetro canónico", "3,5 días" not in text and "3.5 días" not in text),
     ]

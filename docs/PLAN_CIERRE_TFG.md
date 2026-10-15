@@ -58,15 +58,17 @@ conjunto completo de fuentes. La existencia física parcial de un libro no
 autoriza simular la campaña, integrarla ni retirar la etiqueta **PROVISIONAL
 M1–M2**.
 
-## Unidad activa independiente: QA/QC Python–SimaPro de EF 3.1
+## Incorporación académica Python–SimaPro de EF 3.1
 
 La metodología y los insumos reproducibles para verificar externamente la
 caracterización EF 3.1 se encuentran en
 `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md` y
 `outputs/qa_qc_simapro_ef31/`. La sesión PROVISIONAL M1–M2 fue ejecutada el
-2026-10-07 y su evidencia quedó integrada. Esta unidad no altera el inventario,
-los factores, la arquitectura IMN ni los resultados científicos canónicos. La
-comprobación agregada deberá repetirse después de incorporar y validar M3.
+2026-10-07 y su evidencia quedó integrada. Sus métodos, resultados, interpretación
+y limitaciones se incorporaron al documento integral PROVISIONAL M1–M2 para la
+revisión del comité asesor. Esta unidad no altera el inventario, los factores, la
+arquitectura IMN ni los resultados científicos canónicos. La comprobación
+agregada deberá repetirse después de incorporar y validar M3.
 
 ## Siguiente transición científica prevista
 
@@ -99,9 +101,8 @@ ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
    documento integral definitivo.
 6. Definir, si aporta valor después de M3, la evaluación cuantitativa mínima de sensibilidad para los supuestos
    dominantes, sin crear una ruta de cálculo paralela.
-7. Repetir la comprobación agregada EF 3.1 en SimaPro después de integrar M3 y,
-   tras una autorización específica, valorar la incorporación académica de los
-   resultados limitados al QA/QC en el documento integral.
+7. Repetir la comprobación agregada EF 3.1 en SimaPro después de integrar M3 y
+   actualizar la sección académica antes de tratarla como verificación definitiva.
 
 ## Paso de provisional a definitivo
 

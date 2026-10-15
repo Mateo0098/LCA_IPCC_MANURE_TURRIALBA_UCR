@@ -22,8 +22,9 @@ a reimportar. La electricidad agregada IMN no se caracteriza de nuevo. El
 protocolo, los casos reproducibles y el estado de la verificación se documentan
 en `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md`. La sesión presencial
 PROVISIONAL M1–M2 se ejecutó el 2026-10-07; su evidencia permanece separada de
-los resultados canónicos y la comprobación deberá repetirse después de integrar
-M3.
+los resultados canónicos. Sus métodos, resultados y limitaciones se incorporan
+al documento integral provisional como evidencia académica de aseguramiento de
+la calidad; la comprobación deberá repetirse después de integrar M3.
 La selección temporal y sectorial se documenta en la sección 15 de
 `DECISIONES_METODOLOGICAS_TFG.md`.
 
@@ -190,6 +191,12 @@ y el registro observado se conservan por separado en
 `outputs/qa_qc_simapro_ef31/`; su integridad se comprueba explícitamente con
 `scripts/validate_simapro_session_evidence.py` sin modificar la fuente de verdad
 Python.
+
+La comparación académica agregada cruza el resumen Python regenerable con
+`registro_comparacion_agregada_simapro_2026-10-07.csv`, registro histórico
+mínimo respaldado por los dos PDF de la sesión. Esta dependencia pertenece solo
+a la generación de la sección documental de verificación; no forma parte del
+pipeline científico ni alimenta los resultados canónicos.
 
 ## Incorporación futura de M3
 

@@ -58,6 +58,13 @@ la sesión ejecutada se conserva por separado en
 capturas, dos PDF de resultados agregados, un README descriptivo y el inventario
 de huellas `SHA256SUMS.csv`.
 
+Las seis observaciones agregadas se conservan en el único registro fechado
+`registro_comparacion_agregada_simapro_2026-10-07.csv`, respaldado por los dos
+PDF de la sesión. Este registro contiene solo los valores observados en SimaPro,
+su clasificación y la evidencia correspondiente; los valores Python continúan
+procediendo del resumen regenerable y las diferencias se calculan al generar el
+documento académico.
+
 La integridad de una carpeta histórica se comprueba de forma explícita e
 independiente con:
 
@@ -231,17 +238,18 @@ fondo, la contribución eléctrica IMN, la normalización funcional ni una corri
 con M3. La comprobación agregada se repetirá con los insumos definitivos después
 de integrar y validar M3.
 
-## Incorporación académica posterior
+## Incorporación académica
 
-La evidencia de esta sesión se integra en el repositorio sin modificar ni
-regenerar el documento escrito del TFG. Una incorporación académica posterior,
-si se autoriza, deberá describir el propósito independiente, software y versión,
-método exacto, selección de flujos, casos unitarios, criterios A–H, tratamiento
-de discrepancias, alcance y exclusiones.
+La evidencia de la sesión PROVISIONAL M1–M2 se incorporó al documento integral
+mediante una subsección metodológica, resultados unitarios y agregados, una
+interpretación delimitada y un apéndice de trazabilidad. El generador académico
+lee el registro presencial, el resumen Python regenerable y el registro agregado
+fechado; no reimporta las observaciones al pipeline científico ni recalcula los
+resultados canónicos a partir de SimaPro.
 
-Los resultados deberán presentar una tabla Python–SimaPro con las identidades
-verificadas, valores observados, diferencias, clasificaciones y explicaciones.
-La conclusión se limitará a la validez de la caracterización comprobada; no se
-extenderá a la corrección del inventario, a procesos de fondo, a la comparación
-completa de escenarios ni a M3. La evidencia PROVISIONAL M1–M2 no debe
-presentarse como comprobación definitiva después de incorporar M3.
+La conclusión se limita a la consistencia de la caracterización comprobada y no
+se extiende a la corrección del inventario, a los factores de emisión, a los
+procesos de fondo, a la electricidad IMN, a la comparación general de escenarios
+ni a M3. La evidencia PROVISIONAL M1–M2 deberá sustituirse por una nueva
+comprobación agregada después de incorporar y validar M3 antes de presentarla
+como verificación definitiva.

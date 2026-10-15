@@ -2,7 +2,7 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 23.
+- Tablas con numeración global: 25.
 - Figuras con numeración global: 10.
 - Ecuaciones con numeración global: 26.
 - Entradas conservadas en el registro bibliográfico: 43.
@@ -141,8 +141,11 @@
 - PASS — Komakech permanece acotado a NH₃ de A2.
 - PASS — EF 3.1 se describe como caracterización y no como generación de emisiones.
 - PASS — Python conserva la responsabilidad de los cálculos del ACV.
-- PASS — SimaPro se limita a verificación independiente sin resultados atribuidos.
-- PASS — No se afirman resultados positivos inexistentes de SimaPro.
+- PASS — SimaPro se limita a la verificación independiente documentada.
+- PASS — La verificación unitaria conserva su alcance y clasificación.
+- PASS — Las seis comparaciones agregadas proceden de los registros estructurados.
+- PASS — El subtotal climático SimaPro no se confunde con el total del ACV.
+- PASS — La interpretación de la concordancia permanece delimitada.
 - PASS — SimaPro no sustituye ni reconstruye el ACV calculado en Python.
 - PASS — Los factores IMN conservan funciones diferenciadas.
 - PASS — No se presenta 3,5 días como parámetro canónico.
@@ -157,7 +160,7 @@
 
 - Entradas registradas y utilizadas: 28.
 - Candidatos no registrados: ninguno.
-- Exclusiones clasificadas disponibles: 34.
+- Exclusiones clasificadas disponibles: 37.
 
 ## Alcance de la validación
 
