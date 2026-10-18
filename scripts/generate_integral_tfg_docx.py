@@ -2894,10 +2894,39 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "Incorporar M3 mediante la misma secuencia de ingestión, integración, ACV, tablas, figuras y documentos, y mantener la etiqueta provisional hasta completar las validaciones cruzadas.",
-            "Repetir la comparación agregada Python–SimaPro después de integrar y validar M3, antes de tratar la verificación como una comprobación definitiva de la caracterización EF 3.1.",
-            "Priorizar, después de M3, una evaluación cuantitativa acotada del MCF del almacenamiento líquido y de los supuestos que controlan las etapas dominantes. Documentar como limitaciones los supuestos que no puedan resolverse con evidencia suficiente.",
-            "Cotejar las referencias bibliográficas pendientes contra sus fuentes primarias y revisar institucionalmente la portada, los preliminares y la presentación final antes de generar el PDF de entrega.",
+            "Las recomendaciones se organizan en tres ámbitos: las comprobaciones pendientes para concluir el estudio actual, las líneas de investigación que permitirían ampliar la evidencia disponible y las prácticas de manejo que conviene evaluar experimentalmente en la lechería.",
+        ],
+    )
+    document.add_heading(
+        "8.1 Comprobaciones necesarias para concluir el estudio actual", level=2
+    )
+    add_text(
+        document,
+        [
+            "Completar la caracterización analítica de M3 e integrar únicamente las determinaciones comparables con M1 y M2 constituye una actividad pendiente del TFG, no una línea de investigación posterior. Con la integración completa se deben volver a estimar los parámetros experimentales, las emisiones y los indicadores de impacto, y comprobar si se mantienen las etapas dominantes y la comparación entre escenarios.",
+            "Antes de formular las conclusiones definitivas, se debe comprobar la robustez de la comparación mediante un análisis de sensibilidad acotado a los supuestos con capacidad material de modificarla. La prioridad corresponde al MCF y a B₀ del almacenamiento líquido, por la contribución de A3 y B1 al cambio climático; en segundo término deben examinarse la relación inicial entre nitrógeno amoniacal total y N total, los factores de A2 y los factores de las aplicaciones A4 y B2. Esta comprobación, basada en rangos plausibles y documentados, debe establecer si la jerarquía de etapas y el orden relativo de los escenarios se conservan; un análisis probabilístico más amplio corresponde a una investigación posterior.",
+        ],
+    )
+
+    document.add_heading("8.2 Recomendaciones para futuras investigaciones", level=2)
+    add_text(
+        document,
+        [
+            "Como primera prioridad experimental, se recomienda cuantificar directamente las emisiones de CH₄ durante ciclos completos de acumulación y descarga en A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines, bajo distintas condiciones climáticas. Las variables principales son el flujo de CH₄, el volumen almacenado, el tiempo de residencia y el contenido de sólidos volátiles; la temperatura y las condiciones de mezcla constituyen variables explicativas complementarias. Estas mediciones permitirían contrastar la estimación basada en un MCF de 38 %, no determinado para la residencia operativa aproximada de tres días. La prioridad se fundamenta en que A3 aportó 53,93 % del cambio climático del Escenario A y B1 aportó 81,99 % del correspondiente al Escenario B.",
+            "Como segunda prioridad, se recomienda medir las pérdidas de N asociadas con las etapas que dominaron la eutrofización. Las variables principales son la volatilización de NH₃ en A1: Precomposteo y B2: Aplicación de purines en campo de pastoreo, y la pérdida de NO₃⁻ por lixiviación o escorrentía en A4: Aplicación de aguas verdes en campos de pastoreo y B2. Las emisiones de N₂O y NOx, el N residual del suelo y la absorción por el pasto aportarían información complementaria para interpretar los mecanismos y detectar posibles transferencias entre categorías de impacto.",
+            "Se recomienda además construir balances experimentales emparejados de masa y N. En A1 y A2: Lombricompostaje deben pesarse y caracterizarse los mismos lotes a la entrada y a la salida, incluido el lombricompost terminado; en A3 y B1 las muestras deben vincularse con volúmenes o masas reales de descarga. La masa total, el N total y el nitrógeno amoniacal total son las variables principales; la especiación del N y la caracterización del producto final son complementarias. Este diseño permitiría investigar las diferencias modelo menos referencia de +36,2 % en A1, +58,3 % en aguas verdes y +195,7 % en purines sin asignarlas de antemano a mecanismos específicos.",
+            "Con datos directos de emisiones y balances emparejados, investigaciones posteriores podrían desarrollar un análisis probabilístico de incertidumbre que integre variabilidad temporal, incertidumbre paramétrica y correlaciones entre variables. Su finalidad sería estimar la probabilidad de que cambien las etapas dominantes o el orden relativo de los escenarios y evaluar la transferibilidad de los resultados a otras condiciones de manejo, sin sustituir la comprobación de sensibilidad requerida para concluir el TFG actual.",
+        ],
+    )
+
+    document.add_heading("8.3 Evaluación de posibles mejoras de manejo", level=2)
+    add_text(
+        document,
+        [
+            "Los resultados provisionales justifican continuar la comparación de la separación de las fracciones sólidas y líquidas del Escenario A frente al manejo conjunto del Escenario B, pero no sustentan todavía la selección definitiva de uno de ellos. Una decisión de manejo debe considerar los resultados finales del ACV junto con la factibilidad operativa y el desempeño agronómico observados en la lechería.",
+            "En el almacenamiento líquido conviene ensayar alternativas que modifiquen el tiempo efectivo bajo condiciones anaerobias o que permitan contener y aprovechar el CH₄, de acuerdo con su viabilidad técnica y de seguridad. Los ensayos deben comparar cada alternativa con la operación actual mediante las variables principales definidas para CH₄ y mediante las pérdidas de N; el consumo energético, la frecuencia de vaciado y las exigencias operativas completan la evaluación de posibles transferencias de impacto.",
+            "En la aplicación al campo conviene evaluar un plan basado en la concentración medida de N, la demanda del suelo y del pasto, la calibración del caudal y las condiciones meteorológicas y de humedad del suelo. Los ensayos en parcelas deben comparar la práctica actual con aplicaciones que eviten suelos saturados y periodos con alta probabilidad de lluvia intensa, utilizando como respuestas principales NH₃ y NO₃⁻ y, como respuestas complementarias, el N residual del suelo y la producción o absorción de N del pasto. Esta línea se sustenta en que A4 aportó 70,63 % de la eutrofización marina del Escenario A, mientras B2 aportó 93,14 % de la eutrofización marina y 62,92 % de la eutrofización terrestre del Escenario B.",
+            "En A1 conviene evaluar de forma controlada el tiempo de precomposteo, la humedad, la aireación y el volteo. La comparación debe priorizar las pérdidas de NH₃ y el balance de N, y complementar estas respuestas con N₂O, aptitud del sustrato para las lombrices y calidad del producto final. A1 concentró 47,44 % de la eutrofización terrestre del Escenario A; por ello, la selección de una condición operativa requiere evidencia experimental local.",
         ],
     )
 
@@ -3384,6 +3413,16 @@ def validate_document(
         index
         for index, value in enumerate(paragraph_texts[body_intro_index + 1 :], start=body_intro_index + 1)
         if value == "9. Referencias"
+    )
+    recommendations_index = next(
+        index
+        for index, value in enumerate(
+            paragraph_texts[body_intro_index + 1 :], start=body_intro_index + 1
+        )
+        if value == "8. Recomendaciones"
+    )
+    recommendations_text = "\n".join(
+        paragraph_texts[recommendations_index:references_index]
     )
     appendix_index = next(
         index
@@ -4059,7 +4098,78 @@ def validate_document(
                     "permite afirmar únicamente que",
                     "no valida el inventario",
                     "Tampoco comprende M3",
-                    "Repetir la comparación agregada Python–SimaPro después de integrar y validar M3",
+                ]
+            ),
+        ),
+        (
+            "Las recomendaciones separan cierre del TFG, investigación futura y evaluación del manejo",
+            all(
+                term in recommendations_text
+                for term in [
+                    "8.1 Comprobaciones necesarias para concluir el estudio actual",
+                    "constituye una actividad pendiente del TFG, no una línea de investigación posterior",
+                    "8.2 Recomendaciones para futuras investigaciones",
+                    "8.3 Evaluación de posibles mejoras de manejo",
+                ]
+            )
+            and recommendations_text.index("actividad pendiente del TFG")
+            < recommendations_text.index("8.2 Recomendaciones para futuras investigaciones"),
+        ),
+        (
+            "La incertidumbre necesaria para el cierre se distingue del análisis posterior",
+            all(
+                term in recommendations_text
+                for term in [
+                    "Antes de formular las conclusiones definitivas",
+                    "análisis de sensibilidad acotado",
+                    "un análisis probabilístico más amplio corresponde a una investigación posterior",
+                    "sin sustituir la comprobación de sensibilidad requerida para concluir el TFG actual",
+                ]
+            ),
+        ),
+        (
+            "Las propuestas experimentales priorizan variables según impactos e incertidumbres",
+            all(
+                term in recommendations_text
+                for term in [
+                    "Como primera prioridad experimental",
+                    "Las variables principales son el flujo de CH₄",
+                    "Como segunda prioridad",
+                    "Las variables principales son la volatilización de NH₃",
+                    "La masa total, el N total y el nitrógeno amoniacal total son las variables principales",
+                    "A3 aportó 53,93 %",
+                    "B1 aportó 81,99 %",
+                    "A4 aportó 70,63 %",
+                    "B2 aportó 93,14 %",
+                    "62,92 % de la eutrofización terrestre",
+                    "A1 concentró 47,44 %",
+                ]
+            ),
+        ),
+        (
+            "La comparación de escenarios no prescribe prematuramente una alternativa",
+            all(
+                term in recommendations_text
+                for term in [
+                    "continuar la comparación",
+                    "no sustentan todavía la selección definitiva de uno de ellos",
+                    "debe considerar los resultados finales del ACV",
+                ]
+            )
+            and "conviene conservar la separación" not in recommendations_text,
+        ),
+        (
+            "Las recomendaciones no contienen tareas informáticas o editoriales",
+            not any(
+                term.casefold() in recommendations_text.casefold()
+                for term in [
+                    "Python",
+                    "SimaPro",
+                    "repositorio",
+                    "pipeline",
+                    "tablas, figuras y documentos",
+                    "portada",
+                    "PDF de entrega",
                 ]
             ),
         ),

@@ -154,6 +154,11 @@
 - PASS — Las seis comparaciones agregadas proceden de los registros estructurados.
 - PASS — El subtotal climático SimaPro no se confunde con el total del ACV.
 - PASS — La interpretación de la concordancia permanece delimitada.
+- PASS — Las recomendaciones separan cierre del TFG, investigación futura y evaluación del manejo.
+- PASS — La incertidumbre necesaria para el cierre se distingue del análisis posterior.
+- PASS — Las propuestas experimentales priorizan variables según impactos e incertidumbres.
+- PASS — La comparación de escenarios no prescribe prematuramente una alternativa.
+- PASS — Las recomendaciones no contienen tareas informáticas o editoriales.
 - PASS — SimaPro no sustituye ni reconstruye el ACV calculado en Python.
 - PASS — Los factores IMN conservan funciones diferenciadas.
 - PASS — No se presenta 3,5 días como parámetro canónico.
