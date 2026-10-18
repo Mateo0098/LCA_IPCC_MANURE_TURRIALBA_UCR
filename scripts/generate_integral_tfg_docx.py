@@ -6,6 +6,7 @@ import zipfile
 from collections import Counter
 from dataclasses import dataclass
 from decimal import Decimal
+import math
 from pathlib import Path
 
 import matplotlib
@@ -68,6 +69,15 @@ COVER_VERSION_DATE = "octubre de 2026"
 MASTER = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 REFERENCES = ROOT / "docs" / "REFERENCIAS_TFG.md"
 SENSITIVITY = ROOT / "outputs" / "auditoria_n_reactivo" / "sensibilidad_n2_a2.csv"
+NITROGEN_AUDIT_LEDGER = (
+    ROOT / "outputs" / "auditoria_n_reactivo" / "ledger_secuencial_n_tan.csv"
+)
+NITROGEN_CONCENTRATION_COMPARISON = (
+    ROOT
+    / "outputs"
+    / "auditoria_n_reactivo"
+    / "comparacion_concentracion_diluida.csv"
+)
 SIMAPRO_DIR = ROOT / "outputs" / "qa_qc_simapro_ef31"
 SIMAPRO_UNIT_REGISTRY = SIMAPRO_DIR / "registro_presencial_simapro_2026-10-07.csv"
 SIMAPRO_PYTHON_SUMMARY = SIMAPRO_DIR / "resumen_python_provisional_m1_m2_ef31.csv"
@@ -723,6 +733,100 @@ def experimental_parameter_table() -> pd.DataFrame:
         }
     )
     return pd.DataFrame(rows)
+
+
+def nitrogen_contrast_context() -> dict[str, dict[str, float]]:
+    """Lee los contrastes auxiliares vigentes sin recalcular el ledger físico."""
+
+    ledger = pd.read_csv(NITROGEN_AUDIT_LEDGER, encoding="utf-8-sig")
+    concentrations = pd.read_csv(
+        NITROGEN_CONCENTRATION_COMPARISON, encoding="utf-8-sig"
+    )
+    a1_rows = ledger.loc[ledger["stage"] == "A1: Precomposteo"]
+    liquid_rows = {
+        code: concentrations.loc[concentrations["stage"] == stage]
+        for code, stage in {
+            "A3": "A4: Aplicación de aguas verdes en campos de pastoreo",
+            "B1": "B2: Aplicación de purines en campo de pastoreo",
+        }.items()
+    }
+    if len(a1_rows) != 1 or any(len(rows) != 1 for rows in liquid_rows.values()):
+        raise RuntimeError(
+            "Los productos de auditoría no contienen un contraste único para A1, A3 y B1."
+        )
+
+    a1 = a1_rows.iloc[0]
+    if a1["derived_reference_kind"] != "benchmark_parcial_masa_a2_inferida":
+        raise RuntimeError("La referencia de A1 no conserva su semántica aprobada.")
+    context = {
+        "A1": {
+            "reference": float(a1["derived_n_reference_kg"]),
+            "model": float(a1["n_total_out_kg"]),
+            "difference": float(a1["model_minus_derived_reference_kg"]),
+            "relative": float(a1["relative_difference_vs_derived_reference_pct"]),
+        }
+    }
+    for code, rows in liquid_rows.items():
+        source = rows.iloc[0]
+        context[code] = {
+            "reference": float(source["measured_m2_n_pct"]),
+            "model": float(source["modelled_n_pct_on_theoretical_mixture"]),
+            "difference": float(source["difference_model_minus_m2_percentage_points"]),
+            "relative": float(source["relative_difference_vs_m2_pct"]),
+        }
+
+    for code, values in context.items():
+        if not all(math.isfinite(value) for value in values.values()):
+            raise RuntimeError(f"El contraste {code} contiene valores no finitos.")
+        expected_difference = values["model"] - values["reference"]
+        expected_relative = expected_difference / values["reference"] * 100.0
+        if not math.isclose(
+            values["difference"], expected_difference, rel_tol=0.0, abs_tol=1e-12
+        ) or not math.isclose(
+            values["relative"], expected_relative, rel_tol=0.0, abs_tol=1e-10
+        ):
+            raise RuntimeError(
+                f"Las diferencias publicadas para {code} no coinciden con sus bases."
+            )
+    return context
+
+
+def nitrogen_contrast_table(context: dict[str, dict[str, float]]) -> pd.DataFrame:
+    """Vista académica compacta de los tres contrastes provisionales."""
+
+    def fixed(value: float, decimals: int) -> str:
+        text = f"{float(value):,.{decimals}f}"
+        return text.replace(",", "X").replace(".", ",").replace("X", " ")
+
+    def signed(value: float, decimals: int) -> str:
+        sign = "+" if value > 0 else ""
+        return f"{sign}{fixed(value, decimals)}"
+
+    return pd.DataFrame(
+        [
+            {
+                "Contraste": "A1: N residual después del precomposteo",
+                "Referencia experimental o derivada": f"{fixed(context['A1']['reference'], 6)} kg N/año",
+                "Estimación modelada": f"{fixed(context['A1']['model'], 6)} kg N/año",
+                "Diferencia absoluta (modelo − referencia)": f"{signed(context['A1']['difference'], 6)} kg N/año",
+                "Diferencia relativa": f"{signed(context['A1']['relative'], 2)} %",
+            },
+            {
+                "Contraste": "A3→A4: Aguas verdes",
+                "Referencia experimental o derivada": f"{fixed(context['A3']['reference'], 9)} % N",
+                "Estimación modelada": f"{fixed(context['A3']['model'], 9)} % N",
+                "Diferencia absoluta (modelo − referencia)": f"{signed(context['A3']['difference'], 9)} puntos porcentuales",
+                "Diferencia relativa": f"{signed(context['A3']['relative'], 2)} %",
+            },
+            {
+                "Contraste": "B1→B2: Purines",
+                "Referencia experimental o derivada": f"{fixed(context['B1']['reference'], 9)} % N",
+                "Estimación modelada": f"{fixed(context['B1']['model'], 9)} % N",
+                "Diferencia absoluta (modelo − referencia)": f"{signed(context['B1']['difference'], 9)} puntos porcentuales",
+                "Diferencia relativa": f"{signed(context['B1']['relative'], 2)} %",
+            },
+        ]
+    )
 
 
 def nitrogen_propagation_table() -> pd.DataFrame:
@@ -1578,6 +1682,7 @@ def build_document() -> tuple[int, int, int, int]:
     methodology_context = methodology_source.methodology_context()
     result_context = results_source.results_context()
     resource_context = operational_resource_context()
+    nitrogen_context = nitrogen_contrast_context()
     reference_registry = read_reference_registry()
     references = visible_reference_entries(reference_registry)
     photographic_source.generate_photographic_figures()
@@ -1963,6 +2068,8 @@ def build_document() -> tuple[int, int, int, int]:
             "Las pérdidas explícitas de NH₃-N, NOx-N y N₂-N definidas por la guía conjunta del Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP) y la Agencia Europea de Medio Ambiente (EEA, por sus siglas en inglés) redujeron el TAN y el N total. El N₂O-N directo y las pérdidas hídricas definidas por IPCC redujeron el N total una sola vez. El N₂O indirecto por volatilización se calculó con las especies explícitas NH₃-N y NOx-N; el NO₃⁻ se originó únicamente en rutas hídricas justificadas.",
             "El balance se aplicó de forma secuencial: A2 recibió el N total y la reserva residual de TAN a la salida de A1. Por ello, aplicar factores en ambas etapas no duplicó matemáticamente las reservas originales. FracGasMS permaneció exclusivamente como referencia de contraste y no generó otra volatilización ni alimentó EF4. Las duraciones específicas introducen incertidumbre de representatividad temporal y de transferencia de las aproximaciones, pero no justifican escalado lineal de los factores.",
             "A2: Lombricompostaje se representó mediante una arquitectura híbrida explícita y trazable: la categoría IPCC de compostaje en hileras pasivas se utilizó como aproximación para CH₄ y N₂O directo; Komakech et al. (2016), como aproximación experimental aprobada para NH₃; y EMEP/EEA de almacenamiento sólido, como aproximación metodológica aprobada provisionalmente para NO y N₂. La fracción de pérdida de N por lixiviación se estableció en cero para las condiciones operativas modeladas, sin cambiar el factor genérico de la categoría ni afirmar imposibilidad física universal. Las ecuaciones siguientes documentan el núcleo necesario para reproducir la lógica vigente.",
+            "El contraste provisional se realizó sobre dos bases. Para A1 se comparó el N residual modelado después del precomposteo con una referencia derivada del N medido en el precompostado, convertido a base húmeda y multiplicado por la masa húmeda inferida de A2. Para A3 y B1 se comparó la concentración de N propagado, expresada sobre la mezcla anual teórica de estiércol y agua de lavado, con la concentración de N total medida en M2 para aguas verdes y purines, respectivamente.",
+            "En los tres casos, la diferencia absoluta se calculó como estimación modelada menos referencia. La diferencia relativa utilizó la referencia como denominador y se expresó en porcentaje. La diferencia absoluta de A1 se expresó en kg N/año; en los líquidos se expresó en puntos porcentuales de N. Estas comparaciones examinan la plausibilidad del balance, pero no constituyen balances experimentales cerrados ni una validación experimental de los factores IPCC–EMEP/EEA.",
         ],
     )
     document.add_heading("4.6.1 Metano de las etapas de manejo", level=3)
@@ -2343,6 +2450,40 @@ def build_document() -> tuple[int, int, int, int]:
         "Humedad y materia seca promedio por tipo de muestra.",
     )
 
+    document.add_heading(
+        "5.1.1 Contraste provisional del nitrógeno experimental con el balance modelado",
+        level=3,
+    )
+    nitrogen_table_number = counters.table + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {nitrogen_table_number} compara las referencias experimentales o derivadas con las estimaciones del balance secuencial. Los signos positivos indican que el modelo conservó una masa residual o estimó una concentración mayor que la referencia correspondiente.",
+        ],
+    )
+    nitrogen_table_number = add_dataframe(
+        document,
+        profile,
+        counters,
+        "Contraste provisional del N experimental con el balance modelado.",
+        nitrogen_contrast_table(nitrogen_context),
+        decimals=9,
+        font_size_pt=8.5,
+        column_widths_inches=[1.25, 1.35, 1.15, 1.55, 0.95],
+        body_alignment=WD_ALIGN_PARAGRAPH.LEFT,
+    )
+    add_table_note(
+        document,
+        "La referencia de A1 es una masa de N derivada del análisis del precompostado y de la masa húmeda inferida de A2; no fue observada directamente. Para aguas verdes y purines, las referencias son concentraciones medidas en M2 y las concentraciones modeladas usan mezclas anuales teóricas, no descargas medidas. Las diferencias no validan experimentalmente los factores IPCC–EMEP/EEA ni identifican una ruta específica de pérdida de N.",
+    )
+    add_text(
+        document,
+        [
+            f"Después de A1, el modelo conservó {results_source.fmt(nitrogen_context['A1']['model'], 6)} kg N/año, frente a una referencia derivada de {results_source.fmt(nitrogen_context['A1']['reference'], 6)} kg N/año; la diferencia fue {results_source.fmt(nitrogen_context['A1']['difference'], 6)} kg N/año, equivalente a {results_source.fmt(nitrogen_context['A1']['relative'], 2)} % de la referencia.",
+            f"En aguas verdes, la concentración modelada fue {results_source.fmt(nitrogen_context['A3']['model'], 9)} % N y la medida en M2 fue {results_source.fmt(nitrogen_context['A3']['reference'], 9)} % N, con una diferencia de {results_source.fmt(nitrogen_context['A3']['difference'], 9)} puntos porcentuales ({results_source.fmt(nitrogen_context['A3']['relative'], 2)} %). En purines, los valores respectivos fueron {results_source.fmt(nitrogen_context['B1']['model'], 9)} % N y {results_source.fmt(nitrogen_context['B1']['reference'], 9)} % N, con una diferencia de {results_source.fmt(nitrogen_context['B1']['difference'], 9)} puntos porcentuales ({results_source.fmt(nitrogen_context['B1']['relative'], 2)} %).",
+        ],
+    )
+
     document.add_heading("5.2 Emisiones estimadas", level=2)
     emissions = results_source.emissions_summary()
     table_4 = counters.table + 1
@@ -2536,6 +2677,18 @@ def build_document() -> tuple[int, int, int, int]:
             "La evidencia provisional no permite generalizar una superioridad universal fuera de la lechería y de las condiciones modeladas.",
         ],
     )
+    document.add_heading(
+        "6.1.1 Interpretación del contraste experimental del nitrógeno", level=3
+    )
+    add_text(
+        document,
+        [
+            f"En A1, el N residual modelado superó en {results_source.fmt(nitrogen_context['A1']['difference'], 6)} kg N/año ({results_source.fmt(nitrogen_context['A1']['relative'], 2)} %) la referencia derivada del precompostado. El resultado indica concordancia limitada entre ambas construcciones, pero no demuestra que el modelo subestime una ruta específica. El N del estiércol fresco se determinó mediante Kjeldahl y el del precompostado mediante Dumas sobre material acondicionado; la conversión a base húmeda combinó este último resultado con materia seca gravimétrica independiente. Además, la masa de A2 se infirió mediante conservación supuesta de cenizas y las muestras no correspondieron a un mismo lote pesado antes y después del precomposteo.",
+            f"En aguas verdes, la concentración modelada fue {results_source.fmt(nitrogen_context['A3']['relative'], 2)} % mayor que la medición M2. Esta discrepancia puede relacionarse hipotéticamente con diferencias entre la dilución anual teórica y la condición puntual muestreada, así como con la acumulación, la residencia, la mezcla, la sedimentación o entradas no representadas con igual detalle. La muestra de la tanqueta no estuvo acompañada por una descarga real medida que permitiera convertir la concentración en un balance anual observado.",
+            f"En purines se obtuvo la mayor diferencia relativa, {results_source.fmt(nitrogen_context['B1']['relative'], 2)} %. Su magnitud no demuestra una pérdida gaseosa mayor ni una pérdida real total de N, porque la concentración modelada combina N propagado, una masa teórica de estiércol depositado y agua anualizada, mientras la referencia procede de muestras M2 de una operación temporal. La dilución efectiva, las condiciones de acumulación y la representatividad temporal pueden contribuir a la discrepancia, pero no fueron identificadas causalmente por el diseño experimental.",
+            "El cierre del balance demuestra coherencia matemática de las ecuaciones implementadas. El contraste anterior constituye una evaluación parcial de plausibilidad frente a determinaciones experimentales. Una validación experimental completa requeriría masas de entrada y salida emparejadas en A1 y caudales o masas reales de descarga asociados con las muestras líquidas, además de evidencia que permitiera diferenciar las rutas de N.",
+        ],
+    )
     document.add_heading("6.2 Contraste con la literatura", level=2)
     add_text(
         document,
@@ -2585,6 +2738,11 @@ def build_document() -> tuple[int, int, int, int]:
         paragraph = document.add_paragraph(style="Normal")
         paragraph.add_run(f"Conclusión provisional {index}. ").bold = True
         paragraph.add_run(item["text"])
+    paragraph = document.add_paragraph(style="Normal")
+    paragraph.add_run(f"Conclusión provisional {len(conclusions) + 1}. ").bold = True
+    paragraph.add_run(
+        f"El contraste provisional del nitrógeno mostró que el modelo conservó {results_source.fmt(nitrogen_context['A1']['relative'], 2)} % más N residual que la referencia derivada de A1 y estimó concentraciones superiores a las medidas en aguas verdes y purines por {results_source.fmt(nitrogen_context['A3']['relative'], 2)} % y {results_source.fmt(nitrogen_context['B1']['relative'], 2)} %, respectivamente. Estas discrepancias delimitan la concordancia observada y orientan la revisión posterior a M3, pero no permiten validar experimentalmente los factores IPCC–EMEP/EEA ni atribuir la diferencia a mecanismos específicos."
+    )
     add_text(
         document,
         [
@@ -2631,8 +2789,8 @@ def build_document() -> tuple[int, int, int, int]:
             [
                 "Objetivo específico 1",
                 "Caracterización, flujos, balances y construcción del inventario",
-                "Caracterización, flujos y emisiones provisionales",
-                "Conclusión provisional 1",
+                "Caracterización, flujos, emisiones y contraste provisional del nitrógeno",
+                "Conclusiones provisionales 1 y 6",
             ],
             [
                 "Objetivo específico 2",
@@ -3149,7 +3307,53 @@ def validate_document(
     )
     math_paragraphs = formal_math_paragraphs
     table_headers = [cell.text.strip() for table in document.tables for cell in table.rows[0].cells]
+    appendix_c_calculation_tables = [
+        table
+        for table in document.tables
+        if table.rows
+        and [cell.text.strip() for cell in table.rows[0].cells]
+        == [
+            "Escenario",
+            "Etapa del sistema",
+            "Fase metodológica",
+            "Proceso o fenómeno modelado",
+            "Variable o flujo calculado",
+            "Ecuación",
+            "Relación de cálculo",
+        ]
+    ]
+    appendix_c_source_tables = [
+        table
+        for table in document.tables
+        if table.rows
+        and [cell.text.strip() for cell in table.rows[0].cells]
+        == [
+            "Escenario",
+            "Etapa del sistema",
+            "Ecuación",
+            "Dato de actividad",
+            "Parámetro o factor",
+            "Procedencia del dato o factor",
+            "Fuente metodológica",
+            "Salida o uso posterior",
+        ]
+    ]
     aggregate_academic = simapro_aggregate_academic_table()
+    nitrogen_context = nitrogen_contrast_context()
+    nitrogen_visible_values = {
+        results_source.fmt(nitrogen_context["A1"]["reference"], 6),
+        results_source.fmt(nitrogen_context["A1"]["model"], 6),
+        results_source.fmt(nitrogen_context["A1"]["difference"], 6),
+        results_source.fmt(nitrogen_context["A1"]["relative"], 2),
+        results_source.fmt(nitrogen_context["A3"]["reference"], 9),
+        results_source.fmt(nitrogen_context["A3"]["model"], 9),
+        results_source.fmt(nitrogen_context["A3"]["difference"], 9),
+        results_source.fmt(nitrogen_context["A3"]["relative"], 2),
+        results_source.fmt(nitrogen_context["B1"]["reference"], 9),
+        results_source.fmt(nitrogen_context["B1"]["model"], 9),
+        results_source.fmt(nitrogen_context["B1"]["difference"], 9),
+        results_source.fmt(nitrogen_context["B1"]["relative"], 2),
+    }
     campaign_scenario_mislabel = False
     for value in acronym_paragraphs:
         words = re.findall(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+", value)
@@ -3228,9 +3432,18 @@ def validate_document(
         ),
         (
             "El Apéndice C se divide en dos vistas completas y enlazadas",
-            len(document.tables) >= 19
-            and (len(document.tables[17].rows), len(document.tables[17].columns)) == (67, 7)
-            and (len(document.tables[18].rows), len(document.tables[18].columns)) == (67, 8)
+            len(appendix_c_calculation_tables) == 1
+            and len(appendix_c_source_tables) == 1
+            and (
+                len(appendix_c_calculation_tables[0].rows),
+                len(appendix_c_calculation_tables[0].columns),
+            )
+            == (67, 7)
+            and (
+                len(appendix_c_source_tables[0].rows),
+                len(appendix_c_source_tables[0].columns),
+            )
+            == (67, 8)
             and all(
                 phrase in text
                 for phrase in (
@@ -3487,6 +3700,80 @@ def validate_document(
                     "TAN de salida (kg N/año)",
                 ]
             ),
+        ),
+        (
+            "El contraste provisional de N está presente en el cuerpo de resultados",
+            "5.1.1 Contraste provisional del nitrógeno experimental con el balance modelado"
+            in text
+            and all(
+                header in table_headers
+                for header in [
+                    "Contraste",
+                    "Referencia experimental o derivada",
+                    "Estimación modelada",
+                    "Diferencia absoluta (modelo − referencia)",
+                    "Diferencia relativa",
+                ]
+            ),
+        ),
+        (
+            "Los valores visibles del contraste coinciden con los productos responsables",
+            all(value in text for value in nitrogen_visible_values),
+        ),
+        (
+            "La metodología define bases, diferencias y denominadores del contraste de N",
+            all(
+                term in text
+                for term in [
+                    "Para A1 se comparó el N residual modelado después del precomposteo",
+                    "Para A3 y B1 se comparó la concentración de N propagado",
+                    "la diferencia absoluta se calculó como estimación modelada menos referencia",
+                    "La diferencia relativa utilizó la referencia como denominador",
+                    "puntos porcentuales de N",
+                ]
+            ),
+        ),
+        (
+            "Las referencias derivadas no se presentan como mediciones independientes",
+            all(
+                term in text
+                for term in [
+                    "La referencia de A1 es una masa de N derivada",
+                    "no fue observada directamente",
+                    "mezclas anuales teóricas, no descargas medidas",
+                ]
+            ),
+        ),
+        (
+            "La discusión interpreta A1, aguas verdes y purines sin atribución causal",
+            all(
+                term in text
+                for term in [
+                    "6.1.1 Interpretación del contraste experimental del nitrógeno",
+                    "concordancia limitada entre ambas construcciones",
+                    "puede relacionarse hipotéticamente",
+                    "no demuestra una pérdida gaseosa mayor ni una pérdida real total de N",
+                    "no fueron identificadas causalmente por el diseño experimental",
+                ]
+            ),
+        ),
+        (
+            "El manuscrito separa cierre matemático, plausibilidad y validación experimental",
+            all(
+                term in text
+                for term in [
+                    "El cierre del balance demuestra coherencia matemática",
+                    "evaluación parcial de plausibilidad",
+                    "Una validación experimental completa requeriría",
+                    "no permiten validar experimentalmente los factores IPCC–EMEP/EEA",
+                ]
+            ),
+        ),
+        (
+            "El contraste de N queda conectado con las conclusiones y la trazabilidad",
+            "Conclusión provisional 6" in text
+            and "Conclusiones provisionales 1 y 6" in text
+            and "contraste provisional del nitrógeno" in text,
         ),
         (
             "Las masas gestionadas por etapa son visibles",

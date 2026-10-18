@@ -163,6 +163,11 @@ def fmt_es(value: float, decimals: int) -> str:
     return text.rstrip("0").rstrip(",")
 
 
+def fmt_es_fixed(value: float, decimals: int) -> str:
+    text = f"{float(value):,.{decimals}f}"
+    return text.replace(",", "X").replace(".", ",").replace("X", " ")
+
+
 def validate_characterization() -> None:
     integration = {
         (row["material"], row["variable"]): row
@@ -464,6 +469,122 @@ def validate_quantitative_narratives() -> None:
     assert dominant({"A1": 1.0, "A2": 2.0}, decimals=3) == ("A2", 2.0)
 
 
+def validate_integral_nitrogen_contrast(
+    integral_document: Document, integral_text: str, integral_validation: str
+) -> None:
+    """Comprueba que OBS-16 sea visible y trazable a sus productos responsables."""
+
+    ledger_rows = [
+        row
+        for row in read_rows(
+            ROOT / "outputs" / "auditoria_n_reactivo" / "ledger_secuencial_n_tan.csv"
+        )
+        if row["stage"] == "A1: Precomposteo"
+    ]
+    concentration_source = read_rows(
+        ROOT
+        / "outputs"
+        / "auditoria_n_reactivo"
+        / "comparacion_concentracion_diluida.csv"
+    )
+    concentration_rows = {
+        code: [row for row in concentration_source if row["stage"] == stage]
+        for code, stage in {
+            "A3": "A4: Aplicación de aguas verdes en campos de pastoreo",
+            "B1": "B2: Aplicación de purines en campo de pastoreo",
+        }.items()
+    }
+    assert len(ledger_rows) == 1
+    assert all(len(rows) == 1 for rows in concentration_rows.values())
+    a1 = ledger_rows[0]
+    assert a1["derived_reference_kind"] == "benchmark_parcial_masa_a2_inferida"
+
+    comparisons = {
+        "A1": {
+            "reference": float(a1["derived_n_reference_kg"]),
+            "model": float(a1["n_total_out_kg"]),
+            "difference": float(a1["model_minus_derived_reference_kg"]),
+            "relative": float(a1["relative_difference_vs_derived_reference_pct"]),
+            "decimals": 6,
+            "unit": "kg N/año",
+            "difference_unit": "kg N/año",
+        }
+    }
+    for code, rows in concentration_rows.items():
+        row = rows[0]
+        comparisons[code] = {
+            "reference": float(row["measured_m2_n_pct"]),
+            "model": float(row["modelled_n_pct_on_theoretical_mixture"]),
+            "difference": float(row["difference_model_minus_m2_percentage_points"]),
+            "relative": float(row["relative_difference_vs_m2_pct"]),
+            "decimals": 9,
+            "unit": "% N",
+            "difference_unit": "puntos porcentuales",
+        }
+
+    for values in comparisons.values():
+        assert close(values["difference"], values["model"] - values["reference"])
+        assert close(
+            values["relative"],
+            (values["model"] - values["reference"]) / values["reference"] * 100.0,
+            tolerance=1e-10,
+        )
+
+    contrast_tables = [
+        table
+        for table in integral_document.tables
+        if table.rows
+        and [cell.text.strip() for cell in table.rows[0].cells]
+        == [
+            "Contraste",
+            "Referencia experimental o derivada",
+            "Estimación modelada",
+            "Diferencia absoluta (modelo − referencia)",
+            "Diferencia relativa",
+        ]
+    ]
+    assert len(contrast_tables) == 1
+    table = contrast_tables[0]
+    assert len(table.rows) == 4
+    expected_labels = {
+        "A1": "A1: N residual después del precomposteo",
+        "A3": "A3→A4: Aguas verdes",
+        "B1": "B1→B2: Purines",
+    }
+    for code, row in zip(("A1", "A3", "B1"), table.rows[1:]):
+        values = comparisons[code]
+        decimals = int(values["decimals"])
+        expected = [
+            expected_labels[code],
+            f"{fmt_es_fixed(values['reference'], decimals)} {values['unit']}",
+            f"{fmt_es_fixed(values['model'], decimals)} {values['unit']}",
+            f"+{fmt_es_fixed(values['difference'], decimals)} {values['difference_unit']}",
+            f"+{fmt_es_fixed(values['relative'], 2)} %",
+        ]
+        assert [cell.text.strip() for cell in row.cells] == expected
+
+    required_narrative = (
+        "5.1.1 Contraste provisional del nitrógeno experimental con el balance modelado",
+        "La referencia de A1 es una masa de N derivada",
+        "no fue observada directamente",
+        "mezclas anuales teóricas, no descargas medidas",
+        "6.1.1 Interpretación del contraste experimental del nitrógeno",
+        "El cierre del balance demuestra coherencia matemática",
+        "evaluación parcial de plausibilidad",
+        "no permiten validar experimentalmente los factores IPCC–EMEP/EEA",
+    )
+    assert all(value in integral_text for value in required_narrative)
+    assert all(
+        marker in integral_validation
+        for marker in (
+            "PASS — El contraste provisional de N está presente en el cuerpo de resultados",
+            "PASS — Los valores visibles del contraste coinciden con los productos responsables",
+            "PASS — La discusión interpreta A1, aguas verdes y purines sin atribución causal",
+            "PASS — El contraste de N queda conectado con las conclusiones y la trazabilidad",
+        )
+    )
+
+
 def validate_documents_and_conclusions() -> None:
     methodology_text, methodology_header = document_text(DOCS / "metodologia_desarrollada_tfg.docx")
     integral_text, integral_header = document_text(DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx")
@@ -474,6 +595,9 @@ def validate_documents_and_conclusions() -> None:
     conclusion_document = Document(DOCS / "conclusiones_desarrolladas_tfg.docx")
     integral_document = Document(DOCS / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx")
     integral_validation = (DOCS / "reporte_validacion_documento_integral.md").read_text(encoding="utf-8")
+    validate_integral_nitrogen_contrast(
+        integral_document, integral_text, integral_validation
+    )
     document_texts = {
         "metodología": methodology_text,
         "resultados": results_text,
@@ -844,6 +968,7 @@ def main() -> None:
         "- Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.\n"
         "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"
+        "- Contraste OBS-16 visible, trazado a sus fuentes y discutido sin atribución causal ni validación experimental indebida: PASS.\n"
         "- Campañas `M2` y `M3` preservadas sin conversión a `m²` o `m³`: PASS.\n"
         "- Cifras documentales verificadas con el redondeo visible: PASS.\n"
         "- Conclusiones reconstruidas desde fuentes canónicas: PASS.\n"

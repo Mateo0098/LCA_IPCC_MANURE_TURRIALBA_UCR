@@ -2,7 +2,7 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 25.
+- Tablas con numeración global: 26.
 - Figuras con numeración global: 10.
 - Ecuaciones con numeración global: 26.
 - Entradas conservadas en el registro bibliográfico: 43.
@@ -123,6 +123,13 @@
 - PASS — La trazabilidad experimental del cuerpo está presente.
 - PASS — El apéndice experimental contiene diseño y resultados esenciales.
 - PASS — El apéndice de balances permite auditar la propagación de N total y TAN.
+- PASS — El contraste provisional de N está presente en el cuerpo de resultados.
+- PASS — Los valores visibles del contraste coinciden con los productos responsables.
+- PASS — La metodología define bases, diferencias y denominadores del contraste de N.
+- PASS — Las referencias derivadas no se presentan como mediciones independientes.
+- PASS — La discusión interpreta A1, aguas verdes y purines sin atribución causal.
+- PASS — El manuscrito separa cierre matemático, plausibilidad y validación experimental.
+- PASS — El contraste de N queda conectado con las conclusiones y la trazabilidad.
 - PASS — Las masas gestionadas por etapa son visibles.
 - PASS — Las pérdidas físicas de N permiten conciliar el balance por etapa.
 - PASS — Las rutas de emisiones se presentan de forma desagregada por etapa.

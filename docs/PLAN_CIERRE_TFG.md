@@ -44,7 +44,7 @@ PROVISIONAL M1–M2 ni anticipan resultados de M3 o de la repetición de SimaPro
 | OBS-13 | Unidad 3B | Cerrada tras revisión supervisora; se conserva el límite de identificación del horno | Catálogo fotográfico, registro primario y generador de figuras integrales |
 | OBS-14 | Unidad 4A | Cerrada tras revisión supervisora | Generador integral, utilidad OMML y reglas de formato Word |
 | OBS-15 | Unidad 4B | Cerrada tras revisión supervisora en la Unidad 6 | Registro bibliográfico, factores IMN y generadores académicos |
-| OBS-16 | Unidades 5A–5B | Diagnóstico 5A y saneamiento semántico 5B cerrados tras revisión supervisora; integración y evaluación científica definitiva pendientes después de M3 | Decisiones metodológicas, ledger de N, salidas auxiliares QA/QC y fuentes experimentales |
+| OBS-16 | Unidades 5A–5B y unidad de incorporación académica | Contraste provisional M1–M2 incorporado y validado técnicamente en metodología, resultados, discusión y conclusiones; revisión supervisora pendiente. La actualización científica definitiva permanece pendiente después de M3 | Generador integral, decisiones metodológicas, ledger de N, salidas auxiliares QA/QC y fuentes experimentales |
 
 ## Unidad preparatoria de M3
 

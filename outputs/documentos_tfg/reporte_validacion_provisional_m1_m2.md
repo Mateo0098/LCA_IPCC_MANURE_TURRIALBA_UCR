@@ -16,6 +16,7 @@
 - Impactos por etapa y totales contra tablas canónicas, con unidades EF 3.1: PASS.
 - Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.
 - Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.
+- Contraste OBS-16 visible, trazado a sus fuentes y discutido sin atribución causal ni validación experimental indebida: PASS.
 - Campañas `M2` y `M3` preservadas sin conversión a `m²` o `m³`: PASS.
 - Cifras documentales verificadas con el redondeo visible: PASS.
 - Conclusiones reconstruidas desde fuentes canónicas: PASS.
