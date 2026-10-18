@@ -6,6 +6,33 @@ import math
 from dataclasses import dataclass
 
 
+def rounded_direction(value: float, decimals: int) -> int:
+    """Devuelve el signo que permanece visible después del redondeo."""
+
+    if not math.isfinite(value):
+        raise ValueError("El valor comparado debe ser finito.")
+    if decimals < 0:
+        raise ValueError("El número de decimales no puede ser negativo.")
+    rounded = float(f"{value:.{decimals}f}")
+    return (rounded > 0) - (rounded < 0)
+
+
+def format_spanish_number(
+    value: float, decimals: int, *, explicit_sign: bool = False
+) -> str:
+    """Formatea sin producir `-0` y usa signo explícito cuando corresponde."""
+
+    direction = rounded_direction(value, decimals)
+    magnitude = 0.0 if direction == 0 else abs(value)
+    text = f"{magnitude:,.{decimals}f}"
+    text = text.replace(",", "X").replace(".", ",").replace("X", " ")
+    if direction < 0:
+        return f"−{text}"
+    if direction > 0 and explicit_sign:
+        return f"+{text}"
+    return text
+
+
 @dataclass(frozen=True)
 class Comparison:
     left_label: str

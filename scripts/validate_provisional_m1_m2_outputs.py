@@ -23,7 +23,12 @@ from inventory_data_provenance import (
     build_provenance_rows,
     build_provenance_summary_rows,
 )
-from quantitative_comparison import Comparison, dominant
+from quantitative_comparison import (
+    Comparison,
+    dominant,
+    format_spanish_number,
+    rounded_direction,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -161,11 +166,6 @@ def fmt_es(value: float, decimals: int) -> str:
     text = f"{float(value):,.{decimals}f}"
     text = text.replace(",", "X").replace(".", ",").replace("X", " ")
     return text.rstrip("0").rstrip(",")
-
-
-def fmt_es_fixed(value: float, decimals: int) -> str:
-    text = f"{float(value):,.{decimals}f}"
-    return text.replace(",", "X").replace(".", ",").replace("X", " ")
 
 
 def validate_characterization() -> None:
@@ -505,7 +505,9 @@ def validate_integral_nitrogen_contrast(
             "model": float(a1["n_total_out_kg"]),
             "difference": float(a1["model_minus_derived_reference_kg"]),
             "relative": float(a1["relative_difference_vs_derived_reference_pct"]),
-            "decimals": 6,
+            "value_decimals": 1,
+            "difference_decimals": 1,
+            "relative_decimals": 1,
             "unit": "kg N/año",
             "difference_unit": "kg N/año",
         }
@@ -517,7 +519,9 @@ def validate_integral_nitrogen_contrast(
             "model": float(row["modelled_n_pct_on_theoretical_mixture"]),
             "difference": float(row["difference_model_minus_m2_percentage_points"]),
             "relative": float(row["relative_difference_vs_m2_pct"]),
-            "decimals": 9,
+            "value_decimals": 4,
+            "difference_decimals": 4,
+            "relative_decimals": 1,
             "unit": "% N",
             "difference_unit": "puntos porcentuales",
         }
@@ -553,21 +557,45 @@ def validate_integral_nitrogen_contrast(
     }
     for code, row in zip(("A1", "A3", "B1"), table.rows[1:]):
         values = comparisons[code]
-        decimals = int(values["decimals"])
         expected = [
             expected_labels[code],
-            f"{fmt_es_fixed(values['reference'], decimals)} {values['unit']}",
-            f"{fmt_es_fixed(values['model'], decimals)} {values['unit']}",
-            f"+{fmt_es_fixed(values['difference'], decimals)} {values['difference_unit']}",
-            f"+{fmt_es_fixed(values['relative'], 2)} %",
+            f"{format_spanish_number(values['reference'], int(values['value_decimals']))} {values['unit']}",
+            f"{format_spanish_number(values['model'], int(values['value_decimals']))} {values['unit']}",
+            f"{format_spanish_number(values['difference'], int(values['difference_decimals']), explicit_sign=True)} {values['difference_unit']}",
+            f"{format_spanish_number(values['relative'], int(values['relative_decimals']), explicit_sign=True)} %",
         ]
         assert [cell.text.strip() for cell in row.cells] == expected
+
+    direction_fragments = []
+    for code, values in comparisons.items():
+        direction = rounded_direction(
+            values["difference"], int(values["difference_decimals"])
+        )
+        if code == "A1":
+            direction_fragments.append(
+                {
+                    1: "el modelo conservó más N residual que la referencia derivada",
+                    -1: "el modelo conservó menos N residual que la referencia derivada",
+                    0: "el modelo y la referencia derivada no mostraron una diferencia visible de N residual",
+                }[direction]
+            )
+        else:
+            direction_fragments.append(
+                {
+                    1: "la concentración modelada fue mayor que la medición M2",
+                    -1: "la concentración modelada fue menor que la medición M2",
+                    0: "la concentración modelada no se distinguió de la medición M2",
+                }[direction]
+            )
+    assert all(fragment in integral_text for fragment in direction_fragments)
 
     required_narrative = (
         "5.1.1 Contraste provisional del nitrógeno experimental con el balance modelado",
         "La referencia de A1 es una masa de N derivada",
         "no fue observada directamente",
         "mezclas anuales teóricas, no descargas medidas",
+        "Los cálculos conservaron la precisión interna",
+        "no representan mayor precisión analítica formal",
         "6.1.1 Interpretación del contraste experimental del nitrógeno",
         "El cierre del balance demuestra coherencia matemática",
         "evaluación parcial de plausibilidad",
@@ -969,6 +997,7 @@ def main() -> None:
         "- Comparación A–B, diferencias, porcentajes, dominancia, signos y redondeo: PASS.\n"
         "- Metodología, resultados y conclusiones identificados como `PROVISIONAL M1–M2`: PASS.\n"
         "- Contraste OBS-16 visible, trazado a sus fuentes y discutido sin atribución causal ni validación experimental indebida: PASS.\n"
+        "- Signos positivo, negativo y nulo del contraste y redondeo académico coherente: PASS.\n"
         "- Campañas `M2` y `M3` preservadas sin conversión a `m²` o `m³`: PASS.\n"
         "- Cifras documentales verificadas con el redondeo visible: PASS.\n"
         "- Conclusiones reconstruidas desde fuentes canónicas: PASS.\n"

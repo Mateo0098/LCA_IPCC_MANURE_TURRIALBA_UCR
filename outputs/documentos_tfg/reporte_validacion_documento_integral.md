@@ -125,6 +125,7 @@
 - PASS — El apéndice de balances permite auditar la propagación de N total y TAN.
 - PASS — El contraste provisional de N está presente en el cuerpo de resultados.
 - PASS — Los valores visibles del contraste coinciden con los productos responsables.
+- PASS — El contraste de N usa redondeo académico sin perder la precisión interna.
 - PASS — La metodología define bases, diferencias y denominadores del contraste de N.
 - PASS — Las referencias derivadas no se presentan como mediciones independientes.
 - PASS — La discusión interpreta A1, aguas verdes y purines sin atribución causal.
