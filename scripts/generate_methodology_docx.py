@@ -525,7 +525,20 @@ def parameter_long_summary() -> pd.DataFrame:
 
 
 def characterization_factors() -> pd.DataFrame:
-    factors = read_csv("factores")
+    try:
+        factors = pd.read_csv(
+            TABLES["factores"],
+            encoding="utf-8",
+            dtype={"valor": "string"},
+            keep_default_na=False,
+        )
+    except UnicodeDecodeError:
+        factors = pd.read_csv(
+            TABLES["factores"],
+            encoding="utf-8-sig",
+            dtype={"valor": "string"},
+            keep_default_na=False,
+        )
     cols = [
         col
         for col in [
@@ -545,6 +558,8 @@ def characterization_factors() -> pd.DataFrame:
             "interiores 15.ª edición, 2025",
             regex=False,
         )
+    if "valor" in out.columns:
+        out["valor"] = out["valor"].astype(str).str.replace(".", ",", regex=False)
     return out.rename(
         columns={
             "sistema_o_compuesto": "Sustancia",

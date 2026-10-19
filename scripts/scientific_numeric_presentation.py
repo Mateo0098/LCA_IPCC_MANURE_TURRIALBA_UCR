@@ -33,8 +33,6 @@ class NumberFormat:
             )
         if self.significant_digits is not None and self.significant_digits < 1:
             raise ValueError("Las cifras significativas deben ser positivas.")
-        if self.decimal_places is not None and self.decimal_places < 0:
-            raise ValueError("Los decimales no pueden ser negativos.")
 
 
 # Convenciones editoriales generales. Las mediciones con resolución o
@@ -70,7 +68,7 @@ def decimal_places_from_uncertainty(
     if number == 0:
         raise ValueError("Una incertidumbre nula no justifica resolución editorial.")
     exponent = number.adjusted() - uncertainty_significant_digits + 1
-    return max(0, -exponent)
+    return -exponent
 
 
 def _quantize_significant(number: Decimal, digits: int) -> Decimal:
@@ -96,7 +94,8 @@ def _fixed_text(number: Decimal, decimal_places: int, strip_zeros: bool) -> str:
     rounded = number.quantize(quantum, rounding=ROUND_HALF_EVEN)
     if rounded == 0:
         rounded = abs(rounded)
-    raw = f"{rounded:.{decimal_places}f}"
+    visible_places = max(0, decimal_places)
+    raw = f"{rounded:.{visible_places}f}"
     integer, separator, fraction = raw.partition(".")
     if strip_zeros and fraction:
         fraction = fraction.rstrip("0")
@@ -154,7 +153,11 @@ def fixed(
     strip_trailing_zeros: bool = True,
     scientific_below: float | None = None,
 ) -> str:
-    """Atajo para mediciones o convenciones con posición decimal justificada."""
+    """Atajo para mediciones o convenciones con posición decimal justificada.
+
+    ``decimal_places`` puede ser negativo para redondear a decenas, centenas u
+    órdenes superiores sin alterar el valor de origen.
+    """
 
     return format_number(
         value,
@@ -165,6 +168,29 @@ def fixed(
             strip_trailing_zeros=strip_trailing_zeros,
             explicit_sign=explicit_sign,
         ),
+    )
+
+
+def estimate_with_uncertainty(
+    estimate: object,
+    uncertainty: object,
+    *,
+    uncertainty_significant_digits: int = 2,
+) -> str:
+    """Presenta estimador y dispersión en una posición decimal compartida.
+
+    La función no calcula ni interpreta la incertidumbre: únicamente formatea
+    una dispersión ya disponible, incluso cuando su última posición justificada
+    está a la izquierda de la unidad.
+    """
+
+    position = decimal_places_from_uncertainty(
+        uncertainty,
+        uncertainty_significant_digits=uncertainty_significant_digits,
+    )
+    return (
+        f"{fixed(estimate, position, strip_trailing_zeros=False)} ± "
+        f"{fixed(uncertainty, position, strip_trailing_zeros=False)}"
     )
 
 

@@ -65,7 +65,7 @@ from reference_docx_utils import (  # noqa: E402
 from quantitative_comparison import format_spanish_number, rounded_direction  # noqa: E402
 from scientific_numeric_presentation import (  # noqa: E402
     NumberFormat,
-    decimal_places_from_uncertainty,
+    estimate_with_uncertainty,
     fixed,
     format_number,
     significant,
@@ -596,14 +596,21 @@ def add_chapter(document: Document, title: str, *, first: bool = False) -> None:
     document.add_heading(title, level=1)
 
 
-def display_value(value: object, decimals: int = 4) -> str:
+def display_value(value: object, decimals: int = 4, *, exact: bool = False) -> str:
     if pd.isna(value):
         return "—"
     if isinstance(value, bool):
         return "Sí" if value else "No"
     if isinstance(value, (int, float)):
-        if float(value).is_integer():
-            return format_number(value, NumberFormat(decimal_places=0, scientific_below=None))
+        if exact:
+            return format_number(
+                value,
+                NumberFormat(
+                    decimal_places=0,
+                    scientific_below=None,
+                    scientific_at_or_above=None,
+                ),
+            )
         return significant(value, min(max(decimals, 3), 4))
     text = clean_academic_label(value)
     replacements = {
@@ -720,11 +727,7 @@ def experimental_parameter_table() -> pd.DataFrame:
         value = float(source["valor_integrado_provisional"])
         dispersion = source.get("desviacion_estandar_entre_jornadas", "")
         if pd.notna(dispersion) and str(dispersion).strip() and float(dispersion) > 0:
-            places = decimal_places_from_uncertainty(float(dispersion))
-            visible_result = (
-                f"{fixed(value, places, strip_trailing_zeros=False)} ± "
-                f"{fixed(float(dispersion), places, strip_trailing_zeros=False)}"
-            )
+            visible_result = estimate_with_uncertainty(value, float(dispersion))
         elif key in {("aguas verdes", "N total"), ("purines", "N total")}:
             visible_result = fixed(value, 4, strip_trailing_zeros=False)
         elif key == ("estiércol precompostado", "relación C/N"):
@@ -1203,6 +1206,7 @@ def add_dataframe(
     *,
     decimals: int = 4,
     column_formats: dict[str, NumberFormat] | None = None,
+    exact_columns: set[str] | None = None,
     font_size_pt: float | None = None,
     column_widths_inches: list[float] | None = None,
     body_alignment: WD_ALIGN_PARAGRAPH | None = None,
@@ -1218,13 +1222,18 @@ def add_dataframe(
     for column_index, column in enumerate(dataframe.columns):
         table.rows[0].cells[column_index].text = clean_academic_label(column)
     column_formats = column_formats or {}
+    exact_columns = exact_columns or set()
     for _, row in dataframe.iterrows():
         cells = table.add_row().cells
         for column_index, (column, value) in enumerate(row.items()):
             if column in column_formats and isinstance(value, (int, float)) and not pd.isna(value):
                 cells[column_index].text = format_number(value, column_formats[column])
             else:
-                cells[column_index].text = display_value(value, decimals)
+                cells[column_index].text = display_value(
+                    value,
+                    decimals,
+                    exact=column in exact_columns,
+                )
     for row_index, row in enumerate(table.rows):
         tr_properties = row._tr.get_or_add_trPr()
         cant_split = OxmlElement("w:cantSplit")
@@ -2863,7 +2872,7 @@ def build_document() -> tuple[int, int, int, int]:
     )
     add_table_note(
         document,
-        "Resultados de la sesión del 7 de octubre de 2026. El subtotal de cambio climático excluye la electricidad agregada del IMN y no equivale al cambio climático total publicado por el ACV. Todas las diferencias corresponden a SimaPro menos Python.",
+        "Resultados de la sesión del 7 de octubre de 2026. El subtotal de cambio climático excluye la electricidad agregada del IMN y no equivale al cambio climático total publicado por el ACV. Python y SimaPro se presentan redondeados a la precisión observada; por ello, ambos pueden verse idénticos aunque la diferencia calculada con precisión completa sea distinta de cero. Esa diferencia se conserva en la columna correspondiente y siempre representa SimaPro menos Python.",
     )
 
     add_chapter(document, "6. Discusión provisional")

@@ -13,6 +13,7 @@ from quantitative_comparison import Comparison  # noqa: E402
 from scientific_numeric_presentation import (  # noqa: E402
     NumberFormat,
     decimal_places_from_uncertainty,
+    estimate_with_uncertainty,
     fixed,
     format_number,
     significant,
@@ -48,8 +49,24 @@ class ScientificNumericPresentationTests(unittest.TestCase):
     def test_uncertainty_only_controls_position_when_it_exists(self) -> None:
         self.assertEqual(decimal_places_from_uncertainty(Decimal("0.207")), 2)
         self.assertEqual(decimal_places_from_uncertainty(Decimal("1.646")), 1)
+        self.assertEqual(decimal_places_from_uncertainty(Decimal("18.7")), 0)
+        self.assertEqual(decimal_places_from_uncertainty(Decimal("168")), -1)
         with self.assertRaises(ValueError):
             decimal_places_from_uncertainty(0)
+
+    def test_estimate_and_uncertainty_share_positions_across_orders(self) -> None:
+        cases = (
+            ("0.012345", "0.00678", "0,0123 ± 0,0068"),
+            ("3.14159", "0.95", "3,14 ± 0,95"),
+            ("123.45", "18.7", "123 ± 19"),
+            ("1234.5", "168", "1\u00a0230 ± 170"),
+        )
+        for estimate, uncertainty, expected in cases:
+            with self.subTest(uncertainty=uncertainty):
+                self.assertEqual(
+                    estimate_with_uncertainty(Decimal(estimate), Decimal(uncertainty)),
+                    expected,
+                )
 
     def test_exact_identifiers_remain_outside_magnitude_formatter(self) -> None:
         exact_values = ["2026", "A1", "M2", "Tabla 7"]

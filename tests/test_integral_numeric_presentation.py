@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import sys
 import unittest
 from pathlib import Path
 
@@ -8,6 +9,11 @@ from docx import Document
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
+from generate_integral_tfg_docx import display_value  # noqa: E402
+
+
 DOCX = ROOT / "outputs" / "documentos_tfg" / "TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx"
 PARTIAL_DOCX = [
     ROOT / "outputs" / "documentos_tfg" / "metodologia_desarrollada_tfg.docx",
@@ -55,6 +61,25 @@ class IntegralNumericPresentationTests(unittest.TestCase):
         self.assertIn("3\u00a0167,9045", body)
         self.assertIn("−1,99 × 10⁻⁵", body)
         self.assertNotRegex(body, r"\d+[,.]\d{8,}")
+        self.assertIn(
+            "ambos pueden verse idénticos aunque la diferencia calculada con precisión completa sea distinta de cero",
+            self.text,
+        )
+
+    def test_integer_appearance_does_not_define_exactness(self) -> None:
+        self.assertEqual(display_value(12_345.0), "12\u00a0340")
+        self.assertEqual(display_value(12_345, exact=True), "12\u00a0345")
+
+    def test_published_integer_valued_factors_keep_source_precision(self) -> None:
+        factor_table = next(
+            table
+            for table in self.document.tables
+            if [cell.text for cell in table.rows[0].cells]
+            == ["Sustancia", "Factor", "Valor", "Unidad", "Referencia metodológica"]
+        )
+        values = [row.cells[2].text for row in factor_table.rows[1:]]
+        for expected in ("27,0", "273,0", "1,0"):
+            self.assertIn(expected, values)
 
     def test_no_negative_zero_or_decimal_stage_codes(self) -> None:
         self.assertNotRegex(self.text, r"(?<!\d)[−-]0(?:,0+)?(?:\s|$)")
