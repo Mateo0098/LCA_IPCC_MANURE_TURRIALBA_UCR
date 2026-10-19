@@ -29,6 +29,7 @@ from reference_docx_utils import (
     sha256_file,
 )
 from quantitative_comparison import Comparison, dominant
+from scientific_numeric_presentation import fixed, significant
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -377,11 +378,12 @@ def fmt(value, decimals: int = 2) -> str:
     if value == "" or pd.isna(value):
         return ""
     try:
-        text = f"{float(value):,.{decimals}f}"
-        text = text.replace(",", "X").replace(".", ",").replace("X", " ")
-        if "," in text:
-            text = text.rstrip("0").rstrip(",")
-        return text
+        number = float(value)
+        if decimals > 4:
+            return significant(number, 4)
+        if number != 0 and abs(number) < 10 ** (-decimals):
+            return significant(number, 4)
+        return fixed(number, decimals)
     except (TypeError, ValueError):
         return clean_text(value)
 
@@ -835,7 +837,7 @@ def build_document() -> None:
             f"Los flujos del inventario se expresaron como masa equivalente total por año para cada etapa. {largest_flow[0]} presentó la mayor masa equivalente total, con {fmt(largest_flow[1], 2)} kg eq/año.",
             f"A1: Precomposteo recibió {fmt(flow_values['A1: Precomposteo'], 2)} kg/año de estiércol fresco recolectado. La entrada húmeda de A2: Lombricompostaje se estimó en {fmt(flow_values['A2: Lombricompostaje'], 2)} kg/año mediante una razón de masa derivada de materia seca y cenizas por jornada, bajo el supuesto de conservación de estas últimas. Esa entrada no fue pesada como salida de A1. La diferencia entre ambas masas húmedas no permite cuantificar evaporación ni pérdidas de sólidos: se dispuso de humedades de muestras, pero no de los flujos de agua y sólidos necesarios para cerrar ambos balances.",
             "El N total y el nitrógeno amoniacal total de A2 se propagaron desde A1 según las pérdidas de N modeladas. La masa húmeda estimada no se utilizó para descontar N de forma adicional; el N analítico del precompostado permanece como contraste experimental independiente.",
-            "La masa equivalente de A4 integra el agua de lavado y 8 753,63 kg/año de estiércol remanente derivados del balance en sala. La masa equivalente de B2 integra agua de lavado y 26 278,73 kg/año de estiércol fresco teóricamente depositado.",
+            "La masa equivalente de A4 integra el agua de lavado y 8 753,6 kg/año de estiércol remanente derivados del balance en sala. La masa equivalente de B2 integra agua de lavado y 26 278,7 kg/año de estiércol fresco teóricamente depositado.",
             "En contraste, para estimar las emisiones de manejo en A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines se utilizó la masa de estiércol correspondiente, sin sumar el agua de lavado como masa de actividad. El flujo total de agua y estiércol se incorporó en las etapas subsecuentes de aplicación A4 y B2.",
             f"{smallest_flow[0]} presentó la menor masa equivalente. La Tabla 2 presenta la masa equivalente total por etapa y la Figura 3 resume su distribución por escenario.",
             "La Tabla R2 del bloque de apéndices internos, Flujos completos del inventario, contiene la desagregación de los flujos empleados para construir el ICV.",
@@ -872,8 +874,8 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            f"Los impactos ambientales por etapa mostraron que {context['cg_dominant_b_name']} concentró {fmt(context['cg_dominant_b_percentage'], 2)} % del calentamiento global del Escenario B, con {fmt(context['cg_dominant_b_value'], 6)} kg CO2-eq/año. En el Escenario A, {context['cg_dominant_a_name']} aportó {fmt(context['cg_dominant_a_percentage'], 2)} % del total de esta categoría.",
-            f"Para eutrofización marina, {context['eu_dominant_b_name']} presentó la mayor contribución del Escenario B, con {fmt(context['eu_dominant_b_percentage'], 2)} % de su total; en el Escenario A, {context['eu_dominant_a_name']} concentró {fmt(context['eu_dominant_a_percentage'], 2)} %. La tabla de impactos por etapa presenta separadamente cambio climático, eutrofización terrestre y eutrofización marina.",
+            f"Los impactos ambientales por etapa mostraron que {context['cg_dominant_b_name']} concentró {fmt(context['cg_dominant_b_percentage'], 1)} % del calentamiento global del Escenario B, con {fmt(context['cg_dominant_b_value'], 6)} kg CO2-eq/año. En el Escenario A, {context['cg_dominant_a_name']} aportó {fmt(context['cg_dominant_a_percentage'], 1)} % del total de esta categoría.",
+            f"Para eutrofización marina, {context['eu_dominant_b_name']} presentó la mayor contribución del Escenario B, con {fmt(context['eu_dominant_b_percentage'], 1)} % de su total; en el Escenario A, {context['eu_dominant_a_name']} concentró {fmt(context['eu_dominant_a_percentage'], 1)} %. La tabla de impactos por etapa presenta separadamente cambio climático, eutrofización terrestre y eutrofización marina.",
             f"En B1: Almacenamiento de purines, la lixiviación explícita utilizada para estimar N₂O indirecto y NO₃⁻ fue nula. La eutrofización terrestre y marina de esta etapa procede de las emisiones atmosféricas explícitas de NH₃ y NOx del balance secuencial.",
             "La caracterización de las emisiones directas se realizó con Environmental Footprint 3.1: cambio climático en kg CO₂-eq, eutrofización terrestre en mol N-eq y eutrofización marina en kg N-eq.",
             "Los consumos operativos se incorporaron mediante factores IMN: electricidad agregada de consumo 2025, como aproximación temporal del patrón observado en 2026, y emisiones físicas de diésel caracterizadas con EF 3.1. El total climático combina estas contribuciones con las del manejo; no corresponde exclusivamente a EF 3.1. No se modelaron cadenas completas de suministro mediante ecoinvent.",
@@ -912,13 +914,13 @@ def build_document() -> None:
     add_paragraphs(
         doc,
         [
-            f"La comparación bajo la misma unidad funcional mostró un mayor impacto de calentamiento global en el {context['cg_comparison'].higher_label}. La diferencia B menos A fue de {fmt(context['cg_difference'], 6)} kg CO2-eq/año, equivalente a {fmt(context['cg_percentage'], 2)} % respecto al Escenario A.",
-            f"En eutrofización terrestre, el {context['et_comparison'].higher_label} presentó el mayor impacto y el {context['et_comparison'].lower_label} el menor. La diferencia B menos A fue de {fmt(context['et_difference'], 6)} mol N-eq/año, equivalente a {fmt(context['et_percentage'], 2)} % respecto al Escenario A.",
-            f"En eutrofización marina, el {context['eu_comparison'].higher_label} presentó el mayor impacto y el {context['eu_comparison'].lower_label} el menor. La diferencia B menos A fue de {fmt(context['eu_difference'], 6)} kg N-eq/año, equivalente a {fmt(context['eu_percentage'], 2)} % respecto al Escenario A. La comparación conserva cada categoría EF 3.1 en su propia unidad.",
+            f"La comparación bajo la misma unidad funcional mostró un mayor impacto de calentamiento global en el {context['cg_comparison'].higher_label}. La diferencia B menos A fue de {fmt(context['cg_difference'], 6)} kg CO2-eq/año, equivalente a {fmt(context['cg_percentage'], 1)} % respecto al Escenario A.",
+            f"En eutrofización terrestre, el {context['et_comparison'].higher_label} presentó el mayor impacto y el {context['et_comparison'].lower_label} el menor. La diferencia B menos A fue de {fmt(context['et_difference'], 6)} mol N-eq/año, equivalente a {fmt(context['et_percentage'], 1)} % respecto al Escenario A.",
+            f"En eutrofización marina, el {context['eu_comparison'].higher_label} presentó el mayor impacto y el {context['eu_comparison'].lower_label} el menor. La diferencia B menos A fue de {fmt(context['eu_difference'], 6)} kg N-eq/año, equivalente a {fmt(context['eu_percentage'], 1)} % respecto al Escenario A. La comparación conserva cada categoría EF 3.1 en su propia unidad.",
             "La Tabla R8 del bloque de apéndices internos, Comparación completa de escenarios, amplía las diferencias absolutas y porcentuales. La relación entre los contenidos, sus bases de información y las figuras asociadas se documenta en el Apéndice R10, Correspondencia entre tablas, figuras y archivos fuente.",
         ],
     )
-    add_dataframe_table(doc, "Tabla 7. Comparación de impactos ambientales entre escenarios.", format_df(comparison_summary(), decimals=3, decimals_by_col={"Diferencia porcentual B respecto a A": 2}))
+    add_dataframe_table(doc, "Tabla 7. Comparación de impactos ambientales entre escenarios.", format_df(comparison_summary(), decimals=3, decimals_by_col={"Diferencia porcentual B respecto a A": 1}))
     add_figure(doc, *MAIN_FIGURES[6])
 
     benchmark = a2_benchmark_summary()
@@ -940,7 +942,7 @@ def build_document() -> None:
     doc.add_heading("8. Contraste experimental bibliográfico de A2", level=2)
     add_paragraphs(doc, [
         "Los resultados oficiales de A2: Lombricompostaje se contrastaron con la referencia empírica de Jjagwe et al. (2019) como referencia interpretativa, sin reinicializar el balance secuencial, forzar NH₃ nulo, sustituir la arquitectura IPCC–EMEP–Komakech ni crear un segundo inventario oficial. La base común fue la materia seca del estiércol precompostado al ingreso de A2.",
-        f"La estimación IPCC de CH4 fue {fmt(ch4['Estimación IPCC'], 6)} g CH4/kg de materia seca, frente a {fmt(ch4['Referencia experimental'], 6)} g CH4/kg de materia seca. La razón IPCC/referencia fue {fmt(ch4['Razón IPCC/referencia'], 6)} y la diferencia relativa fue {fmt(ch4['Diferencia relativa a la referencia (%)'], 2)} %.",
+        f"La estimación IPCC de CH4 fue {fmt(ch4['Estimación IPCC'], 6)} g CH4/kg de materia seca, frente a {fmt(ch4['Referencia experimental'], 6)} g CH4/kg de materia seca. La razón IPCC/referencia fue {fmt(ch4['Razón IPCC/referencia'], 6)} y la diferencia relativa fue {fmt(ch4['Diferencia relativa a la referencia (%)'], 1)} %.",
         f"Para N2O directo, la estimación IPCC fue {fmt(n2o['Estimación IPCC'], 6)} mg N2O/kg de materia seca y la referencia experimental fue {fmt(n2o['Referencia experimental'], 6)} mg N2O/kg de materia seca. La razón fue {fmt(n2o['Razón IPCC/referencia'], 6)}. El N2O indirecto por volatilización permanece en el inventario oficial, pero se excluyó de esta comparación porque no representa una emisión medida físicamente dentro del lecho.",
         f"Como indicador complementario, la fracción de N inicial emitida como N2O-N directo fue {fmt(n_ratio['Estimación IPCC'], 8)} kg N2O-N/kg N para IPCC y {fmt(n_ratio['Referencia experimental'], 8)} kg N2O-N/kg N para la referencia experimental; la razón fue {fmt(n_ratio['Razón IPCC/referencia'], 6)}. Este resultado apoya la interpretación y no constituye una validación formal del modelo.",
         f"El contraste armonizado de CH4 + N2O directo, caracterizado con los mismos factores vigentes del TFG, fue {fmt(climate['Estimación IPCC'], 8)} kg CO2-eq/kg de materia seca para IPCC y {fmt(climate['Referencia experimental'], 8)} kg CO2-eq/kg de materia seca para Jjagwe et al. (2019). Este indicador no representa el impacto climático total del sistema: excluye CO2 experimental y N2O indirecto IPCC.",
@@ -952,7 +954,7 @@ def build_document() -> None:
         "No se calculó eutrofización experimental. El NH3 no fue detectado durante la campaña, el N atmosférico no quedó completamente especiado y la adaptación del TFG para representar N potencialmente eutrofizante no constituye una especiación experimental equivalente.",
         "El artículo presenta una inconsistencia interna para N2O: el resumen indica 3,943 × 10⁻⁵ g N2O/kg de materia seca, mientras la sección de resultados y la Figura 3 muestran un orden de decenas de miligramos, coherente además con el potencial de calentamiento global publicado. Para este contraste se adoptó explícitamente 39,43 mg N2O/kg de materia seca.",
     ])
-    add_dataframe_table(doc, "Tabla 8. Contraste bibliográfico de A2 sobre materia seca de entrada.", format_df(benchmark, decimals=6, decimals_by_col={"Diferencia relativa a la referencia (%)": 2}))
+    add_dataframe_table(doc, "Tabla 8. Contraste bibliográfico de A2 sobre materia seca de entrada.", format_df(benchmark, decimals=6, decimals_by_col={"Diferencia relativa a la referencia (%)": 1}))
 
     doc.add_heading("Apéndices internos de resultados", level=1)
     add_paragraphs(
@@ -1758,6 +1760,7 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         f"- CIA desarrollada como Centro de Investigaciones Agronómicas: {'Sí' if 'Centro de Investigaciones Agronómicas (CIA)' in integral_text and 'Ciudad de la Investigación (CIA)' not in integral_text else 'No'}.",
         f"- ISO y EMEP sin atribución mecánica de siglas inglesas, y EEA correctamente identificada: {'Sí' if 'ISO, por sus siglas en inglés' not in integral_text and 'EMEP, por sus siglas en inglés' not in integral_text and 'EEA, por sus siglas en inglés' in integral_text else 'No'}.",
         f"- Primeras apariciones exhaustivas y candidatos no registrados validados: {'Sí' if 'PASS — Todas las entradas utilizadas del registro tienen primera aparición válida' in integral_validation and 'PASS — No hay candidatos reales a sigla sin clasificar' in integral_validation else 'No'}.",
+        f"- Política de precisión numérica científica aplicada a prosa, tablas y figuras: {'Sí' if all(marker in integral_validation for marker in ['PASS — La política científica evita decimales excesivos no justificados', 'PASS — Los resultados pequeños no nulos permanecen visibles en notación científica', 'PASS — Los ejes de las figuras usan coma decimal en sus etiquetas numéricas']) else 'No'}.",
         f"- Documento maestro protegido sin cambios: {'Sí' if master_hash_before == master_hash_after == REGISTERED_REFERENCE_SHA256 else 'No'}.",
         "- Títulos y captions en negro, captions únicos, tablas con bordes horizontales y ecuaciones OMML seleccionables: aplicados por los generadores canónicos.",
     ]

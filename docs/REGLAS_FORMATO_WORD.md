@@ -190,6 +190,82 @@ kg PO₄-eq/año
 
 Se deben conservar tildes, eñes, subíndices, superíndices y símbolos científicos correctos, como m², m³, CH₄, N₂O, NH₃, NO₃⁻, CO₂ y PO₄³⁻. Entre una magnitud y su unidad se deja un espacio (`15 m²`, no `15m2`). Las potencias de diez visibles usan exponentes compuestos (`1,18 × 10⁻⁸`, no `1,18 × 10-8`). La normalización se aplica al texto académico visible —prosa, tablas, captions, ejes, leyendas y anotaciones— y nunca mediante sustituciones globales sobre rutas, código, identificadores o datos fuente.
 
+### 7.1 Precisión numérica científica
+
+Esta política se aplica a toda cifra cuantitativa visible en el manuscrito —prosa,
+tablas, notas, apéndices, ecuaciones, captions, ejes, escalas, etiquetas, leyendas y
+anotaciones— salvo una excepción explícita y justificada. Los datos canónicos y las
+operaciones intermedias conservan siempre su precisión completa; el redondeo ocurre
+únicamente en la capa de presentación mediante la utilidad compartida
+`scripts/scientific_numeric_presentation.py`.
+
+La selección del formato es contextual:
+
+- **Mediciones directas:** se respeta la resolución declarada por el laboratorio o
+  instrumento. Los dígitos almacenados por un equipo no se presentan como precisión
+  analítica adicional. Si solo existe una convención prudente de presentación, se
+  declara como tal y no como incertidumbre.
+- **Promedios y dispersión:** cuando se muestra una desviación estándar u otra
+  incertidumbre disponible, esta se identifica por su nombre, se limita normalmente
+  a una o dos cifras significativas y el estimador se redondea a la misma posición
+  decimal. Una desviación entre campañas no se denomina incertidumbre expandida.
+- **Resultados sin incertidumbre formal:** se usan normalmente cuatro cifras
+  significativas para resultados derivados del inventario y del ACV, o menos cuando
+  la resolución de las entradas lo exige. Esta es una convención editorial prudente,
+  no una evaluación metrológica.
+- **Fuentes bibliográficas:** una reproducción literal conserva la precisión y la
+  notación de la fuente, salvo normalización inequívoca del separador decimal o de la
+  potencia de diez. Un valor derivado de la fuente se identifica como cálculo y se
+  presenta con precisión compatible con sus entradas.
+- **Factores de emisión y caracterización:** se conservan los dígitos publicados o
+  aprobados. Esos dígitos no se interpretan por sí solos como incertidumbre conocida.
+  Los productos calculados con ellos siguen la regla de resultados derivados.
+- **Parámetros operativos estimados:** se presentan conforme a la resolución de la
+  observación o supuesto que los origina; no se añaden ceros decimales para aparentar
+  exactitud.
+- **Porcentajes, relaciones y diferencias:** se calculan desde valores internos sin
+  redondear. Por regla general, los porcentajes comparativos se muestran con un
+  decimal; se aumenta la precisión solo si resulta necesaria para conservar una
+  diferencia científicamente relevante. Las diferencias absolutas conservan una
+  precisión coherente con las magnitudes comparadas.
+- **Valores pequeños, grandes y próximos a cero:** un valor físico no nulo nunca se
+  vuelve `0` por redondeo. Se usa notación científica, en particular por debajo de
+  `10⁻³` cuando mejora la lectura, y también para magnitudes muy grandes cuando evita
+  cadenas de dígitos poco legibles. El signo se conserva y se elimina el cero negativo.
+- **Números exactos:** conteos, años, fechas, códigos A1–B2 y M1–M3, números de tabla,
+  figura o ecuación, referencias y constantes definidas no se someten al formato de
+  mediciones. Las constantes y factores exactos deben estar identificados como tales.
+
+Los totales se calculan con precisión completa. Se admite que la suma manual de
+componentes ya redondeados difiera mínimamente del total visible; la nota editorial
+debe aclararlo cuando pueda inducir a error, sin forzar ni redistribuir el resultado.
+Las comparaciones deben conservar dirección y signo después del redondeo; si dos
+valores quedan visualmente iguales, se aumenta la precisión o se declara que son
+indistinguibles a la precisión presentada. Nunca se inventan desviaciones estándar,
+intervalos de confianza, incertidumbres ni significancia estadística.
+
+La implementación usa redondeo decimal al valor más próximo y, en empates exactos,
+al dígito par. Este criterio y la separación entre cálculo y presentación se basan en:
+
+- Joint Committee for Guides in Metrology. (2008). *JCGM 100:2008, Evaluation of
+  measurement data—Guide to the expression of uncertainty in measurement*, apartado
+  7.2.6: evita dígitos excesivos, presenta normalmente la incertidumbre con hasta dos
+  cifras significativas y alinea la posición decimal del estimador. Fuente oficial:
+  https://www.bipm.org/documents/20126/2071204/JCGM_100_2008_E.pdf
+- National Institute of Standards and Technology. (2008). *NIST Special Publication
+  811, Guide for the Use of the International System of Units (SI)*, apartados 7.1–7.10,
+  10.5 y B.7.1–B.7.2: separación entre valor numérico y unidad, agrupación de dígitos,
+  reglas de redondeo y conservación razonable de la precisión al convertir. Fuente
+  oficial: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication811e2008.pdf
+- Taylor, B. N., & Kuyatt, C. E. (1994). *NIST Technical Note 1297, Guidelines for
+  Evaluating and Expressing the Uncertainty of NIST Measurement Results*, apartado 7:
+  una afirmación de incertidumbre debe identificar sus componentes, el procedimiento
+  y, cuando corresponda, el factor de cobertura. Fuente oficial:
+  https://www.nist.gov/pml/nist-technical-note-1297/nist-tn-1297-7-reporting-uncertainty
+
+Estas referencias no imponen dos o tres cifras significativas a todo resultado ni
+permiten inferir incertidumbre a partir del número de decimales impreso.
+
 ## 8. Nomenclatura de escenarios y etapas
 
 Las denominaciones oficiales son:

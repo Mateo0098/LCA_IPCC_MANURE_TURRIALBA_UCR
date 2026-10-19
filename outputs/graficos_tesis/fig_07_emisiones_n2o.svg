@@ -121,7 +121,7 @@ L -3.5 0
       </g>
      </g>
      <g id="text_7">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="325.119297" transform="rotate(-0 35.36125 325.119297)">0.0</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="325.119297" transform="rotate(-0 35.36125 325.119297)">0</text>
      </g>
     </g>
     <g id="ytick_2">
@@ -136,7 +136,7 @@ L 611.68125 258.427706
       </g>
      </g>
      <g id="text_8">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="261.847003" transform="rotate(-0 35.36125 261.847003)">0.5</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="261.847003" transform="rotate(-0 35.36125 261.847003)">0,5</text>
      </g>
     </g>
     <g id="ytick_3">
@@ -151,7 +151,7 @@ L 611.68125 195.155412
       </g>
      </g>
      <g id="text_9">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="198.574709" transform="rotate(-0 35.36125 198.574709)">1.0</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="198.574709" transform="rotate(-0 35.36125 198.574709)">1</text>
      </g>
     </g>
     <g id="ytick_4">
@@ -166,7 +166,7 @@ L 611.68125 131.883118
       </g>
      </g>
      <g id="text_10">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="135.302415" transform="rotate(-0 35.36125 135.302415)">1.5</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="135.302415" transform="rotate(-0 35.36125 135.302415)">1,5</text>
      </g>
     </g>
     <g id="ytick_5">
@@ -181,7 +181,7 @@ L 611.68125 68.610824
       </g>
      </g>
      <g id="text_11">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="72.030121" transform="rotate(-0 35.36125 72.030121)">2.0</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.36125" y="72.030121" transform="rotate(-0 35.36125 72.030121)">2</text>
      </g>
     </g>
     <g id="text_12">

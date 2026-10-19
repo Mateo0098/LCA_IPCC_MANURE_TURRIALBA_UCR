@@ -29,6 +29,7 @@ from quantitative_comparison import (
     format_spanish_number,
     rounded_direction,
 )
+from scientific_numeric_presentation import significant
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -164,7 +165,7 @@ def validate_campaign_table_columns(document: Document, document_name: str) -> N
 
 def fmt_es(value: float, decimals: int) -> str:
     text = f"{float(value):,.{decimals}f}"
-    text = text.replace(",", "X").replace(".", ",").replace("X", " ")
+    text = text.replace(",", "X").replace(".", ",").replace("X", "\u00a0")
     return text.rstrip("0").rstrip(",")
 
 
@@ -373,7 +374,7 @@ def validate_c2_semantics(
     for category, segment in segments.items():
         for scenario in ("A", "B"):
             stage, percentage = dominants[(scenario, category)]
-            visible_percentage = f"{percentage:.2f}".replace(".", ",")
+            visible_percentage = f"{percentage:.1f}".replace(".", ",").rstrip("0").rstrip(",")
             expected = f"{stage} aportó {visible_percentage} % del total del Escenario {scenario}"
             assert expected in segment, f"Dominancia incorrecta en C2 para {scenario}, {category}: {expected}"
 
@@ -712,7 +713,7 @@ def validate_documents_and_conclusions() -> None:
         assert LABEL in body and LABEL in header and "M3" in body
         assert "PO4-eq" not in body and "kg PO₄" not in body
 
-    for visible in ("EF 3.1", "53,23 kWh/año", "182,50 L/año"):
+    for visible in ("EF 3.1", "53,23 kWh/año", "182,5 L/año"):
         assert visible in methodology_text
     assert "30 min" in methodology_text and "no medida instrumentalmente" in methodology_text
 
@@ -767,7 +768,7 @@ def validate_documents_and_conclusions() -> None:
     totals = read_rows(PROCESSED / "acv_impacto_total_por_escenario.csv")
     for row in totals:
         for column, _ in IMPACT_COLUMNS.values():
-            assert fmt_es(float(row[column]), 6) in results_text
+            assert significant(float(row[column]), 4) in results_text
 
     totals_dict = conclusions_generator.impact_totals()
     percentages = conclusions_generator.comparisons(totals_dict)

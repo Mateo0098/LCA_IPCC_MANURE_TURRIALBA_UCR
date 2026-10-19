@@ -19,6 +19,7 @@ from reference_docx_utils import (  # noqa: E402
     sha256_file,
 )
 from quantitative_comparison import Comparison, dominant  # noqa: E402
+from scientific_numeric_presentation import fixed, significant  # noqa: E402
 
 
 MASTER = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
@@ -235,8 +236,7 @@ def flow_inventory(reference_flow: float) -> tuple[float, float]:
 
 
 def number(value: float, decimals: int) -> str:
-    text = f"{value:,.{decimals}f}"
-    return text.replace(",", "X").replace(".", ",").replace("X", " ")
+    return fixed(value, decimals)
 
 
 def build_conclusions(
@@ -288,15 +288,15 @@ def build_conclusions(
             "text": (
                 "El inventario de ciclo de vida representó y cuantificó las rutas diferenciadas de manejo del estiércol en "
                 f"los dos escenarios, a partir de un flujo anual común de aproximadamente {number(reference_flow, 1)} kg de estiércol fresco. "
-                f"En el Escenario A, {number(100 * collected_fraction, 2)} % ingresó a la ruta sólida mediante A1: Precomposteo; "
+                f"En el Escenario A, {number(100 * collected_fraction, 1)} % ingresó a la ruta sólida mediante A1: Precomposteo; "
                 "posteriormente, la masa resultante continuó hacia A2: Lombricompostaje, mientras que "
-                f"{number(100 * remainder_fraction, 2)} % se incorporó a las aguas verdes. En el Escenario B, el "
+                f"{number(100 * remainder_fraction, 1)} % se incorporó a las aguas verdes. En el Escenario B, el "
                 "100 % ingresó al sistema de purines. De este modo, el inventario caracterizó las trayectorias de manejo y "
-                "los flujos asociados a cada alternativa estudiada. El inventario incorporó además 53,23 kWh/año de electricidad en A3 o B1 y 182,50 L/año de diésel en A4 o B2; la electricidad se evaluó mediante el factor IMN agregado de consumo 2025, como aproximación temporal de la operación observada en 2026, y las emisiones físicas IMN del diésel se caracterizaron con EF 3.1. El total climático combina ambos aportes con el manejo del estiércol, sin cadenas de fondo ecoinvent."
+                "los flujos asociados a cada alternativa estudiada. El inventario incorporó además 53,23 kWh/año de electricidad en A3 o B1 y 182,5 L/año de diésel en A4 o B2; la electricidad se evaluó mediante el factor IMN agregado de consumo 2025, como aproximación temporal de la operación observada en 2026, y las emisiones físicas IMN del diésel se caracterizaron con EF 3.1. El total climático combina ambos aportes con el manejo del estiércol, sin cadenas de fondo ecoinvent."
             ),
             "evidence": (
-                f"Flujo común: {reference_flow:.9f} kg/año; fracción recolectada de A: {collected_fraction:.12f}; "
-                f"fracción remanente de A: {remainder_fraction:.12f}; B recibe el flujo completo."
+                f"Flujo común: {significant(reference_flow, 5)} kg/año; fracción recolectada de A: {significant(collected_fraction, 4)}; "
+                f"fracción remanente de A: {significant(remainder_fraction, 4)}; B recibe el flujo completo."
             ),
             "source": "Tabla 3 de flujos del ICV; auditoría del balance del Escenario B y la unidad funcional.",
         },
@@ -306,21 +306,21 @@ def build_conclusions(
             "text": (
                 "Las cargas ambientales se concentraron en etapas específicas, que variaron según el escenario y la categoría. "
                 "En calentamiento global, "
-                f"{a_cg[0]} aportó {number(a_cg[2], 2)} % del total del Escenario A y {b_cg[0]} aportó "
-                f"{number(b_cg[2], 2)} % del total del Escenario B. En eutrofización terrestre, "
-                f"{a_et[0]} aportó {number(a_et[2], 2)} % del total del Escenario A y {b_et[0]} aportó "
-                f"{number(b_et[2], 2)} % del total del Escenario B. En eutrofización marina, "
-                f"{a_eu[0]} aportó {number(a_eu[2], 2)} % del total del Escenario A y {b_eu[0]} aportó "
-                f"{number(b_eu[2], 2)} % del total del Escenario B. La evaluación por etapa identificó así patrones de "
+                f"{a_cg[0]} aportó {number(a_cg[2], 1)} % del total del Escenario A y {b_cg[0]} aportó "
+                f"{number(b_cg[2], 1)} % del total del Escenario B. En eutrofización terrestre, "
+                f"{a_et[0]} aportó {number(a_et[2], 1)} % del total del Escenario A y {b_et[0]} aportó "
+                f"{number(b_et[2], 1)} % del total del Escenario B. En eutrofización marina, "
+                f"{a_eu[0]} aportó {number(a_eu[2], 1)} % del total del Escenario A y {b_eu[0]} aportó "
+                f"{number(b_eu[2], 1)} % del total del Escenario B. La evaluación por etapa identificó así patrones de "
                 "concentración diferenciados entre las alternativas estudiadas."
             ),
             "evidence": (
-                f"Cambio climático: {a_cg[0]} = {a_cg[1]:.9f} ({a_cg[2]:.9f} %); "
-                f"{b_cg[0]} = {b_cg[1]:.9f} ({b_cg[2]:.9f} %). "
-                f"Eutrofización terrestre: {a_et[0]} = {a_et[1]:.9f} ({a_et[2]:.9f} %); "
-                f"{b_et[0]} = {b_et[1]:.9f} ({b_et[2]:.9f} %). "
-                f"Eutrofización marina: {a_eu[0]} = {a_eu[1]:.9f} ({a_eu[2]:.9f} %); "
-                f"{b_eu[0]} = {b_eu[1]:.9f} ({b_eu[2]:.9f} %)."
+                f"Cambio climático: {a_cg[0]} = {significant(a_cg[1], 4)} ({fixed(a_cg[2], 1)} %); "
+                f"{b_cg[0]} = {significant(b_cg[1], 4)} ({fixed(b_cg[2], 1)} %). "
+                f"Eutrofización terrestre: {a_et[0]} = {significant(a_et[1], 4)} ({fixed(a_et[2], 1)} %); "
+                f"{b_et[0]} = {significant(b_et[1], 4)} ({fixed(b_et[2], 1)} %). "
+                f"Eutrofización marina: {a_eu[0]} = {significant(a_eu[1], 4)} ({fixed(a_eu[2], 1)} %); "
+                f"{b_eu[0]} = {significant(b_eu[1], 4)} ({fixed(b_eu[2], 1)} %)."
             ),
             "source": "Tabla 7 de impactos por etapa y Tabla 8 de impactos totales por escenario.",
         },
@@ -329,17 +329,17 @@ def build_conclusions(
             "objective": "OE2",
             "text": (
                 f"Para calentamiento global, el {cg_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
-                f"{number(max(cg_comparison.left, cg_comparison.right), 3)} kg CO₂-eq/kg de estiércol fresco manejado, frente a "
-                f"{number(min(cg_comparison.left, cg_comparison.right), 3)} kg CO₂-eq/kg de estiércol fresco manejado en el {cg_comparison.lower_label}. La diferencia "
-                f"B menos A fue de {number(percentage['Cambio climático'], 2)} % respecto a A, lo que evidenció un menor indicador "
+                f"{significant(max(cg_comparison.left, cg_comparison.right), 4)} kg CO₂-eq/kg de estiércol fresco manejado, frente a "
+                f"{significant(min(cg_comparison.left, cg_comparison.right), 4)} kg CO₂-eq/kg de estiércol fresco manejado en el {cg_comparison.lower_label}. La diferencia "
+                f"B menos A fue de {number(percentage['Cambio climático'], 1)} % respecto a A, lo que evidenció un menor indicador "
                 f"para el {cg_comparison.lower_label} bajo las condiciones estudiadas."
             ),
             "evidence": (
-                f"A: {normalized_values[('A', 'Cambio climático')]:.12f} kg CO₂-eq/kg y "
-                f"{totals[('A', 'Cambio climático')]:.12f} kg CO₂-eq/año; B: "
-                f"{normalized_values[('B', 'Cambio climático')]:.12f} kg CO₂-eq/kg y "
-                f"{totals[('B', 'Cambio climático')]:.12f} kg CO₂-eq/año; B − A: "
-                f"{percentage['Cambio climático']:.12f} %."
+                f"A: {significant(normalized_values[('A', 'Cambio climático')], 4)} kg CO₂-eq/kg y "
+                f"{significant(totals[('A', 'Cambio climático')], 4)} kg CO₂-eq/año; B: "
+                f"{significant(normalized_values[('B', 'Cambio climático')], 4)} kg CO₂-eq/kg y "
+                f"{significant(totals[('B', 'Cambio climático')], 4)} kg CO₂-eq/año; B − A: "
+                f"{fixed(percentage['Cambio climático'], 1)} %."
             ),
             "source": "Tablas 8 y 9 de impactos totales y comparación de escenarios.",
         },
@@ -348,24 +348,24 @@ def build_conclusions(
             "objective": "OE2",
             "text": (
                 f"Para eutrofización marina EF 3.1, el {eu_comparison.higher_label} presentó el mayor impacto por unidad funcional: "
-                f"{number(max(eu_comparison.left, eu_comparison.right), 6)} kg N-eq/kg de estiércol fresco manejado, frente a "
-                f"{number(min(eu_comparison.left, eu_comparison.right), 6)} kg N-eq/kg en el {eu_comparison.lower_label}. La diferencia "
-                f"B menos A fue de {number(percentage['Eutrofización marina'], 2)} % respecto a A. Para eutrofización terrestre, "
+                f"{significant(max(eu_comparison.left, eu_comparison.right), 4)} kg N-eq/kg de estiércol fresco manejado, frente a "
+                f"{significant(min(eu_comparison.left, eu_comparison.right), 4)} kg N-eq/kg en el {eu_comparison.lower_label}. La diferencia "
+                f"B menos A fue de {number(percentage['Eutrofización marina'], 1)} % respecto a A. Para eutrofización terrestre, "
                 f"el {terrestrial_comparison.higher_label} también presentó el mayor impacto por unidad funcional: "
-                f"{number(max(terrestrial_comparison.left, terrestrial_comparison.right), 6)} mol N-eq/kg de estiércol fresco manejado, "
-                f"frente a {number(min(terrestrial_comparison.left, terrestrial_comparison.right), 6)} mol N-eq/kg en el "
+                f"{significant(max(terrestrial_comparison.left, terrestrial_comparison.right), 4)} mol N-eq/kg de estiércol fresco manejado, "
+                f"frente a {significant(min(terrestrial_comparison.left, terrestrial_comparison.right), 4)} mol N-eq/kg en el "
                 f"{terrestrial_comparison.lower_label}; la diferencia B menos A fue de "
-                f"{number(percentage['Eutrofización terrestre'], 2)} % respecto a A."
+                f"{number(percentage['Eutrofización terrestre'], 1)} % respecto a A."
             ),
             "evidence": (
-                f"A: {normalized_values[('A', 'Eutrofización marina')]:.12f} kg N-eq/kg y "
-                f"{totals[('A', 'Eutrofización marina')]:.12f} kg N-eq/año; B: "
-                f"{normalized_values[('B', 'Eutrofización marina')]:.12f} kg N-eq/kg y "
-                f"{totals[('B', 'Eutrofización marina')]:.12f} kg N-eq/año; B − A: "
-                f"{percentage['Eutrofización marina']:.12f} %."
-                f" Eutrofización terrestre A: {normalized_values[('A', 'Eutrofización terrestre')]:.12f} mol N-eq/kg; "
-                f"B: {normalized_values[('B', 'Eutrofización terrestre')]:.12f} mol N-eq/kg; B − A: "
-                f"{percentage['Eutrofización terrestre']:.12f} %."
+                f"A: {significant(normalized_values[('A', 'Eutrofización marina')], 4)} kg N-eq/kg y "
+                f"{significant(totals[('A', 'Eutrofización marina')], 4)} kg N-eq/año; B: "
+                f"{significant(normalized_values[('B', 'Eutrofización marina')], 4)} kg N-eq/kg y "
+                f"{significant(totals[('B', 'Eutrofización marina')], 4)} kg N-eq/año; B − A: "
+                f"{fixed(percentage['Eutrofización marina'], 1)} %."
+                f" Eutrofización terrestre A: {significant(normalized_values[('A', 'Eutrofización terrestre')], 4)} mol N-eq/kg; "
+                f"B: {significant(normalized_values[('B', 'Eutrofización terrestre')], 4)} mol N-eq/kg; B − A: "
+                f"{fixed(percentage['Eutrofización terrestre'], 1)} %."
             ),
             "source": "Tablas 8 y 9 de impactos totales y comparación de escenarios.",
         },

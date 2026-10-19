@@ -5,6 +5,8 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
+from scientific_numeric_presentation import fixed
+
 
 def rounded_direction(value: float, decimals: int) -> int:
     """Devuelve el signo que permanece visible después del redondeo."""
@@ -22,15 +24,12 @@ def format_spanish_number(
 ) -> str:
     """Formatea sin producir `-0` y usa signo explícito cuando corresponde."""
 
-    direction = rounded_direction(value, decimals)
-    magnitude = 0.0 if direction == 0 else abs(value)
-    text = f"{magnitude:,.{decimals}f}"
-    text = text.replace(",", "X").replace(".", ",").replace("X", " ")
-    if direction < 0:
-        return f"−{text}"
-    if direction > 0 and explicit_sign:
-        return f"+{text}"
-    return text
+    return fixed(
+        value,
+        decimals,
+        explicit_sign=explicit_sign,
+        strip_trailing_zeros=False,
+    )
 
 
 @dataclass(frozen=True)

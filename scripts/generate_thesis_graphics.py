@@ -10,8 +10,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import FuncFormatter
 
 from academic_text_utils import clean_academic_label
+from scientific_numeric_presentation import axis_tick
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -132,6 +134,8 @@ def resolve_x_tick_overlaps(fig: plt.Figure) -> None:
 
 def finish_figure(fig: plt.Figure, filename: str) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for axis in fig.axes:
+        axis.yaxis.set_major_formatter(FuncFormatter(lambda value, _position: axis_tick(value)))
     fig.tight_layout()
     resolve_x_tick_overlaps(fig)
     fig.tight_layout()

@@ -110,6 +110,12 @@ unidad, etapa dominante y ambigüedad causada por el redondeo visible. Los
 generadores deben obtener estas direcciones y porcentajes de los datos, no de
 afirmaciones manuales sobre A o B.
 
+La presentación numérica de prosa, tablas y figuras se centraliza en
+`scripts/scientific_numeric_presentation.py`. Los cálculos y archivos canónicos
+conservan su precisión completa; la utilidad aplica únicamente el redondeo
+editorial contextual definido en `docs/REGLAS_FORMATO_WORD.md`, incluida la
+notación científica para impedir que una magnitud no nula aparezca como cero.
+
 `ACV_orquestador.py` parte de la integración experimental vigente. En orden,
 genera `processed/acv_parametros_escenario_etapa.csv`, calcula las masas,
 anualiza recursos y genera masas de combustión con IMN, construye `processed/reactive_n_ledger.csv`, inicializa el resumen de emisiones,

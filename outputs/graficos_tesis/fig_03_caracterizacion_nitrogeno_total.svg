@@ -102,7 +102,7 @@ L -3.5 0
       </g>
      </g>
      <g id="text_5">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="316.767297" transform="rotate(-0 35.590938 316.767297)">0.0</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="316.767297" transform="rotate(-0 35.590938 316.767297)">0</text>
      </g>
     </g>
     <g id="ytick_2">
@@ -117,7 +117,7 @@ L 489.150937 255.131123
       </g>
      </g>
      <g id="text_6">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="258.55042" transform="rotate(-0 35.590938 258.55042)">0.5</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="258.55042" transform="rotate(-0 35.590938 258.55042)">0,5</text>
      </g>
     </g>
     <g id="ytick_3">
@@ -132,7 +132,7 @@ L 489.150937 196.914247
       </g>
      </g>
      <g id="text_7">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="200.333544" transform="rotate(-0 35.590938 200.333544)">1.0</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="200.333544" transform="rotate(-0 35.590938 200.333544)">1</text>
      </g>
     </g>
     <g id="ytick_4">
@@ -147,7 +147,7 @@ L 489.150937 138.69737
       </g>
      </g>
      <g id="text_8">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="142.116667" transform="rotate(-0 35.590938 142.116667)">1.5</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="142.116667" transform="rotate(-0 35.590938 142.116667)">1,5</text>
      </g>
     </g>
     <g id="ytick_5">
@@ -162,7 +162,7 @@ L 489.150937 80.480493
       </g>
      </g>
      <g id="text_9">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="83.89979" transform="rotate(-0 35.590938 83.89979)">2.0</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="83.89979" transform="rotate(-0 35.590938 83.89979)">2</text>
      </g>
     </g>
     <g id="ytick_6">
@@ -177,7 +177,7 @@ L 489.150937 22.263617
       </g>
      </g>
      <g id="text_10">
-      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="25.682914" transform="rotate(-0 35.590938 25.682914)">2.5</text>
+      <text style="font-size: 9px; font-family: 'DejaVu Sans'; text-anchor: end" x="35.590938" y="25.682914" transform="rotate(-0 35.590938 25.682914)">2,5</text>
      </g>
     </g>
     <g id="text_11">

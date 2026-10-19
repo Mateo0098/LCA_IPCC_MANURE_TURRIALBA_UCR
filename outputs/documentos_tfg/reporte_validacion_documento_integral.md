@@ -168,6 +168,13 @@
 - PASS — La numeración global de ecuaciones es continua.
 - PASS — Las tablas no duplican columnas de etapa.
 - PASS — No se asocian purines con etapas del Escenario A.
+- PASS — La política científica evita decimales excesivos no justificados.
+- PASS — Los resultados pequeños no nulos permanecen visibles en notación científica.
+- PASS — No se muestran ceros negativos.
+- PASS — La dispersión experimental se identifica sin presentarla como incertidumbre expandida.
+- PASS — La comparación Python–SimaPro conserva la precisión observada y diferencias no nulas.
+- PASS — Los ejes de las figuras usan coma decimal en sus etiquetas numéricas.
+- PASS — Años, campañas y códigos de etapa permanecen como identificadores exactos.
 
 ## Auditoría de siglas y abreviaturas
 
@@ -178,5 +185,6 @@
 ## Alcance de la validación
 
 - La validación comprueba estructura, objetivos, identificación provisional, integridad del paquete, numeración editorial, rutas visibles, figuras, tablas e integridad del MASTER.
+- La validación comprueba además la política de precisión numérica: ausencia de decimales excesivos, cero negativo y pérdida de magnitudes pequeñas; tratamiento explícito de la dispersión experimental; coherencia Python–SimaPro; identificadores exactos; y coma decimal en figuras.
 - La revisión visual y la validación científica supervisora permanecen separadas de estas comprobaciones programáticas.
 - La bibliografía visible contiene únicamente las referencias citadas; las candidatas no utilizadas permanecen gobernadas en el registro integral.

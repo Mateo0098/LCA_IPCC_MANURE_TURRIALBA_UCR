@@ -40,7 +40,7 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `DECISIONES_METODOLOGICAS_TFG.md` | Decisiones científicas aprobadas | A | Investigador | Metodología sustantiva, supuestos, sistemas IPCC o integración estadística aprobada | Manual, con aprobación | Vigente |
 | `README_METODOLOGIA.md` | Explicación técnica detallada del método y pipeline | B | Implementación metodológica | Ingestión, integración, ecuaciones, parámetros, orden de ejecución o salidas | Manual | Vigente; ruta heredada de anualización por 3,5 días retirada |
 | `DICCIONARIO_TRAZABILIDAD_VARIABLES.md` | Mapa de variables, taxonomía académica de procedencia y tratamiento, fuentes, fórmulas y salidas | B | Capas de datos y cálculo | Variables, unidades, clasificación de procedencia, tratamiento, fuentes canónicas, fórmulas o consumidores | Manual | Vigente; incluye trazabilidad física, temporal y de procedencia de A1–B2 |
-| `docs/REGLAS_FORMATO_WORD.md` | Especificación de documentos Word | B | Generadores y validación documental | Formato, nomenclatura, captions, ecuaciones o validadores Word | Manual | Vigente |
+| `docs/REGLAS_FORMATO_WORD.md` | Especificación de documentos Word y política de precisión numérica científica | B | Generadores, utilidad compartida de presentación y validación documental | Formato, nomenclatura, cifras significativas, redondeo, captions, ecuaciones o validadores Word | Manual | Vigente |
 | `docs/PLAN_CIERRE_TFG.md` | Roadmap operativo de cierre y transición de provisional a definitivo | B | Estado académico y dependencias de cierre | Unidad activa, dependencia principal, hitos o condiciones de cierre | Manual | Vigente |
 | `docs/CONTRATO_EXPERIMENTAL_M3.md` | Diseño, checklist, trazabilidad física y criterios de completitud para ejecutar e incorporar M3 | B | Pipeline canónico, evidencia M1/M2 y decisiones metodológicas vigentes | Diseño de M3, métodos, identificadores, fuentes esperadas, ingestión o criterios de incorporación | Manual; antes y después de ejecutar M3 | Vigente; existe evidencia gravimétrica física parcial, pero M3 no está declarada, validada ni integrada |
 | `docs/PROTOCOLO_QA_QC_SIMAPRO_EF31.md` | Metodología, alcance, registro presencial y comparación Python–SimaPro de EF 3.1 | B | Factores e inventario elemental activos, decisiones EF/IMN y evidencia presencial | Factores, identidades de flujo, versión EF, arquitectura IMN, protocolo o resultados de la verificación | Manual; insumos numéricos generados | Vigente; sesión PROVISIONAL M1–M2 incorporada al documento integral, repetición con M3 pendiente |
@@ -72,6 +72,12 @@ pueda aplicarse en su generador. Deben pertenecer a la misma corrida que los
 outputs que describen.
 
 ## Componentes productivos y de QA/QC vigentes
+
+- `scripts/scientific_numeric_presentation.py`: única utilidad compartida para
+  convertir magnitudes canónicas en cifras visibles. Implementa la política
+  editorial contextual de cifras significativas, posición decimal, notación
+  científica, signo y separadores del español; no participa en los cálculos ni
+  modifica archivos canónicos.
 
 - `scripts/reactive_n_ledger.py` y
   `processed/reactive_n_ledger_parameters.csv`: implementación y parámetros

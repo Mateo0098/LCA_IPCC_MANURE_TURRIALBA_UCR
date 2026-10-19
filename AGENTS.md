@@ -455,6 +455,7 @@ Estas reglas son obligatorias, según corresponda a su contenido, para `outputs/
 22. Desarrollar las siglas en su primera aparición, indicar `por sus siglas en inglés` solo cuando se deriven realmente de una denominación inglesa y generar la lista desde el registro controlado; las abreviaturas institucionales o convencionales siguen su fuente oficial, y A1–B2 y M1–M3 son códigos, no siglas institucionales.
 23. Usar `escenario A/B` para las alternativas del ACV y reservar `campaña` para actividades experimentales; en gráficos por etapa usar las claves A1–A4 y B1–B2.
 24. Mantener el comité asesor de la portada desde el MASTER y resolver la distribución mediante propiedades estructurales, no con espacios ni párrafos vacíos arbitrarios.
+25. Aplicar a toda cifra cuantitativa visible la política de precisión numérica científica de `docs/REGLAS_FORMATO_WORD.md`: conservar la precisión canónica, redondear solo en presentación y no inventar incertidumbre ni precisión analítica.
 
 La especificación detallada, incluida la notación científica, los preliminares, la terminología española y la conversión matemática, está en `docs/REGLAS_FORMATO_WORD.md` y constituye la fuente especializada responsable.
 

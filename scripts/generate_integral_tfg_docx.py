@@ -63,6 +63,13 @@ from reference_docx_utils import (  # noqa: E402
     sha256_file,
 )
 from quantitative_comparison import format_spanish_number, rounded_direction  # noqa: E402
+from scientific_numeric_presentation import (  # noqa: E402
+    NumberFormat,
+    decimal_places_from_uncertainty,
+    fixed,
+    format_number,
+    significant,
+)
 
 
 PROVISIONAL_LABEL = "PROVISIONAL M1–M2"
@@ -595,7 +602,9 @@ def display_value(value: object, decimals: int = 4) -> str:
     if isinstance(value, bool):
         return "Sí" if value else "No"
     if isinstance(value, (int, float)):
-        return results_source.fmt(value, decimals)
+        if float(value).is_integer():
+            return format_number(value, NumberFormat(decimal_places=0, scientific_below=None))
+        return significant(value, min(max(decimals, 3), 4))
     text = clean_academic_label(value)
     replacements = {
         "ESTIERCOL FRESCO": "Estiércol fresco",
@@ -708,12 +717,26 @@ def experimental_parameter_table() -> pd.DataFrame:
         base = str(source["unidad"])
         if key == ("estiércol precompostado", "N total"):
             base = "% en material acondicionado a 80 °C durante 48 h"
+        value = float(source["valor_integrado_provisional"])
+        dispersion = source.get("desviacion_estandar_entre_jornadas", "")
+        if pd.notna(dispersion) and str(dispersion).strip() and float(dispersion) > 0:
+            places = decimal_places_from_uncertainty(float(dispersion))
+            visible_result = (
+                f"{fixed(value, places, strip_trailing_zeros=False)} ± "
+                f"{fixed(float(dispersion), places, strip_trailing_zeros=False)}"
+            )
+        elif key in {("aguas verdes", "N total"), ("purines", "N total")}:
+            visible_result = fixed(value, 4, strip_trailing_zeros=False)
+        elif key == ("estiércol precompostado", "relación C/N"):
+            visible_result = fixed(value, 1)
+        else:
+            visible_result = significant(value, 4)
         rows.append(
             {
                 "Material o derivación": source["material"].capitalize(),
                 "Variable": "Relación C/N" if source["variable"] == "relación C/N" else source["variable"].capitalize(),
                 "Campañas elegibles": str(source["jornadas_elegibles"]).replace(";", "–"),
-                "Resultado provisional": results_source.fmt(float(source["valor_integrado_provisional"]), 4),
+                "Resultado provisional": visible_result,
                 "Base o unidad": base,
                 "Función en el modelo": selected[key],
             }
@@ -728,7 +751,7 @@ def experimental_parameter_table() -> pd.DataFrame:
             "Material o derivación": "Transformación de estiércol fresco a precompostado",
             "Variable": "Razón de masa húmeda remanente",
             "Campañas elegibles": str(integrated["jornadas_elegibles"]).replace(";", "–"),
-            "Resultado provisional": results_source.fmt(float(integrated["mass_ratio_integrado"]), 6),
+            "Resultado provisional": significant(float(integrated["mass_ratio_integrado"]), 3),
             "Base o unidad": "kg/kg",
             "Función en el modelo": "Masa húmeda inferida que ingresa a A2; calculada primero por campaña y luego integrada con igual peso temporal",
         }
@@ -1179,6 +1202,7 @@ def add_dataframe(
     dataframe: pd.DataFrame,
     *,
     decimals: int = 4,
+    column_formats: dict[str, NumberFormat] | None = None,
     font_size_pt: float | None = None,
     column_widths_inches: list[float] | None = None,
     body_alignment: WD_ALIGN_PARAGRAPH | None = None,
@@ -1193,10 +1217,14 @@ def add_dataframe(
     table = document.add_table(rows=1, cols=len(dataframe.columns))
     for column_index, column in enumerate(dataframe.columns):
         table.rows[0].cells[column_index].text = clean_academic_label(column)
+    column_formats = column_formats or {}
     for _, row in dataframe.iterrows():
         cells = table.add_row().cells
-        for column_index, value in enumerate(row):
-            cells[column_index].text = display_value(value, decimals)
+        for column_index, (column, value) in enumerate(row.items()):
+            if column in column_formats and isinstance(value, (int, float)) and not pd.isna(value):
+                cells[column_index].text = format_number(value, column_formats[column])
+            else:
+                cells[column_index].text = display_value(value, decimals)
     for row_index, row in enumerate(table.rows):
         tr_properties = row._tr.get_or_add_trPr()
         cant_split = OxmlElement("w:cantSplit")
@@ -1597,8 +1625,8 @@ def simapro_aggregate_comparison() -> pd.DataFrame:
 def simapro_aggregate_academic_table() -> pd.DataFrame:
     comparison = simapro_aggregate_comparison()
 
-    def decimal_comma(value: object) -> str:
-        return format(value, "f").replace(".", ",")
+    def observed_places(value: str) -> int:
+        return len(value.partition(".")[2]) if "." in value else 0
 
     categories = [
         f"{row.categoria_ef31} ({row.unidad_resultado_python})"
@@ -1608,10 +1636,28 @@ def simapro_aggregate_academic_table() -> pd.DataFrame:
         {
             "Escenario": comparison["escenario"],
             "Categoría y unidad": categories,
-            "Python": comparison["resultado_python_esperado"].str.replace(".", ",", regex=False),
-            "SimaPro": comparison["resultado_simapro_observado"].str.replace(".", ",", regex=False),
+            "Python": [
+                fixed(
+                    Decimal(value),
+                    observed_places(observed),
+                    strip_trailing_zeros=False,
+                )
+                for value, observed in zip(
+                    comparison["resultado_python_esperado"],
+                    comparison["resultado_simapro_observado"],
+                )
+            ],
+            "SimaPro": [
+                fixed(
+                    Decimal(value),
+                    observed_places(value),
+                    strip_trailing_zeros=False,
+                )
+                for value in comparison["resultado_simapro_observado"]
+            ],
             "Diferencia (SimaPro − Python)": [
-                decimal_comma(value) for value in comparison["diferencia_calculada"]
+                significant(value, 3, explicit_sign=True)
+                for value in comparison["diferencia_calculada"]
             ],
             "Clasificación": comparison["clasificacion_A_H"],
         }
@@ -2588,7 +2634,11 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Masas anuales gestionadas por etapa.",
         inventory_mass_table(),
-        decimals=6,
+        column_formats={
+            "Masa gestionada (kg eq/año)": NumberFormat(
+                decimal_places=1, scientific_below=None
+            )
+        },
     )
     figure_2 = counters.figure + 1
     add_text(document, [f"La Figura {figure_2} presenta la caracterización gravimétrica provisional."])
@@ -2638,7 +2688,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             f"La Tabla {table_4} resume las emisiones del manejo y la Figura {figure_3} muestra la distribución de CH₄. Las contribuciones operativas de electricidad y diésel se incorporaron en el indicador de cambio climático, manteniendo separada su trazabilidad. El Apéndice E presenta las rutas de N₂O directo e indirecto, NH₃, NOx y NO₃⁻ por etapa sin duplicar el inventario completo.",
-            f"La combustión de {results_source.fmt(resource_context['diesel_l'], 2)} L/año de diésel produjo {results_source.fmt(resource_context['diesel_co2'], 6)} kg/año de CO₂ fósil, {results_source.fmt(resource_context['diesel_ch4'], 6)} kg/año de CH₄ fósil y {results_source.fmt(resource_context['diesel_n2o'], 6)} kg/año de N₂O en cada escenario. Estas masas se caracterizaron después con EF 3.1 y permanecen separadas de las emisiones del manejo resumidas en la Tabla {table_4}.",
+            f"La combustión de {fixed(resource_context['diesel_l'], 1)} L/año de diésel produjo {significant(resource_context['diesel_co2'], 4)} kg/año de CO₂ fósil, {significant(resource_context['diesel_ch4'], 4)} kg/año de CH₄ fósil y {significant(resource_context['diesel_n2o'], 4)} kg/año de N₂O en cada escenario. Estas masas se caracterizaron después con EF 3.1 y permanecen separadas de las emisiones del manejo resumidas en la Tabla {table_4}.",
         ],
     )
     table_4 = add_dataframe(
@@ -2651,7 +2701,7 @@ def build_document() -> tuple[int, int, int, int]:
     )
     add_table_note(
         document,
-        "El valor 0,0000 de CO₂ expresa que esta tabla resume las emisiones del manejo del estiércol y que esa ruta no incorpora CO₂ dentro del inventario aprobado; no representa ausencia de información. El CO₂ fósil de la combustión del diésel se cuantifica por separado y se incorpora al indicador de cambio climático, sin añadir CO₂ biogénico.",
+        "El valor 0 de CO₂ expresa que esta tabla resume las emisiones del manejo del estiércol y que esa ruta no incorpora CO₂ dentro del inventario aprobado; no representa ausencia de información. El CO₂ fósil de la combustión del diésel se cuantifica por separado y se incorpora al indicador de cambio climático, sin añadir CO₂ biogénico.",
     )
     figure_3 = add_figure(
         document,
@@ -2675,7 +2725,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La Tabla {table_5} presenta los impactos por etapa. En el Escenario A, {result_context['cg_dominant_a_name']} aportó {results_source.fmt(result_context['cg_dominant_a_percentage'], 2)} % del cambio climático; en el Escenario B, {result_context['cg_dominant_b_name']} aportó {results_source.fmt(result_context['cg_dominant_b_percentage'], 2)} %. Las Figuras {figure_4} y {figure_5} muestran la distribución por etapa de cambio climático y eutrofización terrestre.",
+            f"La Tabla {table_5} presenta los impactos por etapa. En el Escenario A, {result_context['cg_dominant_a_name']} aportó {fixed(result_context['cg_dominant_a_percentage'], 1)} % del cambio climático; en el Escenario B, {result_context['cg_dominant_b_name']} aportó {fixed(result_context['cg_dominant_b_percentage'], 1)} %. Las Figuras {figure_4} y {figure_5} muestran la distribución por etapa de cambio climático y eutrofización terrestre.",
         ],
     )
     table_5 = add_dataframe(
@@ -2684,7 +2734,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Impactos ambientales por etapa.",
         stage_impacts,
-        decimals=6,
+        decimals=4,
     )
     figure_4 = add_figure(
         document,
@@ -2717,7 +2767,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Impactos ambientales anuales por escenario.",
         totals.iloc[:, :4],
-        decimals=6,
+        decimals=4,
     )
     table_resources = add_dataframe(
         document,
@@ -2725,7 +2775,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Contribuciones al cambio climático del manejo y los recursos operativos.",
         climate_contribution_table(),
-        decimals=6,
+        decimals=4,
     )
     normalized_totals = totals[[totals.columns[0], *totals.columns[4:]]].copy()
     normalized_totals = normalized_totals.rename(
@@ -2741,7 +2791,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Impactos ambientales normalizados por kilogramo de estiércol fresco manejado.",
         normalized_totals,
-        decimals=6,
+        decimals=4,
     )
     comparisons = results_source.comparison_summary()
     table_8 = add_dataframe(
@@ -2751,6 +2801,11 @@ def build_document() -> tuple[int, int, int, int]:
         "Comparación de impactos ambientales entre escenarios.",
         comparisons,
         decimals=4,
+        column_formats={
+            "Diferencia porcentual B respecto a A": NumberFormat(
+                decimal_places=1, scientific_below=None
+            )
+        },
     )
     figure_6 = add_figure(
         document,
@@ -2775,7 +2830,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Contraste bibliográfico de A2 sobre materia seca de entrada.",
         benchmark,
-        decimals=6,
+        decimals=4,
     )
 
     document.add_heading("5.5 Resultados de la verificación independiente Python–SimaPro", level=2)
@@ -2802,7 +2857,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Comparación agregada de la caracterización EF 3.1 entre Python y SimaPro.",
         simapro_aggregate_academic_table(),
-        decimals=12,
+        decimals=4,
         font_size_pt=8.5,
         column_widths_inches=[0.55, 1.65, 1.35, 1.05, 1.45, 0.55],
     )
@@ -2816,10 +2871,10 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"Bajo la unidad funcional común, el {result_context['cg_comparison'].higher_label} presentó el mayor cambio climático y el {result_context['cg_comparison'].lower_label} el menor. La diferencia B menos A fue {results_source.fmt(result_context['cg_percentage'], 2)} % respecto al Escenario A.",
+            f"Bajo la unidad funcional común, el {result_context['cg_comparison'].higher_label} presentó el mayor cambio climático y el {result_context['cg_comparison'].lower_label} el menor. La diferencia B menos A fue {fixed(result_context['cg_percentage'], 1)} % respecto al Escenario A.",
             f"En eutrofización terrestre, el {result_context['et_comparison'].higher_label} presentó el mayor indicador; en eutrofización marina, el {result_context['eu_comparison'].higher_label} presentó el mayor indicador. Estas comparaciones corresponden a categorías distintas y no se agregan entre sí.",
             "La concentración del impacto en etapas distintas confirma que la interpretación debe considerar la estructura de cada alternativa. El predominio climático de A3 y B1 coincide con la concentración de CH₄ en el almacenamiento líquido; el predominio de eutrofización marina de A4 y B2 coincide con las pérdidas de NO₃⁻ de la aplicación al suelo. Para eutrofización terrestre, las emisiones atmosféricas de NH₃ y NOx permiten interpretar la importancia relativa de A1 y B2 sin atribuir causalidad fuera de las relaciones de caracterización aplicadas.",
-            f"Los dos escenarios incorporaron el mismo consumo anual de {results_source.fmt(resource_context['electricity_kwh'], 2)} kWh de electricidad y {results_source.fmt(resource_context['diesel_l'], 2)} L de diésel. Por ello, sus contribuciones operativas al cambio climático fueron iguales: {results_source.fmt(resource_context['electricity_climate'], 6)} kg CO₂-eq/año por electricidad y {results_source.fmt(resource_context['diesel_climate'], 6)} kg CO₂-eq/año por diésel. Estas cargas comunes no explican la diferencia entre escenarios, que se mantiene asociada con las emisiones del manejo dentro de la frontera estudiada.",
+            f"Los dos escenarios incorporaron el mismo consumo anual de {fixed(resource_context['electricity_kwh'], 2)} kWh de electricidad y {fixed(resource_context['diesel_l'], 1)} L de diésel. Por ello, sus contribuciones operativas al cambio climático fueron iguales: {significant(resource_context['electricity_climate'], 4)} kg CO₂-eq/año por electricidad y {significant(resource_context['diesel_climate'], 4)} kg CO₂-eq/año por diésel. Estas cargas comunes no explican la diferencia entre escenarios, que se mantiene asociada con las emisiones del manejo dentro de la frontera estudiada.",
             "La evidencia provisional no permite generalizar una superioridad universal fuera de la lechería y de las condiciones modeladas.",
         ],
     )
@@ -2844,7 +2899,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La comprobación disponible para A2 varió el factor de N₂-N respecto al TAN entre 0 y 0,30. Frente al caso central de 0,30, el cambio máximo observado en el N total remanente equivalió a {results_source.fmt(maximum_change, 2)} % del N total de entrada. La Tabla {table_10} documenta esta comprobación de aseguramiento de la calidad; no constituye un análisis de sensibilidad completo de los impactos.",
+            f"La comprobación disponible para A2 varió el factor de N₂-N respecto al TAN entre 0 y 0,30. Frente al caso central de 0,30, el cambio máximo observado en el N total remanente equivalió a {fixed(maximum_change, 1)} % del N total de entrada. La Tabla {table_10} documenta esta comprobación de aseguramiento de la calidad; no constituye un análisis de sensibilidad completo de los impactos.",
             "Los supuestos con mayor capacidad material de afectar la comparación son el MCF del almacenamiento líquido, la caracterización de materia seca, sólidos volátiles y N después de M3, la relación TAN/N inicial, los factores de A2, la duración y frecuencia de los consumos operativos y los factores asociados a la aplicación al suelo.",
             "Después de M3 y antes de la interpretación final podrá evaluarse si una sensibilidad acotada de las aproximaciones de alta influencia, en particular N₂ de A2 y NH₃ de Komakech, aporta valor suficiente. Su ausencia no impide interpretar el modelo provisional. La consistencia continuará verificándose mediante cierre de balances, igualdad del flujo funcional e integridad temporal del análisis.",
         ],
@@ -2856,6 +2911,14 @@ def build_document() -> tuple[int, int, int, int]:
         "Comprobación existente de sensibilidad del factor de N₂ en A2.",
         sensitivity,
         decimals=4,
+        column_formats={
+            "Factor de N₂-N respecto al TAN": NumberFormat(
+                decimal_places=2, scientific_below=None
+            ),
+            "Cambio respecto al caso central (% del N de entrada)": NumberFormat(
+                decimal_places=1, scientific_below=None
+            ),
+        },
     )
 
     document.add_heading("6.4 Alcance de la verificación Python–SimaPro", level=2)
@@ -2912,7 +2975,7 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            "Como primera prioridad experimental, se recomienda cuantificar directamente las emisiones de CH₄ durante ciclos completos de acumulación y descarga en A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines, bajo distintas condiciones climáticas. Las variables principales son el flujo de CH₄, el volumen almacenado, el tiempo de residencia y el contenido de sólidos volátiles; la temperatura y las condiciones de mezcla constituyen variables explicativas complementarias. Estas mediciones permitirían contrastar la estimación basada en un MCF de 38 %, no determinado para la residencia operativa aproximada de tres días. La prioridad se fundamenta en que A3 aportó 53,93 % del cambio climático del Escenario A y B1 aportó 81,99 % del correspondiente al Escenario B.",
+            "Como primera prioridad experimental, se recomienda cuantificar directamente las emisiones de CH₄ durante ciclos completos de acumulación y descarga en A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines, bajo distintas condiciones climáticas. Las variables principales son el flujo de CH₄, el volumen almacenado, el tiempo de residencia y el contenido de sólidos volátiles; la temperatura y las condiciones de mezcla constituyen variables explicativas complementarias. Estas mediciones permitirían contrastar la estimación basada en un MCF de 38 %, no determinado para la residencia operativa aproximada de tres días. La prioridad se fundamenta en que A3 aportó 53,9 % del cambio climático del Escenario A y B1 aportó 82 % del correspondiente al Escenario B.",
             "Como segunda prioridad, se recomienda medir las pérdidas de N asociadas con las etapas que dominaron la eutrofización. Las variables principales son la volatilización de NH₃ en A1: Precomposteo y B2: Aplicación de purines en campo de pastoreo, y la pérdida de NO₃⁻ por lixiviación o escorrentía en A4: Aplicación de aguas verdes en campos de pastoreo y B2. Las emisiones de N₂O y NOx, el N residual del suelo y la absorción por el pasto aportarían información complementaria para interpretar los mecanismos y detectar posibles transferencias entre categorías de impacto.",
             "Se recomienda además construir balances experimentales emparejados de masa y N. En A1 y A2: Lombricompostaje deben pesarse y caracterizarse los mismos lotes a la entrada y a la salida, incluido el lombricompost terminado; en A3 y B1 las muestras deben vincularse con volúmenes o masas reales de descarga. La masa total, el N total y el nitrógeno amoniacal total son las variables principales; la especiación del N y la caracterización del producto final son complementarias. Este diseño permitiría investigar las diferencias modelo menos referencia de +36,2 % en A1, +58,3 % en aguas verdes y +195,7 % en purines sin asignarlas de antemano a mecanismos específicos.",
             "Con datos directos de emisiones y balances emparejados, investigaciones posteriores podrían desarrollar un análisis probabilístico de incertidumbre que integre variabilidad temporal, incertidumbre paramétrica y correlaciones entre variables. Su finalidad sería estimar la probabilidad de que cambien las etapas dominantes o el orden relativo de los escenarios y evaluar la transferibilidad de los resultados a otras condiciones de manejo, sin sustituir la comprobación de sensibilidad requerida para concluir el TFG actual.",
@@ -2925,8 +2988,8 @@ def build_document() -> tuple[int, int, int, int]:
         [
             "Los resultados provisionales justifican continuar la comparación de la separación de las fracciones sólidas y líquidas del Escenario A frente al manejo conjunto del Escenario B, pero no sustentan todavía la selección definitiva de uno de ellos. Una decisión de manejo debe considerar los resultados finales del ACV junto con la factibilidad operativa y el desempeño agronómico observados en la lechería.",
             "En el almacenamiento líquido conviene ensayar alternativas que modifiquen el tiempo efectivo bajo condiciones anaerobias o que permitan contener y aprovechar el CH₄, de acuerdo con su viabilidad técnica y de seguridad. Los ensayos deben comparar cada alternativa con la operación actual mediante las variables principales definidas para CH₄ y mediante las pérdidas de N; el consumo energético, la frecuencia de vaciado y las exigencias operativas completan la evaluación de posibles transferencias de impacto.",
-            "En la aplicación al campo conviene evaluar un plan basado en la concentración medida de N, la demanda del suelo y del pasto, la calibración del caudal y las condiciones meteorológicas y de humedad del suelo. Los ensayos en parcelas deben comparar la práctica actual con aplicaciones que eviten suelos saturados y periodos con alta probabilidad de lluvia intensa, utilizando como respuestas principales NH₃ y NO₃⁻ y, como respuestas complementarias, el N residual del suelo y la producción o absorción de N del pasto. Esta línea se sustenta en que A4 aportó 70,63 % de la eutrofización marina del Escenario A, mientras B2 aportó 93,14 % de la eutrofización marina y 62,92 % de la eutrofización terrestre del Escenario B.",
-            "En A1 conviene evaluar de forma controlada el tiempo de precomposteo, la humedad, la aireación y el volteo. La comparación debe priorizar las pérdidas de NH₃ y el balance de N, y complementar estas respuestas con N₂O, aptitud del sustrato para las lombrices y calidad del producto final. A1 concentró 47,44 % de la eutrofización terrestre del Escenario A; por ello, la selección de una condición operativa requiere evidencia experimental local.",
+            "En la aplicación al campo conviene evaluar un plan basado en la concentración medida de N, la demanda del suelo y del pasto, la calibración del caudal y las condiciones meteorológicas y de humedad del suelo. Los ensayos en parcelas deben comparar la práctica actual con aplicaciones que eviten suelos saturados y periodos con alta probabilidad de lluvia intensa, utilizando como respuestas principales NH₃ y NO₃⁻ y, como respuestas complementarias, el N residual del suelo y la producción o absorción de N del pasto. Esta línea se sustenta en que A4 aportó 70,6 % de la eutrofización marina del Escenario A, mientras B2 aportó 93,1 % de la eutrofización marina y 62,9 % de la eutrofización terrestre del Escenario B.",
+            "En A1 conviene evaluar de forma controlada el tiempo de precomposteo, la humedad, la aireación y el volteo. La comparación debe priorizar las pérdidas de NH₃ y el balance de N, y complementar estas respuestas con N₂O, aptitud del sustrato para las lombrices y calidad del producto final. A1 concentró 47,4 % de la eutrofización terrestre del Escenario A; por ello, la selección de una condición operativa requiere evidencia experimental local.",
         ],
     )
 
@@ -3109,6 +3172,10 @@ def build_document() -> tuple[int, int, int, int]:
         experimental_parameter_table(),
         decimals=4,
     )
+    add_table_note(
+        document,
+        "Cuando se dispone de dos campañas comparables, el resultado se presenta como media ± desviación estándar entre campañas; esta dispersión descriptiva no constituye una incertidumbre expandida. Los resultados líquidos procedentes solo de M2 conservan cuatro decimales para evitar que valores físicamente distintos de cero desaparezcan por redondeo.",
+    )
 
     add_oriented_section(document, WD_ORIENT.LANDSCAPE)
     add_chapter(
@@ -3130,7 +3197,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Propagación anual de N total y TAN por etapa.",
         nitrogen_propagation_table(),
-        decimals=6,
+        decimals=4,
     )
     nitrogen_loss_table = counters.table + 1
     add_text(
@@ -3145,7 +3212,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Pérdidas físicas anuales de N por etapa.",
         nitrogen_direct_loss_table(),
-        decimals=6,
+        decimals=4,
     )
     emissions_appendix_table = counters.table + 1
     add_text(
@@ -3160,7 +3227,7 @@ def build_document() -> tuple[int, int, int, int]:
         counters,
         "Emisiones anuales desagregadas por etapa y ruta.",
         detailed_emission_table(),
-        decimals=6,
+        decimals=4,
     )
 
     add_chapter(
@@ -3650,7 +3717,7 @@ def validate_document(
                 phrase in text
                 for phrase in (
                     "Los valores y sus unidades permanecen sin cambios",
-                    "El valor 0,0000 de CO₂ expresa que esta tabla resume las emisiones del manejo del estiércol",
+                    "El valor 0 de CO₂ expresa que esta tabla resume las emisiones del manejo del estiércol",
                     "no representa ausencia de información",
                     "sin añadir CO₂ biogénico",
                 )
@@ -4137,12 +4204,12 @@ def validate_document(
                     "Como segunda prioridad",
                     "Las variables principales son la volatilización de NH₃",
                     "La masa total, el N total y el nitrógeno amoniacal total son las variables principales",
-                    "A3 aportó 53,93 %",
-                    "B1 aportó 81,99 %",
-                    "A4 aportó 70,63 %",
-                    "B2 aportó 93,14 %",
-                    "62,92 % de la eutrofización terrestre",
-                    "A1 concentró 47,44 %",
+                    "A3 aportó 53,9 %",
+                    "B1 aportó 82 %",
+                    "A4 aportó 70,6 %",
+                    "B2 aportó 93,1 %",
+                    "62,9 % de la eutrofización terrestre",
+                    "A1 concentró 47,4 %",
                 ]
             ),
         ),
@@ -4209,6 +4276,48 @@ def validate_document(
     )
     checks.append(("No se asocian purines con etapas del Escenario A", not scenario_a_mislabel))
 
+    numeric_scope = manuscript_text + "\n" + "\n".join(table_rows)
+    figure_numeric_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(FIG_DIR.glob("*.svg"))
+    )
+    checks.extend(
+        [
+            (
+                "La política científica evita decimales excesivos no justificados",
+                not re.search(r"\d+,\d{7,}", numeric_scope),
+            ),
+            (
+                "Los resultados pequeños no nulos permanecen visibles en notación científica",
+                "5,955 × 10⁻⁴" in manuscript_text
+                and "−1,99 × 10⁻⁵" in numeric_scope,
+            ),
+            (
+                "No se muestran ceros negativos",
+                not re.search(r"(?<!\d)[−-]0(?:,0+)?(?:\s|$)", numeric_scope),
+            ),
+            (
+                "La dispersión experimental se identifica sin presentarla como incertidumbre expandida",
+                "media ± desviación estándar entre campañas" in numeric_scope
+                and "no constituye una incertidumbre expandida" in numeric_scope,
+            ),
+            (
+                "La comparación Python–SimaPro conserva la precisión observada y diferencias no nulas",
+                "3\u00a0167,9045" in numeric_scope
+                and "−1,99 × 10⁻⁵" in numeric_scope
+                and not re.search(r"\d+[,.]\d{8,}", "\n".join(aggregate_academic.astype(str).to_numpy().flatten())),
+            ),
+            (
+                "Los ejes de las figuras usan coma decimal en sus etiquetas numéricas",
+                not re.search(r">\s*[−-]?\d+\.\d+\s*<", figure_numeric_text),
+            ),
+            (
+                "Años, campañas y códigos de etapa permanecen como identificadores exactos",
+                all(value in numeric_scope for value in ("2025", "2026", "M1", "M2", "A1", "B2")),
+            ),
+        ]
+    )
+
     failures = [name for name, passed in checks if not passed]
     status = "PASS" if not failures else "FAIL"
     lines = [
@@ -4240,6 +4349,7 @@ def validate_document(
             "## Alcance de la validación",
             "",
             "- La validación comprueba estructura, objetivos, identificación provisional, integridad del paquete, numeración editorial, rutas visibles, figuras, tablas e integridad del MASTER.",
+            "- La validación comprueba además la política de precisión numérica: ausencia de decimales excesivos, cero negativo y pérdida de magnitudes pequeñas; tratamiento explícito de la dispersión experimental; coherencia Python–SimaPro; identificadores exactos; y coma decimal en figuras.",
             "- La revisión visual y la validación científica supervisora permanecen separadas de estas comprobaciones programáticas.",
             "- La bibliografía visible contiene únicamente las referencias citadas; las candidatas no utilizadas permanecen gobernadas en el registro integral.",
         ]
