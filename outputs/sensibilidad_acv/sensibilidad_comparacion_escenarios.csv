@@ -1,0 +1,28 @@
+﻿Caso,Factor evaluado,Caso del factor,Valor del parámetro,Unidad del parámetro,Categoría de impacto,Impacto escenario A,Impacto escenario B,Diferencia B − A,Diferencia B respecto a A (%),Escenario de menor impacto,Clasificación estable respecto a referencia,Unidad del impacto
+MCF_0,MCF del almacenamiento líquido,Exploración 0 %,0.0,%,Cambio climático,1506.2843827716786,1259.426967579793,-246.8574151918856,-16.388499941667657,B,No,kg CO₂-eq/año
+MCF_0,MCF del almacenamiento líquido,Exploración 0 %,0.0,%,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+MCF_0,MCF del almacenamiento líquido,Exploración 0 %,0.0,%,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+MCF_19,MCF del almacenamiento líquido,Exploración 19 %,19.0,%,Cambio climático,2338.1989565512204,3756.8670574151092,1418.6681008638889,60.67354092726076,A,Sí,kg CO₂-eq/año
+MCF_19,MCF del almacenamiento líquido,Exploración 19 %,19.0,%,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+MCF_19,MCF del almacenamiento líquido,Exploración 19 %,19.0,%,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+MCF_38,MCF del almacenamiento líquido,Referencia,38.0,%,Cambio climático,3170.113530330762,6254.307147250425,3084.1936169196633,97.28968970388472,A,Sí,kg CO₂-eq/año
+MCF_38,MCF del almacenamiento líquido,Referencia,38.0,%,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+MCF_38,MCF del almacenamiento líquido,Referencia,38.0,%,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+MCF_57,MCF del almacenamiento líquido,Exploración 57 %,57.0,%,Cambio climático,4002.0281041103035,8751.74723708574,4749.719132975436,118.68280305421175,A,Sí,kg CO₂-eq/año
+MCF_57,MCF del almacenamiento líquido,Exploración 57 %,57.0,%,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+MCF_57,MCF del almacenamiento líquido,Exploración 57 %,57.0,%,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+MCF_76,MCF del almacenamiento líquido,Exploración 76 %,76.0,%,Cambio climático,4833.942677889845,11249.187326921057,6415.244649031212,132.71246840336244,A,Sí,kg CO₂-eq/año
+MCF_76,MCF del almacenamiento líquido,Exploración 76 %,76.0,%,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+MCF_76,MCF del almacenamiento líquido,Exploración 76 %,76.0,%,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+MCF_100,MCF del almacenamiento líquido,Exploración 100 %,100.0,%,Cambio climático,5884.782139506106,14403.848493028823,8519.066353522718,144.76434558778243,A,Sí,kg CO₂-eq/año
+MCF_100,MCF del almacenamiento líquido,Exploración 100 %,100.0,%,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+MCF_100,MCF del almacenamiento líquido,Exploración 100 %,100.0,%,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+B0_0.204,Potencial máximo de producción de metano (B₀),−15 %,0.204,m³ CH₄/kg SV,Cambio climático,2868.9097260398703,5505.075120299831,2636.1653942599605,91.88735951963254,A,Sí,kg CO₂-eq/año
+B0_0.204,Potencial máximo de producción de metano (B₀),−15 %,0.204,m³ CH₄/kg SV,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+B0_0.204,Potencial máximo de producción de metano (B₀),−15 %,0.204,m³ CH₄/kg SV,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+B0_0.240,Potencial máximo de producción de metano (B₀),Referencia,0.24,m³ CH₄/kg SV,Cambio climático,3170.113530330762,6254.307147250425,3084.1936169196633,97.28968970388472,A,Sí,kg CO₂-eq/año
+B0_0.240,Potencial máximo de producción de metano (B₀),Referencia,0.24,m³ CH₄/kg SV,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+B0_0.240,Potencial máximo de producción de metano (B₀),Referencia,0.24,m³ CH₄/kg SV,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año
+B0_0.276,Potencial máximo de producción de metano (B₀),+15 %,0.27599999999999997,m³ CH₄/kg SV,Cambio climático,3471.317334621653,7003.53917420102,3532.2218395793666,101.7545069806864,A,Sí,kg CO₂-eq/año
+B0_0.276,Potencial máximo de producción de metano (B₀),+15 %,0.27599999999999997,m³ CH₄/kg SV,Eutrofización terrestre,617.0517125078838,961.269308200257,344.21759569237315,55.78423796821976,A,Sí,mol N-eq/año
+B0_0.276,Potencial máximo de producción de metano (B₀),+15 %,0.27599999999999997,m³ CH₄/kg SV,Eutrofización marina,15.648347825374902,35.62231521609108,19.97396739071618,127.6426598744628,A,Sí,kg N-eq/año

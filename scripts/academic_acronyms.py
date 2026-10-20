@@ -58,6 +58,7 @@ ACRONYMS: tuple[AcronymEntry, ...] = (
     AcronymEntry("EMEP", "Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa", "Co-operative Programme for Monitoring and Evaluation of the Long-range Transmission of Air Pollutants in Europe", "inglés", "Programa cooperativo de seguimiento y evaluación del transporte a larga distancia de contaminantes atmosféricos en Europa (EMEP)", kind="denominacion_convencional"),
     AcronymEntry("GEI", "gases de efecto invernadero", None, "español", "gases de efecto invernadero (GEI)"),
     AcronymEntry("ICV", "inventario del ciclo de vida", None, "español", "inventario del ciclo de vida (ICV)"),
+    AcronymEntry("ILCD", "Sistema Internacional de Datos de Referencia sobre Ciclo de Vida", "International Reference Life Cycle Data System", "inglés", "Sistema Internacional de Datos de Referencia sobre Ciclo de Vida (ILCD, por sus siglas en inglés)", kind="sigla_inglesa"),
     AcronymEntry("IMN", "Instituto Meteorológico Nacional", None, "español", "Instituto Meteorológico Nacional (IMN)"),
     AcronymEntry("INEC", "Instituto Nacional de Estadística y Censos", None, "español", "Instituto Nacional de Estadística y Censos (INEC)"),
     AcronymEntry("IPCC", "Grupo Intergubernamental de Expertos sobre el Cambio Climático", "Intergovernmental Panel on Climate Change", "inglés", "Grupo Intergubernamental de Expertos sobre el Cambio Climático (IPCC, por sus siglas en inglés)", kind="sigla_inglesa"),

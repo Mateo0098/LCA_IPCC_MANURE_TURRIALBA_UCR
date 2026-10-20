@@ -1595,6 +1595,7 @@ def write_readme(master_hash_before: str, master_hash_after: str) -> None:
 - `scripts/generate_conclusions_docx.py`
 - `scripts/generate_integral_tfg_docx.py`
 - `scripts/generate_integral_photographic_figures.py`
+- `scripts/generate_acv_sensitivity.py`
 
 ## 3. Tablas utilizadas
 
@@ -1614,6 +1615,10 @@ Figuras fotográficas del documento integral:
 
 {chr(10).join(f"- `recursos_integral/{name}`" for name in integral_photo_fig_names)}
 
+Figura de sensibilidad del documento integral:
+
+- `outputs/sensibilidad_acv/figura_sensibilidad_climatica.png`
+
 ## 5. Confirmaciones
 
 - El nitrógeno total reportado en porcentaje se convierte a fracción másica antes de aplicar las ecuaciones.
@@ -1625,6 +1630,7 @@ Figuras fotográficas del documento integral:
 - Se distinguen la tanqueta de almacenamiento y el cañón VAIA de aplicación, así como la frecuencia operativa de tres días y el intervalo de acumulación previo al muestreo.
 - A1 se describe como aproximadamente tres a cuatro semanas y A2 como aproximadamente 13 semanas posteriores a A1, sin atribuir al TFG una muestra de lombricompost terminado.
 - El MCF de 38 % se presenta como aproximación conservadora del IPCC y no como una medición específica para tres días.
+- La sensibilidad determinística PROVISIONAL M1–M2 aplica un MCF común a A3/B1 y B₀ de forma coherente en A1/A2/A3/B1, sin modificar salidas canónicas ni interpretar el dominio exploratorio como incertidumbre empírica.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.
@@ -1742,6 +1748,8 @@ def write_ef31_validation(master_hash_before: str, master_hash_after: str) -> No
         "- Frecuencia operativa de tres días diferenciada del intervalo jueves–lunes previo al muestreo: Sí.",
         "- A1 descrita como tres a cuatro semanas y A2 como 13 semanas posteriores a A1, sin afirmar muestreo de lombricompost terminado: Sí.",
         "- MCF de 38 % descrito como aproximación conservadora del IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.",
+        f"- Sensibilidad determinística MCF/B₀ incorporada al integral y delimitada como PROVISIONAL M1–M2: {'Sí' if all(value in integral_text for value in ['4.9 Evaluación determinística de sensibilidad', '5.6 Resultados de la sensibilidad determinística', 'El MCF crítico', 'no es un intervalo de confianza']) else 'No'}.",
+        f"- Figura académica de sensibilidad disponible y sin título interno: {'Sí' if (ROOT / 'outputs' / 'sensibilidad_acv' / 'figura_sensibilidad_climatica.png').exists() else 'No'}.",
         "- Ausencia de 3,5 días como parámetro canónico de anualización: Sí.",
         f"- Ecuaciones de metodología en OMML: {'Sí' if omml_counts.get(METHODOLOGY_DOCX.name, 0) > 0 else 'No'} ({omml_counts.get(METHODOLOGY_DOCX.name, 0)} objetos).",
         f"- Ecuaciones integrales seleccionadas en OMML: {'Sí' if formal_omml_counts.get(INTEGRAL_DOCX.name, 0) == 26 else 'No'} ({formal_omml_counts.get(INTEGRAL_DOCX.name, 0)} ecuaciones numeradas; {omml_counts.get(INTEGRAL_DOCX.name, 0) - formal_omml_counts.get(INTEGRAL_DOCX.name, 0)} símbolos OMML en definiciones).",

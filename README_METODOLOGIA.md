@@ -400,6 +400,29 @@ Tablas finales:
 - `outputs/tablas_tesis/tabla_08_impactos_totales_por_escenario.csv`
 - `outputs/tablas_tesis/tabla_09_comparacion_escenarios.csv`
 
+## Evaluación determinística de sensibilidad
+
+`scripts/generate_acv_sensitivity.py` reutiliza en memoria el inventario
+productivo de `scripts/reactive_n_ledger.py` y la caracterización EF 3.1 de
+`scripts/compute_acv_impact_equivalents.py`. No modifica los parámetros, las
+emisiones ni los impactos canónicos.
+
+La primera evaluación, identificada como **PROVISIONAL M1–M2**, aplica un factor
+a la vez. Mantiene 38 % como referencia del MCF de almacenamiento líquido y lo
+varía conjuntamente en A3 y B1 dentro del dominio matemático de 0–100 %. Este
+dominio permite buscar una inversión de la comparación climática, pero no
+representa un intervalo empírico ni un MCF validado para tres días. B₀ conserva
+0,24 m³ CH₄/kg SV como referencia y se evalúa en ±15 %, conforme a la
+incertidumbre de la tabla 10.16A del Refinamiento 2019 del IPCC, en A1, A2, A3
+y B1.
+
+Las salidas regenerables residen en `outputs/sensibilidad_acv/` e incluyen
+impactos por etapa y escenario, diferencias B menos A, variaciones respecto de
+la referencia, estabilidad de la clasificación, el umbral climático de MCF y
+una figura académica. La ejecución exige que el caso central reproduzca los
+impactos oficiales y verifica por huella que las fuentes y salidas canónicas no
+cambien.
+
 ## Contraste bibliográfico de A2
 
 El producto `processed/a2_ipcc_jjagwe_benchmark.csv` es generado por
@@ -459,6 +482,7 @@ ejecuta ingestión ni integración estadística.
 .venv\Scripts\python.exe scripts\build_sampling_integration.py
 .venv\Scripts\python.exe scripts\validate_sampling_integration.py
 .venv\Scripts\python.exe ACV_orquestador.py
+.venv\Scripts\python.exe scripts\generate_acv_sensitivity.py
 .venv\Scripts\python.exe scripts\generate_thesis_tables.py
 .venv\Scripts\python.exe scripts\generate_thesis_graphics.py
 .venv\Scripts\python.exe scripts\generate_methodology_docx.py

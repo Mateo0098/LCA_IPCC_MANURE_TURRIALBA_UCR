@@ -614,3 +614,24 @@ La matriz académica se genera desde las fuentes vigentes y no constituye una
 tabla manual independiente ni una nueva fuente científica. La taxonomía,
 subtipos y equivalencias de etiquetas se mantienen en
 `DICCIONARIO_TRAZABILIDAD_VARIABLES.md`.
+
+## 17. Sensibilidad determinística de MCF y B₀
+
+La primera evaluación de sensibilidad del ACV se aplica un factor a la vez y
+conserva intacto el caso principal. Para MCF se mantiene 38 % como referencia y
+se impone el mismo valor transitorio a A3 y B1. El dominio 0–100 % se utiliza
+para localizar matemáticamente una posible inversión de la comparación
+climática; no representa un intervalo de incertidumbre empírica, no valida un
+MCF para tres días y no autoriza escalado lineal del valor mensual del IPCC.
+
+Para B₀ se conserva 0,24 m³ CH₄/kg SV como referencia y se evalúan 0,204 y
+0,276 m³ CH₄/kg SV, correspondientes a ±15 % según la incertidumbre de la tabla
+10.16A del Refinamiento 2019 del IPCC. Cada caso se aplica conjuntamente a A1,
+A2, A3 y B1. La sensibilidad reutiliza la ecuación productiva de CH₄ y la
+caracterización EF 3.1, preserva los balances de N total/TAN y los componentes
+operativos, y nunca sustituye parámetros o resultados canónicos.
+
+Los resultados actuales conservan la identificación **PROVISIONAL M1–M2**. Un
+umbral calculado es una propiedad determinística del modelo bajo las demás
+entradas fijas; no es un intervalo de confianza, una probabilidad de inversión
+ni evidencia de robustez empírica. La evaluación debe repetirse después de M3.

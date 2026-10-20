@@ -77,6 +77,10 @@ COVER_VERSION_DATE = "octubre de 2026"
 MASTER = ROOT / "MASTER_escrito" / "TFG_ACV_Estiercol_MASTER.docx"
 REFERENCES = ROOT / "docs" / "REFERENCIAS_TFG.md"
 SENSITIVITY = ROOT / "outputs" / "auditoria_n_reactivo" / "sensibilidad_n2_a2.csv"
+ACV_SENSITIVITY_DIR = ROOT / "outputs" / "sensibilidad_acv"
+ACV_SENSITIVITY_COMPARISON = ACV_SENSITIVITY_DIR / "sensibilidad_comparacion_escenarios.csv"
+ACV_SENSITIVITY_THRESHOLD = ACV_SENSITIVITY_DIR / "sensibilidad_umbral_mcf.csv"
+ACV_SENSITIVITY_FIGURE = ACV_SENSITIVITY_DIR / "figura_sensibilidad_climatica.png"
 NITROGEN_AUDIT_LEDGER = (
     ROOT / "outputs" / "auditoria_n_reactivo" / "ledger_secuencial_n_tan.csv"
 )
@@ -153,6 +157,8 @@ REQUIRED_REFERENCE_KEYS = {
     "INEC2023",
     "IPCC2019",
     "ISO140402006",
+    "ISO140442006",
+    "ILCD2010",
     "Jjagwe2019",
     "Komakech2014",
     "Komakech2015",
@@ -528,6 +534,9 @@ def validate_inputs() -> Path:
     required = [
         REFERENCES,
         SENSITIVITY,
+        ACV_SENSITIVITY_COMPARISON,
+        ACV_SENSITIVITY_THRESHOLD,
+        ACV_SENSITIVITY_FIGURE,
         SIMAPRO_UNIT_REGISTRY,
         SIMAPRO_PYTHON_SUMMARY,
         SIMAPRO_AGGREGATE_REGISTRY,
@@ -1540,6 +1549,39 @@ def sensitivity_summary() -> tuple[pd.DataFrame, float]:
     )
     maximum = float(source["change_vs_central_pct_n_total_in"].abs().max())
     return table, maximum
+
+
+def acv_sensitivity_summary() -> tuple[pd.DataFrame, float]:
+    source = pd.read_csv(ACV_SENSITIVITY_COMPARISON, encoding="utf-8-sig")
+    climate = source[source["Categoría de impacto"].eq("Cambio climático")].copy()
+    climate["Parámetro y caso"] = climate["Factor evaluado"] + ": " + climate["Caso del factor"]
+    climate["Valor evaluado"] = climate.apply(
+        lambda row: (
+            f"{fixed(row['Valor del parámetro'], 1)} %"
+            if row["Unidad del parámetro"] == "%"
+            else f"{fixed(row['Valor del parámetro'], 3)} m³ CH₄/kg SV"
+        ),
+        axis=1,
+    )
+    table = climate[
+        [
+            "Parámetro y caso",
+            "Valor evaluado",
+            "Impacto escenario A",
+            "Impacto escenario B",
+            "Diferencia B − A",
+            "Escenario de menor impacto",
+            "Clasificación estable respecto a referencia",
+        ]
+    ].rename(
+        columns={
+            "Impacto escenario A": "Escenario A (kg CO₂-eq/año)",
+            "Impacto escenario B": "Escenario B (kg CO₂-eq/año)",
+            "Diferencia B − A": "Diferencia B − A (kg CO₂-eq/año)",
+        }
+    )
+    threshold = pd.read_csv(ACV_SENSITIVITY_THRESHOLD, encoding="utf-8-sig")
+    return table, float(threshold.iloc[0]["MCF crítico (%)"])
 
 
 def simapro_aggregate_comparison() -> pd.DataFrame:
@@ -2601,7 +2643,18 @@ def build_document() -> tuple[int, int, int, int]:
         ],
     )
 
-    document.add_heading("4.9 Supuestos, consistencia y limitaciones", level=2)
+    document.add_heading("4.9 Evaluación determinística de sensibilidad", level=2)
+    add_text(
+        document,
+        [
+            "La interpretación incorporó una evaluación determinística de sensibilidad de un factor a la vez, conforme a los requisitos de interpretación y comprobación de sensibilidad de ISO 14044:2006 y a las recomendaciones de la sección 9.3.3 del manual del Sistema Internacional de Datos de Referencia sobre Ciclo de Vida (ILCD, por sus siglas en inglés) (European Commission, 2010). El procedimiento conservó la unidad funcional, los balances de masa, el balance secuencial de N total y nitrógeno amoniacal total, los factores de caracterización EF 3.1 y los consumos operativos.",
+            "El factor de conversión de metano del almacenamiento líquido se aplicó simultáneamente a A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines. Se conservó 38 % como referencia y se examinó el dominio matemático de 0–100 % para localizar, si existía, una inversión de la comparación climática. Este dominio cumple una función exploratoria: sus valores no son mediciones, estimaciones validadas para tres días ni resultados de un escalado temporal lineal del valor mensual del IPCC.",
+            "El potencial máximo de producción de metano se evaluó en 0,204, 0,240 y 0,276 m³ CH₄/kg SV. Los extremos corresponden a ±15 % respecto del valor central de 0,24 m³ CH₄/kg SV, de acuerdo con la incertidumbre indicada en la tabla 10.16A del Refinamiento 2019 del IPCC. Cada variación se aplicó conjuntamente a A1, A2, A3 y B1, que son las etapas que consumen B₀.",
+            "Para cada caso se recalcularon los impactos por etapa y escenario en las tres categorías vigentes, la diferencia B menos A, la variación respecto del caso de referencia y la estabilidad de la clasificación. El caso central se contrastó numéricamente con los resultados oficiales y la ejecución verificó que los insumos y resultados canónicos permanecieran sin cambios.",
+        ],
+    )
+
+    document.add_heading("4.10 Supuestos, consistencia y limitaciones", level=2)
     add_text(
         document,
         [
@@ -2875,6 +2928,38 @@ def build_document() -> tuple[int, int, int, int]:
         "Resultados de la sesión del 7 de octubre de 2026. El subtotal de cambio climático excluye la electricidad agregada del IMN y no equivale al cambio climático total publicado por el ACV. Python y SimaPro se presentan redondeados a la precisión observada; por ello, ambos pueden verse idénticos aunque la diferencia calculada con precisión completa sea distinta de cero. Esa diferencia se conserva en la columna correspondiente y siempre representa SimaPro menos Python.",
     )
 
+    document.add_heading("5.6 Resultados de la sensibilidad determinística", level=2)
+    acv_sensitivity, critical_mcf = acv_sensitivity_summary()
+    sensitivity_table_number = counters.table + 1
+    sensitivity_figure_number = counters.figure + 1
+    add_text(
+        document,
+        [
+            f"La Tabla {sensitivity_table_number} presenta los resultados climáticos de los casos evaluados y la Figura {sensitivity_figure_number} muestra la diferencia B menos A. El caso central reprodujo los impactos oficiales con precisión numérica interna.",
+            f"El MCF crítico para la comparación climática fue {significant(critical_mcf, 4)} %. Por debajo de ese umbral matemático, el escenario B presentó menor cambio climático; por encima, el escenario A presentó menor cambio climático. El valor no constituye una medición del sistema ni una estimación empírica del MCF correspondiente a tres días.",
+            "La variación de B₀ en ±15 % modificó el cambio climático, pero no invirtió la clasificación de los escenarios. Como MCF y B₀ intervienen únicamente en la estimación de CH₄, los resultados de eutrofización terrestre y marina permanecieron invariantes en todos estos casos.",
+        ],
+    )
+    add_dataframe(
+        document,
+        profile,
+        counters,
+        "Sensibilidad determinística del cambio climático a MCF y B₀.",
+        acv_sensitivity,
+        decimals=4,
+        font_size_pt=8.0,
+    )
+    add_table_note(
+        document,
+        "Resultados PROVISIONAL M1–M2. Los casos extremos del dominio de MCF son exploratorios y no representan valores experimentales validados para la residencia operativa de tres días. B₀ se varió de forma coherente en todas las etapas que consumen el parámetro.",
+    )
+    add_figure(
+        document,
+        counters,
+        ACV_SENSITIVITY_FIGURE,
+        "Influencia de MCF y B₀ sobre la diferencia climática entre escenarios.",
+    )
+
     add_chapter(document, "6. Discusión provisional")
     document.add_heading("6.1 Interpretación de la comparación", level=2)
     add_text(
@@ -2908,9 +2993,10 @@ def build_document() -> tuple[int, int, int, int]:
     add_text(
         document,
         [
-            f"La comprobación disponible para A2 varió el factor de N₂-N respecto al TAN entre 0 y 0,30. Frente al caso central de 0,30, el cambio máximo observado en el N total remanente equivalió a {fixed(maximum_change, 1)} % del N total de entrada. La Tabla {table_10} documenta esta comprobación de aseguramiento de la calidad; no constituye un análisis de sensibilidad completo de los impactos.",
-            "Los supuestos con mayor capacidad material de afectar la comparación son el MCF del almacenamiento líquido, la caracterización de materia seca, sólidos volátiles y N después de M3, la relación TAN/N inicial, los factores de A2, la duración y frecuencia de los consumos operativos y los factores asociados a la aplicación al suelo.",
-            "Después de M3 y antes de la interpretación final podrá evaluarse si una sensibilidad acotada de las aproximaciones de alta influencia, en particular N₂ de A2 y NH₃ de Komakech, aporta valor suficiente. Su ausencia no impide interpretar el modelo provisional. La consistencia continuará verificándose mediante cierre de balances, igualdad del flujo funcional e integridad temporal del análisis.",
+            f"La evaluación determinística confirmó que la comparación climática es sensible al MCF común asignado a A3 y B1. El umbral de {significant(critical_mcf, 4)} % demuestra una inversión dentro del dominio matemático de 0–100 %; no demuestra que el MCF real de la operación se encuentre cerca de ese valor ni permite asignarle una probabilidad. La referencia de 38 % queda suficientemente por encima del umbral dentro del modelo provisional, pero su procedencia mensual y la ausencia de una medición específica para tres días impiden afirmar robustez empírica.",
+            "La clasificación climática permaneció estable ante la incertidumbre de ±15 % de B₀ indicada por el IPCC. Este resultado describe sensibilidad paramétrica local bajo las demás entradas fijas; no es un intervalo de confianza, no incorpora variabilidad temporal y no constituye un análisis probabilístico de incertidumbre.",
+            f"Como comprobación complementaria de aseguramiento de la calidad, el factor de N₂-N de A2 se varió entre 0 y 0,30 respecto al TAN. Frente al caso central de 0,30, el cambio máximo del N total remanente equivalió a {fixed(maximum_change, 1)} % del N total de entrada. La Tabla {table_10} documenta esa comprobación del balance, que no sustituye la sensibilidad de impactos realizada para MCF y B₀.",
+            "Los resultados continúan siendo PROVISIONAL M1–M2. La incorporación de M3 puede modificar las características de sólidos volátiles y, por tanto, las magnitudes y el umbral calculado; la evaluación deberá repetirse sobre la corrida definitiva sin reinterpretar estos casos como incertidumbre empírica.",
         ],
     )
     table_10 = add_dataframe(
@@ -2958,6 +3044,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "Como comprobación complementaria, la caracterización EF 3.1 implementada en Python presentó concordancia con la verificación independiente mediante SimaPro para los flujos examinados y dentro de la precisión disponible. Este resultado no sustituye las conclusiones ambientales del ACV ni amplía el alcance provisional M1–M2.",
+            f"La sensibilidad determinística PROVISIONAL M1–M2 identificó una inversión de la comparación climática a un MCF común de {significant(critical_mcf, 4)} % para A3 y B1, mientras la variación de ±15 % de B₀ no alteró la clasificación. El umbral es matemático y no constituye evidencia experimental sobre el MCF de la residencia operativa de tres días.",
             "El Apéndice A, Correspondencia entre objetivos, resultados y conclusiones provisionales, sintetiza la relación entre los objetivos del estudio y la evidencia presentada sin duplicar los resultados numéricos de las tablas principales.",
         ],
     )
@@ -2976,7 +3063,7 @@ def build_document() -> tuple[int, int, int, int]:
         document,
         [
             "Completar la caracterización analítica de M3 e integrar únicamente las determinaciones comparables con M1 y M2 constituye una actividad pendiente del TFG, no una línea de investigación posterior. Con la integración completa se deben volver a estimar los parámetros experimentales, las emisiones y los indicadores de impacto, y comprobar si se mantienen las etapas dominantes y la comparación entre escenarios.",
-            "Antes de formular las conclusiones definitivas, se debe comprobar la robustez de la comparación mediante un análisis de sensibilidad acotado a los supuestos con capacidad material de modificarla. La prioridad corresponde al MCF y a B₀ del almacenamiento líquido, por la contribución de A3 y B1 al cambio climático; en segundo término deben examinarse la relación inicial entre nitrógeno amoniacal total y N total, los factores de A2 y los factores de las aplicaciones A4 y B2. Esta comprobación, basada en rangos plausibles y documentados, debe establecer si la jerarquía de etapas y el orden relativo de los escenarios se conservan; un análisis probabilístico más amplio corresponde a una investigación posterior.",
+            "La primera evaluación determinística de MCF y B₀ debe repetirse después de integrar M3, porque los parámetros experimentales definitivos pueden modificar las magnitudes y el umbral climático. Antes de formular las conclusiones definitivas también se debe decidir, con rangos plausibles y documentados, si se amplía la sensibilidad a la relación inicial entre nitrógeno amoniacal total y N total, los factores de A2 y los factores de las aplicaciones A4 y B2. Un análisis probabilístico más amplio corresponde a una investigación posterior.",
         ],
     )
 
@@ -2987,7 +3074,7 @@ def build_document() -> tuple[int, int, int, int]:
             "Como primera prioridad experimental, se recomienda cuantificar directamente las emisiones de CH₄ durante ciclos completos de acumulación y descarga en A3: Almacenamiento de aguas verdes y B1: Almacenamiento de purines, bajo distintas condiciones climáticas. Las variables principales son el flujo de CH₄, el volumen almacenado, el tiempo de residencia y el contenido de sólidos volátiles; la temperatura y las condiciones de mezcla constituyen variables explicativas complementarias. Estas mediciones permitirían contrastar la estimación basada en un MCF de 38 %, no determinado para la residencia operativa aproximada de tres días. La prioridad se fundamenta en que A3 aportó 53,9 % del cambio climático del Escenario A y B1 aportó 82 % del correspondiente al Escenario B.",
             "Como segunda prioridad, se recomienda medir las pérdidas de N asociadas con las etapas que dominaron la eutrofización. Las variables principales son la volatilización de NH₃ en A1: Precomposteo y B2: Aplicación de purines en campo de pastoreo, y la pérdida de NO₃⁻ por lixiviación o escorrentía en A4: Aplicación de aguas verdes en campos de pastoreo y B2. Las emisiones de N₂O y NOx, el N residual del suelo y la absorción por el pasto aportarían información complementaria para interpretar los mecanismos y detectar posibles transferencias entre categorías de impacto.",
             "Se recomienda además construir balances experimentales emparejados de masa y N. En A1 y A2: Lombricompostaje deben pesarse y caracterizarse los mismos lotes a la entrada y a la salida, incluido el lombricompost terminado; en A3 y B1 las muestras deben vincularse con volúmenes o masas reales de descarga. La masa total, el N total y el nitrógeno amoniacal total son las variables principales; la especiación del N y la caracterización del producto final son complementarias. Este diseño permitiría investigar las diferencias modelo menos referencia de +36,2 % en A1, +58,3 % en aguas verdes y +195,7 % en purines sin asignarlas de antemano a mecanismos específicos.",
-            "Con datos directos de emisiones y balances emparejados, investigaciones posteriores podrían desarrollar un análisis probabilístico de incertidumbre que integre variabilidad temporal, incertidumbre paramétrica y correlaciones entre variables. Su finalidad sería estimar la probabilidad de que cambien las etapas dominantes o el orden relativo de los escenarios y evaluar la transferibilidad de los resultados a otras condiciones de manejo, sin sustituir la comprobación de sensibilidad requerida para concluir el TFG actual.",
+            "Con datos directos de emisiones y balances emparejados, investigaciones posteriores podrían desarrollar un análisis probabilístico de incertidumbre que integre variabilidad temporal, incertidumbre paramétrica y correlaciones entre variables. Su finalidad sería estimar la probabilidad de que cambien las etapas dominantes o el orden relativo de los escenarios y evaluar la transferibilidad de los resultados a otras condiciones de manejo, sin sustituir la repetición determinística requerida sobre la corrida definitiva.",
         ],
     )
 
@@ -3735,16 +3822,16 @@ def validate_document(
         (
             "La bibliografía visible coincide con las referencias citadas gobernadas",
             bibliography_paragraphs == expected_reference_texts
-            and len(bibliography_paragraphs) == expected_references == 40,
+            and len(bibliography_paragraphs) == expected_references == 42,
         ),
         (
             "Las candidatas internas no aparecen en la bibliografía visible",
             not any(reference in bibliography_paragraphs for reference in candidate_reference_texts),
         ),
         (
-            "El registro conserva 43 entradas clasificadas sin claves duplicadas",
-            len(reference_registry) == 43
-            and len({entry["key"] for entry in reference_registry}) == 43,
+            "El registro conserva 45 entradas clasificadas sin claves duplicadas",
+            len(reference_registry) == 45
+            and len({entry["key"] for entry in reference_registry}) == 45,
         ),
         ("La procedencia y el tratamiento se distinguen", "La procedencia y el tratamiento se registraron por separado" in text),
         ("Los análisis externos del TFG se conservan como fuente primaria", "servicio analítico externo" in text and "Primaria" in text),
@@ -4196,10 +4283,24 @@ def validate_document(
             all(
                 term in recommendations_text
                 for term in [
-                    "Antes de formular las conclusiones definitivas",
-                    "análisis de sensibilidad acotado",
-                    "un análisis probabilístico más amplio corresponde a una investigación posterior",
-                    "sin sustituir la comprobación de sensibilidad requerida para concluir el TFG actual",
+                    "primera evaluación determinística de MCF y B₀",
+                    "debe repetirse después de integrar M3",
+                    "análisis probabilístico más amplio corresponde a una investigación posterior",
+                    "sin sustituir la repetición determinística requerida sobre la corrida definitiva",
+                ]
+            ),
+        ),
+        (
+            "La sensibilidad determinística provisional está incorporada y delimitada",
+            all(
+                term in text
+                for term in [
+                    "4.9 Evaluación determinística de sensibilidad",
+                    "5.6 Resultados de la sensibilidad determinística",
+                    "MCF crítico",
+                    "no constituye una medición del sistema",
+                    "no es un intervalo de confianza",
+                    "PROVISIONAL M1–M2",
                 ]
             ),
         ),

@@ -66,6 +66,7 @@ hasta resolverla y nunca se interpreta como fuente del estado vigente.
 | `outputs/documentos_tfg/reporte_validacion_provisional_m1_m2.md` | Validación cruzada de la corrida completa | `scripts/validate_provisional_m1_m2_outputs.py` | Cualquier capa de la corrida vigente | Generado |
 | `outputs/documentos_tfg/trazabilidad_conclusiones_tfg.md` | Matriz de conclusiones y objetivos | `scripts/generate_conclusions_docx.py` | Conclusiones, objetivos o resultados | Generado |
 | `outputs/qa_qc_simapro_ef31/MANIFIESTO_QA_QC.md` | Estado, exclusiones y huellas de los insumos reproducibles para verificación externa EF 3.1 | `scripts/generate_simapro_ef31_qa.py` | Factores EF 3.1, inventario foreground o impactos canónicos | Generado; independiente de la evidencia histórica presencial |
+| `outputs/sensibilidad_acv/README.md` | Alcance, parámetros, estado provisional y productos de la sensibilidad determinística del ACV | `scripts/generate_acv_sensitivity.py` | Inventario, impactos, parámetros MCF/B₀, dominio exploratorio o reglas de interpretación | Generado; PROVISIONAL M1–M2 y pendiente de repetición después de M3 |
 
 Los manifiestos generados no deben corregirse manualmente cuando la corrección
 pueda aplicarse en su generador. Deben pertenecer a la misma corrida que los
@@ -93,6 +94,10 @@ outputs que describen.
   vistas resumida y detallada A1–B2. Lee y valida fuentes canónicas, reutiliza la
   taxonomía de procedencia y no implementa ecuaciones físicas ni recalcula
   resultados.
+- `scripts/generate_acv_sensitivity.py` consume las interfaces productivas de
+  CH₄ y caracterización EF 3.1 con parámetros transitorios en memoria. Genera
+  la evaluación OFAT de MCF y B₀ sin modificar insumos o resultados oficiales
+  ni duplicar las ecuaciones físicas.
 
 Estos componentes describen el estado vigente y no constituyen decisiones
 pendientes. Cuando una auditoría puntual quede resuelta, su resultado permanente

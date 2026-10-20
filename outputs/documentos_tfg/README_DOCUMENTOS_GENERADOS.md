@@ -20,6 +20,7 @@
 - `scripts/generate_conclusions_docx.py`
 - `scripts/generate_integral_tfg_docx.py`
 - `scripts/generate_integral_photographic_figures.py`
+- `scripts/generate_acv_sensitivity.py`
 
 ## 3. Tablas utilizadas
 
@@ -63,6 +64,10 @@ Figuras fotográficas del documento integral:
 - `recursos_integral/fig_fotografica_muestreo_conservacion.jpg`
 - `recursos_integral/fig_fotografica_bioenergia.jpg`
 
+Figura de sensibilidad del documento integral:
+
+- `outputs/sensibilidad_acv/figura_sensibilidad_climatica.png`
+
 ## 5. Confirmaciones
 
 - El nitrógeno total reportado en porcentaje se convierte a fracción másica antes de aplicar las ecuaciones.
@@ -74,6 +79,7 @@ Figuras fotográficas del documento integral:
 - Se distinguen la tanqueta de almacenamiento y el cañón VAIA de aplicación, así como la frecuencia operativa de tres días y el intervalo de acumulación previo al muestreo.
 - A1 se describe como aproximadamente tres a cuatro semanas y A2 como aproximadamente 13 semanas posteriores a A1, sin atribuir al TFG una muestra de lombricompost terminado.
 - El MCF de 38 % se presenta como aproximación conservadora del IPCC y no como una medición específica para tres días.
+- La sensibilidad determinística PROVISIONAL M1–M2 aplica un MCF común a A3/B1 y B₀ de forma coherente en A1/A2/A3/B1, sin modificar salidas canónicas ni interpretar el dominio exploratorio como incertidumbre empírica.
 - Se usó la nomenclatura oficial de etapas: A1, A2, A3, A4, B1 y B2.
 - El documento maestro protegido se encuentra en `MASTER_escrito/TFG_ACV_Estiercol_MASTER.docx` y se usa únicamente como referencia de formato.
 - Los documentos generados se guardan en `outputs/documentos_tfg/`; ningún generador escribe dentro de `MASTER_escrito/`.

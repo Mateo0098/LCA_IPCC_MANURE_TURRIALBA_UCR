@@ -12,6 +12,8 @@
 - Frecuencia operativa de tres días diferenciada del intervalo jueves–lunes previo al muestreo: Sí.
 - A1 descrita como tres a cuatro semanas y A2 como 13 semanas posteriores a A1, sin afirmar muestreo de lombricompost terminado: Sí.
 - MCF de 38 % descrito como aproximación conservadora del IPCC, no como medición específica para tres días ni factor escalado linealmente: Sí.
+- Sensibilidad determinística MCF/B₀ incorporada al integral y delimitada como PROVISIONAL M1–M2: Sí.
+- Figura académica de sensibilidad disponible y sin título interno: Sí.
 - Ausencia de 3,5 días como parámetro canónico de anualización: Sí.
 - Ecuaciones de metodología en OMML: Sí (26 objetos).
 - Ecuaciones integrales seleccionadas en OMML: Sí (26 ecuaciones numeradas; 123 símbolos OMML en definiciones).

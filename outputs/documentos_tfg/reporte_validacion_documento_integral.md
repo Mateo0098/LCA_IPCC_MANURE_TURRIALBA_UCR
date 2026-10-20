@@ -2,11 +2,11 @@
 
 - Estado general: **PASS**.
 - Documento: `TFG_ACV_Estiercol_INTEGRAL_PROVISIONAL_M1_M2.docx`.
-- Tablas con numeración global: 26.
-- Figuras con numeración global: 10.
+- Tablas con numeración global: 27.
+- Figuras con numeración global: 11.
 - Ecuaciones con numeración global: 26.
-- Entradas conservadas en el registro bibliográfico: 43.
-- Referencias citadas incluidas en la bibliografía visible: 40.
+- Entradas conservadas en el registro bibliográfico: 45.
+- Referencias citadas incluidas en la bibliografía visible: 42.
 - SHA-256 del MASTER antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 - SHA-256 del MASTER después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 
@@ -32,7 +32,7 @@
 - PASS — Las notas de las tablas de factores y emisiones distinguen edición, cero y frontera.
 - PASS — La bibliografía visible coincide con las referencias citadas gobernadas.
 - PASS — Las candidatas internas no aparecen en la bibliografía visible.
-- PASS — El registro conserva 43 entradas clasificadas sin claves duplicadas.
+- PASS — El registro conserva 45 entradas clasificadas sin claves duplicadas.
 - PASS — La procedencia y el tratamiento se distinguen.
 - PASS — Los análisis externos del TFG se conservan como fuente primaria.
 - PASS — No se fuerza una fuente terciaria cuantitativa.
@@ -156,6 +156,7 @@
 - PASS — La interpretación de la concordancia permanece delimitada.
 - PASS — Las recomendaciones separan cierre del TFG, investigación futura y evaluación del manejo.
 - PASS — La incertidumbre necesaria para el cierre se distingue del análisis posterior.
+- PASS — La sensibilidad determinística provisional está incorporada y delimitada.
 - PASS — Las propuestas experimentales priorizan variables según impactos e incertidumbres.
 - PASS — La comparación de escenarios no prescribe prematuramente una alternativa.
 - PASS — Las recomendaciones no contienen tareas informáticas o editoriales.
@@ -178,7 +179,7 @@
 
 ## Auditoría de siglas y abreviaturas
 
-- Entradas registradas y utilizadas: 28.
+- Entradas registradas y utilizadas: 29.
 - Candidatos no registrados: ninguno.
 - Exclusiones clasificadas disponibles: 37.
 

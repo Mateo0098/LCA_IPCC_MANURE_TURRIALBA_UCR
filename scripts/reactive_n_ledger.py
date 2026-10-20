@@ -422,7 +422,13 @@ def productive_ledger_rows(
     return sorted(rows, key=lambda item: order[str(item["stage"])[:2]])
 
 
-def _annual_ch4(escenario: str, etapa: int) -> float:
+def _annual_ch4(
+    escenario: str,
+    etapa: int,
+    *,
+    b0_m3_ch4_per_kg_vs: float | None = None,
+    mcf_pct: float | None = None,
+) -> float:
     """Conserva el cálculo IPCC vigente de CH4 y lo anualiza con la masa activa."""
     from acv_factores_manejo_estiercol import obtener_factores_manejo_ipcc
     from acv_masa_seca import convertir_vs_base_humeda, obtener_fraccion_masa_seca_etapa
@@ -435,17 +441,41 @@ def _annual_ch4(escenario: str, etapa: int) -> float:
     vs_wet = convertir_vs_base_humeda(params["vs_t_pct"], dry_fraction)
     ledger_parameters, _, masses = load_inputs()
     mass = float(masses[(escenario, etapa)]["masa_total_kg_eq"])
+    b0 = (
+        ledger_parameters["dairy_b0_m3_ch4_per_kg_vs"]
+        if b0_m3_ch4_per_kg_vs is None
+        else float(b0_m3_ch4_per_kg_vs)
+    )
+    mcf = float(factors["MCF"]) if mcf_pct is None else float(mcf_pct)
+    if not math.isfinite(b0) or b0 < 0.0:
+        raise ValueError(f"B0 inválido para sensibilidad: {b0}")
+    if not math.isfinite(mcf) or not 0.0 <= mcf <= 100.0:
+        raise ValueError(f"MCF inválido para sensibilidad: {mcf}")
     return ef_ch4(
         VS_T=vs_wet,
-        B0_T=ledger_parameters["dairy_b0_m3_ch4_per_kg_vs"],
-        MCF=float(factors["MCF"]),
+        B0_T=b0,
+        MCF=mcf,
         AWMS=ledger_parameters["awms_assigned_stream_fraction"],
         ch4_density_kg_per_m3=ledger_parameters["ch4_density_kg_per_m3"],
     ) * mass
 
 
-def productive_emission_rows() -> dict[tuple[str, int], dict[str, float | int]]:
-    """Construye las emisiones anuales que consumen las seis etapas productivas."""
+def productive_emission_rows(
+    *,
+    b0_m3_ch4_per_kg_vs: float | None = None,
+    mcf_overrides_pct: dict[tuple[str, int], float] | None = None,
+) -> dict[tuple[str, int], dict[str, float | int]]:
+    """Construye emisiones anuales, con parametrización opcional sin efectos laterales.
+
+    Los valores opcionales existen exclusivamente para evaluaciones controladas. No
+    modifican tablas, parámetros ni salidas canónicas. B0 se aplica coherentemente a
+    todas las etapas que producen CH4; los MCF solo sustituyen las claves indicadas.
+    """
+    mcf_overrides_pct = dict(mcf_overrides_pct or {})
+    allowed_mcf_keys = {("A", 1), ("A", 2), ("A", 3), ("B", 1)}
+    unexpected = set(mcf_overrides_pct) - allowed_mcf_keys
+    if unexpected:
+        raise ValueError(f"Overrides de MCF fuera de etapas con CH4: {sorted(unexpected)}")
     management, applications, _ = build_ledger()
     by_management = {row.stage[:2]: row for row in management}
     by_application = {row.stage[:2]: row for row in applications}
@@ -462,7 +492,11 @@ def productive_emission_rows() -> dict[tuple[str, int], dict[str, float | int]]:
         if code in by_management:
             stage = by_management[code]
             row.update({
-                "CH4_ec1": _annual_ch4(*key),
+                "CH4_ec1": _annual_ch4(
+                    *key,
+                    b0_m3_ch4_per_kg_vs=b0_m3_ch4_per_kg_vs,
+                    mcf_pct=mcf_overrides_pct.get(key),
+                ),
                 "N2O_ec2": stage.n2o_n_direct_ipcc_kg * KG_N_TO_N2O,
                 "N2O_ec5": stage.n2o_indirect_vol_kg,
                 "N2O_ec6": stage.n2o_indirect_leach_kg,

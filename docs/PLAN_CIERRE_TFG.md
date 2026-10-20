@@ -18,6 +18,12 @@ después de integrar M3. Las revisiones posteriores pueden identificar mejoras
 menores de procedencia, presentación o interpretación sin que ello implique
 modificar automáticamente el modelo o sus resultados.
 
+La primera evaluación determinística de sensibilidad del MCF del almacenamiento
+líquido y de B₀ quedó implementada sobre la corrida **PROVISIONAL M1–M2**. Esta
+fase comprueba reproducibilidad, respuesta paramétrica y posibles inversiones
+de clasificación, pero no sustituye su repetición después de integrar M3 ni
+convierte el dominio exploratorio del MCF en incertidumbre empírica.
+
 ## Preparación académica del manuscrito previa a M3
 
 La auditoría integral de la Unidad 0 confirmó la arquitectura reproducible e
@@ -99,8 +105,9 @@ ChatGPT conforme al flujo de coordinación; este plan no inicia esa transición.
    específicos conservados en `docs/REFERENCIAS_TFG.md`.
 5. Efectuar después de M3 la revisión editorial e institucional final del
    documento integral definitivo.
-6. Definir, si aporta valor después de M3, la evaluación cuantitativa mínima de sensibilidad para los supuestos
-   dominantes, sin crear una ruta de cálculo paralela.
+6. Repetir después de M3 la sensibilidad determinística de MCF y B₀ mediante la
+   interfaz canónica ya implementada y decidir, con rangos documentados, si se
+   amplía a otros supuestos dominantes.
 7. Repetir la comprobación agregada EF 3.1 en SimaPro después de integrar M3 y
    actualizar la sección académica antes de tratarla como verificación definitiva.
 
