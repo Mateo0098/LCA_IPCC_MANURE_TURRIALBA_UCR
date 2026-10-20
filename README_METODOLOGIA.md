@@ -423,6 +423,20 @@ una figura académica. La ejecución exige que el caso central reproduzca los
 impactos oficiales y verifica por huella que las fuentes y salidas canónicas no
 cambien.
 
+El mismo generador escribe `vigencia_sensibilidad.json`, que enlaza mediante
+SHA-256 los impactos canónicos por etapa y escenario con las tablas y la figura
+consumidas por el manuscrito integral. Antes de construir el documento,
+`scripts/generate_integral_tfg_docx.py` verifica las huellas, la completitud de
+casos, escenarios, etapas y categorías, y contrasta sin redondeo los dos casos
+de referencia MCF/B₀ con las tres categorías EF 3.1 canónicas. Se utiliza una
+tolerancia relativa de `1e-11` y absoluta de `1e-12`, limitada al ruido de punto
+flotante. Si la sensibilidad está incompleta, alterada u obsoleta, la generación
+se detiene y debe ejecutarse nuevamente:
+
+```powershell
+.venv\Scripts\python.exe scripts\generate_acv_sensitivity.py
+```
+
 ## Contraste bibliográfico de A2
 
 El producto `processed/a2_ipcc_jjagwe_benchmark.csv` es generado por

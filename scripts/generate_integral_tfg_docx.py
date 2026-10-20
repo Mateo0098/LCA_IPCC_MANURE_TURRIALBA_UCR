@@ -34,6 +34,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 import generate_conclusions_docx as conclusions_source  # noqa: E402
+import generate_acv_sensitivity as acv_sensitivity_source  # noqa: E402
 import generate_integral_photographic_figures as photographic_source  # noqa: E402
 import generate_methodology_docx as methodology_source  # noqa: E402
 import generate_results_docx as results_source  # noqa: E402
@@ -544,6 +545,7 @@ def validate_inputs() -> Path:
     missing = [path.relative_to(ROOT) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Faltan entradas para el documento integral: {missing}")
+    acv_sensitivity_source.validate_sensitivity_freshness()
     methodology_source.validate_inputs()
     results_source.validate_inputs()
     photographic_source.validate_sources()

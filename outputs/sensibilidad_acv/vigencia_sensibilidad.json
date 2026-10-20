@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "reference_parameters": {
+    "mcf_pct": 38.0,
+    "b0_m3_ch4_per_kg_sv": 0.24
+  },
+  "canonical_sha256": {
+    "stage_impacts": "7857b3d15a537bfb83834a763182a24a01ebfb14d686e3cfa95e3f5d93ab567d",
+    "scenario_impacts": "27d0968c43e5423797c307e9c03bcadbf9a8daccda57e434a4a67b25c99b3e22"
+  },
+  "sensitivity_sha256": {
+    "stage_impacts": "0e99161a252dabbdc2404ec9b4a582bf398f66448c6bfcf65330c4b6433a09ef",
+    "scenario_impacts": "a55874024f1ed6adf7e98b54da9e9991f0f6abf9562d18b3e919d09fc0f7b4b4",
+    "comparison": "2cef3746d5b5a039b8e1de1cd1b223a7f6fb179a109f49c0ea0054d99002d102",
+    "threshold": "0d3e536689a1b5cdeb198c835b78f559f94cbb223c739f4224a1e37f894a0610",
+    "climate_figure_png": "ad6ec45bef7bcdef646a832630f86e66b10eb6f4eec8202e6850e47ad3986f47"
+  }
+}

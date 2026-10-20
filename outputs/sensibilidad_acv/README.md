@@ -20,4 +20,7 @@ del IPCC, en todas las etapas que consumen el parámetro.
 Archivos regenerables: `sensibilidad_impactos_por_etapa.csv`,
 `sensibilidad_impactos_por_escenario.csv`,
 `sensibilidad_comparacion_escenarios.csv`, `sensibilidad_umbral_mcf.csv` y
-`figura_sensibilidad_climatica` en formatos PNG y SVG.
+`figura_sensibilidad_climatica` en formatos PNG y SVG. El registro
+`vigencia_sensibilidad.json` enlaza por huellas estos productos con los impactos
+canónicos que reprodujo el caso central; el manuscrito integral rechaza una
+corrida incompleta, alterada u obsoleta y solicita regenerarla.
