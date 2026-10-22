@@ -17,6 +17,8 @@
 - PASS — El primer objetivo específico se conserva literalmente.
 - PASS — El segundo objetivo específico se conserva literalmente.
 - PASS — La etiqueta PROVISIONAL M1–M2 es visible.
+- PASS — El índice es un campo Word navegable y actualizable con niveles 1–3.
+- PASS — La numeración de página es continua y la portada no muestra número.
 - PASS — La portada identifica una fecha editorial provisional coherente.
 - PASS — El estado de M3 distingue evidencia parcial, completitud analítica e integración.
 - PASS — Las campañas M1, M2 y M3 se definen antes de su desarrollo metodológico.

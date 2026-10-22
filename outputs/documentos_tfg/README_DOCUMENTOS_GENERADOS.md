@@ -86,6 +86,8 @@ Figura de sensibilidad del documento integral:
 - El documento integral se identifica expresamente como PROVISIONAL M1–M2 y se genera después de los tres módulos académicos.
 - El documento integral contiene 26 ecuaciones OMML seleccionadas por necesidad de reproducibilidad, con numeración global consecutiva y sin convertir la metodología en una transcripción exhaustiva del modelo.
 - El documento integral incorpora tres figuras fotográficas multipanel reproducibles para documentar el sistema físico, el muestreo y el trabajo en Bioenergía; los originales permanecen intactos.
+- El documento integral usa numeración arábiga continua mediante campos nativos de Word; la portada se contabiliza, pero no muestra el número.
+- La sección «Contenido» es una tabla de contenido nativa de Word con niveles 1–3, localizadores actualizables e hipervínculos.
 - No se modificó el documento maestro de referencia. Hash antes: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`. Hash después: `98ABDE3EC5A22FA052EFA595AAC26729EA070EACA670BDC41097C4BF2E5E327C`.
 
 ## 6. Mejoras de formato académico aplicadas

@@ -45,6 +45,19 @@ Correcto: metodología y resultados tienen secuencias internas coherentes e inde
 
 El documento integral constituye una unidad editorial propia: sus capítulos, tablas, figuras, ecuaciones y apéndices mantienen una única numeración global dentro de ese archivo. Los módulos parciales conservan su numeración independiente y no se insertan mediante concatenación binaria.
 
+El documento integral debe incluir numeración arábiga de página, centrada en el
+pie y continua a través de los cambios de orientación. La portada cuenta dentro
+de la secuencia, pero no muestra el número; las páginas siguientes sí lo muestran.
+La numeración se implementa con un campo `PAGE` nativo de Word, no como texto fijo.
+
+El documento integral debe generar la sección «Contenido» como una tabla de
+contenido nativa de Word, con los niveles de título 1–3, números de página e
+hipervínculos. El campo debe quedar marcado para actualización automática al abrir
+el archivo, de modo que los localizadores se recalculen cuando cambie la paginación.
+El título «Contenido» conserva la jerarquía visual del MASTER, pero se excluye de
+su propio listado. No se admiten índices estáticos ni localizadores escritos como
+texto fijo.
+
 Incorrecto: cambiar “Tabla 1” por “Tabla 14” únicamente porque el MASTER termina en la Tabla 13.
 
 ## 3. Títulos y subtítulos

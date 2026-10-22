@@ -4,6 +4,10 @@ import sys
 import unittest
 from pathlib import Path
 
+from docx import Document
+from docx.enum.section import WD_SECTION
+from docx.oxml.ns import qn
+
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -48,6 +52,67 @@ class IntegralAcademicCorrectionsTests(unittest.TestCase):
             integral.SVG_HASHSALT,
             "lca-ipcc-manure-turrialba-ucr",
         )
+
+    def test_page_numbering_is_continuous_and_hidden_on_cover(self) -> None:
+        document = Document()
+        document.add_section(WD_SECTION.NEW_PAGE)
+        integral.configure_page_numbering(document)
+
+        self.assertTrue(document.sections[0].different_first_page_header_footer)
+        self.assertIn(
+            integral.PROVISIONAL_LABEL,
+            "\n".join(
+                paragraph.text
+                for paragraph in document.sections[0].first_page_header.paragraphs
+            ),
+        )
+        first_page_instructions = [
+            (node.text or "").strip()
+            for paragraph in document.sections[0].first_page_footer.paragraphs
+            for node in paragraph._p.iter(qn("w:instrText"))
+        ]
+        self.assertNotIn("PAGE", first_page_instructions)
+        footer_instructions = [
+            (node.text or "").strip()
+            for paragraph in document.sections[0].footer.paragraphs
+            for node in paragraph._p.iter(qn("w:instrText"))
+        ]
+        self.assertIn("PAGE", footer_instructions)
+        self.assertTrue(document.sections[1].footer.is_linked_to_previous)
+
+    def test_table_of_contents_is_native_navigable_and_automatically_updated(self) -> None:
+        document = Document()
+        marker = integral.add_preliminaries(document)
+
+        instructions = [
+            node.text or ""
+            for paragraph in document.paragraphs
+            for node in paragraph._p.iter(qn("w:instrText"))
+            if "TOC" in (node.text or "")
+        ]
+        self.assertEqual(len(instructions), 1)
+        self.assertIn('TOC \\o "1-3" \\h \\z \\u', instructions[0])
+        update_fields = document.settings.element.find(qn("w:updateFields"))
+        self.assertIsNotNone(update_fields)
+        self.assertEqual(update_fields.get(qn("w:val")), "true")
+
+        toc_titles = [
+            paragraph
+            for paragraph in document.paragraphs
+            if paragraph.text.strip() == "Contenido"
+        ]
+        self.assertEqual(len(toc_titles), 1)
+        self.assertEqual(toc_titles[0].style.name, integral.TOC_STYLE_NAME)
+        outline_level = toc_titles[0].style.element.get_or_add_pPr().find(
+            qn("w:outlineLvl")
+        )
+        self.assertIsNotNone(outline_level)
+        self.assertEqual(outline_level.get(qn("w:val")), "9")
+        preliminary_text = [paragraph.text for paragraph in document.paragraphs]
+        self.assertFalse(
+            any(heading in preliminary_text for heading in integral.EXPECTED_HEADINGS)
+        )
+        self.assertEqual(marker.text, "__LISTA_SIGLAS__")
 
     def test_nitrogen_contrast_table_supports_positive_negative_and_zero(self) -> None:
         context = {

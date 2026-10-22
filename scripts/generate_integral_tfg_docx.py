@@ -137,6 +137,9 @@ EXPECTED_HEADINGS = [
     "Apéndice F. Trazabilidad de la verificación independiente Python–SimaPro",
 ]
 
+TOC_STYLE_NAME = "Título de contenido"
+TOC_INSTRUCTION = ' TOC \\o "1-3" \\h \\z \\u '
+
 REQUIRED_REFERENCE_KEYS = {
     "Arfelli2023",
     "Asman1998",
@@ -1311,6 +1314,114 @@ def add_oriented_section(document: Document, orientation: WD_ORIENT):
     return section
 
 
+def add_page_field(paragraph) -> None:
+    """Inserta un campo PAGE nativo de Word con un resultado de reserva visible."""
+
+    paragraph.clear()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    paragraph.paragraph_format.space_before = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(0)
+    run = paragraph.add_run()
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instruction = OxmlElement("w:instrText")
+    instruction.set(qn("xml:space"), "preserve")
+    instruction.text = " PAGE "
+    separate = OxmlElement("w:fldChar")
+    separate.set(qn("w:fldCharType"), "separate")
+    result = OxmlElement("w:t")
+    result.text = "1"
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    for element in (begin, instruction, separate, result, end):
+        run._r.append(element)
+
+
+def enable_automatic_field_updates(document: Document) -> None:
+    """Solicita a Word actualizar campos al abrir el documento."""
+
+    settings = document.settings.element
+    update_fields = settings.find(qn("w:updateFields"))
+    if update_fields is None:
+        update_fields = OxmlElement("w:updateFields")
+        settings.append(update_fields)
+    update_fields.set(qn("w:val"), "true")
+
+
+def add_native_table_of_contents(document: Document) -> None:
+    """Inserta una tabla de contenido Word actualizable con niveles 1–3."""
+
+    if TOC_STYLE_NAME not in document.styles:
+        toc_title_style = document.styles.add_style(
+            TOC_STYLE_NAME, WD_STYLE_TYPE.PARAGRAPH
+        )
+        toc_title_style.base_style = document.styles["Heading 1"]
+        style_properties = toc_title_style.element.get_or_add_pPr()
+        outline_level = style_properties.find(qn("w:outlineLvl"))
+        if outline_level is None:
+            outline_level = OxmlElement("w:outlineLvl")
+            style_properties.append(outline_level)
+        # El nivel 9 equivale a texto independiente del esquema: conserva la
+        # apariencia de título sin incluir «Contenido» dentro de su propio índice.
+        outline_level.set(qn("w:val"), "9")
+
+    title = document.add_paragraph("Contenido", style=TOC_STYLE_NAME)
+    title.paragraph_format.keep_with_next = True
+    field_paragraph = document.add_paragraph(style="Normal")
+    field_paragraph.paragraph_format.left_indent = Pt(0)
+    field_paragraph.paragraph_format.first_line_indent = Pt(0)
+
+    begin_run = field_paragraph.add_run()
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    begin.set(qn("w:dirty"), "true")
+    begin_run._r.append(begin)
+
+    instruction_run = field_paragraph.add_run()
+    instruction = OxmlElement("w:instrText")
+    instruction.set(qn("xml:space"), "preserve")
+    instruction.text = TOC_INSTRUCTION
+    instruction_run._r.append(instruction)
+
+    separator_run = field_paragraph.add_run()
+    separator = OxmlElement("w:fldChar")
+    separator.set(qn("w:fldCharType"), "separate")
+    separator_run._r.append(separator)
+
+    placeholder_run = field_paragraph.add_run(
+        "La tabla de contenido se actualizará automáticamente al abrir el documento en Microsoft Word."
+    )
+    placeholder_run.italic = True
+
+    end_run = field_paragraph.add_run()
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    end_run._r.append(end)
+    enable_automatic_field_updates(document)
+
+
+def configure_page_numbering(document: Document) -> None:
+    """Numera el integral de forma continua y oculta el número solo en portada."""
+
+    if not document.sections:
+        raise RuntimeError("El documento integral no contiene secciones.")
+    first_section = document.sections[0]
+    first_section.different_first_page_header_footer = True
+    first_page_header = first_section.first_page_header
+    first_page_header.is_linked_to_previous = False
+    first_page_header.paragraphs[0].text = PROVISIONAL_LABEL
+    first_page_header.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+    first_page_footer = first_section.first_page_footer
+    first_page_footer.is_linked_to_previous = False
+    first_page_footer.paragraphs[0].clear()
+
+    first_footer = first_section.footer
+    first_footer.is_linked_to_previous = False
+    add_page_field(first_footer.paragraphs[0])
+    for section in document.sections[1:]:
+        section.footer.is_linked_to_previous = True
+
+
 def add_figure(
     document: Document,
     counters: EditorialCounters,
@@ -1897,9 +2008,7 @@ def add_preliminaries(document: Document):
             "El alcance provisional permite interpretar de forma conjunta la caracterización experimental, el inventario del ciclo de vida, las emisiones estimadas y los indicadores de impacto, sin atribuir carácter definitivo a la comparación entre alternativas.",
         ],
     )
-    document.add_heading("Contenido", level=1)
-    for heading in EXPECTED_HEADINGS:
-        document.add_paragraph(heading, style="Normal")
+    add_native_table_of_contents(document)
     marker = document.add_paragraph("__LISTA_SIGLAS__")
     marker.paragraph_format.page_break_before = True
     return marker
@@ -3355,6 +3464,7 @@ def build_document() -> tuple[int, int, int, int]:
         "La clasificación A indica concordancia exacta o dentro de la precisión mostrada; B indica una diferencia explicable por precisión o redondeo. En CO₂ fósil y CH₄ fósil la clasificación se limita al factor inspeccionado porque no se ejecutó un proceso unitario independiente.",
     )
     populate_acronym_list(document, acronym_marker)
+    configure_page_numbering(document)
     finalize_document_format(document, profile)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     document.save(OUT_DOCX)
@@ -3498,6 +3608,39 @@ def validate_document(
 
     document = Document(str(OUT_DOCX))
     text = all_document_text(document)
+    toc_instruction_texts = [
+        node.text or ""
+        for paragraph in document.paragraphs
+        for node in paragraph._p.iter(qn("w:instrText"))
+        if "TOC" in (node.text or "")
+    ]
+    update_fields = document.settings.element.find(qn("w:updateFields"))
+    toc_title_paragraphs = [
+        paragraph
+        for paragraph in document.paragraphs
+        if paragraph.text.strip() == "Contenido"
+    ]
+    footer_instruction_texts: list[str] = []
+    footer_parts_seen: set[str] = set()
+    for section in document.sections:
+        footer = section.footer
+        footer_part = str(footer.part.partname)
+        if footer_part in footer_parts_seen:
+            continue
+        footer_parts_seen.add(footer_part)
+        footer_instruction_texts.extend(
+            node.text or ""
+            for paragraph in footer.paragraphs
+            for node in paragraph._p.iter(qn("w:instrText"))
+        )
+    first_page_footer_has_page = any(
+        (node.text or "").strip() == "PAGE"
+        for paragraph in document.sections[0].first_page_footer.paragraphs
+        for node in paragraph._p.iter(qn("w:instrText"))
+    )
+    first_page_header_text = "\n".join(
+        paragraph.text for paragraph in document.sections[0].first_page_header.paragraphs
+    )
     listed_acronyms, acronym_paragraphs = acronym_list_state(document)
     non_list_text = "\n".join(acronym_paragraphs)
     academic_text = non_list_text
@@ -3709,6 +3852,26 @@ def validate_document(
         ("El primer objetivo específico se conserva literalmente", OBJECTIVE_SPECIFIC_1 in text),
         ("El segundo objetivo específico se conserva literalmente", OBJECTIVE_SPECIFIC_2 in text),
         ("La etiqueta PROVISIONAL M1–M2 es visible", PROVISIONAL_LABEL in text),
+        (
+            "El índice es un campo Word navegable y actualizable con niveles 1–3",
+            len(toc_instruction_texts) == 1
+            and 'TOC \\o "1-3" \\h \\z \\u' in toc_instruction_texts[0]
+            and update_fields is not None
+            and update_fields.get(qn("w:val")) == "true"
+            and len(toc_title_paragraphs) == 1
+            and toc_title_paragraphs[0].style.name == TOC_STYLE_NAME
+            and all(
+                heading not in paragraph_texts[content_index + 1 : list_index]
+                for heading in EXPECTED_HEADINGS
+            ),
+        ),
+        (
+            "La numeración de página es continua y la portada no muestra número",
+            any(value.strip() == "PAGE" for value in footer_instruction_texts)
+            and document.sections[0].different_first_page_header_footer
+            and PROVISIONAL_LABEL in first_page_header_text
+            and not first_page_footer_has_page,
+        ),
         (
             "La portada identifica una fecha editorial provisional coherente",
             f"Versión provisional actualizada en {COVER_VERSION_DATE}" in text
